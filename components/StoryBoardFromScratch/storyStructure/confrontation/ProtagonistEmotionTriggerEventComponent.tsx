@@ -98,7 +98,7 @@ const ProtagonistEmotionTriggerEventComponent: React.FC<ProtagonistEmotionTrigge
 
             Return your response in a JSON format with the following keys:
             suggestions(array of strings, These are suggestions to the question {question}) and 
-            suggestedCharacters(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string)). 
+            suggestedCharacters(array of objects with keys name(string), backstory(string), role(string), disabled(boolean, set this to false always) & relationshipToProtagonist(string)). 
             Please ensure that only the json or javascript object with suggestions and suggestedCharacters keys only is returned.
             Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                   
             Ensure you response is a json object string, we need to avoid the SyntaxError: Unexpected token error after parsing the json response.
@@ -177,7 +177,8 @@ const ProtagonistEmotionTriggerEventComponent: React.FC<ProtagonistEmotionTrigge
                 emotionTriggerEvent: emotionTriggerEventPayload,
                 storyId: initialStory?.id,
                 confrontationStep: 3,
-                howCharacterOvercomeObstacleSuggestions: response?.suggestions
+                howCharacterOvercomeObstacleSuggestions: response?.suggestions,
+                suggestedCharacters: response?.suggestedCharacters
             }, selectedCharacter?.id);
     
             refetch();    
@@ -253,6 +254,7 @@ const ProtagonistEmotionTriggerEventComponent: React.FC<ProtagonistEmotionTrigge
         </Sheet>
 
         <CharacterSuggestionsModal
+            refetch={refetch}
             openCharacterSuggestionsModal={openCharacterSuggestionsModal}
             setOpenCharacterSuggestionsModal={setOpenCharacterSuggestionsModal}
             setAdditionalCharacterSuggestions={setAdditionalCharacterSuggestions}

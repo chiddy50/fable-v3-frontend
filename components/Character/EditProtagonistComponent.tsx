@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Sheet,
     SheetContent,
@@ -10,7 +10,7 @@ import {
     SheetTrigger,
   } from "@/components/ui/sheet";
 import Image from 'next/image';
-import { CheckCircle2, Cog } from 'lucide-react';
+import { CheckCircle2, Cog, Save } from 'lucide-react';
 import { CharacterInterface } from '@/interfaces/CharacterInterface';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import {
@@ -26,22 +26,172 @@ import { facialHairSuggestions, hairLengths, hairQuirks, hairTextures, intellige
 import { Button } from '../ui/button';
 import { ReusableCombobox } from '../ReusableCombobox';
 import { SuspenseTechniqueInterface } from '@/interfaces/SuspenseTechniqueInterface';
+import { toast } from 'sonner';
+import axios from 'axios';
+import { updateCharacter } from '@/services/request';
+import { hidePageLoader, showPageLoader } from '@/lib/helper';
 
 interface EditProtagonistComponentProps {
     selectedCharacter: CharacterInterface;
     modalOpen: boolean;
-    setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;    
+    setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;  
+    refetch: ()   => void;
 }
 
 const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
     setModalOpen,
     modalOpen,
-    selectedCharacter
-
+    selectedCharacter,
+    refetch
 }) => {
-    const [age, setAge] = useState<string>("");
-    const [gender, setGender] = useState<string>("");
+    // PHYSICAL
+    const [age, setAge] = useState<string>(selectedCharacter?.age ?? "");
+    const [gender, setGender] = useState<string>(selectedCharacter?.gender ?? "");
+    const [skinTone, setSkinTone] = useState<string>(selectedCharacter?.skinTone ?? "");
+    const [hairTexture, setHairTexture] = useState<string>(selectedCharacter?.hairTexture ?? "");
+    const [hairLength, setHairLength] = useState<string>(selectedCharacter?.hairLength ?? "");
+    const [hairQuirk, setHairQuirk] = useState<string>(selectedCharacter?.hairQuirk ?? "");
+    const [facialHair, setFacialHair] = useState<string>(selectedCharacter?.facialHair ?? "");
+    const [extraDescription, setExtraDescription] = useState<string>(selectedCharacter?.extraDescription ?? "");    
+
+    // BACKGROUND
+    const [angst, setAngst] = useState<string>(selectedCharacter?.angst ?? "");
+    const [backstory, setBackstory] = useState<string>(selectedCharacter?.backstory ?? "");
+    
+
     const [intelligence, setIntelligence] = useState<SuspenseTechniqueInterface>(null);
+
+    useEffect(() => {
+        // PHYSICAL
+        setAge(selectedCharacter?.age ?? "")
+        setGender(selectedCharacter?.gender ?? "");
+        setSkinTone(selectedCharacter?.skinTone ?? "");
+        setHairTexture(selectedCharacter?.hairTexture ?? "");
+        setHairLength(selectedCharacter?.hairLength ?? "");
+        setHairQuirk(selectedCharacter?.hairQuirk ?? "");
+        setFacialHair(selectedCharacter?.facialHair ?? "");
+        setExtraDescription(selectedCharacter?.extraDescription ?? "");
+        
+        // BACKGROUND
+        setAngst(selectedCharacter?.angst ?? "");
+        setBackstory(selectedCharacter?.angst ?? "");
+        
+    }, [selectedCharacter])
+
+    const generateImage = async () => {
+        if (selectedCharacter?.imageUrl) {
+            return
+        }
+
+        let validated = validatePhysicalFeatures();
+        if (!validated) {
+            return;
+        }
+
+        let facialFeatures = extraDescription ? `${extraDescription} ` : ``
+
+        try {
+            const prompt = `ultra realistic photograph, profile shot or character headshot of a character and the character is facing the camera. Facial features ${facialFeatures} age: ${age}, gender: ${gender}, skin tone: ${skinTone}, hair length: ${hairLength}, facial hair: ${facialHair}, hair quick: ${hairQuirk}, hair texture: ${hairTexture}, backstory: ${selectedCharacter.backstory},`;             
+
+            showPageLoader();
+            let res = await axios.post(
+                `https://modelslab.com/api/v6/images/text2img`, 
+                {
+                    "key": process.env.NEXT_PUBLIC_STABLE_FUSION_API_KEY,
+                    "model_id": process.env.NEXT_PUBLIC_IMAGE_MODEL ?? "flux",
+                    "prompt": prompt,
+                    "negative_prompt": "painting, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, deformed, ugly, blurry, bad anatomy, bad proportions, extra limbs, cloned face, skinny, glitchy, double torso, extra arms, extra hands, mangled fingers, missing lips, ugly face, distorted face, extra legs, anime",
+                    "width": "512",
+                    "height": "512",
+                    "samples": "1",
+                    "num_inference_steps": "30",
+                    "seed": null,
+                    "guidance_scale": 7.5,
+                    "scheduler": "UniPCMultistepScheduler",
+                    "webhook": null,
+                    "track_id": null
+                }, 
+                {                    
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },                
+                }
+            );
+            console.log(res?.data);
+            console.log({
+                output: res?.data?.output[0], 
+                future_links: res?.data?.future_links[0]
+            });
+
+            let imageUrl = res?.data?.output[0] ?? res?.data?.future_links[0];
+
+            if (imageUrl && selectedCharacter?.id) {                 
+                let characterUpdated = await updateCharacter({
+                    imageUrl: imageUrl,
+                    storyId: selectedCharacter?.storyId
+                }, selectedCharacter?.id);
+                refetch();
+            }
+
+
+        } catch (error) {
+            console.error(error);            
+        }finally{
+            hidePageLoader()
+        }
+    }
+
+    const validatePhysicalFeatures = () => { 
+        console.log({
+            age, gender, skinTone, hairTexture, hairLength, hairQuirk, facialHair, extraDescription
+        });
+        
+        const validations = [
+            { condition: !age, message: "Kindly provide an age" },
+            { condition: !gender, message: "Kindly provide a gender" },
+            { condition: !skinTone, message: "Kindly provide a skin tone" },
+            { condition: !hairTexture, message: "Kindly provide a hair texture" },
+            { condition: !hairLength, message: "Kindly provide a hair length" },
+            { condition: !hairQuirk, message: "Kindly provide a hair quirk" },
+            { condition: !facialHair, message: "Kindly provide a facial hair" },
+        ];
+    
+        for (const { condition, message } of validations) {
+            if (condition) {
+                toast.error(message);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    const saveBackground = async () => {
+        if (!angst) {
+            toast.error("Kindly provide the conflict & angst");
+            return;
+        }
+        if (!backstory) {
+            toast.error("Kindly provide the backstory");
+            return;
+        }
+
+        try {
+            showPageLoader()
+            let characterUpdated = await updateCharacter({
+                angst,
+                backstory,
+                storyId: selectedCharacter?.storyId
+            }, selectedCharacter?.id);
+            refetch();
+        } catch (error) {
+            console.error(error);            
+        }finally{
+            hidePageLoader()
+        }
+    }
+
+    // const generateImage = () => { }
     
     return (
         <Sheet open={modalOpen} onOpenChange={setModalOpen}>
@@ -61,7 +211,7 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
                         </div>
                         <div>
                             <SheetTitle className='font-bold text-xl'>{selectedCharacter?.name}</SheetTitle>
-                            <p className='text-md'>{selectedCharacter?.role}</p>
+                            <p className='text-md'>{selectedCharacter?.isProtagonist ? "Protagonist & " : ""}{selectedCharacter?.role}</p>
                         </div>
                     </div>
                     <SheetDescription> </SheetDescription>
@@ -81,23 +231,22 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
 
                                         {/* AGE */}
                                         <div className='flex flex-col gap-1'>
-                                            <span className='text-gray-900 text-md font-bold'>Age</span>
-                                            {/* <span className='text-xs block'>{selectedCharacter?.age}</span> */}
+                                            <p className='text-gray-900 text-xs font-bold'>Age</p>
                                             <input type="text" onChange={(e) => setAge(e.target.value)} 
-                                            value={selectedCharacter?.age} className='p-3 rounded-lg text-xs border outline-none' />
+                                            value={age} className='p-3 rounded-lg text-xs border outline-none' />
                                         </div>
 
                                         {/* GENDER */}
                                         <div className='flex flex-col gap-1'>
-                                            <span className='text-gray-900 text-md font-bold'>Gender</span>
+                                            <p className='text-gray-900 text-xs font-bold'>Gender</p>
                                             <input type="text" onChange={(e) => setGender(e.target.value)}
-                                            value={selectedCharacter?.gender} className='p-3 rounded-lg text-xs border outline-none' />
+                                            value={gender} className='p-3 rounded-lg text-xs border outline-none' />
                                         </div>
 
                                         {/* SKIN TONE */}
                                         <div className='flex flex-col gap-1'>
-                                            <span className='text-gray-900 text-md font-bold'>Skin Tone</span>
-                                            <Select>
+                                            <p className='text-gray-900 text-xs font-bold'>Skin Tone</p>
+                                            <Select onValueChange={value => setSkinTone(value)}>
                                                 <SelectTrigger className="w-full outline-none text-xs">
                                                     <SelectValue placeholder="Choose skin tone" />
                                                 </SelectTrigger>
@@ -116,8 +265,8 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
 
                                         {/* HAIR TEXTURE */}
                                         <div className='flex flex-col gap-1'>
-                                            <span className='text-gray-900 text-md font-bold'>Hair Texture</span>
-                                            <Select>
+                                            <p className='text-gray-900 text-xs font-bold'>Hair Texture</p>
+                                            <Select onValueChange={value => setHairTexture(value)}>
                                                 <SelectTrigger className="w-full outline-none text-xs">
                                                     <SelectValue placeholder="Choose hair texture" />
                                                 </SelectTrigger>
@@ -135,8 +284,8 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
                                         </div>
                                         {/* HAIR LENGTH */}
                                         <div className='flex flex-col gap-1'>
-                                            <span className='text-gray-900 text-md font-bold'>Hair Length</span>
-                                            <Select>
+                                            <p className='text-gray-900 text-xs font-bold'>Hair Length</p>
+                                            <Select onValueChange={value => setHairLength(value)}>
                                                 <SelectTrigger className="w-full outline-none text-xs">
                                                     <SelectValue placeholder="Choose hair length" />
                                                 </SelectTrigger>
@@ -155,8 +304,8 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
 
                                         {/* HAIR QUICK */}
                                         <div className='flex flex-col gap-1'>
-                                            <span className='text-gray-900 text-md font-bold'>Hair Quirk</span>
-                                            <Select>
+                                            <p className='text-gray-900 text-xs font-bold'>Hair Quirk</p>
+                                            <Select onValueChange={value => setHairQuirk(value)}>
                                                 <SelectTrigger className="w-full outline-none text-xs">
                                                     <SelectValue placeholder="Choose hair quirk" />
                                                 </SelectTrigger>
@@ -173,10 +322,10 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
                                             </Select>
                                         </div>
 
-                                        {/* HAIR QUICK */}
+                                        {/* FACIAL HAIR */}
                                         <div className='flex flex-col gap-1 col-span-2'>
-                                            <span className='text-gray-900 text-md font-bold'>Facial Hair</span>
-                                            <Select>
+                                            <p className='text-gray-900 text-xs font-bold'>Facial Hair</p>
+                                            <Select onValueChange={value => setFacialHair(value)}>
                                                 <SelectTrigger className="w-full outline-none text-xs">
                                                     <SelectValue placeholder="Choose facial hair" />
                                                 </SelectTrigger>
@@ -193,13 +342,24 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
                                             </Select>
                                         </div>
 
+                                        <div className='flex flex-col gap-1 col-span-2'>
+                                            <p className='text-gray-900 text-xs font-bold'>Extra Description</p>
+                                            <textarea className='w-full p-5 border rounded-lg text-xs outline-none' onChange={e => setExtraDescription(e.target.value)} rows={3}/>
+                                        </div>
+
                                         
                                     </div>
 
-                                    <Button className='w-full mt-4'>
-                                        Generate Image
-                                        <Cog className='w-4 h-4 ml-2' />
-                                    </Button>
+                                    <div className="grid grid-cols-2 gap-5 mt-4">
+                                        <Button onClick={generateImage} disabled={selectedCharacter?.imageUrl ? true : false} className='w-full col-span-1'>
+                                            Generate Image
+                                            <Cog className='w-4 h-4 ml-2' />
+                                        </Button>
+
+                                        <Button className='w-full col-span-1 border border-custom_green text-custom_green bg-[#d4ffd2] hover:bg-[#d4ffd2]'>
+                                            Save
+                                        </Button>
+                                    </div>
 
                                     <div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border">
                                         <span className="text-xs text-red-600">
@@ -216,22 +376,22 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
                                 
                                 <AccordionContent>
                                     {/* BACKSTORY */}
-                                    <div className='mt-3 bg-white p-5 border border-custom_light_green rounded-2xl'>
-                                        <div className='text-gray-900 text-md mb-2 font-bold'>Backstory</div>
-                                        <span className='text-xs block text-gray-500'>{selectedCharacter?.backstory}</span>
+                                    <div className="mt-5">
+                                        <p className='text-gray-900 text-md mb-1 text-xs font-bold'>Backstory</p>
+                                        <textarea className='w-full p-5 border rounded-lg text-xs outline-none' value={backstory} onChange={e => setBackstory(e.target.value)} rows={3}/>
                                     </div>
 
-                                    {/* CONFLICT & ANGST */}
-                                    <div className='mt-3 bg-white p-5 border border-custom_light_green rounded-2xl'>
-                                        <span className='text-gray-900 text-md font-bold'>Conflict & Angst</span>
-                                        <span className='text-xs block text-gray-500 capitalize'>{selectedCharacter?.angst}</span>
+
+                                    {/* CONFLICT & ANGST */}    
+                                    <div className="mt-3">
+                                        <p className='text-gray-900 text-xs mt-3 mb-1 font-bold'>Conflict & Angst</p>
+                                        <textarea className='w-full p-5 border rounded-lg text-xs outline-none' value={angst} onChange={e => setAngst(e.target.value)} rows={3}/>
                                     </div>
 
-                                    {/* Relationships */}
-                                    {/* <span className='mt-3 block'>
-                                        <span className='text-gray-900 text-md font-bold'>Relationships</span>
-                                        <span className='text-xs block text-gray-500 capitalize'>{selectedCharacter?.relationships?.join(', ')}</span>
-                                    </span> */}
+                                    <Button onClick={saveBackground} className='w-full mt-3 border border-custom_green text-custom_green bg-[#d4ffd2] hover:bg-[#d4ffd2]'>
+                                        Save
+                                        <Save className='w-4 h-4 ml-2' />
+                                    </Button>
                                 </AccordionContent>                        
                             </AccordionItem>
 

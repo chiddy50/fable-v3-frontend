@@ -14,14 +14,13 @@ import { toast } from 'sonner';
 import { makeRequest } from '@/services/request';
 import { getAuthToken } from '@dynamic-labs/sdk-react-core';
 
-interface CharacterSuggestionsModalProps {
+interface AddNewCharacterComponentProps {
     openAddCharacterModal: boolean;
     setOpenAddCharacterModal: React.Dispatch<React.SetStateAction<boolean>>;   
     storyId: string;
 }
 
-
-const AddNewCharacterComponent: React.FC<CharacterSuggestionsModalProps> = ({
+const AddNewCharacterComponent: React.FC<AddNewCharacterComponentProps> = ({
     openAddCharacterModal,
     setOpenAddCharacterModal,
     storyId
@@ -57,6 +56,11 @@ const AddNewCharacterComponent: React.FC<CharacterSuggestionsModalProps> = ({
                 token: dynamicJwtToken,
             });
             console.log(response);
+            if (response) {
+                toast.success(`${name} has been added as a character`)
+                setOpenAddCharacterModal(false)
+                clearForm()
+            }
             
         } catch (error) {
             console.error(error);            
@@ -64,6 +68,13 @@ const AddNewCharacterComponent: React.FC<CharacterSuggestionsModalProps> = ({
             setSaving(false);            
         }
 
+    }
+
+    const clearForm = () => {
+        setName("")
+        setRole("")
+        setBackstory("")
+        setRelationshipToProtagonist("")        
     }
 
     const validateForm = () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Sheet,
     SheetContent,
@@ -22,23 +22,132 @@ import {
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select"
-import { hairLengths, hairQuirks, hairTextures, intelligenceOptions, skinTones } from '@/lib/data';
+import { facialHairSuggestions, hairLengths, hairQuirks, hairTextures, intelligenceOptions, skinTones } from '@/lib/data';
 import { Button } from '../ui/button';
+import { ReusableCombobox } from '../ReusableCombobox';
+import { SuspenseTechniqueInterface } from '@/interfaces/SuspenseTechniqueInterface';
+import { toast } from 'sonner';
+import axios from 'axios';
+import { updateCharacter } from '@/services/request';
 
 interface EditSupportingCharacterComponentProps {
     selectedCharacter: CharacterInterface;
     modalOpen: boolean;
-    setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;    
+    setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;  
+    refetch: ()   => void;
 }
 
 const EditSupportingCharacterComponent: React.FC<EditSupportingCharacterComponentProps> = ({
     setModalOpen,
     modalOpen,
-    selectedCharacter
-
+    selectedCharacter,
+    refetch
 }) => {
-    const [age, setAge] = useState<string>("");
-    const [gender, setGender] = useState<string>("");
+    // PHYSICAL
+    const [age, setAge] = useState<string>(selectedCharacter?.age ?? "");
+    const [gender, setGender] = useState<string>(selectedCharacter?.gender ?? "");
+    const [skinTone, setSkinTone] = useState<string>(selectedCharacter?.skinTone ?? "");
+    const [hairTexture, setHairTexture] = useState<string>(selectedCharacter?.hairTexture ?? "");
+    const [hairLength, setHairLength] = useState<string>(selectedCharacter?.hairLength ?? "");
+    const [hairQuirk, setHairQuirk] = useState<string>(selectedCharacter?.hairQuirk ?? "");
+    const [facialHair, setFacialHair] = useState<string>(selectedCharacter?.facialHair ?? "");
+    const [extraDescription, setExtraDescription] = useState<string>(selectedCharacter?.extraDescription ?? "");    
+
+    const [intelligence, setIntelligence] = useState<SuspenseTechniqueInterface>(null);
+
+    useEffect(() => {
+        setAge(selectedCharacter?.age ?? "")
+        setGender(selectedCharacter?.gender ?? "");
+        setSkinTone(selectedCharacter?.skinTone ?? "");
+        setHairTexture(selectedCharacter?.hairTexture ?? "");
+        setHairLength(selectedCharacter?.hairLength ?? "");
+        setHairQuirk(selectedCharacter?.hairQuirk ?? "");
+        setFacialHair(selectedCharacter?.facialHair ?? "");
+        setExtraDescription(selectedCharacter?.extraDescription ?? "");  
+    }, [selectedCharacter])
+
+    const generateImage = async () => {
+        if (selectedCharacter?.imageUrl) {
+            return
+        }
+
+        let validated = validatePhysicalFeatures();
+        if (!validated) {
+            return;
+        }
+
+        let facialFeatures = extraDescription ? `${extraDescription} ` : ``
+
+        try {
+            const prompt = `ultra realistic photograph, profile shot or character headshot of a character and the character is facing the camera. Facial features ${facialFeatures} age: ${age}, gender: ${gender}, skin tone: ${skinTone}, hair length: ${hairLength}, facial hair: ${facialHair}, hair quick: ${hairQuirk}, hair texture: ${hairTexture}, backstory: ${selectedCharacter.backstory},`;             
+
+            let res = await axios.post(
+                `https://modelslab.com/api/v6/images/text2img`, 
+                {
+                    "key": process.env.NEXT_PUBLIC_STABLE_FUSION_API_KEY,
+                    "model_id": "flux",
+                    "prompt": prompt,
+                    "negative_prompt": "painting, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, deformed, ugly, blurry, bad anatomy, bad proportions, extra limbs, cloned face, skinny, glitchy, double torso, extra arms, extra hands, mangled fingers, missing lips, ugly face, distorted face, extra legs, anime",
+                    "width": "512",
+                    "height": "512",
+                    "samples": "1",
+                    "num_inference_steps": "30",
+                    "seed": null,
+                    "guidance_scale": 7.5,
+                    "scheduler": "UniPCMultistepScheduler",
+                    "webhook": null,
+                    "track_id": null
+                }, 
+                {                    
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },                
+                }
+            );
+            console.log(res?.data);
+            console.log(res?.data?.output[0]);
+            let imageUrl = res?.data?.output[0] ?? res?.data?.future_links[0];
+
+            if (imageUrl && selectedCharacter?.id) {                
+                let characterUpdated = await updateCharacter({
+                    imageUrl: res?.data?.output[0],
+                    storyId: selectedCharacter?.storyId
+                }, selectedCharacter?.id);
+            }
+
+            refetch();
+
+        } catch (error) {
+            console.error(error);            
+        }
+    }
+
+    const validatePhysicalFeatures = () => { 
+        console.log({
+            age, gender, skinTone, hairTexture, hairLength, hairQuirk, facialHair, extraDescription
+        });
+        
+        const validations = [
+            { condition: !age, message: "Kindly provide an age" },
+            { condition: !gender, message: "Kindly provide a gender" },
+            { condition: !skinTone, message: "Kindly provide a skin tone" },
+            { condition: !hairTexture, message: "Kindly provide a hair texture" },
+            { condition: !hairLength, message: "Kindly provide a hair length" },
+            { condition: !hairQuirk, message: "Kindly provide a hair quirk" },
+            { condition: !facialHair, message: "Kindly provide a facial hair" },
+        ];
+    
+        for (const { condition, message } of validations) {
+            if (condition) {
+                toast.error(message);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // const generateImage = () => { }
     
     return (
         <Sheet open={modalOpen} onOpenChange={setModalOpen}>
@@ -46,7 +155,7 @@ const EditSupportingCharacterComponent: React.FC<EditSupportingCharacterComponen
                 <SheetHeader  className=''>
                     <div className='flex items-center gap-5 mb-7'>
 
-                        <div className='with-linear-gradient w-[180px] h-[180px] rounded-full'>
+                        <div className='with-linear-gradient rounded-full'>
                             <Image
                                 src={selectedCharacter?.imageUrl ?? '/user-image.jpeg'}
                                 alt={selectedCharacter?.name || 'character image'}
@@ -58,7 +167,7 @@ const EditSupportingCharacterComponent: React.FC<EditSupportingCharacterComponen
                         </div>
                         <div>
                             <SheetTitle className='font-bold text-xl'>{selectedCharacter?.name}</SheetTitle>
-                            <p className='text-sm'>{selectedCharacter?.role}</p>
+                            <p className='text-md'>{selectedCharacter?.isProtagonist ? "Protagonist & " : ""}{selectedCharacter?.role}</p>
                         </div>
                     </div>
                     <SheetDescription> </SheetDescription>
@@ -68,8 +177,8 @@ const EditSupportingCharacterComponent: React.FC<EditSupportingCharacterComponen
                         <p className='text-xs'>{selectedCharacter?.role}</p>
                     </div> */}
 
-                    <div className="bg-white p-5 rounded-2xl">
-                    <Accordion type="single" className='' collapsible>
+                    <div className="bg-gray-50 p-5 rounded-2xl">
+                        <Accordion type="single" className='' collapsible>
                             <AccordionItem value="item-1 " className='mb-3 border-none'>
                                 <AccordionTrigger className='text-sm bg-custom_green px-4 rounded-2xl text-gray-100'>Physical</AccordionTrigger>
                                 
@@ -78,23 +187,23 @@ const EditSupportingCharacterComponent: React.FC<EditSupportingCharacterComponen
 
                                         {/* AGE */}
                                         <div className='flex flex-col gap-1'>
-                                            <span className='text-gray-900 text-md font-bold'>Age</span>
-                                            {/* <span className='text-xs block'>{selectedCharacter?.age}</span> */}
+                                            <p className='text-gray-900 text-xs font-bold'>Age</p>
+                                            {/* <p className='text-xs block'>{selectedCharacter?.age}</span> */}
                                             <input type="text" onChange={(e) => setAge(e.target.value)} 
-                                            value={selectedCharacter?.age} className='p-3 rounded-lg text-xs border outline-none' />
+                                            value={age} className='p-3 rounded-lg text-xs border outline-none' />
                                         </div>
 
                                         {/* GENDER */}
                                         <div className='flex flex-col gap-1'>
-                                            <span className='text-gray-900 text-md font-bold'>Gender</span>
+                                            <p className='text-gray-900 text-xs font-bold'>Gender</p>
                                             <input type="text" onChange={(e) => setGender(e.target.value)}
-                                            value={selectedCharacter?.gender} className='p-3 rounded-lg text-xs border outline-none' />
+                                            value={gender} className='p-3 rounded-lg text-xs border outline-none' />
                                         </div>
 
                                         {/* SKIN TONE */}
                                         <div className='flex flex-col gap-1'>
-                                            <span className='text-gray-900 text-md font-bold'>Skin Tone</span>
-                                            <Select>
+                                            <p className='text-gray-900 text-xs font-bold'>Skin Tone</p>
+                                            <Select onValueChange={value => setSkinTone(value)}>
                                                 <SelectTrigger className="w-full outline-none text-xs">
                                                     <SelectValue placeholder="Choose skin tone" />
                                                 </SelectTrigger>
@@ -113,8 +222,8 @@ const EditSupportingCharacterComponent: React.FC<EditSupportingCharacterComponen
 
                                         {/* HAIR TEXTURE */}
                                         <div className='flex flex-col gap-1'>
-                                            <span className='text-gray-900 text-md font-bold'>Hair Texture</span>
-                                            <Select>
+                                            <p className='text-gray-900 text-xs font-bold'>Hair Texture</p>
+                                            <Select onValueChange={value => setHairTexture(value)}>
                                                 <SelectTrigger className="w-full outline-none text-xs">
                                                     <SelectValue placeholder="Choose hair texture" />
                                                 </SelectTrigger>
@@ -132,8 +241,8 @@ const EditSupportingCharacterComponent: React.FC<EditSupportingCharacterComponen
                                         </div>
                                         {/* HAIR LENGTH */}
                                         <div className='flex flex-col gap-1'>
-                                            <span className='text-gray-900 text-md font-bold'>Hair Length</span>
-                                            <Select>
+                                            <p className='text-gray-900 text-xs font-bold'>Hair Length</p>
+                                            <Select onValueChange={value => setHairLength(value)}>
                                                 <SelectTrigger className="w-full outline-none text-xs">
                                                     <SelectValue placeholder="Choose hair length" />
                                                 </SelectTrigger>
@@ -152,8 +261,8 @@ const EditSupportingCharacterComponent: React.FC<EditSupportingCharacterComponen
 
                                         {/* HAIR QUICK */}
                                         <div className='flex flex-col gap-1'>
-                                            <span className='text-gray-900 text-md font-bold'>Hair Quirk</span>
-                                            <Select>
+                                            <p className='text-gray-900 text-xs font-bold'>Hair Quirk</p>
+                                            <Select onValueChange={value => setHairQuirk(value)}>
                                                 <SelectTrigger className="w-full outline-none text-xs">
                                                     <SelectValue placeholder="Choose hair quirk" />
                                                 </SelectTrigger>
@@ -169,12 +278,45 @@ const EditSupportingCharacterComponent: React.FC<EditSupportingCharacterComponen
                                                 </SelectContent>
                                             </Select>
                                         </div>
+
+                                        {/* FACIAL HAIR */}
+                                        <div className='flex flex-col gap-1 col-span-2'>
+                                            <p className='text-gray-900 text-xs font-bold'>Facial Hair</p>
+                                            <Select onValueChange={value => setFacialHair(value)}>
+                                                <SelectTrigger className="w-full outline-none text-xs">
+                                                    <SelectValue placeholder="Choose facial hair" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        <SelectLabel>Facial Hair</SelectLabel>
+                                                        {
+                                                            facialHairSuggestions.map((suggestion: string, index: number) => (
+                                                                <SelectItem key={index} value={suggestion}>{suggestion}</SelectItem>
+                                                            ))
+                                                        }
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                        <div className='flex flex-col gap-1 col-span-2'>
+                                            <p className='text-gray-900 text-xs font-bold'>Extra Description</p>
+                                            <textarea className='w-full p-5 border rounded-lg text-xs outline-none' onChange={e => setExtraDescription(e.target.value)} rows={3}/>
+                                        </div>
+
+                                        
                                     </div>
 
-                                    <Button className='w-full mt-4'>
-                                        Generate Image
-                                        <Cog className='w-4 h-4 ml-2' />
-                                    </Button>
+                                    <div className="grid grid-cols-2 gap-5 mt-4">
+                                        <Button onClick={generateImage} disabled={selectedCharacter?.imageUrl ? true : false} className='w-full col-span-1'>
+                                            Generate Image
+                                            <Cog className='w-4 h-4 ml-2' />
+                                        </Button>
+
+                                        <Button className='w-full col-span-1 border border-custom_green text-custom_green bg-[#d4ffd2] hover:bg-[#d4ffd2]'>
+                                            Save
+                                        </Button>
+                                    </div>
 
                                     <div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border">
                                         <span className="text-xs text-red-600">
@@ -264,7 +406,7 @@ const EditSupportingCharacterComponent: React.FC<EditSupportingCharacterComponen
                                 
                                 <AccordionContent>
                                     {/* INTELLIGENCE */}
-                                    <div className='mt-3 flex flex-col gap-1'>
+                                    <div className='mt-5 flex flex-col gap-1'>
                                         <span className='text-gray-900 text-md font-bold'>Intelligence</span>
                                         <Select>
                                             <SelectTrigger className="w-full outline-none text-xs">
@@ -282,23 +424,6 @@ const EditSupportingCharacterComponent: React.FC<EditSupportingCharacterComponen
                                             </SelectContent>
                                         </Select>
                                     </div>                                    
-
-                                    {/* Weaknesses */}
-                                    <div className='mt-3 bg-white p-5 rounded-2xl border border-custom_light_green'>
-                                        <span className='text-gray-900 text-md font-bold'>Weaknesses</span>
-                                        <ul className='mt-2'>
-                                        {
-                                            selectedCharacter?.weaknesses?.map((weakness: string, index: number) => (
-                                            <li className='text-xs flex items-center gap-2 text-gray-500 mb-3 capitalize' key={index}> 
-                                                <div>
-                                                <CheckCircle2 className='text-custom_green'/>
-                                                </div>
-                                                <span>{weakness}</span>
-                                            </li>
-                                            ))
-                                        }
-                                        </ul>
-                                    </div>
 
                                     {/* Weaknesses */}
                                     <div className='mt-3 bg-white p-5 rounded-2xl border border-custom_light_green'>
@@ -363,3 +488,4 @@ const EditSupportingCharacterComponent: React.FC<EditSupportingCharacterComponen
 }
 
 export default EditSupportingCharacterComponent
+

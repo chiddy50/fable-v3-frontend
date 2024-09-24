@@ -35,8 +35,8 @@ export const updateCharacter = async (payload, characterId: string) => {
         });
 
         const json = await res.json();
-        if (json?.data?.story) {                
-            return true;                   
+        if (json?.data?.character) {                
+            return json?.data?.character;                   
         }
         return false;                   
     } catch (error) {
@@ -56,6 +56,8 @@ export const createCharacter = async (character: SuggestedCharacterInterface, st
                 storyId,
                 name: character.name,
                 role: character.role,
+                backstory: character.backstory,
+                disabled: true,
                 relationshipToProtagonist: character.relationshipToProtagonist,
                 isProtagonist: false,
             },

@@ -13,8 +13,17 @@ import { Button } from '../ui/button';
 import CharacterSuggestionsModal from './storyStructure/CharacterSuggestionsModal';
 import { SuggestedCharacterInterface } from '@/interfaces/CharacterInterface';
 import AddNewCharacterComponent from './storyStructure/AddNewCharacterComponent';
+import ViewAllCharactersComponent from './ViewAllCharactersComponent';
 
-
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+  } from "@/components/ui/dropdown-menu"
+import { Hints } from 'intro.js-react';
 
 interface CreatePlotComponentProps {
     initialStoryData: StoryInterface
@@ -22,6 +31,14 @@ interface CreatePlotComponentProps {
     currentPlotStep: number;
     refetch: () => void;
 }
+
+const hints = [
+    {
+      element: '.selector1',
+      hint: 'You can add & view characters here',
+      hintPosition: 'middle-middle',
+    }
+  ];
 
 const CreatePlotComponent: React.FC<CreatePlotComponentProps> = ({
     initialStoryData,
@@ -31,10 +48,12 @@ const CreatePlotComponent: React.FC<CreatePlotComponentProps> = ({
 }) => {
     
     const { refresh } = useRouter();
+    const [hintsEnabled, setHintsEnabled] = useState<boolean>(true);
 
     const [additionalCharacterSuggestions, setAdditionalCharacterSuggestions] = useState<SuggestedCharacterInterface[]>([]);
     const [openAddCharacterModal, setOpenAddCharacterModal] = useState<boolean>(false);
     const [openCharacterSuggestionsModal, setOpenCharacterSuggestionsModal] = useState<boolean>(false);
+    const [openViewCharactersModal, setOpenViewCharactersModal] = useState<boolean>(false);
   
     const [plotStep, setPlotStep] = useState<number>( currentPlotStep ? Number(currentPlotStep) : 1 );
     const [storySetting, setStorySetting] = useState<string>(initialStoryData?.setting ?? "");
@@ -164,17 +183,42 @@ const CreatePlotComponent: React.FC<CreatePlotComponentProps> = ({
                                     </>
                                 }
 
-                                {                                 
-                                    <div className='mt-4 flex gap-5'>
-                                        <Button size="sm" disabled={!initialStoryData.characters ? true : false}>View Characters</Button>
+                                <div className="flex">
+                                    <div className="border-custom_green py-2 px-5 border bg-gray-50 rounded-2xl text-custom_green">
+                                        <DropdownMenu>
+                                        <DropdownMenuTrigger className='selector1 text-xs'>Characters</DropdownMenuTrigger>
+                                        <DropdownMenuContent>
+                                            <DropdownMenuItem
+                                                onClick={() => setOpenViewCharactersModal(true)}                                            
+                                            >View Characters</DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                onClick={() => setOpenAddCharacterModal(true)}
+                                            
+                                            >Add Character</DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                onClick={() => setOpenCharacterSuggestionsModal(true)}                                         
+                                            >
+                                                Suggested Characters
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </div>
+                                </div>
+
+                                {/* {  
+                                    initialStoryData?.setting &&                               
+                                    <div className='mt-4 flex justify-between gap-5'>
+                                        <Button 
+                                        onClick={() => setOpenViewCharactersModal(true)}
+                                        size="sm" className='text-xs' disabled={!initialStoryData.characters ? true : false}>View Characters</Button>
                                         <Button 
                                         onClick={() => setOpenAddCharacterModal(true)}
-                                        size="sm" disabled={!initialStoryData.characters ? true : false}>Add Character</Button>
+                                        size="sm" className='text-xs' variant="outline" disabled={!initialStoryData.characters ? true : false}>Add Character</Button>
                                         <Button
                                         onClick={() => setOpenCharacterSuggestionsModal(true)} 
-                                        size="sm" disabled={!initialStoryData.characters ? true : false}>Suggested Characters</Button>
+                                        size="sm" className='text-xs' variant="outline" disabled={!initialStoryData.characters ? true : false}>Suggested Characters</Button>
                                     </div>
-                                }
+                                } */}
                             </div>
 
 
@@ -217,8 +261,9 @@ const CreatePlotComponent: React.FC<CreatePlotComponentProps> = ({
                                 />
                             }
 
-
+                            {/* CHARACTER SUGGESTIONS */}
                             <CharacterSuggestionsModal 
+                                refetch={refetch}
                                 initialStory={initialStoryData}
                                 openCharacterSuggestionsModal={openCharacterSuggestionsModal}
                                 setOpenCharacterSuggestionsModal={setOpenCharacterSuggestionsModal}
@@ -232,11 +277,25 @@ const CreatePlotComponent: React.FC<CreatePlotComponentProps> = ({
                                 setOpenAddCharacterModal={setOpenAddCharacterModal}
                                 storyId={initialStoryData?.id}
                             />
+
+                            {/* VIEW CHARACTERS */}
+                            <ViewAllCharactersComponent 
+                                openViewCharactersModal={openViewCharactersModal}
+                                setOpenViewCharactersModal={setOpenViewCharactersModal}
+                                initialStory={initialStoryData}
+                            />
+
+
                         </div>
 
                     </div>
                 </div>
             }
+
+            {/* <Hints
+            enabled={hintsEnabled}
+            hints={hints}            
+            /> */}
         </>
         
     )

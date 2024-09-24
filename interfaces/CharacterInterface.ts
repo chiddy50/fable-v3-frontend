@@ -49,6 +49,7 @@ export interface CharacterInterface {
     hairLength:                       string;
     hairQuirk:                        string;
     facialHair:                       string;
+    extraDescription:                      string;     
 
     age: string;  // Consider changing this to number if age should be numeric
     role: string;
@@ -58,7 +59,7 @@ export interface CharacterInterface {
     gender: string;                            
     personalityTraits: string[];
     motivations: string[];
-    backstory: string[];
+    backstory: string;
     angst: string;
     relationships: string[];
     relationshipsWithOtherCharacters: CharacterRelationship[];
@@ -73,6 +74,7 @@ export interface CharacterInterface {
 
 export interface SuggestedCharacterInterface {
     name: string; 
+    backstory: string; 
     role: string; 
     relationshipToProtagonist: string;
     disabled?: boolean;

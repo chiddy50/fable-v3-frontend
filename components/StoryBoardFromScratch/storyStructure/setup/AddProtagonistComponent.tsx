@@ -127,7 +127,6 @@ const AddProtagonistComponent: React.FC<AddProtagonistComponentProps> = ({
             if (!response) {                
                 return;
             }
-            console.log({suggestedCharacters: response?.suggestedCharacters});                        
             
             const storyStarterSaved = await saveStory({ 
                 addProtagonist: {
@@ -315,6 +314,7 @@ const AddProtagonistComponent: React.FC<AddProtagonistComponentProps> = ({
 
 
             <CharacterSuggestionsModal 
+            refetch={refetch}
                 initialStory={initialStory}
                 openCharacterSuggestionsModal={openCharacterSuggestionsModal}
                 setOpenCharacterSuggestionsModal={setOpenCharacterSuggestionsModal}

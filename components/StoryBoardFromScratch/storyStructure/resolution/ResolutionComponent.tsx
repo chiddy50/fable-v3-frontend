@@ -209,7 +209,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
 
 
 
-
+            {/* QUESTION 1 */}
             <HowCharacterHasGrownComponent
                 openHowCharacterHasGrownComponentModal={openHowCharacterHasGrownComponentModal}
                 setOpenHowCharacterHasGrownComponentModal={setOpenHowCharacterHasGrownComponentModal}
@@ -219,6 +219,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
                 refetch={refetch}
             />
 
+            {/* QUESTION 2 */}
             <HowCharactersGoalsAndPrioritiesChangedComponent 
                 openHowCharactersGoalsAndPrioritiesChangedModal={openHowCharactersGoalsAndPrioritiesChangedModal} 
                 setOpenHowCharactersGoalsAndPrioritiesChangedModal={setOpenHowCharactersGoalsAndPrioritiesChangedModal}
@@ -228,6 +229,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
                 refetch={refetch}
             />
 
+            {/* QUESTION 3 */}
             <UnresolvedIssuesFromDepartureComponent
                 openUnresolvedIssuesFromDepartureComponentModal={openUnresolvedIssuesFromDepartureComponentModal} 
                 setOpenUnresolvedIssuesFromDepartureComponentModal={setOpenUnresolvedIssuesFromDepartureComponentModal}

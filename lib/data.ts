@@ -170,6 +170,7 @@ export const intelligenceOptions = [
 ];
 
 export const facialHairSuggestions = [
+    "No facial hair",
     "Clean-shaven",
     "Stubble",
     "Goatee",

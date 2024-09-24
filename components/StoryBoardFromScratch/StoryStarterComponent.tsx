@@ -30,7 +30,6 @@ import {
 } from "@/components/ui/dialog";
 
 import { hidePageLoader, showPageLoader, storyStarterGuide } from '@/lib/helper';
-import ProtagonistSuggestionsComponent from './ProtagonistSuggestionsComponent';
 import { validateStoryStarterForm } from '@/services/StoryStarterHelper';
 import { Textarea } from '@/components/ui/textarea'
 import { StoryStarterPayloadInterface } from '@/interfaces/StoryStarterInterface';
@@ -50,7 +49,7 @@ interface StoryStarterComponentProps {
 const StoryStarterComponent: React.FC<StoryStarterComponentProps> = ({
     moveToPlotSelection,
     currentFormStep,
-    data = null,
+    data,
     saveStory
 }) => {
     // console.log({data});
@@ -61,9 +60,9 @@ const StoryStarterComponent: React.FC<StoryStarterComponentProps> = ({
     
     const [loadingPlotSuggestions, setLoadingPlotSuggestions] = useState<boolean>(false);
     const [genre, setGenre] = useState(null);
-    const [genres, setGenres] = useState<Option[]>(data?.genres || []);
+    const [genres, setGenres] = useState<Option[]>(data?.genres ?? []);
     
-    const [suspenseTechnique, setSuspenseTechnique] = useState<SuspenseTechniqueInterface>(data?.suspenseTechnique || null);
+    const [suspenseTechnique, setSuspenseTechnique] = useState<SuspenseTechniqueInterface>(data?.suspenseTechnique ?? null);
     const [thematicElements, setThematicElements] = useState<string[]>(data?.thematicElements?.length > 0 ? data.thematicElements : [] );
     const [selectedThematicElements, setSelectedThematicElements] = useState({});
     
@@ -559,17 +558,6 @@ const StoryStarterComponent: React.FC<StoryStarterComponentProps> = ({
                     { loadingPlotSuggestions && <i className='bx bx-loader-circle bx-spin bx-rotate-90 text-[12rem]' ></i> }            
                 </div> */}
             </div>
-
-            { 
-                protagonistSuggestionsModalOpen && (protagonistSuggestions) &&
-                <ProtagonistSuggestionsComponent 
-                    protagonistSuggestionsModalOpen={protagonistSuggestionsModalOpen} 
-                    setProtagonistSuggestionsModalOpen={setProtagonistSuggestionsModalOpen} 
-                    protagonistSuggestions={protagonistSuggestions || data?.storyStructure?.protagonistSuggestions}
-                    storyData={data ?? storyData}
-                    saveStory={saveStory}
-                />
-            }
 
             <Steps
                 enabled={true}

@@ -22,12 +22,24 @@ import { CheckCircle2 } from 'lucide-react';
 import EditProtagonistComponent from '../Character/EditProtagonistComponent';
 import CharacterViewComponent from '../Character/CharacterViewComponent';
 import EditSupportingCharacterComponent from '../Character/EditSupportingCharacterComponent';
-import { navigateToStoryStep } from '@/services/request';
+import { navigateToStoryStep, updateCharacter } from '@/services/request';
 import { useRouter } from 'next/navigation';
+import { extractTemplatePrompts, queryLLM } from '@/services/LlmQueryHelper';
+import { toast } from 'sonner';
 
 interface CreateCharactersComponentProps {
   initialStoryData: StoryInterface;
   refetch: () => void;
+}
+
+interface CharacteristicsSuggestionsPayload {
+  motivationsSuggestions: string[];
+  personalityTraitsSuggestions: string[];
+  skillsSuggestions: string[];
+  strengthsSuggestions: string[];
+  weaknessesSuggestions: string[];
+  coreValueSuggestions: string[];
+  conflictAndAngstSuggestions: string[];
 }
 
 const CreateCharactersComponent: React.FC<CreateCharactersComponentProps> = ({
@@ -213,8 +225,39 @@ const CreateCharactersComponent: React.FC<CreateCharactersComponentProps> = ({
     }
   }   
 
-  const triggerEditCharacterModal = (character: CharacterInterface) => {
+  const triggerEditCharacterModal = async (character: CharacterInterface) => {
     console.log(character);    
+    if (!character?.skillsSuggestions) {
+      let response: CharacteristicsSuggestionsPayload|null = await generateSuggestions(character);
+      if (!response) {
+        toast.error("Try again, there was an issue");
+        return; 
+      }
+
+      try {
+        showPageLoader()
+        let characterUpdated = await updateCharacter({
+          motivationsSuggestions: response?.motivationsSuggestions,
+          personalityTraitsSuggestions: response?.personalityTraitsSuggestions,
+          skillsSuggestions: response?.skillsSuggestions,
+          strengthsSuggestions: response?.strengthsSuggestions,
+          weaknessesSuggestions: response?.weaknessesSuggestions,
+          coreValueSuggestions: response?.coreValueSuggestions,
+          conflictAndAngstSuggestions: response?.conflictAndAngstSuggestions,
+          storyId: initialStoryData?.id
+        }, character?.id);
+        
+        if (characterUpdated) {          
+          refetch();
+        }else{
+          return; 
+        }
+      } catch (error) {
+        console.error(error);            
+      }finally{
+        hidePageLoader()
+      }
+    }
 
     if (character.isProtagonist) {      
       setEditProtagonistModalOpen(true);
@@ -222,6 +265,89 @@ const CreateCharactersComponent: React.FC<CreateCharactersComponentProps> = ({
       setModalOpen(true)
     }
     setSelectedCharacter(character);
+  }
+
+  const generateSuggestions = async (character: CharacterInterface) => {    
+    try {
+      let characterRole = character?.role ? `, role is ${character?.role}` : ``;
+      let characterGender = character?.gender ? `, gender is ${character?.gender}` : ``;
+      let conflictAngst = character?.angst ? `, Conflict & Angst: ${character?.angst}` : ``;
+      let characterAge = character?.age ? `, age  ${character?.angst}` : ``;
+      let characterBackstory = character?.backstory ? `, backstory: ${character?.backstory}` : ``;
+
+      let currentCharacter = `Name: ${character.name} ${characterGender} ${characterRole} ${characterAge} ${conflictAngst} ${characterBackstory}`;
+
+      let protagonists = initialStoryData.characters.filter(character => character.isProtagonist).map((character) => `Name is ${character.name}. Backstory is ${character.backstory}. Role is ${character.role}. What ${character.name} wants is ${character.whatTheyWant} and the answer to who has it is ${character.whoHasIt}.`).join(" ");
+      let protagonistCount = 0;
+      initialStoryData.characters.forEach(character => {
+        if (character.isProtagonist) {
+          protagonistCount ++
+        }
+      });
+
+      let protagonistPrompt = initialStoryData?.characters.length > 1 ? `protagonists and the protagonists are ${protagonists}` : `protagonist and the protagonist is ${protagonists}`;
+
+      let { genrePrompt, thematicElementsPrompt, otherCharactersPrompt } = extractTemplatePrompts(initialStoryData);
+
+      const prompt = `
+      You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.        
+      The current character being analyzed and focused on is {currentCharacter}. We have ${protagonistCount} {protagonists}. The other existing characters in the story are {otherCharacters}.
+      
+      I need you to generate at least 6 suggestions to following areas for ${character?.name}:
+      - Motivations suggestions: What drives their actions and decisions.            
+      - Personality traits suggestions: Characteristics that define their behavior and attitude.      
+      - Skills suggestions: Talents, knowledge, or abilities they possess.                 
+      - Strengths suggestions: Positive attributes that make them effective or successful.              
+      - Weaknesses suggestions: Flaws or limitations that make them human and vulnerable.             
+      - Core values suggestions: Fundamental principles that guide their behavior and decisions.              
+      - Conflict & Angst suggestions: Internal or external struggles that create tension and emotional distress.     
+
+      Any the provided traits for ${character?.name} and come up with suggestions in relation to their relationship with other characters also if possible.
+      
+      Return your response in a json format like: 
+      motivationsSuggestions(array of string, referring to the motivations suggestions)            
+      personalityTraitsSuggestions(array of string, referring to the personality traits suggestions)      
+      skillsSuggestions(array of string, referring to the skills suggestions)                 
+      strengthsSuggestions(array of string, referring to the strengths suggestions)              
+      weaknessesSuggestions(array of string, referring to the weaknesses suggestions)             
+      coreValueSuggestions(array of string, referring to the coreValue suggestions)              
+      conflictAndAngstSuggestions(array of string, referring to the conflict & angst suggestions)  
+      Please ensure the only keys in the object are strengthsSuggestions, weaknessesSuggestions, skillsSuggestions, personalityTraitsSuggestions, coreValueSuggestions, conflictAndAngstSuggestions and motivationsSuggestions keys only.
+      Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                   
+
+      **INPUT**
+      current character: {currentCharacter}
+      protagonists: {protagonists}
+      existing characters: {otherCharacters}
+      story idea: {storyIdea}
+      genre: {genre}
+      thematic element & option: {thematicElement}
+      suspense technique: {suspenseTechnique}
+      suspense technique description: {suspenseTechniqueDescription}
+      `;
+
+      const response = await queryLLM(prompt, {
+        currentCharacter,
+        protagonists: protagonistPrompt,
+        otherCharacters: otherCharactersPrompt,
+        storyIdea: initialStoryData.projectDescription,
+        genre: genrePrompt,
+        suspenseTechnique: initialStoryData?.suspenseTechnique?.value,
+        suspenseTechniqueDescription: initialStoryData?.suspenseTechnique?.description,
+        thematicElement: thematicElementsPrompt,
+      });  
+
+      if (!response) {
+        toast.error("Try again there was an issue");        
+        return null;
+      }
+
+      return response;
+      
+    } catch (error) {
+      console.error(error);  
+      return null;
+    }
   }
 
   const navigate = async (currentStep: number, currentStepUrl: string) => {
@@ -266,8 +392,9 @@ const CreateCharactersComponent: React.FC<CreateCharactersComponentProps> = ({
             }}
             className="w-full"
             >
-              <CarouselContent>
-                {   
+              <CarouselContent>                
+                {
+                  // SHOW PROTAGONISTS  
                   initialStoryData?.characters.filter((character: CharacterInterface) => character?.isProtagonist).map((character: CharacterInterface, index: number) => (
                     <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
                       <CharacterViewComponent 
@@ -281,12 +408,14 @@ const CreateCharactersComponent: React.FC<CreateCharactersComponentProps> = ({
                 }
 
                 {   
-                  initialStoryData?.characters.filter(character => !character?.isProtagonist).map((character: CharacterInterface, index) => (
+                  // SHOW OTHER CHARACTERS
+                  initialStoryData?.characters.filter(character => !character?.isProtagonist).map((character: CharacterInterface, index: number) => (
                     <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
                       <CharacterViewComponent 
                         key={index}
                         character={character}
                         onClickEvent={triggerEditCharacterModal}
+                        refetch={refetch}
                       />
                     </CarouselItem>
                   ))
@@ -299,7 +428,7 @@ const CreateCharactersComponent: React.FC<CreateCharactersComponentProps> = ({
         </div>
 
         <div className="my-5 flex justify-between">
-          <Button onClick={() => navigate(2, "create-plot")}>Back</Button>
+          <Button onClick={() => navigate(2, "story-plot")}>Back</Button>
           <Button onClick={() => navigate(4, "finish-story")}>Proceed</Button>
         </div>
       </div>
@@ -307,12 +436,14 @@ const CreateCharactersComponent: React.FC<CreateCharactersComponentProps> = ({
 
 
       <EditProtagonistComponent 
+        refetch={refetch}
         setModalOpen={setEditProtagonistModalOpen}
         modalOpen={editProtagonistModalOpen}
         selectedCharacter={selectedCharacter}
       />
 
       <EditSupportingCharacterComponent 
+        refetch={refetch}
         setModalOpen={setModalOpen}
         modalOpen={modalOpen}
         selectedCharacter={selectedCharacter}

@@ -1,4 +1,4 @@
-import { CharacterInterface } from "./CharacterInterface";
+import { CharacterInterface, SuggestedCharacterInterface } from "./CharacterInterface";
 import { GenreInterface } from "./GenreInterface";
 import { ThreeActStructureInterface } from "./PlotInterface";
 import { SuspenseTechniqueInterface } from "./SuspenseTechniqueInterface";
@@ -123,7 +123,7 @@ export interface StoryInterface {
   metaData?: any | null;  // Optional JSON field
   createdAt: Date | string;
   plotSuggestions: any,
-  suggestedCharacters: CharacterInterface[],
+  suggestedCharacters: SuggestedCharacterInterface[],
 
   plotElement: ThreeActStructureInterface,
 

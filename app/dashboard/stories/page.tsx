@@ -9,7 +9,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { MessageSquare, Plus, ThumbsUp } from 'lucide-react';
+import { MessageSquare, Plus, PowerOff, ThumbsUp } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { makeRequest } from '@/services/request';
@@ -28,7 +28,7 @@ import { useQuery } from '@tanstack/react-query';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { Skeleton } from "@/components/ui/skeleton"
 import { StoryInterface } from '@/interfaces/StoryInterface';
-import { formatDate } from '@/lib/helper';
+import { formatDate, hidePageLoader, showPageLoader } from '@/lib/helper';
 import Link from 'next/link';
 
 const DashboardStoriesPage = () => {
@@ -73,6 +73,7 @@ const DashboardStoriesPage = () => {
         try {
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch`;
 
+            showPageLoader();
             let response = await makeRequest({
                 url,
                 method: "POST", 
@@ -86,12 +87,15 @@ const DashboardStoriesPage = () => {
             const story = response?.data?.story;
             if (!story?.id) {
                 toast.error("Unable to create project");
+                hidePageLoader();
                 return;
             }
 
             router.push(`/dashboard/story-project?current-step=story-starter&story-id=${story?.id}`);
         } catch (error) {
             console.error(error);      
+        }finally{
+            hidePageLoader();
         }
 
   }
@@ -111,21 +115,30 @@ const DashboardStoriesPage = () => {
 
             {
                 isFetching &&
-                <div className="my-10 px-10">
+                <div className="my-10">
                     <Skeleton className="w-full h-[190px] rounded-xl" />
                 </div>
             }
 
             {
                 !isFetching &&
-
-                <div className="my-10 px-10">
+                <div className="my-10">
                     <div className="flex items-center mb-5">
-                        <Button variant="outline" onClick={() => setOpenNewProjectModal(true)}>
+                        <Button className='bg-custom_green hover:bg-custom_green' onClick={() => setOpenNewProjectModal(true)}>
                         <Plus className='w-4 h-4'/>
                         New Story
                         </Button>
                     </div>
+
+                    {
+                        storyData?.length < 1 &&
+                        <div className='flex justify-center'>
+                            <div className='px-10 py-7 rounded-2xl mt-20 flex flex-col items-center gap-2 justify-center text-gray-700 bg-gray-50'>
+                                <PowerOff className='w-20 h-20'/>
+                                <p className="text-lg font-bold">No Stories</p>
+                            </div>
+                        </div>
+                    }
 
                     {
                         storyData?.map((story: StoryInterface) => (
@@ -161,6 +174,8 @@ const DashboardStoriesPage = () => {
                             </div>
                         ))
                     }
+
+
 
                 </div>
             }

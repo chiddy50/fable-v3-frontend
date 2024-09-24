@@ -29,12 +29,6 @@ const CharacterViewComponent: React.FC<CharacterViewComponentProps> = ({
             } = character;
 
             const prompt = `ultra realistic photograph, profile shot or character headshot of a character and the character is facing the camera. Facial features: ${facialFeatures},  age: ${age},  gender: ${gender},  skin tone: ${skinTone}, backstory: ${backstory},`;             
-            // hair texture: ${hairTexture}, 
-            // hair length: ${hairLength}, 
-            // hair quirk: ${hairQuirk}, 
-            // height: ${height}, 
-            // weight: ${weight}, 
-            // facial hair: ${facialHair}, 
 
             let res = await axios.post(
                 `https://modelslab.com/api/v6/images/text2img`, 

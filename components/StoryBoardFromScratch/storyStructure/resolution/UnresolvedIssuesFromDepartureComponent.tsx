@@ -160,6 +160,7 @@ const UnresolvedIssuesFromDepartureComponent: React.FC<UnresolvedIssuesFromDepar
             </Sheet>
         
             <CharacterSuggestionsModal
+            refetch={refetch}
                 openCharacterSuggestionsModal={openCharacterSuggestionsModal}
                 setOpenCharacterSuggestionsModal={setOpenCharacterSuggestionsModal}
                 setAdditionalCharacterSuggestions={setAdditionalCharacterSuggestions}
