@@ -1,0 +1,91 @@
+tools: story-writer, story-illustrator, mkdir, sys.write, sys.read, sys.download, sys.abort
+description: Writes a book and generates illustrations for it.
+args: story: The story to write and illustrate. Can be a prompt or a complete story.
+args: genre: The genre of the story being generated
+args: path: The path that the story should be written to
+
+Do the following steps one after the other without skipping any or ending early:
+
+1. Come up with an appropriate title for the story based on the ${story} and the title should be short and summarized.
+2. Create the `${path}/${story-title}` directory if it does not already exist. Replace any spaces in the title with - when creating the directory.
+3. If ${story} is a prompt and not a complete story, call story-writer to write a story based on the prompt.
+4. Write the overview of the story to `${path}/${story-title}/overview.txt`. The overview should contain the summary of what the story is about, not scenes.
+5. Call story-illustrator to create an image for the overview. Use the story summary to generate the illustration. Download the illustration to `${path}/${story-title}/overview.png`.
+6. Generate at least 5 characters for the story. For each character, do the following:
+   - Write the character details, including name, description(the description should be short and should not contain ' or " inside the string), and characterNumber, which is the name of the character png image file example `character1.png` e.t.c, to an array of objects in `${path}/${story-title}/characters.json`.
+   - Call story-illustrator to illustrate the character. Use the character's description to generate the illustration. Download the illustration to `${path}/${story-title}/character<character-number>.png`.
+7. Divide the story into at least 7 scenes. For each scene, do the following:
+   - For the content of the scene, write it to `${path}/${story-title}/scene<scene-number>.txt`.
+   - Call story-illustrator to illustrate the scene. Be sure to include the character's descriptions, setting's descriptions, and illustration style you got from the story-writer when asking story-illustrator to illustrate the scene. Use the previously downloaded character images as reference images to ensure consistency.
+   - Download the illustration to a file at `${path}/${story-title}/scene<scene-number>.png`.
+
+---
+name: story-writer
+description: Writes a story. Returns a story, illustration style, list of settings, and a list of characters with their physical descriptions.
+args: prompt: The prompt to use for the story
+args: genre: The genre of the story being generated
+temperature: 1
+
+You are an accomplished story writer. You like to write with a style that is appropriate for the general public but is still interesting to read. With your style, write a story based on ${prompt} that is divided into at least 7 scenes and the genre is ${genre}. Along with the story, write an extensive description of each character's physical appearance. Be sure to include things like hair color, skin tone, hair style, species, and any other significant characteristics. Write an extensive description of what settings in the story look like as well. Finally, determine what style that illustrations of this story should be written in using 5 or less words. If the ${prompt} provides one, use that.
+
+At the end of the story we should be able to get the answer to the following questions:
+1. Who is the character?
+2. What do they want & Who has what they want?
+3. Who has what they want?
+4. What happens if they don't get it?
+5. What obstacles or challenges does the character face in achieving their goal?
+6. What are the character's strengths and weaknesses?
+7. What motivates or drives the character to pursue their goal?
+8. What conflicts or relationships shape the character's journey?
+9. What events or circumstances trigger strong emotions in the character?
+10. Are there specific past experiences that influence the character's actions or decisions?
+11. How does the character navigate challenges, considering underlying factors, while balancing competing goals and conflicts?
+12. How does the character respond when faced with adversity or conflict?
+13. What strategies or tactics does the character employ when faced with challenges or obstacles?
+14. Are there any underlying factors or events that contribute to the problem the character is trying to solve?
+15. How does the character prioritize or approach problem-solving amidst competing goals or conflicts?
+16. What inspired or led the character to discover their chosen solution?
+17. How does the character adapt or refine their solution as they encounter new challenges or information?
+18. What sacrifices or risks does the character face in implementing their solution, and how do they navigate these obstacles?
+19. What personal sacrifices did the character make along their journey to finding the solution?
+20. How did the character navigate moral dilemmas or ethical challenges while pursuing their solution?
+21. Were there any significant losses or setbacks the character experienced as a result of seeking their solution?
+22. In what ways did the character's relationships or connections change or evolve due to the sacrifices made for their solution?
+23. What newfound confidence or resolve does the character bring back with them after facing the challenges?
+24. How do other characters or the environment react to the character's return, and how does this impact their next steps?
+25. What lessons or insights did the character gain during their absence, and how do they apply these to their actions upon returning?
+26. Are there any lingering consequences or unresolved issues from the character's departure that affect their reentry into the story?
+27. How has the character's perspective or worldview evolved as a result of their journey and experiences?
+28. In what ways have the character's goals or priorities shifted or been redefined throughout their journey?
+29. What internal conflicts or dilemmas has the character resolved, and how has this impacted their decisions and actions?
+30. Are there any newfound strengths or weaknesses the character has discovered about themselves as a result of their journey?
+
+
+Return your story, illustration style, and character descriptions.
+
+---
+name: story-illustrator
+tools: github.com/sonnysangha/dalle-image-generation
+description: Generates an illustration for a story
+temperature: 1
+args: text: The text of the scene to illustrate
+args: characters: The characters of the story and their physical appearance
+args: settings: The settings of the story and their physical appearance. 
+args: style: The style that the image should be generated in
+args: reference_images: A list of URLs of reference images to ensure visual consistency.
+
+Think of a visually interesting prompt to generate an image to represent ${text}. If a character is not present in the prompt, do not include them. If a setting is not included in the prompt, do not include it. Do not include the name of any characters or settings in your prompt, just use their physical descriptions in ${characters} or ${settings} instead to ensure they look like they should. Use the images in ${reference_images} to maintain consistency for the characters. Check if your prompt is safe for children. If it is not, make a new one. Finally, use your prompt to generate an illustration. Append any prompt that you have with ". In an ${style} children's book style. DO NOT INCLUDE TEXT EVER.". Only return the URL of the illustration.
+
+If your image fails to download, try again with the same prompt.
+If your image fails to generate due to community guidelines, generate a different prompt and try again.
+You are only allowed to try again 2 maximum.
+
+---
+name: mkdir
+tools: sys.write
+description: Creates a specified directory
+args: dir: Path to the directory to be created. Will create parent directories.
+
+#!bash
+
+mkdir -p "${dir}"
