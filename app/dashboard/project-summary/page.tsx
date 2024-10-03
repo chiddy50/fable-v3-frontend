@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { useSearchParams } from 'next/navigation';
-import React, { useState } from 'react'
+import React, { useState, Suspense } from 'react'
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -28,11 +28,12 @@ import {
 
 const inter = Inter({ subsets: ['latin'] });
 
-const ProjectSummaryPage = () => {
+const ProjectSummaryContent = () => {
     const [story, setStory] = useState<StoryInterface|null>(null)
     const [modifyModalOpen, setModifyModalOpen] = useState<boolean>(false);
 
-    const storyId = useSearchParams().get('story-id');
+    const searchParams = useSearchParams();
+    const storyId = searchParams.get('story-id');
     const dynamicJwtToken = getAuthToken();
 
     const { data: storyData, isFetching, isError, refetch } = useQuery({
@@ -55,6 +56,14 @@ const ProjectSummaryPage = () => {
         enabled: !!storyId && !story
     });
 
+    if (isFetching) {
+        return <div>Loading...</div>;
+    }
+
+    if (isError) {
+        return <div>Error loading story data</div>;
+    }
+
     return (
         <div>
             <Breadcrumb>
@@ -73,7 +82,6 @@ const ProjectSummaryPage = () => {
                     <Button size='sm' variant="outline">Return</Button>
                 </Link>
                 <Button size='sm'>View Chapters</Button>
-                
             </div>
 
             <div className='my-10 p-7 bg-gray-50 rounded-2xl'>
@@ -88,11 +96,6 @@ const ProjectSummaryPage = () => {
                 </div>
             </div>
 
-
-
-
-
-
             <Sheet open={modifyModalOpen} onOpenChange={setModifyModalOpen}>
                 <SheetContent className="overflow-y-scroll xs:min-w-[90%] sm:min-w-[96%] md:min-w-[65%] lg:min-w-[65%] xl:min-w-[55%]">
                     <SheetHeader className=''>
@@ -105,8 +108,15 @@ const ProjectSummaryPage = () => {
                     </div>
                 </SheetContent>
             </Sheet>
-            
         </div>
+    );
+}
+
+const ProjectSummaryPage = () => {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <ProjectSummaryContent />
+        </Suspense>
     );
 }
 
