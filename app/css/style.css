@@ -56,7 +56,16 @@
 
 
 
-
+.grid-container {
+    display: grid;
+    grid-template-areas:
+      'item1 item2 . . . item3';
+    gap: 10px;
+}
+.item1 { grid-area: item1; }
+.item2 { grid-area: item2; }
+.item3 { grid-area: item3; }
+  
 
 .sidebar {
     margin: 0;
@@ -67,6 +76,11 @@
     height: 100%;
     overflow: auto;
 }
+
+.mobile-menu-control {
+    display: none;
+}
+
   
 div.content {
     background: #cfead1;
@@ -85,6 +99,10 @@ div.content {
 }
   
 @media screen and (max-width: 700px) {
+    .mobile-menu-control {
+        display: block;
+    }
+
     .sidebar {
         display: none;
         /* width: 100%;

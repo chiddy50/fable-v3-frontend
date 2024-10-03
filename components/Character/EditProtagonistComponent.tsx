@@ -7,7 +7,6 @@ import {
     SheetDescription,
     SheetHeader,
     SheetTitle,
-    SheetTrigger,
   } from "@/components/ui/sheet";
 import Image from 'next/image';
 import { CheckCircle2, Cog, Save } from 'lucide-react';
@@ -30,6 +29,7 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { updateCharacter } from '@/services/request';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
+import MultipleSelector, { Option } from '../ui/multiple-selector';
 
 interface EditProtagonistComponentProps {
     selectedCharacter: CharacterInterface;
@@ -44,6 +44,10 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
     selectedCharacter,
     refetch
 }) => {
+
+    const [imageUrl, setImageUrl] = useState(selectedCharacter?.imageUrl ?? "/user-image.jpeg");
+    const [character, setCharacter] = useState(selectedCharacter ?? null);
+
     // PHYSICAL
     const [age, setAge] = useState<string>(selectedCharacter?.age ?? "");
     const [gender, setGender] = useState<string>(selectedCharacter?.gender ?? "");
@@ -58,10 +62,21 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
     const [angst, setAngst] = useState<string>(selectedCharacter?.angst ?? "");
     const [backstory, setBackstory] = useState<string>(selectedCharacter?.backstory ?? "");
     
+    // PERSONALITY
+    const [personalityTraits, setPersonalityTraits] = useState<Option[]>([]);
+    const [personalityTraitSuggestions, setPersonalityTraitSuggestions] = useState<Option[]>([]);
+    const [motivations, setMotivations] = useState<Option[]>([]);
+    const [motivationsSuggestions, setMotivationsSuggestions] = useState<Option[]>([]);
+    const [coreValues, setCoreValues] = useState<Option[]>([]);
+    const [coreValueSuggestions, setCoreValueSuggestions] = useState<Option[]>([]);
+
 
     const [intelligence, setIntelligence] = useState<SuspenseTechniqueInterface>(null);
 
     useEffect(() => {
+        setImageUrl(selectedCharacter?.imageUrl ?? "/user-image.jpeg");
+        setCharacter(selectedCharacter ?? null);
+
         // PHYSICAL
         setAge(selectedCharacter?.age ?? "")
         setGender(selectedCharacter?.gender ?? "");
@@ -71,10 +86,18 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
         setHairQuirk(selectedCharacter?.hairQuirk ?? "");
         setFacialHair(selectedCharacter?.facialHair ?? "");
         setExtraDescription(selectedCharacter?.extraDescription ?? "");
+
+        // PERSONALITY
+        setPersonalityTraits(selectedCharacter?.personalityTraits ? selectedCharacter?.personalityTraits?.map(item => ( { label: item, value: item } )) : []);
+        setPersonalityTraitSuggestions(selectedCharacter?.personalityTraitsSuggestions ? selectedCharacter?.personalityTraitsSuggestions : []);
+        setMotivations(selectedCharacter?.motivations ? selectedCharacter?.motivations?.map(item => ( { label: item, value: item } )) : []);
+        setMotivationsSuggestions(selectedCharacter?.motivationsSuggestions ? selectedCharacter?.motivationsSuggestions : []);
+        setCoreValues(selectedCharacter?.coreValues ? selectedCharacter?.coreValues?.map(item => ( { label: item, value: item } )) : []);
+        setCoreValueSuggestions(selectedCharacter?.coreValueSuggestions ? selectedCharacter?.coreValueSuggestions : [])
         
         // BACKGROUND
         setAngst(selectedCharacter?.angst ?? "");
-        setBackstory(selectedCharacter?.angst ?? "");
+        setBackstory(selectedCharacter?.backstory ?? "");
         
     }, [selectedCharacter])
 
@@ -119,18 +142,31 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
             );
             console.log(res?.data);
             console.log({
-                output: res?.data?.output[0], 
-                future_links: res?.data?.future_links[0]
+                output: res?.data?.output?.[0], 
+                future_links: res?.data?.future_links?.[0]
             });
 
-            let imageUrl = res?.data?.output[0] ?? res?.data?.future_links[0];
+            let imageUrl = res?.data?.output?.[0] ?? res?.data?.future_links?.[0] ?? res?.data?.proxy_links?.[0];
 
             if (imageUrl && selectedCharacter?.id) {                 
                 let characterUpdated = await updateCharacter({
                     imageUrl: imageUrl,
+                    age,
+                    gender,
+                    skinTone, 
+                    hairTexture, 
+                    hairLength, 
+                    hairQuirk, 
+                    facialHair, 
+                    extraDescription,
                     storyId: selectedCharacter?.storyId
                 }, selectedCharacter?.id);
-                refetch();
+
+                if (characterUpdated) {
+                    setImageUrl(imageUrl)
+                    setCharacter(characterUpdated);
+                }
+                // refetch();
             }
 
 
@@ -141,11 +177,7 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
         }
     }
 
-    const validatePhysicalFeatures = () => { 
-        console.log({
-            age, gender, skinTone, hairTexture, hairLength, hairQuirk, facialHair, extraDescription
-        });
-        
+    const validatePhysicalFeatures = () => {         
         const validations = [
             { condition: !age, message: "Kindly provide an age" },
             { condition: !gender, message: "Kindly provide a gender" },
@@ -154,6 +186,27 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
             { condition: !hairLength, message: "Kindly provide a hair length" },
             { condition: !hairQuirk, message: "Kindly provide a hair quirk" },
             { condition: !facialHair, message: "Kindly provide a facial hair" },
+        ];
+    
+        for (const { condition, message } of validations) {
+            if (condition) {
+                toast.error(message);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    const validatePersonality = () => { 
+        console.log({
+            personalityTraits, motivations, coreValues
+        });
+        
+        const validations = [
+            { condition: personalityTraits.length < 1, message: "Kindly provide a personality trait" },
+            { condition: motivations.length < 1, message: "Kindly provide a motivation" },
+            { condition: coreValues.length < 1, message: "Kindly provide a core value" }
         ];
     
         for (const { condition, message } of validations) {
@@ -191,6 +244,29 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
         }
     }
 
+    const savePersonality = async () => {
+        let validated = validatePersonality();
+        if (!validated) {
+            return;
+        }
+        
+        try {
+            showPageLoader()
+            let characterUpdated = await updateCharacter({
+                personalityTraits: personalityTraits.map(data => data.value), 
+                motivations: motivations.map(data => data.value), 
+                coreValues: coreValues.map(data => data.value),
+                storyId: selectedCharacter?.storyId
+            }, selectedCharacter?.id);
+
+            refetch();
+        } catch (error) {
+            console.error(error);            
+        }finally{
+            hidePageLoader()
+        }
+    }
+
     // const generateImage = () => { }
     
     return (
@@ -201,7 +277,7 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
 
                         <div className='with-linear-gradient rounded-full'>
                             <Image
-                                src={selectedCharacter?.imageUrl ?? '/user-image.jpeg'}
+                                src={imageUrl}
                                 alt={selectedCharacter?.name || 'character image'}
                                 width={180}
                                 height={180}
@@ -401,45 +477,65 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
                                 <AccordionContent>
                                     {/* PERSONALITY TRAITS */}
                                     <div className='mt-3 bg-white p-5 border border-custom_light_green rounded-2xl'>
-                                        <span className='text-gray-900 text-md font-bold'>Personality Traits</span>
-                                        <ul className='mt-2'>
-                                            {
-                                                selectedCharacter?.personalityTraits?.map((trait: string, index: number) => (
-                                                <li className='text-xs flex items-center gap-2 text-gray-500 mb-3 capitalize' key={index}> 
-                                                    <div>
-                                                    <CheckCircle2 className='text-custom_green'/>
-                                                    </div>
-                                                    <span>{trait}</span>
-                                                </li>
-                                                ))
+                                        <p className='text-gray-900 text-xs mb-1 font-bold'>Personality Traits</p>
+
+                                        <MultipleSelector
+                                            creatable
+                                            value={personalityTraits}
+                                            onChange={setPersonalityTraits}
+                                            defaultOptions={personalityTraitSuggestions}
+                                            placeholder="Choose or add options"
+                                            emptyIndicator={
+                                                <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
+                                                no results found.
+                                                </p>
                                             }
-                                        </ul>
+                                            className='outline-none bg-white'
+                                        />
+                
+
                                     </div>
 
                                     {/* MOTIVATIONS */}
                                     <div className='mt-3 bg-white p-5 border border-custom_light_green rounded-2xl'>
-                                        <span className='text-gray-900 text-md font-bold'>Motivations</span>
-                                        <ul className='mt-2'>
-                                        {
-                                            selectedCharacter?.motivations?.map((motivation: string, index: number) => (
-                                            <li className='text-xs flex items-center gap-2 text-gray-500 mb-3 capitalize' key={index}> 
-                                                <div>
-                                                <CheckCircle2 className='text-custom_green'/>
-                                                </div>
-                                                <span>{motivation}</span>
-                                            </li>
-                                            ))
-                                        }
-                                        </ul>
+                                        <p className='text-gray-900 text-xs mb-1 font-bold'>Motivations</p>
+                                        <MultipleSelector
+                                            creatable
+                                            value={motivations}
+                                            onChange={setMotivations}
+                                            defaultOptions={motivationsSuggestions}
+                                            placeholder="Choose or add options"
+                                            emptyIndicator={
+                                                <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
+                                                no results found.
+                                                </p>
+                                            }
+                                            className='outline-none bg-white'
+                                        />
                                     </div>
 
                                     {/* CORE VALUES */}
-                                    <div className='mt-3 bg-white p-5 rounded-2xl border border-custom_light_green'>
-                                        <span className='text-gray-900 text-md font-bold'>Core Values</span>
-                                        <span className='text-xs block text-gray-500 capitalize'>{selectedCharacter?.coreValues?.join(', ')}</span>
+                                    <div className='mt-3 mb-20 bg-white p-5 rounded-2xl border border-custom_light_green'>
+                                        <p className='text-gray-900 mb-1 text-xs font-bold'>Core Values</p>
+                                        <MultipleSelector
+                                            creatable
+                                            value={coreValues}
+                                            onChange={setCoreValues}
+                                            defaultOptions={coreValueSuggestions}
+                                            placeholder="Choose or add options"
+                                            emptyIndicator={
+                                                <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
+                                                no results found.
+                                                </p>
+                                            }
+                                            className='outline-none bg-white'
+                                        />
                                     </div>
 
-
+                                    <Button onClick={savePersonality} className='w-full mt-3 border border-custom_green text-custom_green bg-[#d4ffd2] hover:bg-[#d4ffd2]'>
+                                        Save
+                                        <Save className='w-4 h-4 ml-2' />
+                                    </Button>
                                 </AccordionContent>                        
                             </AccordionItem>
 

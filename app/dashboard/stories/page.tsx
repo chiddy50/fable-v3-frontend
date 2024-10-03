@@ -28,7 +28,7 @@ import { useQuery } from '@tanstack/react-query';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { Skeleton } from "@/components/ui/skeleton"
 import { StoryInterface } from '@/interfaces/StoryInterface';
-import { formatDate, hidePageLoader, showPageLoader } from '@/lib/helper';
+import { formatDate, hidePageLoader, showPageLoader, trimWords } from '@/lib/helper';
 import Link from 'next/link';
 
 const DashboardStoriesPage = () => {
@@ -37,6 +37,7 @@ const DashboardStoriesPage = () => {
 
     const [openNewProjectModal, setOpenNewProjectModal] = useState<boolean>(false);
     const [projectTitle, setProjectTitle]= useState<string>('');    
+    const [depositAddress, setDepositAddress]= useState<string>('');    
     const [projectDescription, setProjectDescription]= useState<string>('');   
     
     const { data: storyData, isFetching, isError, refetch } = useQuery({
@@ -58,17 +59,27 @@ const DashboardStoriesPage = () => {
         // enabled: true,
     });
 
-
-    const createNewProject = async (suggest: boolean) => {
+    const validateForm = () => {
         if (!projectTitle) {
             toast.error("Kindly provide a project title");
-            return;
+            return false;
         }
 
-        if (!projectDescription && !suggest) {
+        if (!projectDescription) {
             toast.error("Kindly provide a project idea or description");
-            return;
+            return false;
         }
+
+        if (!depositAddress) {
+            toast.error("Kindly provide a deposit address");
+            return false;
+        }
+        
+        return true;
+    }
+
+    const createNewProject = async (suggest: string) => {
+        if (!validateForm()) return;
 
         try {
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch`;
@@ -78,8 +89,9 @@ const DashboardStoriesPage = () => {
                 url,
                 method: "POST", 
                 body: {
-                projectTitle,
-                projectDescription
+                    projectTitle,
+                    projectDescription,
+                    depositAddress
                 }, 
                 token: dynamicJwtToken,
             });
@@ -91,14 +103,33 @@ const DashboardStoriesPage = () => {
                 return;
             }
 
-            router.push(`/dashboard/story-project?current-step=story-starter&story-id=${story?.id}`);
+            if (suggest === "refine-story") {                
+                router.push(`/dashboard/refine-story?story-id=${story?.id}`);
+            }
+            
+            if (suggest === "refine-character") {                
+                router.push(`/dashboard/story-project?current-step=story-starter&story-id=${story?.id}`);
+            }
+            
         } catch (error) {
             console.error(error);      
         }finally{
             hidePageLoader();
         }
+    }
 
-  }
+    const displayGenre = (genres) => {
+        console.log({genres});
+        
+        return genres?.map(genre => {
+            console.log(typeof genre);
+            
+            return genre                
+            if (genre) {
+            }
+        }).join(", ")
+    }
+
     return (
         <div>
             <Breadcrumb>
@@ -141,38 +172,43 @@ const DashboardStoriesPage = () => {
                     }
 
                     {
-                        storyData?.map((story: StoryInterface) => (
-                            <div key={story?.id} 
-                            className="p-5 w-full bg-[#F2F8F2] h-[200px] grid grid-cols-6 gap-5 rounded-lg border overflow-hidden mb-2">
-                                <div className="col-span-4 flex flex-col justify-between h-full overflow-hidden">
-                                    <p className="text-xs font-semibold mb-1">{formatDate(story?.createdAt)}</p>
-                                    <h1 className="font-bold text-xl capitalize truncate">{story?.projectTitle}</h1>
-                                    <p className="font-light mt-1 text-[10px]">{story?.genres?.map(genre => genre?.value).join(", ")}</p>
-                                    <p className="mt-2 text-gray-600 text-xs line-clamp-3">{story?.projectDescription}</p>
-                                    <div className=" flex mt-3 justify-between items-center">
-                                        <Link href={`/dashboard/story-project?story-id=${story.id}&current-step=${story.currentStepUrl}`}>                                            
-                                            <Button size="sm">Edit</Button>
-                                        </Link>
-                                    </div>
-                                    {/* <div className="mt-auto flex justify-between items-center">
-                                        <p className="font-bold text-xs">5 min read</p>
-                                        <div className="flex gap-4 items-center">
-                                            <div className="flex gap-1 items-center">
-                                                <MessageSquare className="w-4 h-4" />
-                                                <span className="text-[10px]">30</span>
+                        <div className='grid md:grid-cols-1 lg:grid-cols-2 gap-5'>
+                            {
+                                storyData?.map((story: StoryInterface) => (
+                                    <div key={story?.id} 
+                                    className="p-5 w-full bg-[#F2F8F2] h-[200px] grid grid-cols-6 gap-5 rounded-lg border overflow-hidden mb-2">
+                                        <div className="xs:col-span-6 sm:col-span-6 col-span-6 flex flex-col justify-between h-full overflow-hidden">
+                                            <p className="text-xs font-semibold mb-1">{formatDate(story?.createdAt)}</p>
+                                            <h1 className="font-bold text-xl capitalize truncate">{story?.projectTitle}</h1>
+                                            <p className="font-light mt-1 text-[10px]">{displayGenre(story?.genres)}</p>
+                                            <p className="mt-2 text-gray-600 text-xs line-clamp-3">{trimWords(story?.projectDescription, 10)}</p>
+                                            <div className=" flex mt-3 justify-between items-center">
+                                                <Link href={`/dashboard/refine-story?story-id=${story.id}`}>                                            
+                                                {/* <Link href={`/dashboard/story-project?story-id=${story.id}&current-step=${story.currentStepUrl}`}>                                             */}
+                                                    <Button size="sm">Edit</Button>
+                                                </Link>
                                             </div>
-                                            <div className="flex gap-1 items-center">
-                                                <ThumbsUp className="w-4 h-4" />
-                                                <span className="text-[10px]">3</span>
-                                            </div>
+                                            {/* <div className="mt-auto flex justify-between items-center">
+                                                <p className="font-bold text-xs">5 min read</p>
+                                                <div className="flex gap-4 items-center">
+                                                    <div className="flex gap-1 items-center">
+                                                        <MessageSquare className="w-4 h-4" />
+                                                        <span className="text-[10px]">30</span>
+                                                    </div>
+                                                    <div className="flex gap-1 items-center">
+                                                        <ThumbsUp className="w-4 h-4" />
+                                                        <span className="text-[10px]">3</span>
+                                                    </div>
+                                                </div>
+                                            </div> */}
                                         </div>
-                                    </div> */}
-                                </div>
-                                <div className="col-span-2 h-full w-full bg-gray-800 rounded-2xl overflow-hidden">
-                                    <Image src="/no-image.png" alt="no-image" width={300} height={300} className="object-cover w-full h-full" />
-                                </div>
-                            </div>
-                        ))
+                                        {/* <div className="xs:col-span-6 sm:col-span-6 col-span-2 h-full w-full bg-gray-800 rounded-2xl overflow-hidden">
+                                            <Image src={story?.characters[0]?.imageUrl ?? `/no-image.png`} alt="no-image" width={300} height={300} className="object-cover w-full h-full" />
+                                        </div> */}
+                                    </div>
+                                ))
+                            }
+                        </div>
                     }
 
 
@@ -201,8 +237,17 @@ const DashboardStoriesPage = () => {
                         className='py-2 px-4 mb-4 outline-none border text-xs rounded-lg w-full' 
                         />
 
-                        <Button onClick={() => createNewProject(false)} className='text-gray-50 mr-5 bg-[#46aa41]'>Proceed</Button>
-                        <Button onClick={() => createNewProject(true)} variant="outline" className=''>No idea, Surprise Me!</Button>
+                        <div className="mb-4">
+                            <Input 
+                            defaultValue={depositAddress}
+                            onKeyUp={(e) => setDepositAddress(e.target.value)} 
+                            onPaste={(e) => setDepositAddress(e.target.value)} 
+                            className='w-full text-xs p-5 outline-none border rounded-xl mb-3 resize-none'
+                            placeholder='Deposit Address'
+                            />
+                        </div>
+                        <Button onClick={() => createNewProject("refine-story")} className='text-gray-50 mr-5 bg-[#46aa41]'>Proceed</Button>
+                        {/* <Button onClick={() => createNewProject("refine-story")} variant="outline" className=''>Refine & Publish</Button> */}
 
                     </div>
                 </DialogContent>

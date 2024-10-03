@@ -1,3 +1,5 @@
+import { Option } from "@/components/ui/multiple-selector";
+
 interface CharacterRelationship {
     characterName: string;
     relationship: string;
@@ -12,8 +14,16 @@ export interface CharacterInterface {
     isProtagonist: boolean;
     relationshipToProtagonist: string;
 
+    skillsSuggestions: Option[];
+    personalityTraitsSuggestions: Option[];
+    motivationsSuggestions:            Option[];
+    strengthsSuggestions:              Option[];
+    weaknessesSuggestions:             Option[];
+    coreValueSuggestions:              Option[];
+    conflictAndAngstSuggestions:       Option[];
+
+
     protagonistGoalSuggestions: string[];
-    skillsSuggestions: string[];
     protagonistGoalObstacleSuggestions: string[];
     protagonistGoalObstacle: string;
 

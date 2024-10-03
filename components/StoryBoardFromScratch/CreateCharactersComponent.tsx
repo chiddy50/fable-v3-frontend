@@ -226,45 +226,69 @@ const CreateCharactersComponent: React.FC<CreateCharactersComponentProps> = ({
   }   
 
   const triggerEditCharacterModal = async (character: CharacterInterface) => {
-    console.log(character);    
-    if (!character?.skillsSuggestions) {
+    console.log(character);
+    let generateSuggestion = !character?.skillsSuggestions ? true : false;
+  
+    if (generateSuggestion) {
+      showPageLoader();
       let response: CharacteristicsSuggestionsPayload|null = await generateSuggestions(character);
       if (!response) {
+        hidePageLoader();
         toast.error("Try again, there was an issue");
         return; 
       }
 
-      try {
-        showPageLoader()
-        let characterUpdated = await updateCharacter({
-          motivationsSuggestions: response?.motivationsSuggestions,
-          personalityTraitsSuggestions: response?.personalityTraitsSuggestions,
-          skillsSuggestions: response?.skillsSuggestions,
-          strengthsSuggestions: response?.strengthsSuggestions,
-          weaknessesSuggestions: response?.weaknessesSuggestions,
-          coreValueSuggestions: response?.coreValueSuggestions,
-          conflictAndAngstSuggestions: response?.conflictAndAngstSuggestions,
-          storyId: initialStoryData?.id
-        }, character?.id);
-        
-        if (characterUpdated) {          
-          refetch();
-        }else{
-          return; 
-        }
-      } catch (error) {
-        console.error(error);            
-      }finally{
-        hidePageLoader()
+      const createLabelValuePairs = (arr: string[] = []) => 
+        arr.map(item => ({ label: item, value: item }));
+    
+      const mergeSuggestions = (initial: string[] = [], suggestions: string[] = []) => 
+        createLabelValuePairs([...initial, ...suggestions]);
+
+      let characterUpdated = await updateCharacter({
+        motivationsSuggestions: character?.motivations 
+        ? mergeSuggestions(character?.motivations, response?.motivationsSuggestions)
+        : createLabelValuePairs(response?.motivationsSuggestions),
+        personalityTraitsSuggestions: character?.personalityTraits 
+        ? mergeSuggestions(character?.personalityTraits, response?.personalityTraitsSuggestions)
+        : createLabelValuePairs(response?.personalityTraitsSuggestions),
+        skillsSuggestions: character?.skills 
+        ? mergeSuggestions(character?.skills, response?.skillsSuggestions)
+        : createLabelValuePairs(response?.skillsSuggestions),
+        strengthsSuggestions: character?.strengths 
+        ? mergeSuggestions(character?.strengths, response?.strengthsSuggestions)
+        : createLabelValuePairs(response?.strengthsSuggestions),
+        weaknessesSuggestions: character?.weaknesses 
+        ? mergeSuggestions(character?.weaknesses, response?.weaknessesSuggestions)
+        : createLabelValuePairs(response?.weaknessesSuggestions),
+        coreValueSuggestions: character?.coreValues 
+        ? mergeSuggestions(character?.coreValues, response?.coreValueSuggestions)
+        : createLabelValuePairs(response?.coreValueSuggestions),  
+        conflictAndAngstSuggestions: character?.angst ? 
+        [...response?.conflictAndAngstSuggestions.map(item => ({ value: item, label: item })), { value: character?.angst, label: character?.angst }] 
+        : response?.conflictAndAngstSuggestions.map(item => ({ value: item, label: item })),
+        storyId: initialStoryData?.id
+      }, character?.id);
+
+      if (characterUpdated) {          
+        refetch();
+        setSelectedCharacter(character);
+        setEditProtagonistModalOpen(true);
+      }else{
+        hidePageLoader();
+        return; 
       }
+
+      hidePageLoader()
     }
 
-    if (character.isProtagonist) {      
-      setEditProtagonistModalOpen(true);
-    }else{
-      setModalOpen(true)
-    }
+    
+    // if (character.isProtagonist) {      
+    //   setEditProtagonistModalOpen(true);
+    // }else{
+    //   setModalOpen(true)
+    // }
     setSelectedCharacter(character);
+    setEditProtagonistModalOpen(true);
   }
 
   const generateSuggestions = async (character: CharacterInterface) => {    
@@ -391,39 +415,39 @@ const CreateCharactersComponent: React.FC<CreateCharactersComponentProps> = ({
                 align: "start",
             }}
             className="w-full"
-            >
-              <CarouselContent>                
-                {
-                  // SHOW PROTAGONISTS  
-                  initialStoryData?.characters.filter((character: CharacterInterface) => character?.isProtagonist).map((character: CharacterInterface, index: number) => (
-                    <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                      <CharacterViewComponent 
+          >
+            <CarouselContent>                
+              {
+                // SHOW PROTAGONISTS  
+                initialStoryData?.characters.filter((character: CharacterInterface) => character?.isProtagonist).map((character: CharacterInterface, index: number) => (
+                  <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                    <CharacterViewComponent 
+                    key={index}
+                    character={character}
+                    onClickEvent={triggerEditCharacterModal}
+                    refetch={refetch}
+                    />
+                  </CarouselItem>
+                ))
+              }
+
+              {   
+                // SHOW OTHER CHARACTERS
+                initialStoryData?.characters.filter(character => !character?.isProtagonist).map((character: CharacterInterface, index: number) => (
+                  <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                    <CharacterViewComponent 
                       key={index}
                       character={character}
                       onClickEvent={triggerEditCharacterModal}
                       refetch={refetch}
-                      />
-                    </CarouselItem>
-                  ))
-                }
+                    />
+                  </CarouselItem>
+                ))
+              }
 
-                {   
-                  // SHOW OTHER CHARACTERS
-                  initialStoryData?.characters.filter(character => !character?.isProtagonist).map((character: CharacterInterface, index: number) => (
-                    <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                      <CharacterViewComponent 
-                        key={index}
-                        character={character}
-                        onClickEvent={triggerEditCharacterModal}
-                        refetch={refetch}
-                      />
-                    </CarouselItem>
-                  ))
-                }
-
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
           </Carousel>
         </div>
 

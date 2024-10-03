@@ -60,14 +60,15 @@ export const streamLLMResponse = async (prompt: string, payload: object) => {
 }
 
 export const extractTemplatePrompts = (story: StoryInterface) => {
-   // const tonePrompt                     = story?.storyStructure?.introductionTone?.map(tone => tone)?.join(' ');
+   const tonePrompt                     = story?.introductionTone?.map(tone => tone?.value)?.join(', ');
+   const settingPrompt                     = story?.introductionSetting?.map(setting => setting?.value)?.join(', ');
+   const genrePrompt                    = story?.genres?.map(genre => genre?.value)?.join(', ');
    // const stakesPrompt                   = story?.storyStructure?.introductionStakes?.map(stake => stake)?.join(' ');
    // const expositionPrompt               = story?.storyStructure?.exposition?.map(exposition => exposition)?.join(' ');
    // const hookPrompt                     = story?.storyStructure?.hook?.map(hook => hook)?.join(' ');
    const protagonistOrdinaryWorldPrompt = story?.storyStructure?.protagonistOrdinaryWorld?.map(option => option)?.join(' ');
    const progressiveComplicationPrompt  = story?.storyStructure?.progressiveComplication?.map(option => option)?.join(' ');   
    const antagonisticForce              = story?.storyStructure?.antagonisticForce?.map(option => option)?.join(' ');   
-   const genrePrompt                    = story?.genres?.map(genre => genre?.value)?.join(', ');
    
    const thematicElementsPrompt         = story?.thematicOptions?.map(
       (item: ThematicOptionInterface) => `For ${item.thematicElement} as the thematic element, the thematic option is ${item.thematicOption}.`
@@ -79,6 +80,11 @@ export const extractTemplatePrompts = (story: StoryInterface) => {
          return `Character Name: ${character.name}, Role: ${character.role}, Character's Relationship to Protagonist: ${character.relationshipToProtagonist}`
        })?.join('. ');
    }
+
+   
+   const protagonistSuggestionsPrompt = story?.protagonistSuggestions?.map((character) => 
+      `Name is ${character?.name}, backstory: ${character?.backstory}. Role: ${character?.role}. Motivations: ${character?.motivations}`
+)?.join(" ")
 
    const protagonistsPrompt = story?.characters?.filter((character) => character?.isProtagonist ).map((character) => `${character?.name}, backstory: ${character?.backstory}.`)?.join(" ")
    const whatCharacterWantAndWhoHasItPrompt = story?.characters?.filter((character) => character?.isProtagonist ).map((character) => `${character?.name}, and What ${character?.name} want is ${character?.whatTheyWant}. For the question who has what ${character?.name} wants, the answer is ${character?.whoHasIt}`)?.join(" ")
@@ -96,7 +102,9 @@ export const extractTemplatePrompts = (story: StoryInterface) => {
    return { 
       genrePrompt, 
       thematicElementsPrompt,
-      // tonePrompt, 
+      tonePrompt, 
+      settingPrompt,
+      protagonistSuggestionsPrompt,
       // stakesPrompt, 
       // expositionPrompt, 
       // hookPrompt, 

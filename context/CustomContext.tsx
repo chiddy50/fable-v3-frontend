@@ -19,14 +19,29 @@ export const queryClient = new QueryClient(
   // }
 );
 
+
 const CustomContext = ({ children }) => {
   const createUser = async (payload: any) => {
     try {
       let res = await axiosInterceptorInstance.post("/users", payload)
+      return true;
       console.log(res);        
     } catch (error) {
+      return false;
       console.log(error);            
     }
+  }
+
+  function getCurrentPath() {
+    // Get the full path
+    let path = window?.location?.pathname;
+    
+    // Remove any trailing slash, except if the path is just "/"
+    if (path.length > 1 && path.endsWith('/')) {
+      path = path.slice(0, -1);
+    }
+    
+    return path;
   }
 
   const { push } = useRouter();
@@ -37,22 +52,37 @@ const CustomContext = ({ children }) => {
           environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID ?? "",
           walletConnectors: [ SolanaWalletConnectors ],
           eventsCallbacks: {
-            onAuthSuccess: (args) => {
+            onAuthSuccess: async (args) => {
               console.log('onLinkSuccess was called', args);
+              
+              console.log({ currentPath: getCurrentPath() });
+              
               let { authToken, primaryWallet, user } = args
 
-                let payload = {
-                  // token: authToken,
-                  publicAddress: primaryWallet?.address,
-                  email: user?.email,
-                  username: user?.username,
-                  id: user?.userId,
-                }
+              let payload = {
+                // token: authToken,
+                publicAddress: primaryWallet?.address,
+                email: user?.email,
+                username: user?.username,
+                id: user?.userId,
+              }
 
-                createUser(payload)
+              const userCreated = await createUser(payload);
+
+              if (userCreated && getCurrentPath() && getCurrentPath() === "/") {
+                // push("/dashboard");                
+              }
+
+              const redirectRoute = window?.localStorage?.getItem('redirectRoute');
+              if (userCreated && getCurrentPath() === "/" && redirectRoute) {                
+                window?.localStorage?.removeItem('redirectRoute');
+                push(`${redirectRoute}`);                
+              }
+
             },
             onLogout(user) {
               console.log(user);
+              window?.localStorage?.removeItem('redirectRoute')
               toast.error("Session Expired");
               push("/");
             },

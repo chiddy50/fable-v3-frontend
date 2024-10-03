@@ -54,7 +54,7 @@ export default function DashboardLayout({
                 </Link>
 
 
-                <Link href="/dashboard/story-books" className={cn(
+                {/* <Link href="/dashboard/story-books" className={cn(
                     currentPath === "/dashboard/story-books" ? "bg-custom_green text-white" : "hover:bg-gray-200",
                     'flex items-center gap-4 p-2 rounded-3xl'
                 )}>
@@ -65,7 +65,7 @@ export default function DashboardLayout({
                         <BookCopy className={cn(currentPath === "/dashboard/story-books" ? "text-white" : "text-custom_green", 'w-4 h-4 bg-transparent')} />
                     </span>
                     <span className='text-xs font-semibold'>Story Book</span>
-                </Link>
+                </Link> */}
 
                 <Link href="/dashboard/stories" className={cn(
                     currentPath === "/dashboard/stories" ? "bg-custom_green text-white" : "hover:bg-gray-200",
@@ -80,7 +80,7 @@ export default function DashboardLayout({
                     <span className='text-xs font-semibold'>Stories</span>
                 </Link>
 
-                <Link href="/dashboard/transactions" className={cn(
+                {/* <Link href="/dashboard/transactions" className={cn(
                     currentPath === "/dashboard/transactions" ? "bg-custom_green text-white" : "hover:bg-gray-200",
                     'flex items-center gap-4 p-2 rounded-3xl'
                 )}>
@@ -91,7 +91,7 @@ export default function DashboardLayout({
                         <ArrowLeftRightIcon className={cn(currentPath === "/dashboard/transactions" ? "text-white" : "text-custom_green", 'w-4 h-4 bg-transparent')} />
                     </span>
                     <span className='text-xs font-semibold'>Transactions</span>
-                </Link>
+                </Link> */}
 
 
             </div>
@@ -100,7 +100,7 @@ export default function DashboardLayout({
         <div className="content">
             <DashboardHeader />
             
-            <div className='mt-7 px-10'>
+            <div className='mt-7 px-5 md:px-10'>
                 {children}  
             </div>
         </div>

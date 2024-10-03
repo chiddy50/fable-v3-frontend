@@ -77,7 +77,7 @@ function StoryBookComponent({ id }: {id: string|number}) {
                                 <CarouselItem key={i}>
                                     <Card className='p-5 md:p-10 border'>
                                         <h2 className='text-center text-gray-400'>{storyBook?.title}</h2>
-
+                                        
                                         <CardContent className='p-5 xl:flex'>
                                             <Image 
                                                 src={page?.imageUrl}

@@ -93,7 +93,7 @@ export const makeRequest = async ({
 }) => {
     if (!token) {
         console.log("NO AUTH TOKEN", token);        
-        return;
+        return false;
     }
 
     try {

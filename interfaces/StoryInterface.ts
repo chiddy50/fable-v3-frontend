@@ -103,6 +103,13 @@ export interface StoryInterface {
   isPaid: boolean;
   paidAt: Date;
 
+
+
+  introductionTone: GenreInterface[];
+  introductionSetting:GenreInterface[];
+  protagonistSuggestions: [];
+  suggestedCharacters: SuggestedCharacterInterface[],
+
   projectTitle: string;
   projectDescription: string;
 
@@ -113,6 +120,60 @@ export interface StoryInterface {
   introductionStep: number;
   confrontationStep: number;
   resolutionStep: number;
+  
+  writingStep: number;
+  introductionLocked: boolean;
+
+  introductionExtraDetails: string;
+
+  // INCITING EVENT CHAPTER
+  incitingIncidentLocked: boolean;
+  typeOfEvent: string;
+  causeOfTheEvent: string;
+  stakesAndConsequences: string;
+  incitingEventCharacters: [];
+  incitingIncidentTone: string[];
+  incitingIncidentSetting: string[];
+
+  // FIRST PLOT POINT
+  firstPlotPointLocked: boolean;
+  firstPlotPointSetting: string[];
+  firstPlotPointTone: string[];
+
+  // RISING ACTION & MIDPOINT
+  risingActionAndMidpointLocked: boolean;
+  challengesProtagonistFaces: string;
+  protagonistPerspectiveChange: string;
+  majorEventPropellingClimax: string;
+  risingActionAndMidpointSetting: string[];
+  risingActionAndMidpointTone: string[];
+  risingActionAndMidpointExtraDetails: string;
+
+  // PINCH POINT & SECOND PLOT POINT
+  newObstacles: string;
+  discoveryChanges: string;
+  howStakesEscalate: string;
+  pinchPointsAndSecondPlotPointLocked: boolean;
+  pinchPointsAndSecondPlotPointSetting: string[];
+  pinchPointsAndSecondPlotPointTone: string[];
+  pinchPointsAndSecondPlotPointExtraDetails: string;
+
+  // CLIMAX & FALLING ACTION
+  finalChallenge: string;
+  challengeOutcome: string;
+  storyResolution: string;
+  climaxAndFallingActionLocked: boolean;
+  climaxAndFallingActionSetting: string[],
+  climaxAndFallingActionTone: string[],
+  climaxAndFallingActionExtraDetails: string;
+
+  climaxConsequences: string;
+  howCharactersEvolve: string;
+  resolutionOfConflict: string;
+  resolutionSetting: string[];
+  resolutionTone: string[];
+  resolutionExtraDetails: string;
+  resolutionLocked: boolean;
 
   thematicElements: [];
   thematicOptions: [];
@@ -121,9 +182,9 @@ export interface StoryInterface {
   overview?: string;
   publicId?: string | null;  // Optional unique string
   metaData?: any | null;  // Optional JSON field
-  createdAt: Date | string;
+  createdAt: string;
+  publishedAt: string;
   plotSuggestions: any,
-  suggestedCharacters: SuggestedCharacterInterface[],
 
   plotElement: ThreeActStructureInterface,
 

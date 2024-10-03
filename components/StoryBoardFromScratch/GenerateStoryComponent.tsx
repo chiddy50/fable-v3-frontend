@@ -3,9 +3,7 @@
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import React, { useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button';
-import { Cog, Save } from 'lucide-react';
 import { extractTemplatePrompts, streamLLMResponse } from '@/services/LlmQueryHelper';
-import { CharacterInterface } from '@/interfaces/CharacterInterface';
 import {
   Accordion
 } from "@/components/ui/accordion"
@@ -97,7 +95,9 @@ const GenerateStoryComponent: React.FC<GenerateStoryComponentProps> = ({
                 method: "POST", 
                 body: {
                   storyId: initialStory?.id,
-                  amount, clientSecret, currency, destination, locale, mode
+                  amount, clientSecret, currency, destination, locale, mode,
+                  type: 'create-story'
+
                 }, 
                 token: dynamicJwtToken,
               });
@@ -284,7 +284,7 @@ const GenerateStoryComponent: React.FC<GenerateStoryComponentProps> = ({
       </Accordion>
 
       {
-        !initialStory?.isPaid && initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld &&
+        !initialStory?.isPaid && initialStory?.storyStructure?.firstPlotPoint &&
         <div className="flex justify-center">
           <Card className='my-5 p-7'>
             <div className="flex justify-center">
@@ -292,8 +292,7 @@ const GenerateStoryComponent: React.FC<GenerateStoryComponentProps> = ({
             </div>
             <p className='mt-3 text-xs text-center'>Your trial session is over, kindly make a payment to proceed</p>
           </Card>
-        </div>
-     
+        </div>     
       }
 
       {

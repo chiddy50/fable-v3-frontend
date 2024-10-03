@@ -28,6 +28,12 @@ const nextConfig = {
             hostname: 'pub-3626123a908346a7a8be8d9295f44e26.r2.dev',
             pathname: '/**',
           },
+          {
+            protocol: 'https',
+            hostname: 'cdn2.stablediffusionapi.com',
+            pathname: '/**',
+          },
+          
         ],
     },
 };

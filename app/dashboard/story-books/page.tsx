@@ -20,7 +20,7 @@ const DashboardStoryBooksPage = () => {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                <BreadcrumbPage>Transactions</BreadcrumbPage>
+                <BreadcrumbPage>Story Books</BreadcrumbPage>
                 </BreadcrumbItem>
             </BreadcrumbList>
             </Breadcrumb>
