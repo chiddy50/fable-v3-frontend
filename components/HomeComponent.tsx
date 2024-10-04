@@ -38,11 +38,11 @@ const HomeComponent = () => {
 
 
     useEffect(() => {
-        if (!initialFetchDone) {
+        if (!publishedStories) {
           fetchStories();
           setInitialFetchDone(true);
         }
-    }, [initialFetchDone]);
+    }, [publishedStories]);
 
     const fetchStories = useCallback(async () => {
         try {
