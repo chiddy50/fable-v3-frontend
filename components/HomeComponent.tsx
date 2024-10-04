@@ -143,7 +143,7 @@ const HomeComponent = () => {
                   </div>
                   <h1 className="font-bold text-2xl capitalize">{trimWords(story?.projectTitle, 15)}</h1>
                   <p className="font-light mt-2 text-[10px] capitalize">By {story?.user?.name}</p>
-                  <p className="font-semibold mt-2 text-[10px] capitalize">{story?.genres.join(", ")}</p>
+                  <p className="font-semibold mt-2 text-[10px] capitalize">{story?.genres?.join(", ")}</p>
                   {/* <p className="mt-5 text-xs text-gray-600">
                     { trimWords(story?.projectDescription, 15)}
                   </p> */}
