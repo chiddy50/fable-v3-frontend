@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, Suspense } from 'react';
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -27,6 +27,15 @@ import RisingActionAndMidpointComponent from '@/components/RefineStory/RisingAct
 import PinchPointsAndSecondPlotPointComponent from '@/components/RefineStory/PinchPointsAndSecondPlotPointComponent';
 import ClimaxAndFallingActionComponent from '@/components/RefineStory/ClimaxAndFallingActionComponent';
 import ResolutionComponent from '@/components/RefineStory/ResolutionComponent';
+
+
+function MyComponent() {
+    return (
+      <Suspense fallback={<div>Loading...</div>}>
+        <RefineStoryPage />
+      </Suspense>
+    );
+}
 
 const RefineStoryPage = () => {
     const [story, setStory] = useState<StoryInterface|null>(null)
@@ -257,7 +266,7 @@ const RefineStoryPage = () => {
     )
 }
 
-export default RefineStoryPage
+export default MyComponent
 
 
 // Analysis and Suggestions: A "Fine-Tune" button triggers the LLM to analyze the generated story and provide suggestions for different story directions, including:

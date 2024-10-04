@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useState } from 'react'
+import React, { useState, Suspense } from 'react'
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -51,6 +51,13 @@ const CHAPTER_IMAGE_MAP = {
   
 type ChapterKey = keyof typeof CHAPTER_IMAGE_MAP;
 
+function MyComponent() {
+    return (
+      <Suspense fallback={<div>Loading...</div>}>
+        <ProjectSummaryPage />
+      </Suspense>
+    );
+}
 const ProjectSummaryPage = () => {
     const [story, setStory] = useState<StoryInterface|null>(null)
     const [modifyModalOpen, setModifyModalOpen] = useState<boolean>(false);
@@ -498,4 +505,4 @@ const ProjectSummaryPage = () => {
     );
 }
 
-export default ProjectSummaryPage
+export default MyComponent

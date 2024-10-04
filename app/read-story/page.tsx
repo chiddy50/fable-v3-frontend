@@ -24,6 +24,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { Suspense } from 'react';
 
 // const BlurredContent = ({ content, blurAfter, onPayment }) => {
 //   const [isPaid, setIsPaid] = useState(false);
@@ -60,6 +61,14 @@ import {
 // };
 
 const sans = Dosis({ subsets: ['latin'] });
+
+function MyComponent() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ReadStoryPage />
+    </Suspense>
+  );
+}
 
 const ReadStoryPage = () => {
   const [isPaid, setIsPaid] = useState(false);
@@ -197,4 +206,4 @@ const ReadStoryPage = () => {
   );
 };
 
-export default ReadStoryPage;
+export default MyComponent;

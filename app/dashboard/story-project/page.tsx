@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import CreateCharactersComponent from '@/components/StoryBoardFromScratch/CreateCharactersComponent';
 import CreatePlotComponent from '@/components/StoryBoardFromScratch/CreatePlotComponent';
@@ -22,6 +22,14 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+
+function MyComponent() {
+    return (
+      <Suspense fallback={<div>Loading...</div>}>
+        <StoryProjectPage />
+      </Suspense>
+    );
+}
 
 const StoryProjectPage = () => {
     const [currentTab, setCurrentTab]= useState<string>('story-starter');
@@ -233,4 +241,4 @@ const StoryProjectPage = () => {
     )
 }
 
-export default StoryProjectPage
+export default MyComponent
