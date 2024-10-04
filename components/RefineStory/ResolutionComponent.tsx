@@ -3,7 +3,7 @@
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import React, { useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button';
-import { ArrowLeft, ArrowRight, Cog, Lock } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Cog, Lock, NotebookText } from 'lucide-react';
 import { extractTemplatePrompts, queryLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
 import { toast } from 'sonner';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
@@ -40,8 +40,6 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
     const [resolution, setResolution] = useState<string>(initialStory?.storyStructure?.resolution ?? "");
     const [modifyModalOpen, setModifyModalOpen] = useState<boolean>(false);
     const [generating, setGenerating] = useState<boolean>(false);
-
-    console.log(initialStory);
     
     // What are the consequences of the climax?
     const [climaxConsequences, setClimaxConsequences] = useState<string>(initialStory?.climaxConsequences ?? "");    
@@ -502,13 +500,14 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
 
                 <Link href={`/dashboard/project-summary?story-id=${initialStory?.id}`}>
                     <Button size="sm" className='bg-custom_green w-full flex items-center gap-2' >
-                        Publish
-                        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96" preserveAspectRatio="xMidYMid meet">
+                        Summary
+                        <NotebookText className='w-3 h-3'/>
+                        {/* <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96" preserveAspectRatio="xMidYMid meet">
                         <g transform="translate(0,96) scale(0.1,-0.1)" fill="#FFFFFF" stroke="none">
                             <path d="M431 859 c-81 -16 -170 -97 -186 -169 -5 -22 -15 -32 -42 -41 -46 -15 -99 -63 -125 -112 -27 -54 -27 -140 1 -194 40 -78 157 -151 181 -112 12 18 4 27 -38 45 -76 31 -112 85 -112 167 0 62 25 108 79 144 44 29 132 32 176 5 35 -22 55 -18 55 9 0 22 -66 59 -105 59 -23 0 -25 3 -20 23 11 35 57 88 95 108 46 25 134 25 180 0 19 -10 48 -35 64 -55 41 -50 49 -145 17 -206 -24 -46 -26 -66 -9 -76 14 -9 54 39 69 84 10 30 14 33 38 27 14 -3 41 -21 60 -40 27 -27 35 -43 39 -84 2 -27 2 -61 -2 -75 -9 -36 -62 -84 -107 -96 -28 -8 -39 -16 -39 -30 0 -30 56 -26 106 6 112 73 131 213 42 310 -23 25 -57 49 -81 57 -38 12 -42 17 -49 57 -22 127 -155 215 -287 189z"/>
                             <path d="M464 460 c-29 -11 -104 -99 -104 -121 0 -30 32 -23 62 13 l27 33 1 -127 c0 -139 4 -158 30 -158 26 0 30 19 30 158 l1 127 27 -33 c29 -35 62 -43 62 -14 0 19 -72 107 -98 121 -10 5 -26 5 -38 1z"/>
                         </g>
-                        </svg>    
+                        </svg>     */}
                     </Button>
                     
                 </Link>

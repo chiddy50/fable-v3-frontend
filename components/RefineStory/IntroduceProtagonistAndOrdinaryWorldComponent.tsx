@@ -159,28 +159,31 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
 
         try {
             const prompt = `
-            You are a skilled storyteller, author, and narrative designer known for creating immersive narratives, developing deep characters, and transporting readers into vivid worlds. Your writing style is creative, engaging, and attentive to detail. 
-            
-            **OUTPUT**
-            You will be given an existing story introduction that presents the protagonist and their ordinary world. Your task is to rewrite this introduction, carefully incorporating the following elements:
-            - Story Introduction: {introduceProtagonistAndOrdinaryWorld}
-            - Genre: {genres}
-            - Tone: {tones}
-            - Setting: {setting}
-            - Protagonist: {protagonists}
-            
-            While rewriting, ensure you consider:
-            - The protagonist's motivations, role, backstory, and character traits.
-            - The genre, tone, and setting provided to maintain consistency with the story's direction.
+                You are a skilled storyteller, author, and narrative designer renowned for creating immersive narratives, deep characters, and vivid worlds. Your writing is creative, engaging, and detail-oriented.
 
-            Capture the emotional journey of the protagonist by introducing the protagonist(s).
-            Do not write about the end of the story just focus on the introduction and description of the character. If there is any hint of how the story ended, remove it and rewrite it again.             
-            
-            **Note:** Focus solely on the story. Do not include titles, subtitles, or act labels.
-            **INPUT**
-            Story Idea: {storyIdea}
+                **OUTPUT**
+                You will be provided with an existing story introduction that presents the protagonist and their ordinary world. Your task is to rewrite this introduction with the following updates:
+
+                - Story Introduction: {introduceProtagonistAndOrdinaryWorld}
+                - Genre: {genres}
+                - Tone: {tones}
+                - Setting: {setting}
+                - Protagonist Details: {protagonists}
+
+                **Instructions:**
+                1. **Compare & Update**: If any aspect of the protagonist (name, motivations, role, backstory, character traits) has changed, ensure consistency by incorporating those updates in the rewrite. This includes changes for a single protagonist or multiple protagonists.
+                2. **Maintain Consistency**: Align the genre, tone, and setting with the story’s intended direction, ensuring a cohesive narrative.
+                3. **Incorporate Additional Details**: If any extra modifications or details are provided ({introductionExtraDetails}), smoothly integrate them into the new introduction.
+                4. **Focus on the Protagonist**: Capture the emotional journey and description of the protagonist(s) without revealing or hinting at the story's ending. Rewrite to remove any ending spoilers if they exist.
+
+                **Note**: Recheck protagonist details, genre, tone, and setting for consistency. Completely regenerate the introduction as needed.
+                **Note**: Focus solely on the story. Do not include titles, subtitles, or act labels.
+
+                **INPUT**
+                Story Idea: {storyIdea}
+                Additional Details: {introductionExtraDetails}
             `;
-            
+
             setGenerating(true);
             setModifyModalOpen(false);
             const response = await streamLLMResponse(prompt, {
@@ -189,6 +192,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                 tones: tonePrompt,
                 setting: settingPrompt,
                 protagonists: protagonistSuggestionsPrompt,
+                introductionExtraDetails,
                 introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld
             });
 
@@ -475,7 +479,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                 className='item2 flex items-center gap-2'
                 disabled={generating || !introduceProtagonistAndOrdinaryWorld}
                 onClick={() => {
-                    if (storyGenres) {
+                    if (genres) {
                         setModifyModalOpen(true);
                     }else{
                         analyzeStory()
@@ -651,7 +655,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                             <Accordion type="single" className='' collapsible>
                                 {
                                     protagonists?.map((protagonist, index: number) => (                                                
-                                        <AccordionItem key={index} value="item-1" className='mb-3 border-none'>
+                                        <AccordionItem key={index} value={`item-${index+1}`} className='mb-3 border-none'>
                                             <AccordionTrigger className='text-sm bg-gray-800 px-4 rounded-2xl text-gray-100'>{protagonist?.name}</AccordionTrigger>                                
                                             <AccordionContent>
                                                 <div key={index} className='mt-1 bg-white p-4 rounded-2xl border w-full'>

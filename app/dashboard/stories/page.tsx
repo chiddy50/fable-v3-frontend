@@ -183,6 +183,7 @@ const DashboardStoriesPage = () => {
                                             <p className="font-light mt-1 text-[10px]">{displayGenre(story?.genres)}</p>
                                             <p className="mt-2 text-gray-600 text-xs line-clamp-3">{trimWords(story?.projectDescription, 10)}</p>
                                             <div className=" flex mt-3 justify-between items-center">
+                                                <p className='text-sm font-bold capitalize'>{story?.status}</p>
                                                 <Link href={`/dashboard/refine-story?story-id=${story.id}`}>                                            
                                                 {/* <Link href={`/dashboard/story-project?story-id=${story.id}&current-step=${story.currentStepUrl}`}>                                             */}
                                                     <Button size="sm">Edit</Button>

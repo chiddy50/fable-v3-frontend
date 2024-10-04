@@ -65,16 +65,16 @@ const RefineStoryPage = () => {
     }, [story]);
 
 
-    const createNewProject = async () => {
+    const updateProject = async () => {
         if (!validateForm()) return;
 
         try {
-            let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch`;
+            let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${storyId}`;
 
             showPageLoader();
             let response = await makeRequest({
                 url,
-                method: "POST", 
+                method: "PUT", 
                 body: {
                     projectTitle,
                     projectDescription
@@ -84,11 +84,10 @@ const RefineStoryPage = () => {
 
             const story = response?.data?.story;
             if (!story?.id) {
-                toast.error("Unable to create project");
+                toast.error("Unable to update project");
                 hidePageLoader();
                 return;
             }
-            router.push(`/dashboard/refine-story?story-id=${story?.id}`);
 
         } catch (error) {
             console.error(error);      
@@ -179,7 +178,7 @@ const RefineStoryPage = () => {
                             placeholder='Kindly share your story idea or any keywords'
                             className='p-5 outline-none text-sm border rounded-lg w-full' 
                             />
-                            <Button onClick={() => createNewProject()} className='text-gray-50 mt-3 bg-[#46aa41]'>Save</Button>
+                            <Button onClick={() => updateProject()} className='text-gray-50 mt-3 bg-[#46aa41]'>Update</Button>
                         </div>
 
                     </div>

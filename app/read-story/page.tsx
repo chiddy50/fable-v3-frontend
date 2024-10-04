@@ -65,6 +65,7 @@ const ReadStoryPage = () => {
   const [isPaid, setIsPaid] = useState(false);
   const [story, setStory] = useState<StoryInterface|null>(null)
   const [accessRecord, setAccessRecord] = useState(null);
+  const [depositAddress, seDepositAddress] = useState(null);
   const [mounted, setMounted] = useState<boolean>(false);
 
   const storyId = useSearchParams().get('story-id');
@@ -85,8 +86,9 @@ const ReadStoryPage = () => {
           }
         );
         if (response?.data?.story) {
-            setStory(response?.data?.story);
-            setAccessRecord(response?.data?.accessRecord)
+          setStory(response?.data?.story);
+          setAccessRecord(response?.data?.accessRecord)
+          seDepositAddress(response?.data?.depositAddress)
         }
         return response?.data?.story;
     },
@@ -180,7 +182,13 @@ const ReadStoryPage = () => {
             </BreadcrumbList>
           </Breadcrumb>
 
-          <ReadChapterComponent moveToNextChapter={moveToNextChapter} story={story} accessRecord={accessRecord} refetch={refetch}/>          
+          <ReadChapterComponent 
+          moveToNextChapter={moveToNextChapter} 
+          story={story} 
+          accessRecord={accessRecord} 
+          refetch={refetch}
+          depositAddress={depositAddress}
+          />          
 
         </div>
       }

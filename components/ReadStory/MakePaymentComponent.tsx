@@ -7,6 +7,7 @@ import { makeRequest } from '@/services/request';
 const MakePaymentComponent = ({
     story,
     accessRecord,
+    depositAddress,
     refetch
 }) => {
     const [mounted, setMounted] = useState<boolean>(false);
@@ -19,7 +20,7 @@ const MakePaymentComponent = ({
         if(mounted && accessRecord?.hasAccess === false){
             const { button } = code.elements.create('button', {
                 currency: 'usd',
-                destination: process.env.NEXT_PUBLIC_CODE_WALLET_DEPOSIT_ADDRESS,
+                destination: depositAddress,
                 amount: 0.05,
                 // idempotencyKey: `${story?.id}`,
             });
@@ -43,7 +44,8 @@ const MakePaymentComponent = ({
                         },
                         body: JSON.stringify({
                             narration: "Read Story",
-                            type: "read-story"
+                            type: "read-story",
+                            depositAddress
                         })
                     });
                         
