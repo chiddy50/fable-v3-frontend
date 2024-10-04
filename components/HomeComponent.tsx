@@ -136,53 +136,51 @@ const HomeComponent = () => {
           </div>}
             
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5">
-            {!loading && publishedStories?.map((story, index) => (
+            {!loading && publishedStories?.filter(story => story.publishedAt).map((story, index) => (
 
-              <div key={index} className="p-5 w-full bg-[#F2F8F2] grid grid-cols-6 gap-5 rounded-lg border">
-                <div className=" col-span-6 md:col-span-6">
-                  <div className="flex justify-between items-center mb-1">
-                    <p className="text-xs font-semibold">{story?.publishedAt ? formatDate(story?.publishedAt) : ""}</p>
-                    <p className="font-bold text-[10px]">5 min read</p>
-                  </div>
-                  <h1 className="font-bold text-2xl capitalize">{story?.projectTitle.slice(0, 20)}...</h1>
-                  <p className="font-light mt-2 text-[10px] capitalize">By {story?.user?.name}</p>
-                    <div className="font-semibold mt-2 text-[10px] capitalize flex flex-wrap gap-2">
-                    {
-                        story?.genres?.map((genre, index) => (
-                            <p className="px-4 py-1 border rounded-2xl bg-gray-50">{genre}</p>
-                        ))
-                    }
+              <div key={index} className="p-5 flex flex-col justify-between w-full bg-[#F2F8F2] rounded-lg border">
+                <div className="flex justify-between items-center mb-1">
+                <p className="text-xs font-semibold">{story?.publishedAt ? formatDate(story?.publishedAt) : ""}</p>
+                <p className="font-bold text-[10px]">5 min read</p>
+                </div>
+                <h1 className="font-bold text-2xl capitalize">{story?.projectTitle.slice(0, 20)}...</h1>
+                <p className="font-light mt-2 text-[10px] capitalize">By {story?.user?.name}</p>
+                <div className="font-semibold mt-2 text-[10px] capitalize flex flex-wrap gap-2">
+                {
+                    story?.genres?.map((genre, index) => (
+                        <p key={index} className="px-4 py-1 border rounded-2xl bg-gray-50">{genre}</p>
+                    ))
+                }
+                </div>
+                {/* <p className="mt-5 text-xs text-gray-600">
+                { trimWords(story?.projectDescription, 15)}
+                </p> */}
+                <div className="mt-4">
+                {
+                    !story?.introductionImage && <img src="/no-image.png" alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
+                }
+                {
+                    story?.introductionImage && <img src={story?.introductionImage} alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
+                }
+                </div>
+
+                <div className="mt-4 flex justify-between items-center">
+                {/* <Link href={`/read-story?story-id=${story?.id}`}> */}
+                    <Button onClick={() => moveToReadStory(story?.id)} size="sm" variant="outline">Read</Button>
+                {/* </Link> */}
+
+                <div className="flex gap-4 items-center">                  
+
+                    <div className="flex gap-1 items-center">
+                    <MessageSquare className="w-4 h-4" />
+                    <span className="text-[10px]">30</span>
                     </div>
-                  {/* <p className="mt-5 text-xs text-gray-600">
-                    { trimWords(story?.projectDescription, 15)}
-                  </p> */}
-                  <div className="mt-4">
-                    {
-                      !story?.introductionImage && <img src="/no-image.png" alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
-                    }
-                    {
-                      story?.introductionImage && <img src={story?.introductionImage} alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
-                    }
-                  </div>
 
-                  <div className="mt-4 flex justify-between items-center">
-                    {/* <Link href={`/read-story?story-id=${story?.id}`}> */}
-                      <Button onClick={() => moveToReadStory(story?.id)} size="sm" variant="outline">Read</Button>
-                    {/* </Link> */}
-
-                    <div className="flex gap-4 items-center">                  
-
-                      <div className="flex gap-1 items-center">
-                        <MessageSquare className="w-4 h-4" />
-                        <span className="text-[10px]">30</span>
-                      </div>
-
-                      <div className="flex gap-1 items-center">
-                        <ThumbsUp className="w-4 h-4"/>
-                        <span className="text-[10px]">3</span>
-                      </div>
+                    <div className="flex gap-1 items-center">
+                    <ThumbsUp className="w-4 h-4"/>
+                    <span className="text-[10px]">3</span>
                     </div>
-                  </div>
+                </div>
                 </div>
               </div>
             ))}
