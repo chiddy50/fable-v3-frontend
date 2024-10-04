@@ -148,7 +148,7 @@ const HomeComponent = () => {
                   <p className="font-light mt-2 text-[10px] capitalize">By {story?.user?.name}</p>
                     <div className="font-semibold mt-2 text-[10px] capitalize flex flex-wrap gap-2">
                     {
-                        story?.genres.map((genre, index) => (
+                        story?.genres?.map((genre, index) => (
                             <p className="px-4 py-1 border rounded-2xl bg-gray-50">{genre}</p>
                         ))
                     }
