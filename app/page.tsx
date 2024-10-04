@@ -13,10 +13,13 @@ import { StoryInterface } from "@/interfaces/StoryInterface";
 import { formatDate, trimWords } from "@/lib/helper";
 import { Skeleton } from "@/components/ui/skeleton";
 import AuthenticationButton from "@/components/AuthenticationButton";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { v4 as uuidv4 } from 'uuid';
 
 export default function Home() {
   const [publishedStories, setPublishedStories] = useState<StoryInterface[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const { user, primaryWallet, setShowAuthFlow, handleLogOut } = useDynamicContext()
   const { push } = useRouter();
   const dynamicJwtToken = getAuthToken();
@@ -31,8 +34,23 @@ export default function Home() {
     push("/dashboard/stories")
   }
 
+
+  // const { data: storyData, isFetching, isError, refetch } = useQuery({
+  //   queryKey: ['storyFromScratchFormData', uuidv4()],
+  //   queryFn: async () => {
+  //       let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all`;
+
+  //       const response = await axios.get(url);
+  //       if (response?.data?.story) {
+  //         setPublishedStories(response?.data?.stories);
+  //       }
+  //       return response?.data?.story;
+  //   },
+  //   enabled: true,
+  // });
+
   useEffect(() => {
-    // fetchStories()
+    fetchStories()
   }, [])
 
    const fetchStories = async () => {
@@ -107,6 +125,7 @@ export default function Home() {
       </div>
 
       <div className="mt-40 mb-10">
+
         <div className=" mx-auto xs:px-5 sm:px-5 md:px-10 lg:px-20">
           <h1 className="mb-10 text-gray-600 xs:text-3xl sm:text-3xl text-4xl font-bold">
             Checkout these stories..
@@ -133,7 +152,7 @@ export default function Home() {
                     <p className="text-xs font-semibold">{story?.publishedAt ? formatDate(story?.publishedAt) : ""}</p>
                     <p className="font-bold text-[10px]">5 min read</p>
                   </div>
-                  <h1 className="font-bold text-2xl capitalize">{story?.projectTitle}</h1>
+                  <h1 className="font-bold text-2xl capitalize">{trimWords(story?.projectTitle, 15)}</h1>
                   <p className="font-light mt-2 text-[10px] capitalize">By {story?.user?.name}</p>
                   <p className="font-semibold mt-2 text-[10px] capitalize">{story?.genres.join(", ")}</p>
                   {/* <p className="mt-5 text-xs text-gray-600">
