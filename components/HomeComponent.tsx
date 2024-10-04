@@ -135,6 +135,7 @@ const HomeComponent = ({ stories }) => {
           </div>}
             
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5">
+            
             {!loading && publishedStories?.map((story, index) => (
 
               <div key={index} className="p-5 w-full bg-[#F2F8F2] grid grid-cols-6 gap-5 rounded-lg border">
