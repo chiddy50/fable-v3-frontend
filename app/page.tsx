@@ -51,7 +51,7 @@ export default function Home() {
 
   useEffect(() => {
     if (publishedStories?.length < 1) {      
-      fetchStories()
+      // fetchStories()
     }
   }, [])
 
