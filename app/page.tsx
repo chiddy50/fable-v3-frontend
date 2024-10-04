@@ -136,9 +136,17 @@ export default function Home() {
                   <h1 className="font-bold text-2xl capitalize">{story?.projectTitle}</h1>
                   <p className="font-light mt-2 text-[10px] capitalize">By {story?.user?.name}</p>
                   <p className="font-semibold mt-2 text-[10px] capitalize">{story?.genres.join(", ")}</p>
-                  <p className="mt-5 text-xs text-gray-600">
+                  {/* <p className="mt-5 text-xs text-gray-600">
                     { trimWords(story?.projectDescription, 15)}
-                  </p>
+                  </p> */}
+                  <div className="mt-4">
+                    {
+                      !story?.introductionImage && <img src="/no-image.png" alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
+                    }
+                    {
+                      story?.introductionImage && <img src={story?.introductionImage} alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
+                    }
+                  </div>
 
                   <div className="mt-4 flex justify-between items-center">
                     {/* <Link href={`/read-story?story-id=${story?.id}`}> */}

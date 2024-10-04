@@ -179,6 +179,8 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                 **Note**: Recheck protagonist details, genre, tone, and setting for consistency. Completely regenerate the introduction as needed.
                 **Note**: Focus solely on the story. Do not include titles, subtitles, or act labels.
 
+                Just write the story do not add any thing like saying you have added any changes, just focus on writing the story. 
+
                 **INPUT**
                 Story Idea: {storyIdea}
                 Additional Details: {introductionExtraDetails}
