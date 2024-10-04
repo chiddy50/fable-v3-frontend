@@ -38,7 +38,10 @@ const HomeComponent = () => {
 
 
     useEffect(() => {
-        // fetchStories();
+        if (publishedStories.length < 1) {
+            
+            fetchStories();
+        }
 
     }, []);
 
