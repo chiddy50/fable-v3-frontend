@@ -8,7 +8,7 @@ import StoryWriter from "@/components/StoryWriter";
 import { BookOpen, CoinsIcon, FilmIcon, LogIn, LogOut, Menu, MessageSquare, ThumbsUp } from "lucide-react";
 import { getAuthToken, useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { StoryInterface } from "@/interfaces/StoryInterface";
 import { formatDate, trimWords } from "@/lib/helper";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -38,39 +38,32 @@ const HomeComponent = () => {
 
 
     useEffect(() => {
-        if (publishedStories.length < 1) {
-            fetchStories();
-          setInitialFetchDone(true);
-        }
-    }, [publishedStories]);
-
-    const fetchStories = useCallback(async () => {
-        if (publishedStories.length < 1) {            
+        async function fetchStories(){
             try {
-                let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all`;
-                setLoading(true)
-                const res = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // 'Authorization': `Bearer ${dynamicJwtToken}`
-                    }
-                });
-          
-                const json = await res.json();
-                console.log(json);
-                let data = json?.stories;
-                if (data) {
-                  setPublishedStories(data);
-                }
+              let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all`;
+              setLoading(true)
+              const res = await fetch(url, {
+                  method: 'GET',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  }
+              });
+        
+              const json = await res.json();
+              console.log(json);
+              let data = json?.stories;
+              if (data) {
+                setPublishedStories(data);
+              }
             } catch (error) {
-                console.error(error);      
+              console.error(error);      
             }finally{
-                setLoading(false)
-            }    
+              setLoading(false)
+            }
         }
-    }, []);
+        fetchStories();
 
+    }, []);
 
 
     const moveToReadStory = (storyId: string) => {
@@ -83,6 +76,8 @@ const HomeComponent = () => {
         push(`/read-story?story-id=${storyId}`);
     }
     
+    if (!publishedStories) return <div>Loading...</div>
+
     
     return (
         <main className="flex-1 " >         
