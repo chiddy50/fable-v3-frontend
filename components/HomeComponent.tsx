@@ -38,7 +38,7 @@ const HomeComponent = () => {
 
 
     useEffect(() => {
-        fetchStories();
+        // fetchStories();
 
     }, []);
 
