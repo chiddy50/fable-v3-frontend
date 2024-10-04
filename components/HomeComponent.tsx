@@ -144,9 +144,15 @@ const HomeComponent = () => {
                     <p className="text-xs font-semibold">{story?.publishedAt ? formatDate(story?.publishedAt) : ""}</p>
                     <p className="font-bold text-[10px]">5 min read</p>
                   </div>
-                  <h1 className="font-bold text-2xl capitalize">{trimWords(story?.projectTitle, 15)}</h1>
+                  <h1 className="font-bold text-2xl capitalize">{story?.projectTitle.slice(0, 20)}...</h1>
                   <p className="font-light mt-2 text-[10px] capitalize">By {story?.user?.name}</p>
-                  <p className="font-semibold mt-2 text-[10px] capitalize">{story?.genres?.join(", ")}</p>
+                    <div className="font-semibold mt-2 text-[10px] capitalize flex flex-wrap gap-2">
+                    {
+                        story?.genres.map((genre, index) => (
+                            <p className="px-4 py-1 border rounded-2xl bg-gray-50">{genre}</p>
+                        ))
+                    }
+                    </div>
                   {/* <p className="mt-5 text-xs text-gray-600">
                     { trimWords(story?.projectDescription, 15)}
                   </p> */}
