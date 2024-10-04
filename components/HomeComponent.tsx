@@ -38,35 +38,37 @@ const HomeComponent = () => {
 
 
     useEffect(() => {
-        if (!publishedStories) {
-          fetchStories();
+        if (publishedStories.length < 1) {
+            fetchStories();
           setInitialFetchDone(true);
         }
     }, [publishedStories]);
 
     const fetchStories = useCallback(async () => {
-        try {
-            let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all`;
-            setLoading(true)
-            const res = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // 'Authorization': `Bearer ${dynamicJwtToken}`
+        if (publishedStories.length < 1) {            
+            try {
+                let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all`;
+                setLoading(true)
+                const res = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // 'Authorization': `Bearer ${dynamicJwtToken}`
+                    }
+                });
+          
+                const json = await res.json();
+                console.log(json);
+                let data = json?.stories;
+                if (data) {
+                  setPublishedStories(data);
                 }
-            });
-      
-            const json = await res.json();
-            console.log(json);
-            let data = json?.stories;
-            if (data) {
-              setPublishedStories(data);
-            }
-        } catch (error) {
-            console.error(error);      
-        }finally{
-            setLoading(false)
-        }    
+            } catch (error) {
+                console.error(error);      
+            }finally{
+                setLoading(false)
+            }    
+        }
     }, []);
 
 
