@@ -17,11 +17,9 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { v4 as uuidv4 } from 'uuid';
 
-const HomeComponent = ({ stories }) => {
-    console.log({stories});
-    
-    const [publishedStories, setPublishedStories] = useState(stories ?? []);
-    const [loading, setLoading] = useState<boolean>(false);
+const HomeComponent = () => {
+    const [publishedStories, setPublishedStories] = useState<StoryInterface[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
     const [initialFetchDone, setInitialFetchDone] = useState(false);
 
     const { user, primaryWallet, setShowAuthFlow, handleLogOut } = useDynamicContext()
@@ -39,34 +37,34 @@ const HomeComponent = ({ stories }) => {
     }
 
 
-    // useEffect(() => {
-    //     // fetchStories();
+    useEffect(() => {
+        fetchStories();
 
-    // }, []);
+    }, []);
 
-    // const fetchStories = async () => {
-    //     try {
-    //       let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all`;
-    //       setLoading(true)
-    //       const res = await fetch(url, {
-    //           method: 'GET',
-    //           headers: {
-    //               'Content-Type': 'application/json',
-    //           }
-    //       });
+    const fetchStories = async () => {
+        try {
+          let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all`;
+          setLoading(true)
+          const res = await fetch(url, {
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json',
+              }
+          });
     
-    //       const json = await res.json();
-    //       console.log(json);
-    //       let data = json?.stories;
-    //       if (data) {
-    //         setPublishedStories(data);
-    //       }
-    //     } catch (error) {
-    //       console.error(error);      
-    //     }finally{
-    //       setLoading(false)
-    //     }
-    // }
+          const json = await res.json();
+          console.log(json);
+          let data = json?.stories;
+          if (data) {
+            setPublishedStories(data);
+          }
+        } catch (error) {
+          console.error(error);      
+        }finally{
+          setLoading(false)
+        }
+    }
 
     const moveToReadStory = (storyId: string) => {
         let redirectRoute = `/read-story?story-id=${storyId}`;
@@ -135,7 +133,6 @@ const HomeComponent = ({ stories }) => {
           </div>}
             
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5">
-            
             {!loading && publishedStories?.map((story, index) => (
 
               <div key={index} className="p-5 w-full bg-[#F2F8F2] grid grid-cols-6 gap-5 rounded-lg border">
