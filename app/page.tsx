@@ -50,7 +50,9 @@ export default function Home() {
   // });
 
   useEffect(() => {
-    // fetchStories()
+    if (publishedStories?.length < 1) {      
+      fetchStories()
+    }
   }, [])
 
    const fetchStories = async () => {
