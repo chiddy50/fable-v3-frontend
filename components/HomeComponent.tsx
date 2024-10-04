@@ -8,7 +8,7 @@ import StoryWriter from "@/components/StoryWriter";
 import { BookOpen, CoinsIcon, FilmIcon, LogIn, LogOut, Menu, MessageSquare, ThumbsUp } from "lucide-react";
 import { getAuthToken, useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { StoryInterface } from "@/interfaces/StoryInterface";
 import { formatDate, trimWords } from "@/lib/helper";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,6 +20,8 @@ import { v4 as uuidv4 } from 'uuid';
 const HomeComponent = () => {
     const [publishedStories, setPublishedStories] = useState<StoryInterface[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [initialFetchDone, setInitialFetchDone] = useState(false);
+
     const { user, primaryWallet, setShowAuthFlow, handleLogOut } = useDynamicContext()
     const { push } = useRouter();
     const dynamicJwtToken = getAuthToken();
@@ -34,36 +36,40 @@ const HomeComponent = () => {
       push("/dashboard/stories")
     }
 
+
     useEffect(() => {
-        if (publishedStories?.length < 1) {      
-          fetchStories()
+        if (!initialFetchDone) {
+          fetchStories();
+          setInitialFetchDone(true);
         }
-      }, [])
-    
-    const fetchStories = async () => {
+    }, [initialFetchDone]);
+
+    const fetchStories = useCallback(async () => {
         try {
-          let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all`;
-          setLoading(true)
-          const res = await fetch(url, {
-              method: 'GET',
-              headers: {
-                  'Content-Type': 'application/json',
-                  // 'Authorization': `Bearer ${dynamicJwtToken}`
-              }
-          });
-    
-          const json = await res.json();
-          console.log(json);
-          let data = json?.stories;
-          if (data) {
-            setPublishedStories(data);
-          }
+            let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all`;
+            setLoading(true)
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // 'Authorization': `Bearer ${dynamicJwtToken}`
+                }
+            });
+      
+            const json = await res.json();
+            console.log(json);
+            let data = json?.stories;
+            if (data) {
+              setPublishedStories(data);
+            }
         } catch (error) {
-          console.error(error);      
+            console.error(error);      
         }finally{
-          setLoading(false)
-        }
-    }
+            setLoading(false)
+        }    
+    }, []);
+
+
 
     const moveToReadStory = (storyId: string) => {
         let redirectRoute = `/read-story?story-id=${storyId}`;
