@@ -38,33 +38,33 @@ const HomeComponent = () => {
 
 
     useEffect(() => {
-        async function fetchStories(){
-            try {
-              let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all`;
-              setLoading(true)
-              const res = await fetch(url, {
-                  method: 'GET',
-                  headers: {
-                      'Content-Type': 'application/json',
-                  }
-              });
-        
-              const json = await res.json();
-              console.log(json);
-              let data = json?.stories;
-              if (data) {
-                setPublishedStories(data);
-              }
-            } catch (error) {
-              console.error(error);      
-            }finally{
-              setLoading(false)
-            }
-        }
         fetchStories();
 
     }, []);
 
+    const fetchStories = async () => {
+        try {
+          let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all`;
+          setLoading(true)
+          const res = await fetch(url, {
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json',
+              }
+          });
+    
+          const json = await res.json();
+          console.log(json);
+          let data = json?.stories;
+          if (data) {
+            setPublishedStories(data);
+          }
+        } catch (error) {
+          console.error(error);      
+        }finally{
+          setLoading(false)
+        }
+    }
 
     const moveToReadStory = (storyId: string) => {
         let redirectRoute = `/read-story?story-id=${storyId}`;
@@ -76,8 +76,6 @@ const HomeComponent = () => {
         push(`/read-story?story-id=${storyId}`);
     }
     
-    if (!publishedStories) return <div>Loading...</div>
-
     
     return (
         <main className="flex-1 " >         

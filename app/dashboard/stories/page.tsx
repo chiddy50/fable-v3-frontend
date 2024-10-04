@@ -71,8 +71,8 @@ const DashboardStoriesPage = () => {
         }
 
         if (!depositAddress) {
-            toast.error("Kindly provide a deposit address");
-            return false;
+            // toast.error("Kindly provide a deposit address");
+            // return false;
         }
         
         return true;
@@ -91,7 +91,7 @@ const DashboardStoriesPage = () => {
                 body: {
                     projectTitle,
                     projectDescription,
-                    depositAddress
+                    depositAddress: "5wBP4XzTEVoVxkEm4e5NJ2Dgg45DHkH2kSweGEJaJ91w"
                 }, 
                 token: dynamicJwtToken,
             });
