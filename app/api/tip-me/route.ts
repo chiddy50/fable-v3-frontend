@@ -1,27 +1,37 @@
 import { ACTIONS_CORS_HEADERS, ActionError, ActionGetResponse, ActionPostRequest, ActionPostResponse, createPostResponse } from '@solana/actions';
 import { Connection, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction, clusterApiUrl } from '@solana/web3.js';
+import axios from 'axios';
 
 
-export const GET = (req: Request) => {
+export const GET = async (req: Request) => {
     try {
         const url = new URL(req.url);
-        const payload = {
-            icon: `/no-image.png`,
-            title: "Sample title",
-            description: "Create and manage your events and events Items directly from blinks, get access to the number of those that have purchased your tickets and registered for your events directly from your blinks.",
-            label: `Create Event`,
+        const params = new URLSearchParams(url.search);
+        const storyId = params.get('storyId'); //question id
 
+        // Fetch story by id
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/story-access/view/${storyId}`)
+        const story = response?.data?.story;
+        if (!story) {
+            throw new Error("Could not find story");
+        }
+        
+        const payload = {
+            icon: story?.introductionImage ?? `https://fable-v3-frontend.vercel.app/no-image.png`,
+            title: story?.projectTitle ?? "Story title",
+            description: `${story?.storyStructure?.introduceProtagonistAndOrdinaryWorld.slice(0, 100)}...` ?? "Story description",
+            label: story?.projectTitle ?? "Story label",
             links: {
                 actions: [
                     {
-                        href: `/api/events/create`,
+                        href: `/api/tip-me`,
                         label: 'Tip me',
                         "parameters": [
                             {
                                 name: "amount",
                                 label: 'Enter any amount to tip', // text input placeholder
                                 type: "number",
-                            }                            
+                            }
                         ],
 
                     }
@@ -29,7 +39,11 @@ export const GET = (req: Request) => {
             }
         };
 
-        return new Response(JSON.stringify(payload), {
+        
+
+        return new Response(JSON.stringify({
+            payload
+        }), {
             headers: ACTIONS_CORS_HEADERS
         });
     } catch (error: any) {

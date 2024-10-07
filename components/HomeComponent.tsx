@@ -5,7 +5,7 @@ import Link from "next/link";
 import logo from "@/images/logo.png"
 import { Button } from "@/components/ui/button";
 import StoryWriter from "@/components/StoryWriter";
-import { BookOpen, CoinsIcon, FilmIcon, LogIn, LogOut, Menu, MessageSquare, ThumbsUp } from "lucide-react";
+import { BookOpen, CoinsIcon, FilmIcon, LogIn, LogOut, Menu, MessageSquare, Share2, ThumbsUp } from "lucide-react";
 import { getAuthToken, useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -42,6 +42,9 @@ const HomeComponent = () => {
             
             fetchStories();
         }
+        if (user) {
+            // fetch continue to read books
+        }
 
     }, []);
 
@@ -70,15 +73,58 @@ const HomeComponent = () => {
     }
 
     const moveToReadStory = (storyId: string) => {
-        let redirectRoute = `/read-story?story-id=${storyId}`;
+        let redirectRoute = `/read-story/${storyId}`;
         if (!user) {
           window.localStorage.setItem('redirectRoute', redirectRoute);
           setShowAuthFlow(true);
           return;
         }
-        push(`/read-story?story-id=${storyId}`);
+        push(`/read-story/${storyId}`);
     }
-    
+
+    const generateShareLink = (hashtags, via, solanaBlink, solanaAction) => {
+      const encodedTitle = encodeURIComponent(title);
+      const encodedUrl = encodeURIComponent(url);
+      const encodedHashtags = hashtags.join(',');
+      
+      let shareUrl = `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`;
+      
+      if (hashtags.length > 0) {
+        shareUrl += `&hashtags=${encodedHashtags}`;
+      }
+      
+      if (via) {
+        shareUrl += `&via=${via}`;
+      }
+      
+      // Add Solana blink and action as URL parameters
+      if (solanaBlink) {
+        shareUrl += `&solana_blink=${encodeURIComponent(solanaBlink)}`;
+      }
+      
+      if (solanaAction) {
+        shareUrl += `&solana_action=${encodeURIComponent(solanaAction)}`;
+      }
+      
+      return shareUrl;
+    };
+  
+    // const solanaBlinkLink = `${process.env.NEXT_PUBLIC_URL}/read-story/${story.id}?action=buyNFT`;
+    const shareStory = async (story: StoryInterface) => {
+      console.log(story);
+      
+      const url = `https://fable-v3-frontend.vercel.app/`;
+      try {
+        const blink = `https://dial.to/?action=solana-action:${url}/api/tip-me?storyId=${story?.id}`;
+        console.log(blink);
+
+        const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${blink}`)}`;
+        window.open(twitterUrl, '_blank');
+
+      } catch (error) {
+        console.error(error);        
+      }
+    }
     
     return (
         <main className="flex-1 " >         
@@ -143,14 +189,18 @@ const HomeComponent = () => {
                 <p className="text-xs font-semibold">{story?.publishedAt ? formatDate(story?.publishedAt) : ""}</p>
                 <p className="font-bold text-[10px]">5 min read</p>
                 </div>
-                <h1 className="font-bold text-2xl capitalize">{story?.projectTitle.slice(0, 20)}...</h1>
+                <h1 className="font-bold text-xl capitalize mb-3">{story?.projectTitle.slice(0, 14)}...</h1>
                 <p className="font-light mt-2 text-[10px] capitalize">By {story?.user?.name}</p>
-                <div className="font-semibold mt-2 text-[10px] capitalize flex flex-wrap gap-2">
+                {/* <div className="font-semibold mt-2 text-[10px] capitalize flex flex-wrap gap-2">
                 {
                     story?.genres?.map((genre, index) => (
                         <p key={index} className="px-4 py-1 border rounded-2xl bg-gray-50">{genre}</p>
                     ))
                 }
+                </div> */}
+
+                <div className="font-semibold mt-2 text-[10px]">
+                  {story?.genres?.join(" | ")}
                 </div>
                 {/* <p className="mt-5 text-xs text-gray-600">
                 { trimWords(story?.projectDescription, 15)}
@@ -165,22 +215,34 @@ const HomeComponent = () => {
                 </div>
 
                 <div className="mt-4 flex justify-between items-center">
-                {/* <Link href={`/read-story?story-id=${story?.id}`}> */}
-                    <Button onClick={() => moveToReadStory(story?.id)} size="sm" variant="outline">Read</Button>
-                {/* </Link> */}
+                  <Button onClick={() => moveToReadStory(story?.id)} size="sm" variant="outline">
+                    Read
+                    <BookOpen className="w-4 h-4 ml-2"/>
+                  </Button>
 
-                <div className="flex gap-4 items-center">                  
+                  <div className="flex gap-4 items-center"> 
+                    {/* <a 
+                    // href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(`${process.env.NEXT_PUBLIC_URL}/read-story/${story.id}&solanaAction=solanaActionId`)}`}
+                    href={`https://twitter.com/intent/tweet?text=Check%20out%20this%20story%20with%20Solana%20Blinks!%20${encodeURIComponent(`${process.env.NEXT_PUBLIC_URL}/read-story/${story.id}?action=buyNFT`)}`} 
 
-                    <div className="flex gap-1 items-center">
-                    <MessageSquare className="w-4 h-4" />
-                    <span className="text-[10px]">30</span>
-                    </div>
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >
+                    </a>                  */}
+                      <div onClick={() => shareStory(story)} className="flex gap-1 items-center cursor-pointer">
+                        <Share2 className="w-4 h-4" />
+                        <span className="text-xs">Share on <span className="text-md font-semibold">X</span></span>
+                      </div>
+                      {/* <div className="flex gap-1 items-center">
+                      <MessageSquare className="w-4 h-4" />
+                      <span className="text-[10px]">30</span>
+                      </div>
 
-                    <div className="flex gap-1 items-center">
-                    <ThumbsUp className="w-4 h-4"/>
-                    <span className="text-[10px]">3</span>
-                    </div>
-                </div>
+                      <div className="flex gap-1 items-center">
+                      <ThumbsUp className="w-4 h-4"/>
+                      <span className="text-[10px]">3</span>
+                      </div> */}
+                  </div>
                 </div>
               </div>
             ))}
