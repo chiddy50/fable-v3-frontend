@@ -235,7 +235,7 @@ const HomeComponent = () => {
 
                     <div onClick={() => shareStory(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
                       <Share2 className="w-4 h-4" />
-                      <span className="text-xs">Share Story <span className="text-md font-semibold">X</span></span>
+                      <span className="text-xs">Post on <span className="text-md font-semibold">X</span></span>
                     </div>
                   </div>
 

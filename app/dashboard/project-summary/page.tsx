@@ -194,6 +194,10 @@ const ProjectSummaryPage = () => {
     }
 
     const publishStory = async () => {
+        if (!storyData?.introductionImage) {
+            toast.error("Kindly add a story banner image") 
+            return
+        }
         try {
             showPageLoader()
             let updated = await makeRequest({
@@ -248,7 +252,7 @@ const ProjectSummaryPage = () => {
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <BreadcrumbPage>Story Summary</BreadcrumbPage>
+                        <BreadcrumbPage>Publish</BreadcrumbPage>
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
@@ -268,7 +272,7 @@ const ProjectSummaryPage = () => {
                     {!storyData?.introductionImage &&
                     <div className="flex flex-col items-center gap-2 ">
                         <ImageIcon/>
-                        <span className='text-xs'>Generate a picture</span>
+                        <span className='text-xs'>Generate a banner</span>
                     </div>}
                     {storyData?.introductionImage &&
                         <img src={storyData?.introductionImage} alt="story banner" className='w-full object-cover rounded-2xl h-[250px]'/>
