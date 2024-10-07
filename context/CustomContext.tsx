@@ -49,7 +49,7 @@ const CustomContext = ({ children }) => {
   return (
       <DynamicContextProvider 
         settings={{ 
-          environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID ?? "",
+          environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID ?? "b12e98f0-cc6b-496b-9981-28c4b6a685c6",
           walletConnectors: [ SolanaWalletConnectors ],
           eventsCallbacks: {
             onAuthSuccess: async (args) => {
