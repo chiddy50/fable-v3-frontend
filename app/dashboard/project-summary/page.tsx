@@ -35,6 +35,7 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
 import { toast } from 'sonner';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
 import { makeRequest } from '@/services/request';
+import Image from 'next/image';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -87,20 +88,15 @@ const ProjectSummaryPage = () => {
         enabled: !!storyId && !story
     });
 
-    const generateBanner = async (chapterDescription: string, chapter: string) => {
-        if (!chapterDescription) {
-            toast.error("No content generated yet");
-            return;
-        }
-
+    const generateBanner = async () => {
         try {
             showPageLoader();
-            // let prompt = await getGenerationPrompt(chapterDescription)
-            // console.log(prompt);
+            let prompt = await getGenerationPrompt()
+            console.log(prompt);
         
-            // if (!prompt) {
-            //     return;
-            // }
+            if (!prompt) {
+                return;
+            }
             
             showPageLoader();
             let res = await axios.post(
@@ -108,7 +104,7 @@ const ProjectSummaryPage = () => {
                 {
                     "key": process.env.NEXT_PUBLIC_STABLE_FUSION_API_KEY,
                     "model_id": process.env.NEXT_PUBLIC_IMAGE_MODEL ?? "flux",
-                    "prompt": `ultra realistic photograph ${chapterDescription}`,
+                    "prompt": `ultra realistic photograph ${prompt}`,
                     "negative_prompt": "painting, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, deformed, ugly, blurry, bad anatomy, bad proportions, extra limbs, cloned face, skinny, glitchy, double torso, extra arms, extra hands, mangled fingers, missing lips, ugly face, distorted face, extra legs, anime",
                     "width": "1288",
                     "height": "768",
@@ -136,7 +132,7 @@ const ProjectSummaryPage = () => {
             }
 
 
-            await saveChapterBanner(chapter, imgUrl);
+            await saveChapterBanner(imgUrl);
             
         } catch (error) {
             console.error(error);            
@@ -145,16 +141,26 @@ const ProjectSummaryPage = () => {
         }
     }
 
-    const getGenerationPrompt = async (chapter) => {
+    const getGenerationPrompt = async () => {
         try {
             showPageLoader();
             
             const prompt = `
             Analyze the following chapter of a story and story idea and generate a prompt that can be used to create an image banner that visually represents the story. Ensure the image captures a sense of motion and involves actions from the characters. 
+            The following sections of the story have already been generated:
+            - The introduction (Chapter 1): {introduceProtagonistAndOrdinaryWorld}
+            - Inciting Incident (Chapter 2): {incitingIncident}
+            - First Plot Point (Chapter 3): {firstPlotPoint}
+            - Rising Action & Midpoint (Chapter 4): {risingActionAndMidpoint}
+            - Pinch Points & Second Plot Point (Chapter 5): {pinchPointsAndSecondPlotPoint}
+            - Climax and Falling Action (Chapter 6): {climaxAndFallingAction}
+            - Resolution & Epilogue: (Chapter 7) {resolution}
+
+            Analyze the chapters one after the order and come up with a fitting story or movie banner that describes the story.
             Return a simple description that includes dynamic elements and character activity, avoiding titles, subtitles, or any unwanted symbols—just a detailed image description.
+
             **INPUT**
-            story idea: {storyIdea}
-            Chapter: {chapter}`
+            story idea: {storyIdea}`
             ;
     
             const llm = new ChatGroq({
@@ -170,8 +176,14 @@ const ProjectSummaryPage = () => {
             const chain = startingPrompt.pipe(llm).pipe(new StringOutputParser());
             
             const response = await chain.invoke({
-                chapter: chapter,
-                storyIdea: story?.projectDescription                 
+                storyIdea: story?.projectDescription,
+                introduceProtagonistAndOrdinaryWorld: story?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+                incitingIncident: story?.storyStructure?.incitingIncident,
+                firstPlotPoint: story?.storyStructure?.firstPlotPoint,
+                risingActionAndMidpoint: story?.storyStructure?.risingActionAndMidpoint,
+                pinchPointsAndSecondPlotPoint: story?.storyStructure?.pinchPointsAndSecondPlotPoint,
+                climaxAndFallingAction: story?.storyStructure?.climaxAndFallingAction,    
+                resolution: story?.storyStructure?.resolution,                                 
             });
             return response;
         } catch (error) {
@@ -205,14 +217,16 @@ const ProjectSummaryPage = () => {
         }
     }
 
-    const saveChapterBanner = async (chapter: ChapterKey, imgUrl: string) => {
-        const payload = { [CHAPTER_IMAGE_MAP[chapter]]: imgUrl };
+    const saveChapterBanner = async (imgUrl: string) => {
+        // const payload = { [CHAPTER_IMAGE_MAP[chapter]]: imgUrl };
       
         try {
           const updated = await makeRequest({
             url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${storyId}`,
             method: "PUT",
-            body: payload,
+            body: {
+                introductionImage: imgUrl
+            },
             token: dynamicJwtToken,
           });
       
@@ -249,7 +263,35 @@ const ProjectSummaryPage = () => {
 
             <div className='my-10 p-7 bg-gray-50 rounded-2xl'>
                 <h1 className="font-bold text-2xl mb-4">Story banner*</h1>
-                <Accordion type="single" className='' collapsible>
+
+                <div className="flex mb-3 w-full items-center h-[250px] justify-center border-gray-200 border bg-gray-100 rounded-2xl">
+                    {!storyData?.introductionImage &&
+                    <div className="flex flex-col items-center gap-2 ">
+                        <ImageIcon/>
+                        <span className='text-xs'>Generate a picture</span>
+                    </div>}
+                    {storyData?.introductionImage &&
+                        <img src={storyData?.introductionImage} alt="story banner" className='w-full object-cover rounded-2xl h-[250px]'/>
+                    }
+                </div>
+
+
+                {
+                    !storyData?.introductionImage &&
+                    <Button onClick={() => generateBanner()} size="sm">Generate Banner</Button>
+                }
+                <div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
+                    <span className="text-xs text-red-600">
+                        Note: One generation per chapter. Any further generation will occur an extra of $0.05. 
+                    </span>
+                </div>
+                {
+                    storyData?.introductionImage &&
+                    <Button size="sm">Pay with code</Button>
+                }
+            
+
+                {/* <Accordion type="single" className='' collapsible>
                     <AccordionItem value="item-1 " className='mb-3 border-none'>
                         <AccordionTrigger className='text-xs bg-custom_green px-4 rounded-2xl text-gray-100 mb-3'>Chapter 1</AccordionTrigger>
                         
@@ -360,7 +402,7 @@ const ProjectSummaryPage = () => {
                                 <img src={story?.risingActionAndMidpointImage} alt="" className='w-full object-cover h-[250px] mb-3 rounded-2xl' />          
                             }   
 
-<div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
+                            <div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
                                 <span className="text-xs text-red-600">
                                     Note: One generation per chapter. Any further generation will occur an extra of $0.05. 
                                 </span>
@@ -394,7 +436,7 @@ const ProjectSummaryPage = () => {
                                 <img src={story?.pinchPointsAndSecondPlotPointImage} alt="" className='w-full object-cover h-[250px] mb-3 rounded-2xl' />          
                             }   
 
-<div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
+                            <div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
                                 <span className="text-xs text-red-600">
                                     Note: One generation per chapter. Any further generation will occur an extra of $0.05. 
                                 </span>
@@ -425,7 +467,7 @@ const ProjectSummaryPage = () => {
                                 <img src={story?.climaxAndFallingActionImage} alt="" className='w-full object-cover h-[250px] mb-3 rounded-2xl' />          
                             }   
 
-<div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
+                            <div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
                                 <span className="text-xs text-red-600">
                                     Note: One generation per chapter. Any further generation will occur an extra of $0.05. 
                                 </span>
@@ -471,8 +513,8 @@ const ProjectSummaryPage = () => {
                             }
                         </AccordionContent>                        
                     </AccordionItem>
-                </Accordion>
-                 <Button onClick={publishStory} className='w-full mt-5 flex items-center gap-2'>
+                </Accordion> */}
+                 <Button onClick={publishStory} className='w-full mt-5 flex items-center gap-2 bg-custom_green'>
                     Publish
                     <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96" preserveAspectRatio="xMidYMid meet">
                         <g transform="translate(0,96) scale(0.1,-0.1)" fill="#FFFFFF" stroke="none">

@@ -86,7 +86,7 @@ const ReadChapterComponent = ({
                 {
                     accessRecord?.currentChapter === "2" && accessRecord.hasAccess === false &&
                     <>
-                        <StoryBannerComponent image={story?.incitingIncidentImage} />
+                        <StoryBannerComponent image={story?.introductionImage} />
 
                         <p className={cn(`ont-semibold text-xl first-letter:text-4xl whitespace-pre-wrap testing mb-7 
                            bg-clip-text text-transparent bg-gradient-to-b from-black to-transparent 
@@ -106,7 +106,7 @@ const ReadChapterComponent = ({
                 {   
                     accessRecord?.currentChapter === "2" && accessRecord.hasAccess === true && 
                     <>
-                        <StoryBannerComponent image={story?.incitingIncidentImage} />
+                        <StoryBannerComponent image={story?.introductionImage} />
                         <p className={cn("font-semibold text-xl first-letter:text-4xl whitespace-pre-wrap", sans.className)}>{story?.storyStructure?.incitingIncident}</p>
                     </>
                 }
@@ -114,7 +114,7 @@ const ReadChapterComponent = ({
                 {
                     accessRecord?.currentChapter === "3" && accessRecord.hasAccess === true && 
                     <>
-                        <StoryBannerComponent image={story?.firstPlotPointImage} />                    
+                        <StoryBannerComponent image={story?.introductionImage} />                    
                         <p className={cn("font-semibold text-xl first-letter:text-4xl whitespace-pre-wrap", sans.className)}>{story?.storyStructure?.firstPlotPoint}</p>
                     </>
                 }
@@ -122,7 +122,7 @@ const ReadChapterComponent = ({
                 {
                     accessRecord?.currentChapter === "4" && accessRecord.hasAccess === true && 
                     <>
-                        <StoryBannerComponent image={story?.risingActionAndMidpointImage} />                                        
+                        <StoryBannerComponent image={story?.introductionImage} />                                        
                         <p className={cn("font-semibold text-xl first-letter:text-4xl whitespace-pre-wrap", sans.className)}>{story?.storyStructure?.risingActionAndMidpoint}</p>
                     </>
                 }
@@ -130,7 +130,7 @@ const ReadChapterComponent = ({
                 {
                     accessRecord?.currentChapter === "5" && accessRecord.hasAccess === true && 
                     <>
-                        <StoryBannerComponent image={story?.pinchPointsAndSecondPlotPointImage} />                                                            
+                        <StoryBannerComponent image={story?.introductionImage} />                                                            
                         <p className={cn("font-semibold text-xl first-letter:text-4xl whitespace-pre-wrap", sans.className)}>{story?.storyStructure?.pinchPointsAndSecondPlotPoint}</p>
                     </>
                 }
@@ -138,7 +138,7 @@ const ReadChapterComponent = ({
                 {
                     accessRecord?.currentChapter === "6" && accessRecord.hasAccess === true && 
                     <>
-                        <StoryBannerComponent image={story?.climaxAndFallingActionImage} />                                                            
+                        <StoryBannerComponent image={story?.introductionImage} />                                                            
                         <p className={cn("font-semibold text-xl first-letter:text-4xl whitespace-pre-wrap", sans.className)}>{story?.storyStructure?.climaxAndFallingAction}</p>
                     </>
                 }
@@ -146,7 +146,7 @@ const ReadChapterComponent = ({
                 {
                     accessRecord?.currentChapter === "7" && accessRecord.hasAccess === true && 
                     <>
-                        <StoryBannerComponent image={story?.resolutionImage} />                                                                                
+                        <StoryBannerComponent image={story?.introductionImage} />                                                                                
                         <p className={cn("font-semibold text-xl first-letter:text-4xl whitespace-pre-wrap", sans.className)}>{story?.storyStructure?.resolution}</p>
                     </>
                 }

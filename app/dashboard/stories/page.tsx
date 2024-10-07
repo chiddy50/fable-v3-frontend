@@ -175,38 +175,75 @@ const DashboardStoriesPage = () => {
                         <div className='grid md:grid-cols-1 lg:grid-cols-2 gap-5'>
                             {
                                 storyData?.map((story: StoryInterface) => (
-                                    <div key={story?.id} 
-                                    className="p-5 w-full bg-[#F2F8F2] h-[200px] grid grid-cols-6 gap-5 rounded-lg border overflow-hidden mb-2">
-                                        <div className="xs:col-span-6 sm:col-span-6 col-span-6 flex flex-col justify-between h-full overflow-hidden">
-                                            <p className="text-xs font-semibold mb-1">{formatDate(story?.createdAt)}</p>
-                                            <h1 className="font-bold text-xl capitalize truncate">{story?.projectTitle}</h1>
-                                            <p className="font-light mt-1 text-[10px]">{displayGenre(story?.genres)}</p>
-                                            <p className="mt-2 text-gray-600 text-xs line-clamp-3">{trimWords(story?.projectDescription, 10)}</p>
-                                            <div className=" flex mt-3 justify-between items-center">
-                                                <p className='text-sm font-bold capitalize'>{story?.status}</p>
-                                                <Link href={`/dashboard/refine-story?story-id=${story.id}`}>                                            
-                                                {/* <Link href={`/dashboard/story-project?story-id=${story.id}&current-step=${story.currentStepUrl}`}>                                             */}
-                                                    <Button size="sm">Edit</Button>
-                                                </Link>
-                                            </div>
-                                            {/* <div className="mt-auto flex justify-between items-center">
-                                                <p className="font-bold text-xs">5 min read</p>
-                                                <div className="flex gap-4 items-center">
-                                                    <div className="flex gap-1 items-center">
-                                                        <MessageSquare className="w-4 h-4" />
-                                                        <span className="text-[10px]">30</span>
-                                                    </div>
-                                                    <div className="flex gap-1 items-center">
-                                                        <ThumbsUp className="w-4 h-4" />
-                                                        <span className="text-[10px]">3</span>
-                                                    </div>
-                                                </div>
-                                            </div> */}
-                                        </div>
-                                        {/* <div className="xs:col-span-6 sm:col-span-6 col-span-2 h-full w-full bg-gray-800 rounded-2xl overflow-hidden">
-                                            <Image src={story?.characters[0]?.imageUrl ?? `/no-image.png`} alt="no-image" width={300} height={300} className="object-cover w-full h-full" />
-                                        </div> */}
+                                    // <div key={story?.id} 
+                                    // className="p-5 w-full bg-[#F2F8F2] h-[200px] grid grid-cols-6 gap-5 rounded-lg border overflow-hidden mb-2">
+                                    //     <div className="xs:col-span-6 sm:col-span-6 col-span-6 flex flex-col justify-between h-full overflow-hidden">
+                                    //         <p className="text-xs font-semibold mb-1">{formatDate(story?.createdAt)}</p>
+                                    //         <h1 className="font-bold text-xl capitalize truncate">{story?.projectTitle}</h1>
+                                    //         <p className="font-light mt-1 text-[10px]">{displayGenre(story?.genres)}</p>
+                                    //         <p className="mt-2 text-gray-600 text-xs line-clamp-3">{trimWords(story?.projectDescription, 10)}</p>
+                                    //         <div className=" flex mt-3 justify-between items-center">
+                                    //             <p className='text-sm font-bold capitalize'>{story?.status}</p>
+                                    //             <Link href={`/dashboard/refine-story?story-id=${story.id}`}>                                            
+                                    //                 <Button size="sm">Edit</Button>
+                                    //             </Link>
+                                    //         </div>
+                                    //         <div className="mt-auto flex justify-between items-center">
+                                    //             <p className="font-bold text-xs">5 min read</p>
+                                    //             <div className="flex gap-4 items-center">
+                                    //                 <div className="flex gap-1 items-center">
+                                    //                     <MessageSquare className="w-4 h-4" />
+                                    //                     <span className="text-[10px]">30</span>
+                                    //                 </div>
+                                    //                 <div className="flex gap-1 items-center">
+                                    //                     <ThumbsUp className="w-4 h-4" />
+                                    //                     <span className="text-[10px]">3</span>
+                                    //                 </div>
+                                    //             </div>
+                                    //         </div>
+                                    //     </div>
+                                    //     <div className="xs:col-span-6 sm:col-span-6 col-span-2 h-full w-full bg-gray-800 rounded-2xl overflow-hidden">
+                                    //         <Image src={story?.introductionImage ?? `/no-image.png`} alt="no-image" width={300} height={300} className="object-cover w-full h-full" />
+                                    //     </div>
+                                    // </div>
+                                    <div key={story?.id} className="p-5 flex flex-col justify-between w-full bg-gray-800 text-gray-50 rounded-lg border">
+                                    <div className="flex justify-between items-center mb-1">
+                                    <p className="text-xs font-semibold">{story?.publishedAt ? formatDate(story?.publishedAt) : ""}</p>
+                                    {/* <p className="font-bold text-[10px]">5 min read</p> */}
                                     </div>
+                                    <h1 className="font-bold text-xl capitalize mb-3">{story?.projectTitle}</h1>
+                                    {/* <p className="font-light mt-2 text-xs capitalize">By {story?.user?.name}</p> */}
+                                    {/* <div className="font-semibold mt-2 text-[10px] capitalize flex flex-wrap gap-2">
+                                    {
+                                        story?.genres?.map((genre, index) => (
+                                            <p key={index} className="px-4 py-1 border rounded-2xl bg-gray-50">{genre}</p>
+                                        ))
+                                    }
+                                    </div> */}
+                  
+                                    <div className="font-semibold mt-2 text-[10px]">
+                                      {story?.genres?.join(" | ")}
+                                    </div>
+                                    {/* <p className="mt-5 text-xs text-gray-600">
+                                    { trimWords(story?.projectDescription, 15)}
+                                    </p> */}
+                                    <div className="mt-4">
+                                    {
+                                        !story?.introductionImage && <img src="/no-image.png" alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
+                                    }
+                                    {
+                                        story?.introductionImage && <img src={story?.introductionImage} alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
+                                    }
+                                    </div>
+
+                                    <div className=" flex mt-3 justify-between items-center">
+                                        <p className='text-sm font-bold capitalize'>{story?.status}</p>
+                                        <Link href={`/dashboard/refine-story?story-id=${story.id}`}>                                            
+                                            <Button size="sm" variant="outline" className='text-gray-900'>Edit</Button>
+                                        </Link>
+                                    </div>                           
+                  
+                                  </div>
                                 ))
                             }
                         </div>

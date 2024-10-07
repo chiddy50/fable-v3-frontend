@@ -144,7 +144,8 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                 setIntroduceProtagonistAndOrdinaryWorld(text);         
             }
             scrollToBottom();
-
+            await saveGeneration(text)
+            await analyzeStory(text)
             console.log({text, introduceProtagonistAndOrdinaryWorld});
             
         } catch (error) {
@@ -222,7 +223,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
         
     }
 
-    const analyzeStory = async () => {
+    const analyzeStory = async (story = '') => {
         
         try {
             const prompt = `
@@ -249,7 +250,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
 
             showPageLoader();
             const response = await queryLLM(prompt, {
-                introduceProtagonistAndOrdinaryWorld: introduceProtagonistAndOrdinaryWorld,
+                introduceProtagonistAndOrdinaryWorld: story ?? introduceProtagonistAndOrdinaryWorld,
             });
 
             if (!response) {
@@ -308,15 +309,15 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
         }
     }
 
-    const saveGeneration = async () => {
-        if (introduceProtagonistAndOrdinaryWorld) {                
+    const saveGeneration = async (data: string) => {
+        if (data) {                
             // save data
             let updated = await makeRequest({
                 url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`,
                 method: "PUT", 
                 body: {
                     storyId: initialStory?.id,
-                    introduceProtagonistAndOrdinaryWorld                    
+                    introduceProtagonistAndOrdinaryWorld: data                    
                 }, 
                 token: dynamicJwtToken,
             });
@@ -569,17 +570,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                             <CarouselNext />
                         </Carousel> */}
                         <div className="mb-4">
-                            <Button size="sm"  
-                            className='flex items-center gap-2 w-full bg-custom_green'
-                            onClick={() => analyzeStory()}
-                            >
-                                Analyze
-                                <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96">
-                                <g fill="#FFFFFF">
-                                    <path d="M9.4 12.5c-.4 1.4-.4 15.5-.2 31.3.4 24.5.7 29.3 2.3 33 2.4 5.8 5.9 8.1 14.7 9.2 8 1 55.7 1.4 58.2.4 2.1-.8 2.1-4 0-4.8-.9-.3-15.1-.6-31.5-.6H22.9l.6-2.3c.4-1.2 2.8-6.1 5.2-11 7.3-14.1 11.6-15.9 20.3-8.2 4.4 3.9 5.7 4.5 9.5 4.5 5.7 0 9-2.9 14.8-12.5 3.7-6.1 4.8-7.2 8.5-8.3 2.9-1 4.2-1.9 4.2-3.2 0-2.3-1.7-2.9-5.4-1.9-4.9 1.4-7.4 3.7-11.1 10.1-7.4 12.6-10.5 13.7-18.7 6.3-4.2-3.8-5.7-4.5-9.2-4.5-7.9 0-13.1 5.5-20.5 21.5-3.2 6.9-3.3 7-4.6 4.5-1.1-2-1.4-8.8-1.5-32.7 0-16.6-.3-30.8-.6-31.7-1-2.6-4.3-1.9-5 .9zM27.3 13.7c-2 .8-1.5 4.1.7 4.8 2.9.9 6-.3 6-2.5 0-2.5-3.4-3.7-6.7-2.3zM27.3 25.7c-1.8.7-1.6 4 .3 4.7.9.3 4.6.6 8.4.6 3.8 0 7.5-.3 8.4-.6 2.1-.8 2.1-4 0-4.8-1.9-.7-15.3-.7-17.1.1z"/>
-                                </g>
-                                </svg>
-                            </Button>
+                            
                         </div>
 
                         <div className='p-5 mb-4 border rounded-2xl bg-gray-50'> 
@@ -893,13 +884,27 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
 
                         {
                         // !initialStory?.introductionLocked &&
-                        <Button disabled={generating} 
-                            onClick={regenerateIntroduceProtagonistAndOrdinaryWorld}
-                            size="lg" 
-                            className='mt-5 border w-full bg-custom_green text-white hover:bg-custom_green hover:text-white'>
-                            Regenerate
-                            <Cog className='ml-2'/>
-                        </Button>
+                        <div className='flex mt-5 gap-5'>
+                            <Button disabled={generating} 
+                                onClick={regenerateIntroduceProtagonistAndOrdinaryWorld}
+                                size="sm" 
+                                className='border w-full bg-custom_green text-white hover:bg-custom_green hover:text-white'>
+                                Regenerate
+                                <Cog className='ml-2 w-4 h-4'/>
+                            </Button>
+                            <Button size="sm"  
+                            className='flex items-center gap-2 w-full'
+                            onClick={() => analyzeStory()}
+                            >
+                                Analyze
+                                <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96">
+                                <g fill="#FFFFFF">
+                                    <path d="M9.4 12.5c-.4 1.4-.4 15.5-.2 31.3.4 24.5.7 29.3 2.3 33 2.4 5.8 5.9 8.1 14.7 9.2 8 1 55.7 1.4 58.2.4 2.1-.8 2.1-4 0-4.8-.9-.3-15.1-.6-31.5-.6H22.9l.6-2.3c.4-1.2 2.8-6.1 5.2-11 7.3-14.1 11.6-15.9 20.3-8.2 4.4 3.9 5.7 4.5 9.5 4.5 5.7 0 9-2.9 14.8-12.5 3.7-6.1 4.8-7.2 8.5-8.3 2.9-1 4.2-1.9 4.2-3.2 0-2.3-1.7-2.9-5.4-1.9-4.9 1.4-7.4 3.7-11.1 10.1-7.4 12.6-10.5 13.7-18.7 6.3-4.2-3.8-5.7-4.5-9.2-4.5-7.9 0-13.1 5.5-20.5 21.5-3.2 6.9-3.3 7-4.6 4.5-1.1-2-1.4-8.8-1.5-32.7 0-16.6-.3-30.8-.6-31.7-1-2.6-4.3-1.9-5 .9zM27.3 13.7c-2 .8-1.5 4.1.7 4.8 2.9.9 6-.3 6-2.5 0-2.5-3.4-3.7-6.7-2.3zM27.3 25.7c-1.8.7-1.6 4 .3 4.7.9.3 4.6.6 8.4.6 3.8 0 7.5-.3 8.4-.6 2.1-.8 2.1-4 0-4.8-1.9-.7-15.3-.7-17.1.1z"/>
+                                </g>
+                                </svg>
+                            </Button>
+                        </div>
+                            
                         }
                         
                     </div>

@@ -62,22 +62,29 @@ import { Suspense } from 'react';
 
 const sans = Dosis({ subsets: ['latin'] });
 
-function MyComponent() {
+interface ReadStoryProps {
+  params: {
+    id: string;
+  };
+}
+
+function MyComponent({params: {id}}: ReadStoryProps) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ReadStoryPage />
+      <ReadStoryPage id={id}/>
     </Suspense>
   );
 }
 
-const ReadStoryPage = () => {
+const ReadStoryPage = ({id}: {id:string}) => {
   const [isPaid, setIsPaid] = useState(false);
   const [story, setStory] = useState<StoryInterface|null>(null)
   const [accessRecord, setAccessRecord] = useState(null);
   const [depositAddress, seDepositAddress] = useState(null);
   const [mounted, setMounted] = useState<boolean>(false);
 
-  const storyId = useSearchParams().get('story-id');
+  // const storyId = useSearchParams().get('story-id');
+  const storyId = id
   const dynamicJwtToken = getAuthToken();
   const { user, setShowAuthFlow } = useDynamicContext();
   const { push } = useRouter();
