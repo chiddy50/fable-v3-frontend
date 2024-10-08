@@ -205,9 +205,7 @@ const HomeComponent = () => {
                   <div className="font-semibold mt-2 text-[10px]">
                     {story?.genres?.join(" | ")}
                   </div>
-                  {/* <p className="mt-5 text-xs text-gray-600">
-                  { trimWords(story?.projectDescription, 15)}
-                  </p> */}
+                  
                   <div className="mt-4">
                   {
                       !story?.introductionImage && <img src="/no-image.png" alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
@@ -216,6 +214,9 @@ const HomeComponent = () => {
                       story?.introductionImage && <img src={story?.introductionImage} alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
                   }
                   </div>
+                  <p className="mt-5 text-xs text-gray-50">
+                  { story?.overview?.slice(0, 200)}...
+                  </p>
 
                   <div className="mt-4 flex justify-between items-center">
                     <Button onClick={() => moveToReadStory(story?.id)} size="sm" className="text-gray-700" variant="outline">

@@ -224,6 +224,11 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
     }
 
     const analyzeStory = async (story = '') => {
+        const data = story ?? introduceProtagonistAndOrdinaryWorld
+        if (!data) {
+            toast.error('Generate some content first')
+            return;
+        }
         
         try {
             const prompt = `
@@ -298,7 +303,8 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                     introductionTone: payload?.tone,                    
                     protagonistSuggestions: updatedProtagonists,     
                     suggestedCharacters: updatedOtherCharacters,
-                    introduceProtagonistAndOrdinaryWorld               
+                    introduceProtagonistAndOrdinaryWorld,
+                    introductionLocked: true               
                 }, 
                 token: dynamicJwtToken,
             });
@@ -432,7 +438,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                     <p className='font-bold text-center text-2xl'>
                         Chapter 1
                     </p>
-                    <Button size="icon" disabled={!initialStory?.introductionLocked || generating} onClick={() => moveToNext(2)}>
+                    <Button size="icon" disabled={!initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld || !initialStory?.introductionLocked || generating} onClick={() => moveToNext(2)}>
                         <ArrowRight />
                     </Button>
                 </div>
@@ -460,6 +466,15 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             />
 
      
+            <div className="flex justify-between items-center mb-3">
+                <Button size="icon" onClick={() => moveToNext(1)} disabled={true}>
+                    <ArrowLeft />
+                </Button>
+           
+                <Button size="icon" disabled={!initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld || !initialStory?.introductionLocked || generating} onClick={() => moveToNext(2)}>
+                    <ArrowRight />
+                </Button>
+            </div>
             <div id='control-buttons' className='grid-container gap-4'>
                 
                 {
@@ -511,6 +526,8 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                 
             </div>
 
+            
+
 
 
             <Sheet open={modifyModalOpen} onOpenChange={setModifyModalOpen}>
@@ -522,57 +539,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                         <SheetDescription> </SheetDescription>
                     </SheetHeader>
 
-                    {/* <div className="space-x-5 inset-x-0 w-full justify-start px-0 py-4">
-                        <div className=" overflow-x-auto flex space-x-5 w-full justify-start px-5">
-
-                            <div className="flex flex-col justify-between ideaCard bg-gray-100 border p-5 rounded-xl shadow-sm drop-shadow-sm min-w-[360px] max-w-[360px]">
-                                <div className="flex justify-between w-full mx-auto mt-4">
-                                    <p className="text-clip uppercase text-sm tracking-wide font-bold ">Sample title</p>                                                
-                                </div>                                    
-                                
-                                
-                            </div>
-
-                        </div>
-                    </div> */}
-
                     <div className='mt-5'>
-                        {/* <Carousel>
-                            <CarouselContent>
-                                <CarouselItem className="md:basis-1/2 lg:basis-1/3">
-                                    <div className='p-5 border rounded-2xl bg-gray-50 overflow-y-auto overflow-x-hidden h-40'>
-                                        
-                                        <h1 className="font-bold mb-3 font-sm">Summary</h1>
-                                        <p className='text-xs'>{storyAnalysis?.summary}</p>
-                                    </div>
-                                </CarouselItem>
-
-                                <CarouselItem className="md:basis-1/2 lg:basis-1/3">
-                                    <div className='p-5 border rounded-2xl bg-gray-50 overflow-y-auto overflow-x-hidden h-40'>
-                                        <h1 className="font-bold mb-3 font-sm">Suggested Genres</h1>
-                                        
-                                        <div className="flex gap-2 flex-wrap mb-5">
-                                            {storyAnalysis?.genre?.map(genre => (
-                                                <p className='text-xs px-4 py-1 rounded-2xl border bg-white'>{genre}</p> 
-                                            ))}
-                                        </div>
-
-                                        <Button size="sm">Apply Genre</Button>
-                                    </div>
-                                </CarouselItem>
-                                <CarouselItem className="md:basis-1/2 lg:basis-1/3 bg-gray-50">Sample title</CarouselItem>
-                                <CarouselItem className="md:basis-1/2 lg:basis-1/3 bg-gray-50">Sample title</CarouselItem>
-                                <CarouselItem className="md:basis-1/2 lg:basis-1/3 bg-gray-50">Sample title</CarouselItem>
-                                <CarouselItem className="md:basis-1/2 lg:basis-1/3 bg-gray-50">Sample title</CarouselItem>
-                                <CarouselItem className="md:basis-1/2 lg:basis-1/3 bg-gray-50">Sample title</CarouselItem>
-                            </CarouselContent>
-                            <CarouselPrevious />
-                            <CarouselNext />
-                        </Carousel> */}
-                        <div className="mb-4">
-                            
-                        </div>
-
                         <div className='p-5 mb-4 border rounded-2xl bg-gray-50'> 
                             <p className="font-semibold mb-2 text-sm">Genre</p>       
                             <MultipleSelector

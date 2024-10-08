@@ -135,14 +135,17 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
             }
             scrollToBottom()
     
-            let text = ``;
+            let chapter = ``;
             for await (const chunk of response) {
                 scrollToBottom()
-                text += chunk;   
-                setClimaxAndFallingAction(text);         
+                chapter += chunk;   
+                setClimaxAndFallingAction(chapter);         
             }
             
-            scrollToBottom()
+            scrollToBottom();
+            await saveGeneration(chapter)
+            await analyzeStory(chapter)
+
         } catch (error) {
             console.error(error);            
         }finally{
@@ -230,7 +233,13 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
         }
     }
     
-    const analyzeStory = async () => {
+    const analyzeStory = async (chapter = "") => {
+        const data = chapter ?? climaxAndFallingAction
+        if (!data) {
+            toast.error('Generate some content first')
+            return;
+        }
+
         try {
             const prompt = `
             You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
@@ -274,7 +283,7 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
                 firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,
                 risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,
                 pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPoint,
-                climaxAndFallingAction: climaxAndFallingAction,
+                climaxAndFallingAction: data,
                 storyIdea: projectDescription,
             });
 
@@ -359,6 +368,21 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
         }
     }
 
+    const saveGeneration = async (data: string) => {
+        if (data) {                
+            let updated = await makeRequest({
+                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`,
+                method: "PUT", 
+                body: {
+                    storyId: initialStory?.id,
+                    climaxAndFallingAction: data,
+                    climaxAndFallingActionLocked: true
+                }, 
+                token: dynamicJwtToken,
+            });
+        }
+    }
+
     return (
         <div className="my-10 bg-gray-50 p-5 rounded-2xl">
             <div className='mb-5'>
@@ -369,7 +393,7 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
                     <p className='font-bold text-center text-2xl'>
                         Chapter 6
                     </p>
-                    <Button size="icon" onClick={() => moveToNext(7)} disabled={generating}>
+                    <Button size="icon" onClick={() => moveToNext(7)} disabled={generating || !climaxAndFallingAction}>
                         <ArrowRight />
                     </Button>
                 </div>
@@ -396,6 +420,15 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
                 className={cn('p-5 mb-4 outline-none border text-md whitespace-pre-wrap rounded-lg w-full leading-5', inter.className)} 
             />
 
+            <div className="flex justify-between items-center mb-3">
+                <Button size="icon" onClick={() => moveToNext(5)} disabled={generating}>
+                    <ArrowLeft />
+                </Button>
+
+                <Button size="icon" onClick={() => moveToNext(7)} disabled={generating || !climaxAndFallingAction}>
+                    <ArrowRight />
+                </Button>
+            </div>
             <div id='control-buttons' className='grid-container gap-4'> 
                 
                 {
@@ -416,7 +449,7 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
                 {
                 <Button size="sm"  
                 className='item2 flex items-center gap-2'
-                disabled={generating}
+                disabled={generating || !climaxAndFallingAction}
                 onClick={() => {
                     if (finalChallenge) {
                         setModifyModalOpen(true);
@@ -438,7 +471,7 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
                 (initialStory?.genres) && 
                 <Button 
                 className='item3'                
-                disabled={generating}     
+                disabled={generating || !climaxAndFallingAction}     
                 onClick={lockChapter}       
                 size="sm" variant="destructive">
                     Save

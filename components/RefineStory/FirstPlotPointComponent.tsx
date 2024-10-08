@@ -80,8 +80,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
     const generateFirstPlotPoint = async () => {
         let { genrePrompt, protagonistSuggestionsPrompt, tonePrompt, settingPrompt } = extractTemplatePrompts(initialStory);
 
-        try {
-           
+        try {           
             const prompt = `
             You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
 
@@ -138,14 +137,18 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
             }
             scrollToBottom()
     
-            let text = ``;
+            let chapter = ``;
             for await (const chunk of response) {
                 scrollToBottom()
-                text += chunk;   
-                setFirstPlotPoint(text);         
+                chapter += chunk;   
+                setFirstPlotPoint(chapter);         
             }
             
-            scrollToBottom()
+            scrollToBottom();
+
+            await saveGeneration(chapter)
+            await analyzeStory(chapter)
+
         } catch (error) {
             console.error(error);            
         }finally{
@@ -228,7 +231,13 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
         }
     }
     
-    const analyzeStory = async () => {
+    const analyzeStory = async (chapter = "") => {
+        const data = chapter ?? firstPlotPoint
+        if (!data) {
+            toast.error('Generate some content first')
+            return;
+        }
+
         try {
             const prompt = `
             You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
@@ -294,6 +303,21 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
         }
     }
 
+    const saveGeneration = async (data: string) => {
+        if (data) {                
+            let updated = await makeRequest({
+                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`,
+                method: "PUT", 
+                body: {
+                    storyId: initialStory?.id,
+                    firstPlotPoint: data,
+                    firstPlotPointLocked: true
+                }, 
+                token: dynamicJwtToken,
+            });
+        }
+    }
+
     const saveAnalysis = async (payload) => {
         if (payload) {                
             // save data
@@ -309,6 +333,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                     firstPlotPointSetting: payload?.setting,                    
                     firstPlotPointTone: payload?.tone,
                     firstPlotPoint,
+                    firstPlotPointLocked: true
                 }, 
                 token: dynamicJwtToken,
             });
@@ -361,7 +386,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                     <p className='font-bold text-center text-2xl'>
                         Chapter 3 
                     </p>
-                    <Button size="icon" onClick={() => moveToNext(4)} disabled={generating}>
+                    <Button size="icon" onClick={() => moveToNext(4)} disabled={generating || !initialStory?.firstPlotPointLocked}>
                         <ArrowRight />
                     </Button>
                 </div>
@@ -389,6 +414,15 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                 className={cn('p-5 mb-4 outline-none border text-md whitespace-pre-wrap rounded-lg w-full leading-5', inter.className)} 
             />
 
+            <div className="flex justify-between items-center mb-3">
+                <Button size="icon" onClick={() => moveToNext(2)} disabled={generating}>
+                    <ArrowLeft />
+                </Button>
+                
+                <Button size="icon" onClick={() => moveToNext(4)} disabled={generating || !initialStory?.firstPlotPointLocked}>
+                    <ArrowRight />
+                </Button>
+            </div>
 
             <div id='control-buttons' className='grid-container gap-4'>
                 
@@ -410,7 +444,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                 {
                 <Button size="sm"  
                 className='item2 flex items-center gap-2'
-                disabled={generating}
+                disabled={generating || !firstPlotPoint}
                 onClick={() => {
                     if (protagonistGoal) {
                         setModifyModalOpen(true);
@@ -432,7 +466,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                 (initialStory?.genres) && 
                 <Button 
                 className='item3'                
-                disabled={generating}     
+                disabled={generating || !firstPlotPoint}     
                 onClick={lockChapter}       
                 size="sm" variant="destructive">
                     Save

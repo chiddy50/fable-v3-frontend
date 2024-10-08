@@ -1,24 +1,16 @@
 "use client";
 
 import { ArrowLeftCircle, ArrowRightCircle } from 'lucide-react';
-import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
-import { DM_Sans, Dosis } from "next/font/google";
-import { cn } from '@/lib/utils';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import axiosInterceptorInstance from '@/axiosInterceptorInstance';
-import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
-import { StoryInterface } from '@/interfaces/StoryInterface';
-import { formatDate, trimWords } from '@/lib/helper';
-import { makeRequest } from '@/services/request';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from "@/components/ui/skeleton"
+import { Inter } from "next/font/google";
+import { cn } from '@/lib/utils'
+import { formatDate, trimWords } from '@/lib/helper'
 import MakePaymentComponent from './MakePaymentComponent';
 import { toast } from 'sonner';
 import StoryBannerComponent from './StoryBannerComponent';
 
-const sans = Dosis({ subsets: ['latin'] });
+// const inter = Dosis({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'] });
 
 const ReadChapterComponent = ({
     story,
@@ -79,7 +71,7 @@ const ReadChapterComponent = ({
 
                     <StoryBannerComponent image={story?.introductionImage} />
 
-                    <p className={cn("font-semibold text-xl first-letter:text-4xl whitespace-pre-wrap", sans.className)}>{story?.storyStructure?.introduceProtagonistAndOrdinaryWorld}</p>
+                    <p className={cn("text-xl first-letter:text-4xl whitespace-pre-wrap", inter.className)}>{story?.storyStructure?.introduceProtagonistAndOrdinaryWorld}</p>
                     </>
                 }
 
@@ -90,7 +82,7 @@ const ReadChapterComponent = ({
 
                         <p className={cn(`ont-semibold text-xl first-letter:text-4xl whitespace-pre-wrap testing mb-7 
                            bg-clip-text text-transparent bg-gradient-to-b from-black to-transparent 
-                            `, sans.className)}>
+                            `, inter.className)}>
                             {/* {story?.storyStructure?.incitingIncident} */}
                             {story?.storyStructure?.incitingIncident ? trimWords(story?.storyStructure?.incitingIncident, 200) : ""}
                         </p>
@@ -107,7 +99,7 @@ const ReadChapterComponent = ({
                     accessRecord?.currentChapter === "2" && accessRecord.hasAccess === true && 
                     <>
                         <StoryBannerComponent image={story?.introductionImage} />
-                        <p className={cn("font-semibold text-xl first-letter:text-4xl whitespace-pre-wrap", sans.className)}>{story?.storyStructure?.incitingIncident}</p>
+                        <p className={cn("text-xl first-letter:text-4xl whitespace-pre-wrap", inter.className)}>{story?.storyStructure?.incitingIncident}</p>
                     </>
                 }
 
@@ -115,7 +107,7 @@ const ReadChapterComponent = ({
                     accessRecord?.currentChapter === "3" && accessRecord.hasAccess === true && 
                     <>
                         <StoryBannerComponent image={story?.introductionImage} />                    
-                        <p className={cn("font-semibold text-xl first-letter:text-4xl whitespace-pre-wrap", sans.className)}>{story?.storyStructure?.firstPlotPoint}</p>
+                        <p className={cn("text-xl first-letter:text-4xl whitespace-pre-wrap", inter.className)}>{story?.storyStructure?.firstPlotPoint}</p>
                     </>
                 }
 
@@ -123,7 +115,7 @@ const ReadChapterComponent = ({
                     accessRecord?.currentChapter === "4" && accessRecord.hasAccess === true && 
                     <>
                         <StoryBannerComponent image={story?.introductionImage} />                                        
-                        <p className={cn("font-semibold text-xl first-letter:text-4xl whitespace-pre-wrap", sans.className)}>{story?.storyStructure?.risingActionAndMidpoint}</p>
+                        <p className={cn("text-xl first-letter:text-4xl whitespace-pre-wrap", inter.className)}>{story?.storyStructure?.risingActionAndMidpoint}</p>
                     </>
                 }
 
@@ -131,7 +123,7 @@ const ReadChapterComponent = ({
                     accessRecord?.currentChapter === "5" && accessRecord.hasAccess === true && 
                     <>
                         <StoryBannerComponent image={story?.introductionImage} />                                                            
-                        <p className={cn("font-semibold text-xl first-letter:text-4xl whitespace-pre-wrap", sans.className)}>{story?.storyStructure?.pinchPointsAndSecondPlotPoint}</p>
+                        <p className={cn("text-xl first-letter:text-4xl whitespace-pre-wrap", inter.className)}>{story?.storyStructure?.pinchPointsAndSecondPlotPoint}</p>
                     </>
                 }
 
@@ -139,7 +131,7 @@ const ReadChapterComponent = ({
                     accessRecord?.currentChapter === "6" && accessRecord.hasAccess === true && 
                     <>
                         <StoryBannerComponent image={story?.introductionImage} />                                                            
-                        <p className={cn("font-semibold text-xl first-letter:text-4xl whitespace-pre-wrap", sans.className)}>{story?.storyStructure?.climaxAndFallingAction}</p>
+                        <p className={cn("text-xl first-letter:text-4xl whitespace-pre-wrap", inter.className)}>{story?.storyStructure?.climaxAndFallingAction}</p>
                     </>
                 }
 
@@ -147,7 +139,7 @@ const ReadChapterComponent = ({
                     accessRecord?.currentChapter === "7" && accessRecord.hasAccess === true && 
                     <>
                         <StoryBannerComponent image={story?.introductionImage} />                                                                                
-                        <p className={cn("font-semibold text-xl first-letter:text-4xl whitespace-pre-wrap", sans.className)}>{story?.storyStructure?.resolution}</p>
+                        <p className={cn("text-xl first-letter:text-4xl whitespace-pre-wrap", inter.className)}>{story?.storyStructure?.resolution}</p>
                     </>
                 }
             </div>

@@ -88,7 +88,7 @@ export const makeRequest = async ({
 }: {
     url: string, 
     method: string, 
-    body: object, 
+    body?: object|null 
     token: string
 }) => {
     if (!token) {
@@ -97,14 +97,19 @@ export const makeRequest = async ({
     }
 
     try {
-        const response = await fetch(url, {
+        const payload = {
             method: method,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(body)
-        });
+            }
+        }
+
+        if (method !== 'GET' && body) {
+            payload.body = JSON.stringify(body)
+        }
+
+        const response = await fetch(url, payload);
 
         const json = await response.json();
         return json;

@@ -134,14 +134,18 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
             }
             scrollToBottom()
     
-            let text = ``;
+            let chapter = ``;
             for await (const chunk of response) {
                 scrollToBottom()
-                text += chunk;   
-                setRisingActionAndMidpoint(text);         
+                chapter += chunk;   
+                setRisingActionAndMidpoint(chapter);         
             }
             
-            scrollToBottom()
+            scrollToBottom();
+            
+            await saveGeneration(chapter)
+            await analyzeStory(chapter)
+
         } catch (error) {
             console.error(error);            
         }finally{
@@ -226,7 +230,13 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
         }
     }
     
-    const analyzeStory = async () => {
+    const analyzeStory = async (chapter = '') => {
+        const data = chapter ?? risingActionAndMidpoint
+        if (!data) {
+            toast.error('Generate some content first')
+            return;
+        }
+
         try {
             const prompt = `
             You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
@@ -265,7 +275,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
                 introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
                 incitingIncident: initialStory?.storyStructure?.incitingIncident,
                 firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,
-                risingActionAndMidpoint,
+                risingActionAndMidpoint: data,
                 storyIdea: projectDescription,
             });
 
@@ -348,7 +358,20 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
         }
     }
 
-
+    const saveGeneration = async (data: string) => {
+        if (data) {                
+            let updated = await makeRequest({
+                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`,
+                method: "PUT", 
+                body: {
+                    storyId: initialStory?.id,
+                    risingActionAndMidpoint: data,
+                    risingActionAndMidpointLocked: true
+                }, 
+                token: dynamicJwtToken,
+            });
+        }
+    }
 
 
     return (
@@ -361,7 +384,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
                     <p className='font-bold text-center text-2xl'>
                         Chapter 4 
                     </p>
-                    <Button size="icon" onClick={() => moveToNext(5)} disabled={generating}>
+                    <Button size="icon" onClick={() => moveToNext(5)} disabled={generating || !initialStory?.risingActionAndMidpointLocked}>
                         <ArrowRight />
                     </Button>
                 </div>
@@ -387,6 +410,16 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
                 className={cn('p-5 mb-4 outline-none border text-md whitespace-pre-wrap rounded-lg w-full leading-5', inter.className)} 
             />
 
+            <div className="flex justify-between items-center mb-3">
+                <Button size="icon" onClick={() => moveToNext(3)} disabled={generating}>
+                    <ArrowLeft />
+                </Button>
+                
+                <Button size="icon" onClick={() => moveToNext(5)} disabled={generating || !initialStory?.risingActionAndMidpointLocked}>
+                    <ArrowRight />
+                </Button>
+            </div>
+
             <div id='control-buttons' className='grid-container gap-4'> 
                 
                 {
@@ -407,7 +440,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
                 {
                 <Button size="sm"  
                 className='item2 flex items-center gap-2'
-                disabled={generating}
+                disabled={generating || !risingActionAndMidpoint}
                 onClick={() => {
                     if (challengesProtagonistFaces) {
                         setModifyModalOpen(true);
@@ -429,7 +462,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
                 (initialStory?.genres) && 
                 <Button 
                 className='item3'                
-                disabled={generating}     
+                disabled={generating || !risingActionAndMidpoint}     
                 onClick={lockChapter}       
                 size="sm" variant="destructive">
                     Save

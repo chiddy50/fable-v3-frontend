@@ -69,7 +69,9 @@ const DashboardHeader = () => {
             </div> */}
 
             <Sheet open={openSideNav} onOpenChange={setOpenSideNav}>
-                <SheetContent side="left">
+
+                <SheetContent side="left" className="overflow-y-scroll xs:min-w-[30%] sm:min-w-[30%] md:min-w-[20%] lg:min-w-[15%] xl:min-w-[15%]">
+
                     <SheetHeader>
                     <SheetTitle></SheetTitle>
                     <SheetDescription>

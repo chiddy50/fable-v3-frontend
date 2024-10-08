@@ -1,7 +1,7 @@
 
 "use client";
 
-import { ArrowLeft, ArrowLeftCircle, ArrowLeftToLine, ArrowRight, ArrowRightCircle, ArrowRightToLine, Menu } from 'lucide-react';
+import { ArrowLeft, ArrowLeftCircle, ArrowLeftToLine, ArrowRight, ArrowRightCircle, ArrowRightToLine, Menu, Share2 } from 'lucide-react';
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
 import { DM_Sans, Dosis } from "next/font/google";
@@ -133,6 +133,21 @@ const ReadStoryPage = ({id}: {id:string}) => {
     }
   };
   
+  const shareStory = async (story: StoryInterface) => {
+    const url = `http://localhost:3000/read-story/${story?.id}` ?? `https://fable-v3-frontend.vercel.app/read-story/${story?.id}`;
+    
+    const message = `Read my latest story on Fable! `;
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${message} ${encodeURIComponent(` \n\n ${url} #fable @meta_fable @getcode`)}`;
+    window.open(twitterUrl, '_blank');
+  }
+  
+  const shareBlink = (story: StoryInterface) => {      
+    const url = `http://localhost:3000` ?? `https://fable-v3-frontend.vercel.app`;
+    const blink = `https://dial.to/?action=solana-action:${url}/api/tip-me?storyId=${story?.id}`;
+    
+    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${blink}`)}`;
+    window.open(twitterUrl, '_blank');
+  }
   
   return (
     <div className='pb-10'>
@@ -204,7 +219,20 @@ const ReadStoryPage = ({id}: {id:string}) => {
           accessRecord={accessRecord} 
           refetch={refetch}
           depositAddress={depositAddress}
-          />          
+          />   
+
+          <div className="py-10 gap-5 flex items-center">
+                    
+            <div onClick={() => shareBlink(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
+              <Share2 className="w-4 h-4" />
+              <span className="text-xs">Share Blink on <span className="text-md font-semibold">X</span></span>
+            </div>
+
+            <div onClick={() => shareStory(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
+              <Share2 className="w-4 h-4" />
+              <span className="text-xs">Post on <span className="text-md font-semibold">X</span></span>
+            </div>
+          </div>       
 
         </div>
       }
