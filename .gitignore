@@ -42,3 +42,4 @@ next-env.d.ts
 /public/scenes1
 /public/scenes2
 /public/books
+.env
