@@ -7,12 +7,12 @@ const StoryBannerComponent = ({
     image,
 }) => {
   return (
-    <div>
-        {image &&                     
-            <div>
-            <img src={image} alt="" className='w-full object-cover h-[250px] mb-5 rounded-2xl' />          
-            </div>
-        }
+    <div className='mb-10 mt-10'>
+      { image &&                     
+        <div>
+          <img src={image} alt="" className='w-full object-cover h-[250px] mb-5 rounded-2xl' />          
+        </div>
+      }
     </div>
   )
 }

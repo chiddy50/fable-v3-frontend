@@ -28,6 +28,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet' />
+        <link rel="icon" href="/images/fable_black.png" sizes="any" />
       </head>
       <body className={cn(
         "flex flex-col min-h-screen",

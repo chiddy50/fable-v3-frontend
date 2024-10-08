@@ -221,14 +221,18 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
             }
             scrollToBottom()
     
-            let text = ``;
+            let chapter = ``;
             for await (const chunk of response) {
                 scrollToBottom()
-                text += chunk;   
-                setIncitingIncident(text);         
+                chapter += chunk;   
+                setIncitingIncident(chapter);         
             }
             
-            scrollToBottom()
+            scrollToBottom();
+
+            await saveGeneration(chapter)
+            await analyzeStory(chapter)
+
         } catch (error) {
             console.error(error);            
         }finally{
@@ -307,8 +311,14 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
         }
     }
     
-    const analyzeStory = async () => {
+    const analyzeStory = async (story = '') => {
         try {
+            const data = story ?? incitingIncident
+            if (!data) {
+                toast.error('Generate some content first')
+                return;
+            }
+
             const prompt = `
             You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
             We have currently generated the Inciting Incident section of the story. 
@@ -342,7 +352,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
             showPageLoader();
             const response = await queryLLM(prompt, {
                 introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
-                incitingIncident: incitingIncident,
+                incitingIncident: story ?? incitingIncident,
                 storyIdea: projectDescription,
             });
 
@@ -392,6 +402,21 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
         }
     }
 
+    const saveGeneration = async (data: string) => {
+        if (data) {                
+            let updated = await makeRequest({
+                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`,
+                method: "PUT", 
+                body: {
+                    storyId: initialStory?.id,
+                    incitingIncident: data,
+                    incitingIncidentLocked: true                    
+                }, 
+                token: dynamicJwtToken,
+            });
+        }
+    }
+
     const lockChapter = async () => {
         try {           
             showPageLoader();
@@ -431,19 +456,13 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
                     </Button>
                     <p className='font-bold text-center text-2xl'>Chapter 2</p>
                     
-                    {
-                        initialStory?.isPaid === true &&
-                        <Button size="icon" onClick={() => moveToNext(3)} disabled={generating}>
-                            <ArrowRight />
-                        </Button>
-                    }
-
-                    {
-                        initialStory?.isPaid === false &&
-                        <Button size="icon" disabled={initialStory?.isPaid}>
-                            <ArrowRight />
-                        </Button>
-                    }
+                    <Button 
+                        size="icon" 
+                        onClick={() => initialStory?.isPaid && moveToNext(3)} 
+                        disabled={generating || !initialStory?.isPaid}
+                    >
+                        <ArrowRight />
+                    </Button>
                 </div>
                 <p className='text-xs mt-3 text-center'>
                 This chapter introduces the event that sets the story in motion. It's a crucial moment that sets the protagonist on their journey.                
@@ -488,56 +507,71 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
 
             {
                 initialStory?.isPaid === true && 
-                <div id='control-buttons' className='grid-container gap-4'>
-                
-                    {
+                <>
+                    <div className="flex justify-between items-center mb-3">
+                        <Button size="icon" onClick={() => moveToNext(1)} disabled={generating}>
+                            <ArrowLeft />
+                        </Button>
+                        
                         <Button 
-                        className='item1 flex items-center gap-2'
-                        disabled={generating}                            
-                        size="sm" onClick={generateIncitingIncident}>
-                            Generate
-                            <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96" preserveAspectRatio="xMidYMid meet">
-                                <g transform="translate(0,96) scale(0.1,-0.1)" fill="#FFFFFF" stroke="none">
-                                    <path d="M693 883 c-29 -86 -40 -99 -97 -123 -75 -30 -74 -54 3 -82 50 -19 55 -24 79 -80 33 -76 56 -76 84 1 19 50 24 55 80 79 76 33 76 56 -1 84 -50 19 -55 24 -79 79 -26 61 -56 79 -69 42z m45 -108 c7 -14 23 -30 37 -37 14 -6 25 -14 25 -18 0 -4 -11 -12 -25 -18 -14 -7 -30 -23 -37 -37 -14 -31 -22 -31 -36 0 -7 14 -23 30 -37 37 -14 6 -25 14 -25 18 0 4 11 12 25 18 14 7 30 23 37 37 6 14 14 25 18 25 4 0 12 -11 18 -25z"/>
-                                    <path d="M243 740 c-82 -9 -126 -31 -155 -78 -46 -75 -47 -444 -2 -522 42 -70 128 -90 394 -90 267 0 352 20 394 91 23 39 43 253 32 342 -7 52 -10 58 -29 55 -21 -3 -22 -8 -27 -178 -7 -261 9 -250 -370 -250 -385 0 -370 -12 -370 290 0 154 3 199 16 225 23 49 65 65 172 65 103 0 122 5 122 30 0 31 -32 35 -177 20z"/>
-                                </g>
+                            size="icon" 
+                            onClick={() => initialStory?.isPaid && moveToNext(3)} 
+                            disabled={generating || !initialStory?.isPaid}
+                        >
+                            <ArrowRight />
+                        </Button>
+                    </div>
+                    <div id='control-buttons' className='grid-container gap-4'>
+                    
+                        {
+                            <Button 
+                            className='item1 flex items-center gap-2'
+                            disabled={generating}                            
+                            size="sm" onClick={generateIncitingIncident}>
+                                Generate
+                                <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96" preserveAspectRatio="xMidYMid meet">
+                                    <g transform="translate(0,96) scale(0.1,-0.1)" fill="#FFFFFF" stroke="none">
+                                        <path d="M693 883 c-29 -86 -40 -99 -97 -123 -75 -30 -74 -54 3 -82 50 -19 55 -24 79 -80 33 -76 56 -76 84 1 19 50 24 55 80 79 76 33 76 56 -1 84 -50 19 -55 24 -79 79 -26 61 -56 79 -69 42z m45 -108 c7 -14 23 -30 37 -37 14 -6 25 -14 25 -18 0 -4 -11 -12 -25 -18 -14 -7 -30 -23 -37 -37 -14 -31 -22 -31 -36 0 -7 14 -23 30 -37 37 -14 6 -25 14 -25 18 0 4 11 12 25 18 14 7 30 23 37 37 6 14 14 25 18 25 4 0 12 -11 18 -25z"/>
+                                        <path d="M243 740 c-82 -9 -126 -31 -155 -78 -46 -75 -47 -444 -2 -522 42 -70 128 -90 394 -90 267 0 352 20 394 91 23 39 43 253 32 342 -7 52 -10 58 -29 55 -21 -3 -22 -8 -27 -178 -7 -261 9 -250 -370 -250 -385 0 -370 -12 -370 290 0 154 3 199 16 225 23 49 65 65 172 65 103 0 122 5 122 30 0 31 -32 35 -177 20z"/>
+                                    </g>
+                                </svg>
+                            </Button>
+                        }
+                        
+                        {
+                        <Button size="sm"  
+                        className='item2 flex items-center gap-2'
+                        disabled={generating || !incitingIncident}
+                        onClick={() => {
+                            if (typeOfEvent) {
+                                setModifyModalOpen(true);
+                            }else{
+                                analyzeStory()
+                            }
+                        }}
+                        >
+                            Analysis
+                            <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96">
+                            <g fill="#FFFFFF">
+                                <path d="M9.4 12.5c-.4 1.4-.4 15.5-.2 31.3.4 24.5.7 29.3 2.3 33 2.4 5.8 5.9 8.1 14.7 9.2 8 1 55.7 1.4 58.2.4 2.1-.8 2.1-4 0-4.8-.9-.3-15.1-.6-31.5-.6H22.9l.6-2.3c.4-1.2 2.8-6.1 5.2-11 7.3-14.1 11.6-15.9 20.3-8.2 4.4 3.9 5.7 4.5 9.5 4.5 5.7 0 9-2.9 14.8-12.5 3.7-6.1 4.8-7.2 8.5-8.3 2.9-1 4.2-1.9 4.2-3.2 0-2.3-1.7-2.9-5.4-1.9-4.9 1.4-7.4 3.7-11.1 10.1-7.4 12.6-10.5 13.7-18.7 6.3-4.2-3.8-5.7-4.5-9.2-4.5-7.9 0-13.1 5.5-20.5 21.5-3.2 6.9-3.3 7-4.6 4.5-1.1-2-1.4-8.8-1.5-32.7 0-16.6-.3-30.8-.6-31.7-1-2.6-4.3-1.9-5 .9zM27.3 13.7c-2 .8-1.5 4.1.7 4.8 2.9.9 6-.3 6-2.5 0-2.5-3.4-3.7-6.7-2.3zM27.3 25.7c-1.8.7-1.6 4 .3 4.7.9.3 4.6.6 8.4.6 3.8 0 7.5-.3 8.4-.6 2.1-.8 2.1-4 0-4.8-1.9-.7-15.3-.7-17.1.1z"/>
+                            </g>
                             </svg>
                         </Button>
-                    }
-                    
-                    {
-                    <Button size="sm"  
-                    className='item2 flex items-center gap-2'
-                    disabled={generating}
-                    onClick={() => {
-                        if (typeOfEvent) {
-                            setModifyModalOpen(true);
-                        }else{
-                            analyzeStory()
                         }
-                    }}
-                    >
-                        Analysis
-                        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96">
-                        <g fill="#FFFFFF">
-                            <path d="M9.4 12.5c-.4 1.4-.4 15.5-.2 31.3.4 24.5.7 29.3 2.3 33 2.4 5.8 5.9 8.1 14.7 9.2 8 1 55.7 1.4 58.2.4 2.1-.8 2.1-4 0-4.8-.9-.3-15.1-.6-31.5-.6H22.9l.6-2.3c.4-1.2 2.8-6.1 5.2-11 7.3-14.1 11.6-15.9 20.3-8.2 4.4 3.9 5.7 4.5 9.5 4.5 5.7 0 9-2.9 14.8-12.5 3.7-6.1 4.8-7.2 8.5-8.3 2.9-1 4.2-1.9 4.2-3.2 0-2.3-1.7-2.9-5.4-1.9-4.9 1.4-7.4 3.7-11.1 10.1-7.4 12.6-10.5 13.7-18.7 6.3-4.2-3.8-5.7-4.5-9.2-4.5-7.9 0-13.1 5.5-20.5 21.5-3.2 6.9-3.3 7-4.6 4.5-1.1-2-1.4-8.8-1.5-32.7 0-16.6-.3-30.8-.6-31.7-1-2.6-4.3-1.9-5 .9zM27.3 13.7c-2 .8-1.5 4.1.7 4.8 2.9.9 6-.3 6-2.5 0-2.5-3.4-3.7-6.7-2.3zM27.3 25.7c-1.8.7-1.6 4 .3 4.7.9.3 4.6.6 8.4.6 3.8 0 7.5-.3 8.4-.6 2.1-.8 2.1-4 0-4.8-1.9-.7-15.3-.7-17.1.1z"/>
-                        </g>
-                        </svg>
-                    </Button>
-                    }
-                    
-                    {
-                    (initialStory?.genres) && 
-                    <Button 
-                    className='item3'                
-                    disabled={generating}     
-                    onClick={lockChapter}       
-                    size="sm" variant="destructive">
-                        Save
-                        <Lock className='ml-2 w-3 h-3' />
-                    </Button>}
-                    
-                </div>
+                        
+                        {
+                        (initialStory?.genres) && 
+                        <Button 
+                        className='item3'                
+                        disabled={generating || !incitingIncident}     
+                        onClick={lockChapter}       
+                        size="sm" variant="destructive">
+                            Save
+                            <Lock className='ml-2 w-3 h-3' />
+                        </Button>}
+                        
+                    </div>
+                </>
             }
 
 

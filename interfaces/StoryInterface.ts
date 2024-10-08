@@ -134,11 +134,13 @@ export interface StoryInterface {
   incitingEventCharacters: [];
   incitingIncidentTone: string[];
   incitingIncidentSetting: string[];
+  introductionImage: string;
 
   // FIRST PLOT POINT
   firstPlotPointLocked: boolean;
   firstPlotPointSetting: string[];
   firstPlotPointTone: string[];
+  firstPlotPointImage: string;
 
   // RISING ACTION & MIDPOINT
   risingActionAndMidpointLocked: boolean;
@@ -148,6 +150,7 @@ export interface StoryInterface {
   risingActionAndMidpointSetting: string[];
   risingActionAndMidpointTone: string[];
   risingActionAndMidpointExtraDetails: string;
+  risingActionAndMidpointImage: string;
 
   // PINCH POINT & SECOND PLOT POINT
   newObstacles: string;
@@ -157,6 +160,7 @@ export interface StoryInterface {
   pinchPointsAndSecondPlotPointSetting: string[];
   pinchPointsAndSecondPlotPointTone: string[];
   pinchPointsAndSecondPlotPointExtraDetails: string;
+  pinchPointsAndSecondPlotPointImage: string;
 
   // CLIMAX & FALLING ACTION
   finalChallenge: string;
@@ -166,6 +170,7 @@ export interface StoryInterface {
   climaxAndFallingActionSetting: string[],
   climaxAndFallingActionTone: string[],
   climaxAndFallingActionExtraDetails: string;
+  climaxAndFallingActionImage: string;
 
   climaxConsequences: string;
   howCharactersEvolve: string;
@@ -174,6 +179,7 @@ export interface StoryInterface {
   resolutionTone: string[];
   resolutionExtraDetails: string;
   resolutionLocked: boolean;
+  resolutionImage: string;
 
   thematicElements: [];
   thematicOptions: [];

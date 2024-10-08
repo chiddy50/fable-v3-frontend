@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useState, Suspense } from 'react'
+import React, { useState, Suspense, useRef, useEffect } from 'react'
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -26,9 +26,9 @@ import {
     SheetTitle,
 } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ImageIcon } from 'lucide-react';
+import { Download, ImageIcon } from 'lucide-react';
 import axios from 'axios';
-import { queryLLM } from '@/services/LlmQueryHelper';
+import { queryLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
 import { ChatGroq } from '@langchain/groq';
 import { PromptTemplate, ChatPromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
@@ -36,6 +36,7 @@ import { toast } from 'sonner';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
 import { makeRequest } from '@/services/request';
 import Image from 'next/image';
+import code from '@code-wallet/elements';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -62,7 +63,113 @@ function MyComponent() {
 const ProjectSummaryPage = () => {
     const [story, setStory] = useState<StoryInterface|null>(null)
     const [modifyModalOpen, setModifyModalOpen] = useState<boolean>(false);
+    const [generating, setGenerating] = useState<boolean>(false);
+    const [storyOverview, setStoryOverview] = useState<string>(story?.overview ?? "");
 
+    const [mounted, setMounted] = useState<boolean>(false);
+
+    const el = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setMounted(true)
+        // if(mounted && accessRecord?.hasAccess === false){
+        //     const { button } = code.elements.create('button', {
+        //         currency: 'usd',
+        //         destination: depositAddress,
+        //         amount: 0.05,
+        //         // idempotencyKey: `${story?.id}`,
+        //     });
+        
+        //     if (button 
+        //         // && story
+        //     ) {   
+        //         console.log({el});
+                
+        //         button?.mount(el?.current!);
+
+        //         button?.on('invoke', async () => {
+        //             // Get a payment intent from our own server
+        //             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/transactions/create-intent/${story?.id}`;
+            
+        //             const res = await fetch(url, {
+        //                 method: 'POST',
+        //                 headers: {
+        //                 'Content-Type': 'application/json',
+        //                 'Authorization': `Bearer ${dynamicJwtToken}`,
+        //                 },
+        //                 body: JSON.stringify({
+        //                     narration: "Read Story",
+        //                     type: "read-story",
+        //                     depositAddress
+        //                 })
+        //             });
+                        
+        //             const json = await res.json();
+        //             console.log(json);
+        //             const clientSecret = json?.data?.clientSecret;
+                    
+        //             if (clientSecret) {
+        //                 button.update({ clientSecret });                    
+        //             }              
+        //         });            
+        
+        //         button?.on('success', async (event) => {
+
+        //             console.log("==PAYMENT SUCCESSFUL EVENT===", event);
+                    
+        //             if (event) {
+        //                 const { amount, clientSecret, currency, destination, locale, mode } = event?.options;
+        //                 const intent = event?.intent;
+                        
+        //                 if (!story?.isPaid) {            
+        //                     let response = await makeRequest({
+        //                         url: `${process.env.NEXT_PUBLIC_BASE_URL}/transactions/confirm/${intent}`,
+        //                         method: "POST", 
+        //                         body: {
+        //                             storyId: story?.id,
+        //                             amount, clientSecret, currency, destination, locale, mode,
+        //                             type: 'read-story'
+        //                         }, 
+        //                         token: dynamicJwtToken,
+        //                     });
+
+        //                     if (response) {
+        //                         refetch();
+        //                     }
+        //                 }
+        //             }
+                    
+        //             return true; // Return true to prevent the browser from navigating to the optional success URL provided in the confirmParams
+        //         });
+        
+        //         button?.on('cancel', async (event) => {
+        //             // Handle cancelled payment, the intent ID will be provided in the event object
+        //             console.log("==PAYMENT CANCELLED EVENT===", event);
+        //             if (event) {
+        //                 const { amount, clientSecret, currency, destination, locale, mode } = event?.options;
+        //                 const intent = event?.intent;
+
+        //                 let response = await makeRequest({
+        //                     url: `${process.env.NEXT_PUBLIC_BASE_URL}/transactions/${intent}`,
+        //                     method: "DELETE", 
+        //                     body: {
+        //                         storyId: story?.id,
+        //                         amount, clientSecret, currency, destination, locale, mode
+        //                     }, 
+        //                     token: dynamicJwtToken,
+        //                 });
+            
+        //             }
+        //             return true; // Return true to prevent the browser from navigating to the optional cancel URL provided in the confirmParams
+        //         });
+        //     }
+        // }
+
+    }, [mounted]);
+
+    useEffect(() => {
+        setStoryOverview(story?.overview ?? "");
+    }, [story]);
     const storyId = useSearchParams().get('story-id');
     const dynamicJwtToken = getAuthToken();
 
@@ -146,7 +253,7 @@ const ProjectSummaryPage = () => {
             showPageLoader();
             
             const prompt = `
-            Analyze the following chapter of a story and story idea and generate a prompt that can be used to create an image banner that visually represents the story. Ensure the image captures a sense of motion and involves actions from the characters. 
+            Analyze the following chapters of a story and a story idea and generate a prompt that can be used to create an image banner that visually represents the story. Ensure the image captures a sense of motion and involves actions from the characters. 
             The following sections of the story have already been generated:
             - The introduction (Chapter 1): {introduceProtagonistAndOrdinaryWorld}
             - Inciting Incident (Chapter 2): {incitingIncident}
@@ -198,21 +305,26 @@ const ProjectSummaryPage = () => {
             toast.error("Kindly add a story banner image") 
             return
         }
+
+        let published = storyData?.status === "draft" ? false : true;
+
         try {
             showPageLoader()
             let updated = await makeRequest({
                 url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${storyId}`,
                 method: "PUT", 
                 body: {
-                    status: "published",
-                    publishedAt: new Date
+                    status: published === true ? "draft" : "published",
+                    publishedAt: published === true ? null : new Date
                 }, 
                 token: dynamicJwtToken,
             });
 
-            if (updated) {
+            if (updated && !published) {
                 // refetch();
                 push("/dashboard/stories")
+            }else{
+                refetch();
             }
         } catch (error) {
             console.error(error);            
@@ -242,6 +354,81 @@ const ProjectSummaryPage = () => {
         }
     };
 
+    const generateStoryOverview = async () => {
+        try {
+            
+            const prompt = `
+            Based on the following chapters, generate a concise synopsis of the story:
+            - Introduction (Chapter 1): {introduceProtagonistAndOrdinaryWorld}
+            - Inciting Incident (Chapter 2): {incitingIncident}
+            - First Plot Point (Chapter 3): {firstPlotPoint}
+            - Rising Action & Midpoint (Chapter 4): {risingActionAndMidpoint}
+            - Pinch Points & Second Plot Point (Chapter 5): {pinchPointsAndSecondPlotPoint}
+            - Climax and Falling Action (Chapter 6): {climaxAndFallingAction}
+            - Resolution & Epilogue (Chapter 7): {resolution}
+
+            Summarize the story in a brief and engaging way. Not more than 50 to 100 words.
+            Note: Do not add any headers or descriptions, just generate the short synopsis.
+
+            **INPUT**
+            Story idea: {storyIdea}
+        `;
+
+            setGenerating(true);   
+            
+            const response = await streamLLMResponse(prompt, {
+                storyIdea: story?.projectDescription,
+                introduceProtagonistAndOrdinaryWorld: story?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+                incitingIncident: story?.storyStructure?.incitingIncident,
+                firstPlotPoint: story?.storyStructure?.firstPlotPoint,
+                risingActionAndMidpoint: story?.storyStructure?.risingActionAndMidpoint,
+                pinchPointsAndSecondPlotPoint: story?.storyStructure?.pinchPointsAndSecondPlotPoint,
+                climaxAndFallingAction: story?.storyStructure?.climaxAndFallingAction,    
+                resolution: story?.storyStructure?.resolution,                     
+            });
+    
+            if (!response) {
+                setGenerating(false);   
+                toast.error("Try again please");
+                return;
+            }
+            let overview = ``;
+            for await (const chunk of response) {
+                overview += chunk;   
+                setStoryOverview(overview);                     
+            }
+        } catch (error) {
+            console.error(error);            
+        }finally{
+            setGenerating(false);   
+        }
+    }
+
+    const saveStoryOverview = async () => {
+        if (!storyOverview) {
+            toast.error("Provide a story overview");
+            return;
+        }
+        try {
+            showPageLoader();
+            const updated = await makeRequest({
+                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${storyId}`,
+                method: "PUT",
+                body: {
+                    overview: storyOverview
+                },
+                token: dynamicJwtToken,
+            });
+        
+            if (updated) {
+                refetch();
+            }
+        } catch (error) {
+            console.error('Error saving chapter banner:', error);
+        }finally{
+            hidePageLoader()
+        }
+    }
     return (
         <div>
             
@@ -261,38 +448,55 @@ const ProjectSummaryPage = () => {
                 <Link href={`/dashboard/refine-story?story-id=${storyId}`}>
                     <Button size='sm' variant="outline">Return</Button>
                 </Link>
-                <Button size='sm'>View Chapters</Button>
+                {/* <Button size='sm'>View Chapters</Button> */}
                 
             </div>
 
             <div className='my-10 p-7 bg-gray-50 rounded-2xl'>
-                <h1 className="font-bold text-2xl mb-4">Story banner*</h1>
+                <div>
+                    <h1 className="font-bold text-2xl mb-4">Story banner*</h1>
 
-                <div className="flex mb-3 w-full items-center h-[250px] justify-center border-gray-200 border bg-gray-100 rounded-2xl">
-                    {!storyData?.introductionImage &&
-                    <div className="flex flex-col items-center gap-2 ">
-                        <ImageIcon/>
-                        <span className='text-xs'>Generate a banner</span>
-                    </div>}
-                    {storyData?.introductionImage &&
-                        <img src={storyData?.introductionImage} alt="story banner" className='w-full object-cover rounded-2xl h-[250px]'/>
+                    <div className="flex mb-3 w-full items-center h-300px] justify-center border-gray-200 border bg-gray-100 rounded-2xl">
+                        {!storyData?.introductionImage &&
+                        <div className="flex flex-col items-center gap-2 ">
+                            <ImageIcon/>
+                            <span className='text-xs'>Generate a banner</span>
+                        </div>}
+                        {storyData?.introductionImage &&
+                            <img src={storyData?.introductionImage} alt="story banner" className='w-full object-cover rounded-2xl h-[300px]'/>
+                        }
+                    </div>
+
+
+                    {
+                        !storyData?.introductionImage &&
+                        <Button onClick={() => generateBanner()} size="sm">Generate Banner</Button>
                     }
                 </div>
 
+                <div className='mt-7'>
+                    <p className="mb-2 font-semibold text-sm">Story Overview</p>
+                    <textarea rows={5} 
+                    onChange={(e) => setStoryOverview(e.target.value) } 
+                    value={storyOverview} 
+                    placeholder='Kindly share your story idea or any keywords'
+                    className='p-5 outline-none text-sm border rounded-lg w-full' 
+                    />
+                    <div className="grid grid-cols-2 mt-3 gap-4">
 
-                {
-                    !storyData?.introductionImage &&
-                    <Button onClick={() => generateBanner()} size="sm">Generate Banner</Button>
-                }
-                <div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
+                    <Button onClick={generateStoryOverview}>Generate Overview</Button>
+                    <Button onClick={saveStoryOverview} disabled={!storyOverview}>Save</Button>
+                    </div>
+                </div>
+                {/* <div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
                     <span className="text-xs text-red-600">
-                        Note: One generation per chapter. Any further generation will occur an extra of $0.05. 
+                        Note: You have just one free image generation. Any further generation will occur an extra of $0.05. 
                     </span>
                 </div>
                 {
                     storyData?.introductionImage &&
                     <Button size="sm">Pay with code</Button>
-                }
+                } */}
             
 
                 {/* <Accordion type="single" className='' collapsible>
@@ -518,14 +722,20 @@ const ProjectSummaryPage = () => {
                         </AccordionContent>                        
                     </AccordionItem>
                 </Accordion> */}
+
                  <Button onClick={publishStory} className='w-full mt-5 flex items-center gap-2 bg-custom_green'>
-                    Publish
+                    {storyData?.status === "draft" ? "Publish" : "Unpublish"}
+                    
+                    {storyData?.status === "draft" ? 
                     <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96" preserveAspectRatio="xMidYMid meet">
                         <g transform="translate(0,96) scale(0.1,-0.1)" fill="#FFFFFF" stroke="none">
                             <path d="M431 859 c-81 -16 -170 -97 -186 -169 -5 -22 -15 -32 -42 -41 -46 -15 -99 -63 -125 -112 -27 -54 -27 -140 1 -194 40 -78 157 -151 181 -112 12 18 4 27 -38 45 -76 31 -112 85 -112 167 0 62 25 108 79 144 44 29 132 32 176 5 35 -22 55 -18 55 9 0 22 -66 59 -105 59 -23 0 -25 3 -20 23 11 35 57 88 95 108 46 25 134 25 180 0 19 -10 48 -35 64 -55 41 -50 49 -145 17 -206 -24 -46 -26 -66 -9 -76 14 -9 54 39 69 84 10 30 14 33 38 27 14 -3 41 -21 60 -40 27 -27 35 -43 39 -84 2 -27 2 -61 -2 -75 -9 -36 -62 -84 -107 -96 -28 -8 -39 -16 -39 -30 0 -30 56 -26 106 6 112 73 131 213 42 310 -23 25 -57 49 -81 57 -38 12 -42 17 -49 57 -22 127 -155 215 -287 189z"/>
                             <path d="M464 460 c-29 -11 -104 -99 -104 -121 0 -30 32 -23 62 13 l27 33 1 -127 c0 -139 4 -158 30 -158 26 0 30 19 30 158 l1 127 27 -33 c29 -35 62 -43 62 -14 0 19 -72 107 -98 121 -10 5 -26 5 -38 1z"/>
                         </g>
-                    </svg>    
+                    </svg> :   
+                    <Download className='w-4 h-4'/> 
+                    }
+
                 </Button>
             </div>
 

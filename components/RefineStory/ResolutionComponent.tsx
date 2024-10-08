@@ -152,14 +152,17 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
           }
           scrollToBottom()
   
-          let text = ``;
+          let chapter = ``;
           for await (const chunk of response) {
               scrollToBottom()
-              text += chunk;   
-              setResolution(text);         
+              chapter += chunk;   
+              setResolution(chapter);         
           }
           
           scrollToBottom()
+          await saveGeneration(chapter)
+          await analyzeStory(chapter)
+
       } catch (error) {
           console.error(error);            
       }finally{
@@ -249,77 +252,82 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
         }
     }
     
-    const analyzeStory = async () => {
-        try {
-          const prompt = `
-          You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
-          We have currently generated the Resolution & Epilogue section of the story. 
-          I need you analyze the generated Resolution & Epilogue and give an analysis of the characters involved in the story, tone, genre, setting, and Characters involved.
-          I need you to also analyze the generated Resolution & Epilogue and the answer following questions:
-          - What are the consequences of the climax?
-          - How do the characters evolve or change?
-          - What is the new status quo or resolution of the conflict?
+    const analyzeStory = async (chapter = "") => {
+      const data = chapter ?? resolution
+      if (!data) {
+        toast.error('Generate some content first')
+        return;
+      }
+      try {
+        const prompt = `
+        You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
+        We have currently generated the Resolution & Epilogue section of the story. 
+        I need you analyze the generated Resolution & Epilogue and give an analysis of the characters involved in the story, tone, genre, setting, and Characters involved.
+        I need you to also analyze the generated Resolution & Epilogue and the answer following questions:
+        - What are the consequences of the climax?
+        - How do the characters evolve or change?
+        - What is the new status quo or resolution of the conflict?
 
-          **CONTEXT**
-          Here is the Resolution & Epilogue: {resolution}.
-          The following sections of the story have already been generated:
-          - The introduction to the protagonist and their ordinary world: {introduceProtagonistAndOrdinaryWorld}
-          - Inciting Incident: {incitingIncident}
-          - First Plot Point: {firstPlotPoint}
-          - Rising Action & Midpoint: {risingActionAndMidpoint}
-          - Pinch Points & Second Plot Point: {pinchPointsAndSecondPlotPoint}
-          - Climax and Falling Action: {climaxAndFallingAction}
-          - Resolution & Epilogue: {resolution}
+        **CONTEXT**
+        Here is the Resolution & Epilogue: {resolution}.
+        The following sections of the story have already been generated:
+        - The introduction to the protagonist and their ordinary world: {introduceProtagonistAndOrdinaryWorld}
+        - Inciting Incident: {incitingIncident}
+        - First Plot Point: {firstPlotPoint}
+        - Rising Action & Midpoint: {risingActionAndMidpoint}
+        - Pinch Points & Second Plot Point: {pinchPointsAndSecondPlotPoint}
+        - Climax and Falling Action: {climaxAndFallingAction}
+        - Resolution & Epilogue: {resolution}
 
-          Return your response in a json or javascript object format like: 
-          summary(string, a summary of the story soo far),
-          climaxConsequences(string, this refers to the answer to the question, What are the consequences of the climax?),            
-          howCharactersEvolve(string, this refers to the answer to the question, How do the characters evolve or change?),            
-          resolutionOfConflict(string, this refers to the answer to the question, What is the new status quo or resolution of the conflict?),            
-          tone(array of strings),
-          setting(array of strings).                        
-          Please ensure the only keys in the object are summary, climaxConsequences, howCharactersEvolve, resolutionOfConflict, tone and setting keys only.
-          Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
+        Return your response in a json or javascript object format like: 
+        summary(string, a summary of the story soo far),
+        climaxConsequences(string, this refers to the answer to the question, What are the consequences of the climax?),            
+        howCharactersEvolve(string, this refers to the answer to the question, How do the characters evolve or change?),            
+        resolutionOfConflict(string, this refers to the answer to the question, What is the new status quo or resolution of the conflict?),            
+        tone(array of strings),
+        setting(array of strings).                        
+        Please ensure the only keys in the object are summary, climaxConsequences, howCharactersEvolve, resolutionOfConflict, tone and setting keys only.
+        Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
 
-          **INPUT**
-          Rising Action & Midpoint {risingActionAndMidpoint}
-          story idea {storyIdea}
-          `;
-          // charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the inciting incident),            
+        **INPUT**
+        Rising Action & Midpoint {risingActionAndMidpoint}
+        story idea {storyIdea}
+        `;
+        // charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the inciting incident),            
 
-          showPageLoader();
-          const response = await queryLLM(prompt, {
-            introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
-            incitingIncident: initialStory?.storyStructure?.incitingIncident,
-            firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,
-            risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,
-            pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPoint,
-            climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingAction,
-            resolution,
-            storyIdea: projectDescription,
-          });
+        showPageLoader();
+        const response = await queryLLM(prompt, {
+          introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+          incitingIncident: initialStory?.storyStructure?.incitingIncident,
+          firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,
+          risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,
+          pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPoint,
+          climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingAction,
+          resolution: data,
+          storyIdea: projectDescription,
+        });
 
-          if (!response) {
-              toast.error("Try again please");
-              return;
-          }        
+        if (!response) {
+            toast.error("Try again please");
+            return;
+        }        
 
-          setClimaxConsequences(response?.newObstacles ?? "");
-          setHowCharactersEvolve(response?.discoveryChanges ?? "");
-          setResolutionOfConflict(response?.howStakesEscalate ?? "");
-          setResolutionSetting(response?.setting ?? "");
-          setResolutionTone(response?.tone ?? "");
-          // setResolutionCharacters(response?.charactersInvolved ?? "");
+        setClimaxConsequences(response?.newObstacles ?? "");
+        setHowCharactersEvolve(response?.discoveryChanges ?? "");
+        setResolutionOfConflict(response?.howStakesEscalate ?? "");
+        setResolutionSetting(response?.setting ?? "");
+        setResolutionTone(response?.tone ?? "");
+        // setResolutionCharacters(response?.charactersInvolved ?? "");
 
-          let saved = await saveAnalysis(response);
-          
-          setModifyModalOpen(true);
+        let saved = await saveAnalysis(response);
+        
+        setModifyModalOpen(true);
 
-        } catch (error) {
-            console.error(error);            
-        }finally{
-            hidePageLoader()
-        }
+      } catch (error) {
+          console.error(error);            
+      }finally{
+          hidePageLoader()
+      }
     }
 
     const saveAnalysis = async (payload) => {
@@ -378,6 +386,21 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
         }
     }
 
+    const saveGeneration = async (data: string) => {
+      if (data) {                
+          let updated = await makeRequest({
+              url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`,
+              method: "PUT", 
+              body: {
+                storyId: initialStory?.id,
+                resolution: data,
+                resolutionLocked: true
+              }, 
+              token: dynamicJwtToken,
+          });
+      }
+  }
+
     return (
         <div className="my-10 bg-gray-50 p-5 rounded-2xl">
           <div className='mb-5'>
@@ -415,40 +438,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
               className={cn('p-5 mb-4 outline-none border text-md whitespace-pre-wrap rounded-lg w-full leading-5', inter.className)} 
               />
 
-                {/* <div id='control-buttons' className='grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5'>                    
-                    {
-                        <Button
-                        disabled={generating}                            
-                        size="sm" onClick={generateResolution}>Generate</Button>
-                    }
-                    
-                    {
-                    (!initialStory?.firstPlotPointLocked || initialStory?.storyStructure?.firstPlotPoint)  &&
-                    <Button size="sm"  
-                    disabled={!resolution || generating}
-                    onClick={() => analyzeStory()}>Analyze</Button>
-                    }
-
-                    {
-                    initialStory?.genres && 
-                    <Button size="sm" onClick={() => setModifyModalOpen(true)}>View Analysis</Button>}
-                    
-                    {(initialStory?.storyStructure?.pinchPointsAndSecondPlotPoint) && <Button 
-                    disabled={generating || initialStory?.firstPlotPointLocked}     
-                    onClick={lockChapter}       
-                    size="sm" className='bg-red-600'>
-                        {initialStory?.resolutionLocked === true ? "Locked" : "Lock"}
-                        <Lock className='ml-2 w-3 h-3' />
-                    </Button>}                
-                    {
-                        initialStory?.resolutionLocked === true && 
-                        <Link href={`/dashboard/project-summary?story-id=${initialStory?.id}`}>
-                            <Button size="sm" className='bg-custom_green w-full' >Publish</Button>
-                        </Link>
-                    }
-                </div> */}
-
-            <div id='control-buttons' className='grid text-xs xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4'>
+            <div id='control-buttons' className='grid text-xs xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4'>
                 
                 {
                     <Button 
@@ -468,7 +458,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
                 {
                 <Button size="sm"  
                 className=' flex items-center gap-2'
-                disabled={generating}
+                disabled={generating || !resolution}
                 onClick={() => {
                     if (climaxConsequences) {
                         setModifyModalOpen(true);
@@ -490,7 +480,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
                 (initialStory?.genres) && 
                 <Button 
                 className=''                
-                disabled={generating}     
+                disabled={generating || !resolution}     
                 onClick={lockChapter}       
                 size="sm" variant="destructive">
                     Save
@@ -498,19 +488,15 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
                 </Button>
                 }
 
+              {resolution && 
                 <Link href={`/dashboard/project-summary?story-id=${initialStory?.id}`}>
                     <Button size="sm" className='bg-custom_green w-full flex items-center gap-2' >
                         Summary
                         <NotebookText className='w-3 h-3'/>
-                        {/* <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96" preserveAspectRatio="xMidYMid meet">
-                        <g transform="translate(0,96) scale(0.1,-0.1)" fill="#FFFFFF" stroke="none">
-                            <path d="M431 859 c-81 -16 -170 -97 -186 -169 -5 -22 -15 -32 -42 -41 -46 -15 -99 -63 -125 -112 -27 -54 -27 -140 1 -194 40 -78 157 -151 181 -112 12 18 4 27 -38 45 -76 31 -112 85 -112 167 0 62 25 108 79 144 44 29 132 32 176 5 35 -22 55 -18 55 9 0 22 -66 59 -105 59 -23 0 -25 3 -20 23 11 35 57 88 95 108 46 25 134 25 180 0 19 -10 48 -35 64 -55 41 -50 49 -145 17 -206 -24 -46 -26 -66 -9 -76 14 -9 54 39 69 84 10 30 14 33 38 27 14 -3 41 -21 60 -40 27 -27 35 -43 39 -84 2 -27 2 -61 -2 -75 -9 -36 -62 -84 -107 -96 -28 -8 -39 -16 -39 -30 0 -30 56 -26 106 6 112 73 131 213 42 310 -23 25 -57 49 -81 57 -38 12 -42 17 -49 57 -22 127 -155 215 -287 189z"/>
-                            <path d="M464 460 c-29 -11 -104 -99 -104 -121 0 -30 32 -23 62 13 l27 33 1 -127 c0 -139 4 -158 30 -158 26 0 30 19 30 158 l1 127 27 -33 c29 -35 62 -43 62 -14 0 19 -72 107 -98 121 -10 5 -26 5 -38 1z"/>
-                        </g>
-                        </svg>     */}
                     </Button>
                     
                 </Link>
+              }
                 
             </div>
                 
@@ -520,7 +506,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
             <Sheet open={modifyModalOpen} onOpenChange={setModifyModalOpen}>
                 <SheetContent className="overflow-y-scroll xs:min-w-[90%] sm:min-w-[96%] md:min-w-[65%] lg:min-w-[65%] xl:min-w-[55%]">
                     <SheetHeader className=''>
-                        <SheetTitle>Edit Chapter</SheetTitle>
+                        <SheetTitle className='font-semibold'>Edit Chapter</SheetTitle>
                         <SheetDescription> </SheetDescription>
                     </SheetHeader>
 

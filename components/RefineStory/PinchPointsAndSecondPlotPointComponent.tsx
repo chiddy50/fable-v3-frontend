@@ -137,14 +137,17 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
             }
             scrollToBottom()
     
-            let text = ``;
+            let chapter = ``;
             for await (const chunk of response) {
                 scrollToBottom()
-                text += chunk;   
-                setPinchPointsAndSecondPlotPoint(text);         
+                chapter += chunk;   
+                setPinchPointsAndSecondPlotPoint(chapter);         
             }
             
-            scrollToBottom()
+            scrollToBottom();
+
+            await saveGeneration(chapter)
+            await analyzeStory(chapter)
         } catch (error) {
             console.error(error);            
         }finally{
@@ -231,7 +234,28 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
         }
     }
     
-    const analyzeStory = async () => {
+    const saveGeneration = async (data: string) => {
+        if (data) {                
+            let updated = await makeRequest({
+                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`,
+                method: "PUT", 
+                body: {
+                    storyId: initialStory?.id,
+                    pinchPointsAndSecondPlotPoint: data,
+                    pinchPointsAndSecondPlotPointLocked: true
+                }, 
+                token: dynamicJwtToken,
+            });
+        }
+    }
+
+    const analyzeStory = async (chapter = "") => {
+        const data = chapter ?? pinchPointsAndSecondPlotPoint
+        if (!data) {
+            toast.error('Generate some content first')
+            return;
+        }
+
         try {
             const prompt = `
             You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
@@ -273,7 +297,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
                 incitingIncident: initialStory?.storyStructure?.incitingIncident,
                 firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,
                 risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,
-                pinchPointsAndSecondPlotPoint: pinchPointsAndSecondPlotPoint,
+                pinchPointsAndSecondPlotPoint: data,
                 storyIdea: projectDescription,
             });
 
@@ -368,12 +392,13 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
                     <p className='font-bold text-center text-2xl'>
                         Chapter 5
                     </p>
-                    <Button size="icon" onClick={() => moveToNext(6)} disabled={generating}>
+                    <Button size="icon" onClick={() => moveToNext(6)} disabled={generating || !initialStory?.pinchPointsAndSecondPlotPointLocked}>
                         <ArrowRight />
                     </Button>
                 </div>
                 <p className='text-xs text-center'>
-                This chapter brings in problems and challenges that test the protagonist's determination, raising the stakes                </p> 
+                This chapter brings in problems and challenges that test the protagonist's determination, raising the stakes                
+                </p> 
             </div>
 
             <textarea 
@@ -394,6 +419,15 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
                 className={cn('p-5 mb-4 outline-none border text-md whitespace-pre-wrap rounded-lg w-full leading-5', inter.className)} 
             />
 
+            <div className="flex justify-between items-center mb-3">
+                <Button size="icon" onClick={() => moveToNext(4)} disabled={generating}>
+                    <ArrowLeft />
+                </Button>
+
+                <Button size="icon" onClick={() => moveToNext(6)} disabled={generating || !initialStory?.pinchPointsAndSecondPlotPointLocked}>
+                    <ArrowRight />
+                </Button>
+            </div>
             <div id='control-buttons' className='grid-container gap-4'> 
                 
                 {
@@ -414,7 +448,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
                 {
                 <Button size="sm"  
                 className='item2 flex items-center gap-2'
-                disabled={generating}
+                disabled={generating || !pinchPointsAndSecondPlotPoint}
                 onClick={() => {
                     if (newObstacles) {
                         setModifyModalOpen(true);
@@ -436,7 +470,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
                 (initialStory?.genres) && 
                 <Button 
                 className='item3'                
-                disabled={generating}     
+                disabled={generating || !pinchPointsAndSecondPlotPoint}     
                 onClick={lockChapter}       
                 size="sm" variant="destructive">
                     Save

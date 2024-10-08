@@ -19,7 +19,7 @@ export const GET = async (req: Request) => {
         const payload = {
             icon: story?.introductionImage ?? `https://fable-v3-frontend.vercel.app/no-image.png`,
             title: story?.projectTitle ?? "Story title",
-            description: `${story?.storyStructure?.introduceProtagonistAndOrdinaryWorld.slice(0, 100)}...\n\n https://tipcard.getcode.com/X/ii_am_chidi` ?? "Story description",
+            description: `${story?.overview.slice(0, 200)}...\n\n https://tipcard.getcode.com/X/ii_am_chidi` ?? "Story description",
             label: story?.projectTitle ?? "Story label",
             links: {
                 actions: [
@@ -34,10 +34,6 @@ export const GET = async (req: Request) => {
                             }
                         ],
 
-                    },
-                    {
-                        href: "https://tipcard.getcode.com/X/ii_am_chidi",
-                        label: "Pay with code"
                     }
                 ]
             }
