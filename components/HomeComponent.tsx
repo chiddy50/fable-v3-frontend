@@ -110,7 +110,7 @@ const HomeComponent = () => {
     };
   
     const shareStory = async (story: StoryInterface) => {
-      const url = `http://localhost:3000/read-story/${story?.id}` ?? `https://fable-v3-frontend.vercel.app/read-story/${story?.id}`;
+      const url = `${process.env.NEXT_PUBLIC_URL}/read-story/${story?.id}`;
       
       const message = `Read my latest story on Fable!  `;
       const twitterUrl = `https://twitter.com/intent/tweet?text=${message} ${encodeURIComponent(` \n\n ${url} #fable @meta_fable @getcode`)}`;
@@ -118,14 +118,11 @@ const HomeComponent = () => {
     }
     
     const shareBlink = (story: StoryInterface) => {      
-      const url = `http://localhost:3000` ?? `https://fable-v3-frontend.vercel.app`;
+      const url = `${process.env.NEXT_PUBLIC_URL}`;
+
       const blink = `https://dial.to/?action=solana-action:${url}/api/tip-me?storyId=${story?.id}`;
       
       const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${blink}`)}`;
-      console.log({ 
-        blink, 
-        twitterUrl: `https://twitter.com/intent/tweet?url=${`${blink}`}` 
-      });
       window.open(twitterUrl, '_blank');
     }
     
