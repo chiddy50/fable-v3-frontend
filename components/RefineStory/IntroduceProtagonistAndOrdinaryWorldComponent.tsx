@@ -244,7 +244,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             summary(string, this is a summary of the events in the Introduction of the Protagonist & Ordinary World section of the story),
             moodAndAtmosphere(array of string)
             hooks(array of string, the hook raises questions or sparks curiosity, making the reader want to continue reading). 
-            setting(array of string).                        
+            setting(array of string, generate at least 3 setting suggestions).                        
             thematicElement(array of string),
             Please ensure the only keys in the object are protagonists, otherCharacters, tone, genre, thematicElement, suspenseTechnique, plotTwist and setting keys only.
             Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
@@ -587,7 +587,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                                 value={introductionSetting}
                                 onChange={setIntroductionSetting}
                                 defaultOptions={introductionSettingSuggestions}
-                                placeholder="Choose tones"
+                                placeholder="Choose setting"
                                 emptyIndicator={
                                     <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
                                         no results found.

@@ -17,7 +17,7 @@ export const GET = async (req: Request) => {
         }
         
         const payload = {
-            icon: story?.introductionImage ?? `https://fable-v3-frontend.vercel.app/no-image.png`,
+            icon: story?.introductionImage ?? `https://usefable.xyz/no-image.png`,
             title: story?.projectTitle ?? "Story title",
             description: `${story?.overview.slice(0, 200)}...\n\n https://tipcard.getcode.com/X/ii_am_chidi` ?? "Story description",
             label: story?.projectTitle ?? "Story label",
