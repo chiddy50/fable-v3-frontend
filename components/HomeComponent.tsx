@@ -152,8 +152,8 @@ const HomeComponent = () => {
           <div style={{
             zIndex: "99",
           }}>
-            <h1 className="text-custom_green text-center mt-20 font-bold tracking-wider xs:text-3xl sm:text-3xl md:text-4xl lg:text-4xl xl:text-6xl xs:px-5 sm:px-5 md:px-5 lg:px-1 xl:px-1">Unleash Your Creativity With Fable</h1>   
-            <p className="my-10 text-lg text-center font-light text-gray-500 tracking-wider xs:px-5 sm:px-5 md:px-0">
+            <h1 className="text-custom_green text-center mt-20 font-bold tracking-wider xs:text-3xl sm:text-3xl md:text-6xl  xs:px-5 sm:px-5 md:px-5 lg:px-1 xl:px-1">Unleash Your Creativity With Fable</h1>   
+            <p className="my-10 text-lg text-center text-gray-700 tracking-wider xs:px-5 sm:px-5 md:px-0">
             Craft, Modify and Generate Stories with the Power of AI
             </p>
             <div className="flex mt-10 justify-center">
@@ -231,12 +231,15 @@ const HomeComponent = () => {
                     
                     <div onClick={() => shareBlink(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
                       <Share2 className="w-4 h-4" />
-                      <span className="text-xs">Share Blink on <span className="text-md font-semibold">X</span></span>
+                      <span className="text-xs">Share Blink on</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#fff" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
                     </div>
 
                     <div onClick={() => shareStory(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
                       <Share2 className="w-4 h-4" />
-                      <span className="text-xs">Post on <span className="text-md font-semibold">X</span></span>
+                      <span className="text-xs">Post on </span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#fff" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
+
                     </div>
                   </div>
 
