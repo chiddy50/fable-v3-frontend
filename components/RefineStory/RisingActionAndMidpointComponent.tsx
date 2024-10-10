@@ -144,7 +144,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
             scrollToBottom();
             
             await saveGeneration(chapter)
-            await analyzeStory(chapter)
+            // await analyzeStory(chapter)
 
         } catch (error) {
             console.error(error);            
@@ -230,8 +230,8 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
         }
     }
     
-    const analyzeStory = async (chapter = '') => {
-        const data = chapter ?? risingActionAndMidpoint
+    const analyzeStory = async (showModal = true) => {
+        const data = risingActionAndMidpoint
         if (!data) {
             toast.error('Generate some content first')
             return;
@@ -293,7 +293,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
 
             let saved = await saveAnalysis(response);
             
-            setModifyModalOpen(true);
+            if(showModal) setModifyModalOpen(true);
 
         } catch (error) {
             console.error(error);            
@@ -373,6 +373,12 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
         }
     }
 
+    const moveToChapter5 = async () => {
+        if (!challengesProtagonistFaces) {            
+            await analyzeStory(false)
+        }
+        moveToNext(5)
+    }
 
     return (
         <div className="my-10 bg-gray-50 p-5 rounded-2xl">
@@ -384,7 +390,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
                     <p className='font-bold text-center text-2xl'>
                         Chapter 4 
                     </p>
-                    <Button size="icon" onClick={() => moveToNext(5)} disabled={generating || !initialStory?.risingActionAndMidpointLocked}>
+                    <Button size="icon" onClick={moveToChapter5} disabled={generating || !initialStory?.risingActionAndMidpointLocked}>
                         <ArrowRight />
                     </Button>
                 </div>
@@ -415,16 +421,16 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
                     <ArrowLeft />
                 </Button>
                 
-                <Button size="icon" onClick={() => moveToNext(5)} disabled={generating || !initialStory?.risingActionAndMidpointLocked}>
+                <Button size="icon" onClick={moveToChapter5} disabled={generating || !initialStory?.risingActionAndMidpointLocked}>
                     <ArrowRight />
                 </Button>
             </div>
 
-            <div id='control-buttons' className='grid-container gap-4'> 
+            <div id='control-buttons' className='grid grid-cols-3 gap-4'> 
                 
                 {
                     <Button 
-                    className='item1 flex items-center gap-2'
+                    className='flex items-center gap-2'
                     disabled={generating}                            
                     size="sm" onClick={generateRisingActionAndMidpoint}>
                         Generate
@@ -439,7 +445,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
                 
                 {
                 <Button size="sm"  
-                className='item2 flex items-center gap-2'
+                className=' flex items-center gap-2'
                 disabled={generating || !risingActionAndMidpoint}
                 onClick={() => {
                     if (challengesProtagonistFaces) {
@@ -461,7 +467,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
                 {
                 (initialStory?.genres) && 
                 <Button 
-                className='item3'                
+                className=''                
                 disabled={generating || !risingActionAndMidpoint}     
                 onClick={lockChapter}       
                 size="sm" variant="destructive">

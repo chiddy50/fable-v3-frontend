@@ -80,6 +80,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
 
 
     useEffect(() => {
+        setIntroduceProtagonistAndOrdinaryWorld(initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld ?? "")
         setGenres(initialStory?.genres ? initialStory?.genres?.map(item => ( { label: item, value: item } )) : []);
         setTones(initialStory?.introductionTone ? initialStory?.introductionTone?.map(item => ( { label: item, value: item } )) : []);
         setIntroductionSetting(initialStory?.introductionSetting ? initialStory?.introductionSetting?.map(item => ( { label: item, value: item } )) : []);
@@ -144,8 +145,9 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                 setIntroduceProtagonistAndOrdinaryWorld(text);         
             }
             scrollToBottom();
+
             await saveGeneration(text)
-            await analyzeStory(text)
+            // await analyzeStory(text)
             console.log({text, introduceProtagonistAndOrdinaryWorld});
             
         } catch (error) {
@@ -223,8 +225,13 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
         
     }
 
-    const analyzeStory = async (story = '') => {
-        const data = story ?? introduceProtagonistAndOrdinaryWorld
+    const analyzeStory = async (showModal = true) => {
+        const data = introduceProtagonistAndOrdinaryWorld
+        console.log({
+            introduceProtagonistAndOrdinaryWorld,
+            data
+        });
+        
         if (!data) {
             toast.error('Generate some content first')
             return;
@@ -247,7 +254,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             setting(array of string, generate at least 3 setting suggestions).                        
             thematicElement(array of string),
             Please ensure the only keys in the object are protagonists, otherCharacters, tone, genre, thematicElement, suspenseTechnique, plotTwist and setting keys only.
-            Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
+            Do not add any text extra line or text with the json response, just a json object, no acknowledgement or do not return any title, just return json response. Do not go beyond this instruction.                               
 
             **INPUT**
             Story Introduction {introduceProtagonistAndOrdinaryWorld}
@@ -255,7 +262,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
 
             showPageLoader();
             const response = await queryLLM(prompt, {
-                introduceProtagonistAndOrdinaryWorld: story ?? introduceProtagonistAndOrdinaryWorld,
+                introduceProtagonistAndOrdinaryWorld: data,
             });
 
             if (!response) {
@@ -272,7 +279,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             setStoryAnalysis(response);  
             let saved = await saveAnalysis(response);
             
-            setModifyModalOpen(true);
+            if (showModal) setModifyModalOpen(true);
             
         } catch (error) {
             console.error(error);               
@@ -428,6 +435,13 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
         }
     }
 
+    const moveToChapter2 = async () => {
+        if (genres?.length < 1) {
+            let analysis = await analyzeStory(false)
+        }
+        moveToNext(2);
+    }
+
     return (
         <div className="my-10 bg-gray-50 p-5 rounded-2xl">
             <div className='mb-5'>
@@ -438,7 +452,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                     <p className='font-bold text-center text-2xl'>
                         Chapter 1
                     </p>
-                    <Button size="icon" disabled={!initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld || !initialStory?.introductionLocked || generating} onClick={() => moveToNext(2)}>
+                    <Button size="icon" disabled={!initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld || !initialStory?.introductionLocked || generating} onClick={moveToChapter2}>
                         <ArrowRight />
                     </Button>
                 </div>
@@ -471,15 +485,15 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                     <ArrowLeft />
                 </Button>
            
-                <Button size="icon" disabled={!initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld || !initialStory?.introductionLocked || generating} onClick={() => moveToNext(2)}>
+                <Button size="icon" disabled={!initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld || !initialStory?.introductionLocked || generating} onClick={moveToChapter2}>
                     <ArrowRight />
                 </Button>
             </div>
-            <div id='control-buttons' className='grid-container gap-4'>
+            <div id='control-buttons' className='grid grid-cols-3 gap-4'>
                 
                 {
                     <Button 
-                    className='item1 flex items-center gap-2'
+                    className='flex items-center gap-2'
                     disabled={generating}                            
                     size="sm" onClick={generateIntroduceProtagonistAndOrdinaryWorld}>
                         Generate
@@ -494,10 +508,12 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                 
                 {
                 <Button size="sm"  
-                className='item2 flex items-center gap-2'
+                className='flex items-center gap-2'
                 disabled={generating || !introduceProtagonistAndOrdinaryWorld}
                 onClick={() => {
-                    if (genres) {
+                    console.log({genres: genres?.length > 0});
+                    
+                    if (genres?.length > 0) {
                         setModifyModalOpen(true);
                     }else{
                         analyzeStory()
@@ -514,9 +530,9 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                 }
                 
                 {
-                (initialStory?.genres) && 
+                // (initialStory?.genres) && 
                 <Button 
-                className='item3'                
+                className=''                
                 disabled={generating || !introduceProtagonistAndOrdinaryWorld}     
                 onClick={lockChapter}       
                 size="sm" variant="destructive">

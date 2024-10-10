@@ -147,7 +147,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
             scrollToBottom();
 
             await saveGeneration(chapter)
-            await analyzeStory(chapter)
+            // await analyzeStory(chapter)
         } catch (error) {
             console.error(error);            
         }finally{
@@ -249,8 +249,8 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
         }
     }
 
-    const analyzeStory = async (chapter = "") => {
-        const data = chapter ?? pinchPointsAndSecondPlotPoint
+    const analyzeStory = async (showModal = true) => {
+        const data = pinchPointsAndSecondPlotPoint
         if (!data) {
             toast.error('Generate some content first')
             return;
@@ -315,7 +315,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
 
             let saved = await saveAnalysis(response);
             
-            setModifyModalOpen(true);
+            if(showModal) setModifyModalOpen(true);
 
         } catch (error) {
             console.error(error);            
@@ -380,7 +380,12 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
         }
     }
 
-
+    const moveToChapter6 = async () => {
+        if (!newObstacles) {            
+            await analyzeStory(false)
+        }
+        moveToNext(6)
+    }
 
     return (
         <div className="my-10 bg-gray-50 p-5 rounded-2xl">
@@ -392,7 +397,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
                     <p className='font-bold text-center text-2xl'>
                         Chapter 5
                     </p>
-                    <Button size="icon" onClick={() => moveToNext(6)} disabled={generating || !initialStory?.pinchPointsAndSecondPlotPointLocked}>
+                    <Button size="icon" onClick={moveToChapter6} disabled={generating || !initialStory?.pinchPointsAndSecondPlotPointLocked}>
                         <ArrowRight />
                     </Button>
                 </div>
@@ -424,15 +429,15 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
                     <ArrowLeft />
                 </Button>
 
-                <Button size="icon" onClick={() => moveToNext(6)} disabled={generating || !initialStory?.pinchPointsAndSecondPlotPointLocked}>
+                <Button size="icon" onClick={moveToChapter6} disabled={generating || !initialStory?.pinchPointsAndSecondPlotPointLocked}>
                     <ArrowRight />
                 </Button>
             </div>
-            <div id='control-buttons' className='grid-container gap-4'> 
+            <div id='control-buttons' className='grid grid-cols-3 gap-4'> 
                 
                 {
                     <Button 
-                    className='item1 flex items-center gap-2'
+                    className='flex items-center gap-2'
                     disabled={generating}                            
                     size="sm" onClick={generatePinchPointsAndSecondPlotPoint}>
                         Generate
@@ -447,7 +452,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
                 
                 {
                 <Button size="sm"  
-                className='item2 flex items-center gap-2'
+                className='flex items-center gap-2'
                 disabled={generating || !pinchPointsAndSecondPlotPoint}
                 onClick={() => {
                     if (newObstacles) {
@@ -469,7 +474,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
                 {
                 (initialStory?.genres) && 
                 <Button 
-                className='item3'                
+                className=''                
                 disabled={generating || !pinchPointsAndSecondPlotPoint}     
                 onClick={lockChapter}       
                 size="sm" variant="destructive">

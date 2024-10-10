@@ -305,6 +305,10 @@ const ProjectSummaryPage = () => {
             toast.error("Kindly add a story banner image") 
             return
         }
+        if (!storyOverview) {
+            toast.error("Kindly provide the story overview") 
+            return
+        }
 
         let published = storyData?.status === "draft" ? false : true;
 
@@ -456,7 +460,7 @@ const ProjectSummaryPage = () => {
                 <div>
                     <h1 className="font-bold text-2xl mb-4">Story banner*</h1>
 
-                    <div className="flex mb-3 w-full items-center h-300px] justify-center border-gray-200 border bg-gray-100 rounded-2xl">
+                    <div className="flex mb-3 w-full items-center h-[300px] justify-center border-gray-200 border bg-gray-100 rounded-2xl">
                         {!storyData?.introductionImage &&
                         <div className="flex flex-col items-center gap-2 ">
                             <ImageIcon/>
@@ -484,8 +488,11 @@ const ProjectSummaryPage = () => {
                     />
                     <div className="grid grid-cols-2 mt-3 gap-4">
 
-                    <Button onClick={generateStoryOverview}>Generate Overview</Button>
-                    <Button onClick={saveStoryOverview} disabled={!storyOverview}>Save</Button>
+                    <Button disabled={generating} onClick={generateStoryOverview}>
+                        Generate Overview
+                        {generating && <i className='bx bx-loader-alt bx-spin text-white ml-2' ></i> }
+                    </Button>
+                    <Button onClick={saveStoryOverview} disabled={!storyOverview || generating}>Save</Button>
                     </div>
                 </div>
                 {/* <div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
@@ -723,7 +730,7 @@ const ProjectSummaryPage = () => {
                     </AccordionItem>
                 </Accordion> */}
 
-                 <Button onClick={publishStory} className='w-full mt-5 flex items-center gap-2 bg-custom_green'>
+                 <Button disabled={generating} onClick={publishStory} className='w-full mt-5 flex items-center gap-2 bg-custom_green'>
                     {storyData?.status === "draft" ? "Publish" : "Unpublish"}
                     
                     {storyData?.status === "draft" ? 
