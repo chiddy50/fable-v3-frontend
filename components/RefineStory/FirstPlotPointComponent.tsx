@@ -147,7 +147,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
             scrollToBottom();
 
             await saveGeneration(chapter)
-            await analyzeStory(chapter)
+            // await analyzeStory(chapter)
 
         } catch (error) {
             console.error(error);            
@@ -231,8 +231,8 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
         }
     }
     
-    const analyzeStory = async (chapter = "") => {
-        const data = chapter ?? firstPlotPoint
+    const analyzeStory = async (showModal = true) => {
+        const data = firstPlotPoint 
         if (!data) {
             toast.error('Generate some content first')
             return;
@@ -294,7 +294,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
 
             let saved = await saveAnalysis(response);
             
-            setModifyModalOpen(true);
+            if (showModal)  setModifyModalOpen(true);
 
         } catch (error) {
             console.error(error);            
@@ -375,6 +375,12 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
         }
     }
 
+    const moveToChapter4 = async () => {
+        if (!protagonistGoal) {            
+            await analyzeStory(false)
+        }
+        moveToNext(4)
+    }
 
     return (
         <div className="my-10 bg-gray-50 p-5 rounded-2xl">
@@ -419,16 +425,16 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                     <ArrowLeft />
                 </Button>
                 
-                <Button size="icon" onClick={() => moveToNext(4)} disabled={generating || !initialStory?.firstPlotPointLocked}>
+                <Button size="icon" onClick={moveToChapter4} disabled={generating || !initialStory?.firstPlotPointLocked}>
                     <ArrowRight />
                 </Button>
             </div>
 
-            <div id='control-buttons' className='grid-container gap-4'>
+            <div id='control-buttons' className='grid grid-cols-3 gap-4'>
                 
                 {
                     <Button 
-                    className='item1 flex items-center gap-2'
+                    className='flex items-center gap-2'
                     disabled={generating}                            
                     size="sm" onClick={generateFirstPlotPoint}>
                         Generate
@@ -443,13 +449,13 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                 
                 {
                 <Button size="sm"  
-                className='item2 flex items-center gap-2'
+                className='flex items-center gap-2'
                 disabled={generating || !firstPlotPoint}
                 onClick={() => {
                     if (protagonistGoal) {
                         setModifyModalOpen(true);
                     }else{
-                        analyzeStory()
+                        analyzeStory(true)
                     }
                 }}
                 >
@@ -465,7 +471,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                 {
                 (initialStory?.genres) && 
                 <Button 
-                className='item3'                
+                className=''                
                 disabled={generating || !firstPlotPoint}     
                 onClick={lockChapter}       
                 size="sm" variant="destructive">

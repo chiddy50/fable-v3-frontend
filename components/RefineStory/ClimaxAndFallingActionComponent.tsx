@@ -144,7 +144,7 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
             
             scrollToBottom();
             await saveGeneration(chapter)
-            await analyzeStory(chapter)
+            // await analyzeStory(chapter)
 
         } catch (error) {
             console.error(error);            
@@ -233,8 +233,8 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
         }
     }
     
-    const analyzeStory = async (chapter = "") => {
-        const data = chapter ?? climaxAndFallingAction
+    const analyzeStory = async (showModal = true) => {
+        const data = climaxAndFallingAction
         if (!data) {
             toast.error('Generate some content first')
             return;
@@ -301,7 +301,7 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
 
             let saved = await saveAnalysis(response);
             
-            setModifyModalOpen(true);
+            if(showModal) setModifyModalOpen(true);
 
         } catch (error) {
             console.error(error);            
@@ -383,6 +383,13 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
         }
     }
 
+    const moveToChapter7 = async () => {
+        if (!finalChallenge) {            
+            await analyzeStory(false)
+        }
+        moveToNext(7)
+    }
+
     return (
         <div className="my-10 bg-gray-50 p-5 rounded-2xl">
             <div className='mb-5'>
@@ -393,7 +400,7 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
                     <p className='font-bold text-center text-2xl'>
                         Chapter 6
                     </p>
-                    <Button size="icon" onClick={() => moveToNext(7)} disabled={generating || !climaxAndFallingAction}>
+                    <Button size="icon" onClick={moveToChapter7} disabled={generating || !climaxAndFallingAction}>
                         <ArrowRight />
                     </Button>
                 </div>
@@ -425,15 +432,15 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
                     <ArrowLeft />
                 </Button>
 
-                <Button size="icon" onClick={() => moveToNext(7)} disabled={generating || !climaxAndFallingAction}>
+                <Button size="icon" onClick={moveToChapter7} disabled={generating || !climaxAndFallingAction}>
                     <ArrowRight />
                 </Button>
             </div>
-            <div id='control-buttons' className='grid-container gap-4'> 
+            <div id='control-buttons' className='grid grid-cols-3 gap-4'> 
                 
                 {
                     <Button 
-                    className='item1 flex items-center gap-2'
+                    className='flex items-center gap-2'
                     disabled={generating}                            
                     size="sm" onClick={generateClimaxAndFallingAction}>
                         Generate
@@ -448,7 +455,7 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
                 
                 {
                 <Button size="sm"  
-                className='item2 flex items-center gap-2'
+                className='flex items-center gap-2'
                 disabled={generating || !climaxAndFallingAction}
                 onClick={() => {
                     if (finalChallenge) {
@@ -470,7 +477,7 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
                 {
                 (initialStory?.genres) && 
                 <Button 
-                className='item3'                
+                className='s'                
                 disabled={generating || !climaxAndFallingAction}     
                 onClick={lockChapter}       
                 size="sm" variant="destructive">

@@ -60,17 +60,30 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ArrowDown, ArrowUp, Wallet } from 'lucide-react';
+import { ArrowDown, ArrowUp, BookCheckIcon, BookOpenText, Wallet } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { cn } from '@/lib/utils';
 import { trimWords, truncateString } from '@/lib/helper';
 import { TransactionInterface } from '@/interfaces/TransactionInterface';
+import PaginationComponent from '@/components/pagination-component';
+import { makeRequest } from '@/services/request';
 
 const DashboardPage = () => {
     const [transactions, setTransactions] = useState<[]>([])
+    const [readStoryTotalAmount, setReadStoryTotalAmount] = useState<number>(0)
+    const [createdStoryTotalAmount, setCreatedStoryTotalAmount] = useState<number>(0)
+    const [createdStoryCount, setCreatedStoryCount] = useState<number>(0)
+    const [readStoryCount, setReadStoryCount] = useState<number>(0)
+    const [amountEarned, setAmountEarned] = useState<number>(0);
 
+    const [currentPage, setCurrentPage] = useState(1)
+    const [limit, setLimit] = useState(3);
+    const [hasNextPage, setHasNextPage] = useState(false);
+    const [hasPrevPage, setHasPrevPage] = useState(false);
+    const [totalPages, setTotalPages] = useState(false);
+    
     const dynamicJwtToken = getAuthToken();
     const { user } = useDynamicContext();
 
@@ -99,20 +112,52 @@ const DashboardPage = () => {
     //     },
     //     // enabled: !transactions
     // });
-    const getTransactions = async () => {
+
+    const paginateTransactions = (page: number) => {
+        let set_next_page = currentPage + page
+        setCurrentPage(set_next_page)
+                   
+        getTransactions(set_next_page)
+    }
+
+    const getTransactions = async (page = 1, type:null|string = "active") => {
+
+        let params = {
+            page: page,
+            limit: limit,
+            type: type
+        }
+
         let url = `${process.env.NEXT_PUBLIC_BASE_URL}/transactions/user`;
     
-        const response = await axiosInterceptorInstance.get(url,
-            {
-                headers: {
-                    Authorization: `Bearer ${dynamicJwtToken}`
-                }
-            }
-        );
+        // const response = await makeRequest({
+        //     url: url,
+        //     method: "GET",
+        //     body: params,
+        //     token: dynamicJwtToken,
+        // });
+
+        const response = await axiosInterceptorInstance.get(url,{
+            params: params,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${dynamicJwtToken}`
+            },
+        })
         console.log(response);
         
         if (response?.data?.transactions) {
+
             setTransactions(response?.data?.transactions);
+            setReadStoryTotalAmount(response?.data?.readStoryTotalAmount)
+            setCreatedStoryTotalAmount(response?.data?.createdStoryTotalAmount)
+            setCreatedStoryCount(response?.data?.createdStoryCompletedTransactionsCount ?? 0)
+            setReadStoryCount(response?.data?.readStoryCompletedTransactionsCount ?? 0)
+            setHasNextPage(response?.data?.hasNextPage)
+            setHasPrevPage(response?.data?.hasPrevPage)
+            setTotalPages(response?.data?.totalPages)    
+            
+            setAmountEarned(Number(response?.data?.amountEarned) ?? 0)
         }
     }
  
@@ -133,25 +178,29 @@ const DashboardPage = () => {
             <h1 className="text-3xl text-gray-700 font-semibold mt-10 text-center ">
                 <span className='capitalize text-xl'>Welcome, {user?.username}</span>
             </h1>
-
+            
             <div className='grid gap-5 mt-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
                 <div className='flex gap-5 bg-gray-50 p-5 rounded-2xl'>
                     <div className='flex items-center justify-center w-10 h-10 bg-custom_green text-gray-50 rounded-full'>
-                        <ArrowDown />
+                        <BookCheckIcon />
                     </div>
                     <div className="flex flex-col justify-between">
-                        <p className="font-bold text-md">+$12,000.00</p>
-                        <p className='text-xs font-light'>Income</p>
+                        <p className="font-bold text-md">
+                        ${createdStoryTotalAmount ? Number(createdStoryTotalAmount?.toFixed(2)) : 0}
+                        </p>
+                        <p className='text-xs font-light'>Created Stories</p>
                     </div>
                 </div>
 
                 <div className='flex gap-5 bg-gray-50 p-5 rounded-2xl'>
                     <div className='flex items-center justify-center w-10 h-10 bg-red-600 text-gray-50 rounded-full'>
-                        <ArrowUp />
+                        <BookOpenText />
                     </div>
                     <div className="flex flex-col justify-between">
-                        <p className="font-bold text-md">-$12,000.00</p>
-                        <p className='text-xs font-light'>Outcome</p>
+                        <p className="font-bold text-md">
+                            ${readStoryTotalAmount ? Number(readStoryTotalAmount?.toFixed(2)) : 0}
+                        </p>
+                        <p className='text-xs font-light'>Read Stories</p>
                     </div>
                 </div>
 
@@ -160,8 +209,10 @@ const DashboardPage = () => {
                         <Wallet />
                     </div>
                     <div className="flex flex-col justify-between">
-                        <p className="font-bold text-md">$12,000.00</p>
-                        <p className='text-xs font-light'>Balance</p>
+                        <p className="font-bold text-md">
+                            ${amountEarned ? Number(amountEarned) : 0}
+                        </p>
+                        <p className='text-xs font-light'>Earned</p>
                     </div>
                 </div>
             </div>
@@ -200,6 +251,19 @@ const DashboardPage = () => {
                             </div>
                         </div>
                     ))
+                }
+                {
+                    transactions.length > 0 &&
+                    <PaginationComponent 
+                        hasPrevPage={hasPrevPage} 
+                        hasNextPage={hasNextPage} 
+                        triggerPagination={paginateTransactions} 
+                        currentPage={currentPage} 
+                        totalPages={totalPages}
+                        textColor="text-black"
+                        bgColor="bg-white"
+                        descColor="text-white"
+                    />
                 }
 
 
