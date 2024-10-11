@@ -21,6 +21,7 @@ import SampleSelect from '../SampleSelect';
 import { settingDetails, storyTones } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { Dosis, Inter } from 'next/font/google';
+import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 
 interface FirstPlotPointComponentProps {
     initialStory: StoryInterface;
@@ -55,7 +56,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
     const [firstPlotPointTone, setFirstPlotPointTone] = useState<string[]>(initialStory?.firstPlotPointTone ?? []);
     const [firstPlotPointExtraDetails, setFirstPlotPointExtraDetails] = useState<string>("");
 
-    const dynamicJwtToken = getAuthToken();
+    // const dynamicJwtToken = getAuthToken();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
@@ -305,26 +306,21 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
 
     const saveGeneration = async (data: string) => {
         if (data) {                
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+            const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     firstPlotPoint: data,
                     firstPlotPointLocked: true
-                }, 
-                token: dynamicJwtToken,
-            });
+                }
+            );
         }
     }
 
     const saveAnalysis = async (payload) => {
         if (payload) {                
             // save data
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     protagonistGoal: payload?.protagonistGoal,                    
                     protagonistTriggerToAction: payload?.protagonistTriggerToAction,                    
@@ -334,9 +330,9 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                     firstPlotPointTone: payload?.tone,
                     firstPlotPoint,
                     firstPlotPointLocked: true
-                }, 
-                token: dynamicJwtToken,
-            });
+                }
+            );
+
             console.log(updated);
             if (updated) {
                 refetch()
@@ -347,10 +343,8 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
     const lockChapter = async () => {
         try {           
             showPageLoader();
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     protagonistGoal,                    
                     protagonistTriggerToAction,                    
@@ -361,9 +355,8 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                     firstPlotPoint,
                     firstPlotPointLocked: true,               
                     firstPlotPointExtraDetails,
-                }, 
-                token: dynamicJwtToken,
-            });
+                }
+            );
 
             if (updated) {
                 refetch()

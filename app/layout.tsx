@@ -8,6 +8,9 @@ import FullPageLoader from "@/components/FullPageLoader";
 import CustomContext from "@/context/CustomContext";
 import 'intro.js/introjs.css';
 import { cn } from "@/lib/utils";
+import AuthenticationButton from "@/components/AuthenticationButton";
+import Image from "next/image";
+import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
 const montserrat = Montserrat({ 
@@ -38,7 +41,15 @@ export default function RootLayout({
 
         {/* Header */}
         {/* <Header /> */}
-        
+        <div  style={{
+          zIndex: "100",
+        }} className="flex justify-between p-5 h-[80px] overflow-hidden bg-[#F2F8F2] fixed top-0 w-full ">
+          <Link href="/" className="cursor-pointer"> 
+          <Image src="/fable_logo.svg" alt="Fable logo" className=" " width={100} height={100} />
+          </Link>
+          {/* <Menu /> */}
+          <AuthenticationButton />
+        </div>   
         {children}
 
         {/* Toaster */ }

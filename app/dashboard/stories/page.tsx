@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -31,10 +31,12 @@ import { StoryInterface } from '@/interfaces/StoryInterface';
 import { formatDate, hidePageLoader, showPageLoader, trimWords } from '@/lib/helper';
 import Link from 'next/link';
 import { PublicKey } from '@solana/web3.js';
+import { AppContext } from '@/context/MainContext';
+import { getUserAuthParams } from '@/services/AuthenticationService';
 
 const DashboardStoriesPage = () => {
     const router = useRouter();
-    const dynamicJwtToken = getAuthToken();
+    // const dynamicJwtToken = getAuthToken();
 
     const [openNewProjectModal, setOpenNewProjectModal] = useState<boolean>(false);
     const [projectTitle, setProjectTitle]= useState<string>('');    
@@ -43,26 +45,34 @@ const DashboardStoriesPage = () => {
     
     const [projectDescription, setProjectDescription]= useState<string>('');   
     const [authUser, setAuthUser]= useState(null);   
+    const { web3auth, loggedIn, login } = useContext(AppContext)
     
-    const { user, setShowAuthFlow, handleLogOut } = useDynamicContext()
+    // const { user, setShowAuthFlow, handleLogOut } = useDynamicContext()
     
     const { data: storyData, isFetching, isError, refetch } = useQuery({
         queryKey: ['storyFromScratchFormData'],
-        queryFn: async () => {
+        queryFn: async () => {         
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/from-scratch`;
 
-            const response = await axiosInterceptorInstance.get(url,
-                {
-                    headers: {
-                        Authorization: `Bearer ${dynamicJwtToken}`
-                    }
-                }
-            );
-            console.log(response);            
+            const idToken = localStorage.getItem("idToken");
+            const publicAddress = localStorage.getItem("publicAddress");
+            const appPubKey = localStorage.getItem("appPubKey");
+            
+            // const response = await axiosInterceptorInstance.get(url);
 
+            const response = await axiosInterceptorInstance.get(url,{
+                params: null,
+                headers: {
+                    Authorization: `Bearer ${idToken}`,
+                    "Public-Address": publicAddress,
+                    "Public-Key": appPubKey
+                },
+            })
+
+            console.log(response);            
             return response?.data?.stories;
         },
-        // enabled: true,
+        // enabled: !!idToken,
     });
 
     const validateForm = () => {
@@ -96,16 +106,24 @@ const DashboardStoriesPage = () => {
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch`;
 
             showPageLoader();
-            let response = await makeRequest({
-                url,
-                method: "POST", 
-                body: {
+            // let response = await makeRequest({
+            //     url,
+            //     method: "POST", 
+            //     body: {
+            //         projectTitle,
+            //         projectDescription,
+            //         depositAddress: "5wBP4XzTEVoVxkEm4e5NJ2Dgg45DHkH2kSweGEJaJ91w"
+            //     }, 
+            //     token: dynamicJwtToken,
+            // });
+
+            const response = await axiosInterceptorInstance.post(url, 
+                {
                     projectTitle,
                     projectDescription,
-                    depositAddress: "5wBP4XzTEVoVxkEm4e5NJ2Dgg45DHkH2kSweGEJaJ91w"
-                }, 
-                token: dynamicJwtToken,
-            });
+                    depositAddress: "5wBP4XzTEVoVxkEm4e5NJ2Dgg45DHkH2kSweGEJaJ91w"     
+                }
+            );
 
             const story = response?.data?.story;
             if (!story?.id) {
@@ -144,25 +162,37 @@ const DashboardStoriesPage = () => {
         }
     };
 
+    
     const triggerOpenNewProjectModal = async () => {
         try {
-            if (!user) {
-                setShowAuthFlow(true);
-                return;
+            if (!loggedIn) {
+                login()
+                return;                
             }
 
             showPageLoader()
+            const idToken = localStorage.getItem("idToken");
+            const publicAddress = localStorage.getItem("publicAddress");
+            const appPubKey = localStorage.getItem("appPubKey");
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/users/auth`;
 
-            let response = await makeRequest({
-                url,
-                method: "GET", 
-                body: null,
-                token: dynamicJwtToken,
+            const response = await axiosInterceptorInstance.get(url, {
+                params: null,
+                headers: {
+                    Authorization: `Bearer ${idToken}`,
+                    "Public-Address": publicAddress,
+                    "Public-Key": appPubKey
+                },
             });
+            // let response = await makeRequest({
+            //     url,
+            //     method: "GET", 
+            //     body: null,
+            //     token: dynamicJwtToken,
+            // });
             console.log(response);
             
-            const authUser = response?.user;
+            const authUser = response?.data?.user;
             if (!authUser) {
                 toast.error("Something went wrong");
                 return;
