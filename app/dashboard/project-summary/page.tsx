@@ -171,7 +171,7 @@ const ProjectSummaryPage = () => {
         setStoryOverview(story?.overview ?? "");
     }, [story]);
     const storyId = useSearchParams().get('story-id');
-    const dynamicJwtToken = getAuthToken();
+    // const dynamicJwtToken = getAuthToken();
 
     const { push } = useRouter()
  
@@ -180,13 +180,7 @@ const ProjectSummaryPage = () => {
         queryFn: async () => {
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/from-scratch/${storyId}`;
     
-            const response = await axiosInterceptorInstance.get(url,
-              {
-                headers: {
-                  Authorization: `Bearer ${dynamicJwtToken}`
-                }
-              }
-            );
+            const response = await axiosInterceptorInstance.get(url);
             if (response?.data?.story) {
                 setStory(response?.data?.story);
             }
@@ -272,7 +266,8 @@ const ProjectSummaryPage = () => {
     
             const llm = new ChatGroq({
                 apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
-                model: "llama-3.1-70b-versatile"           
+                model: "llama-3.1-70b-versatile",
+                // model: "3.1-8b-instant",  // "llama3-70b-8192",
             });
             
             const startingPrompt = ChatPromptTemplate.fromMessages([
@@ -294,7 +289,9 @@ const ProjectSummaryPage = () => {
             });
             return response;
         } catch (error) {
-            console.error(error);            
+            console.error(error);  
+            hidePageLoader()
+
         }finally{
             hidePageLoader()
         }
@@ -314,15 +311,12 @@ const ProjectSummaryPage = () => {
 
         try {
             showPageLoader()
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${storyId}`,
-                method: "PUT", 
-                body: {
+            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${storyId}`, 
+                {
                     status: published === true ? "draft" : "published",
                     publishedAt: published === true ? null : new Date
-                }, 
-                token: dynamicJwtToken,
-            });
+                }
+            );
 
             if (updated && !published) {
                 // refetch();
@@ -341,18 +335,15 @@ const ProjectSummaryPage = () => {
         // const payload = { [CHAPTER_IMAGE_MAP[chapter]]: imgUrl };
       
         try {
-          const updated = await makeRequest({
-            url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${storyId}`,
-            method: "PUT",
-            body: {
-                introductionImage: imgUrl
-            },
-            token: dynamicJwtToken,
-          });
-      
-          if (updated) {
-            refetch();
-          }
+            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${storyId}`, 
+                {
+                    introductionImage: imgUrl
+                }
+            );
+
+            if (updated) {
+                refetch();
+            }
         } catch (error) {
           console.error('Error saving chapter banner:', error);
         }
@@ -415,14 +406,11 @@ const ProjectSummaryPage = () => {
         }
         try {
             showPageLoader();
-            const updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${storyId}`,
-                method: "PUT",
-                body: {
+            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${storyId}`, 
+                {
                     overview: storyOverview
-                },
-                token: dynamicJwtToken,
-            });
+                }
+            );
         
             if (updated) {
                 refetch();

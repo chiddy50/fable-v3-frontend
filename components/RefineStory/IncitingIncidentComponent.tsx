@@ -23,6 +23,8 @@ import { Card } from '../ui/card';
 import code from '@code-wallet/elements';
 import { cn } from '@/lib/utils';
 import { Inter } from 'next/font/google';
+import axiosInterceptorInstance from '@/axiosInterceptorInstance';
+import { AxiosRequestConfig } from 'axios';
 
 interface IncitingIncidentComponentProps {
     initialStory: StoryInterface;
@@ -53,7 +55,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
     const [incitingIncidentExtraDetails, setIncitingIncidentExtraDetails] = useState<string>("");
     const [mounted, setMounted] = useState<boolean>(false);
 
-    const dynamicJwtToken = getAuthToken();
+    // const dynamicJwtToken = getAuthToken();
 
     // CODE STORY PAYMENT
     const el = useRef<HTMLDivElement>(null);
@@ -75,23 +77,16 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
 
                 button?.on('invoke', async () => {
                     // Get a payment intent from our own server
-                    let url = `${process.env.NEXT_PUBLIC_BASE_URL}/transactions/create-intent/${initialStory?.id}`;
-            
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${dynamicJwtToken}`,
-                        },
-                        body: JSON.stringify({
+                    let url = `${process.env.NEXT_PUBLIC_BASE_URL}/transactions/create-intent/${initialStory?.id}`;            
+                    const response = await axiosInterceptorInstance.post(url, 
+                        {
                             narration: "Create Story",
-                            type: "create-story"
-                        })
-                    });
+                            type: "create-story" 
+                        }
+                    );
                         
-                    const json = await res.json();
-                    console.log(json);
-                    const clientSecret = json?.data?.clientSecret;
+                    console.log(response);
+                    const clientSecret = response?.data?.clientSecret;
                     
                     // Update the button with the new client secret so that our server
                     // can be notified once the payment is complete.
@@ -109,19 +104,17 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
                         const intent = event?.intent;
                         
                         if (!initialStory?.isPaid) {            
-                        let response = await makeRequest({
-                            url: `${process.env.NEXT_PUBLIC_BASE_URL}/transactions/confirm/${intent}`,
-                            method: "POST", 
-                            body: {
-                            storyId: initialStory?.id,
-                            amount, clientSecret, currency, destination, locale, mode
-                            }, 
-                            token: dynamicJwtToken,
-                        });
 
-                        if (response) {
-                            refetch();
-                        }
+                            const response = await axiosInterceptorInstance.post(`/transactions/confirm/${intent}`, 
+                                {
+                                    storyId: initialStory?.id,
+                                    amount, clientSecret, currency, destination, locale, mode
+                                }
+                            );
+
+                            if (response) {
+                                refetch();
+                            }
                         }
                     }
                     
@@ -134,6 +127,16 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
                     if (event) {
                         const { amount, clientSecret, currency, destination, locale, mode } = event?.options;
                         const intent = event?.intent;
+                        
+                        const config: AxiosRequestConfig = {
+                            data: {
+                                amount, clientSecret, currency, destination, locale, mode,           
+                                storyId: initialStory?.id,
+                            }
+                        };
+                        const response = await axiosInterceptorInstance.delete(`${process.env.NEXT_PUBLIC_BASE_URL}/transactions/${intent}`, 
+                            config
+                        );
             
                     }
                     return true; // Return true to prevent the browser from navigating to the optional cancel URL provided in the confirmParams
@@ -381,20 +384,18 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
     const saveAnalysis = async (payload) => {
         if (payload) {                
             // save data
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     typeOfEvent: payload?.typeOfEvent,                    
                     causeOfTheEvent: payload?.causeOfTheEvent,                    
                     stakesAndConsequences: payload?.stakesAndConsequences,                    
                     incitingIncidentSetting: payload?.setting,                    
                     incitingIncidentTone: payload?.tone,
-                    incitingIncident                                
-                }, 
-                token: dynamicJwtToken,
-            });
+                    incitingIncident  
+                }
+            );
+
             console.log(updated);
             if (updated) {
                 refetch()
@@ -404,26 +405,22 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
 
     const saveGeneration = async (data: string) => {
         if (data) {                
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+            const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     incitingIncident: data,
-                    incitingIncidentLocked: true                    
-                }, 
-                token: dynamicJwtToken,
-            });
+                    incitingIncidentLocked: true  
+                }
+            );
         }
     }
 
     const lockChapter = async () => {
         try {           
             showPageLoader();
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+
+            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     typeOfEvent,
                     stakesAndConsequences,
@@ -432,10 +429,9 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
                     incitingIncidentExtraDetails,
                     causeOfTheEvent,
                     incitingIncident,
-                    incitingIncidentLocked: true               
-                }, 
-                token: dynamicJwtToken,
-            });
+                    incitingIncidentLocked: true   
+                }
+            );
 
             if (updated) {
                 refetch()

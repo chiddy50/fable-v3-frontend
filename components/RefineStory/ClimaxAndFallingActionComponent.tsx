@@ -20,6 +20,7 @@ import SampleSelect from '../SampleSelect';
 import { settingDetails, storyTones } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { Inter } from 'next/font/google';
+import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 
 interface ClimaxAndFallingActionComponentProps {
     initialStory: StoryInterface;
@@ -311,14 +312,10 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
     }
 
     const saveAnalysis = async (payload) => {
-        // console.log(payload);
-        // return;
         if (payload) {                
             // save data
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     finalChallenge: payload?.finalChallenge,
                     challengeOutcome: payload?.challengeOutcome,
@@ -326,10 +323,9 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
                     climaxAndFallingActionSetting: payload?.setting,
                     climaxAndFallingActionTone: payload?.tone,
                     climaxAndFallingAction,
-                    // climaxAndFallingActionCharacters: payload?.charactersInvolved,
-                }, 
-                token: dynamicJwtToken,
-            });
+                    // climaxAndFallingActionCharacters: payload?.charactersInvolved,    
+                }
+            );
             console.log(updated);
             if (updated) {
                 refetch()
@@ -340,10 +336,9 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
     const lockChapter = async () => {
         try {           
             showPageLoader();
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+
+            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     finalChallenge,
                     // climaxAndFallingActionCharacters,
@@ -353,10 +348,9 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
                     climaxAndFallingActionTone,
                     climaxAndFallingAction,
                     climaxAndFallingActionExtraDetails,
-                    climaxAndFallingActionLocked: true,               
-                }, 
-                token: dynamicJwtToken,
-            });
+                    climaxAndFallingActionLocked: true,   
+                }
+            );
 
             if (updated) {
                 refetch()
@@ -370,16 +364,13 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
 
     const saveGeneration = async (data: string) => {
         if (data) {                
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+            const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     climaxAndFallingAction: data,
                     climaxAndFallingActionLocked: true
-                }, 
-                token: dynamicJwtToken,
-            });
+                }
+            );
         }
     }
 

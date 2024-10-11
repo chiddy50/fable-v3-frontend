@@ -3,6 +3,8 @@ import { Card } from '../ui/card'
 import code from '@code-wallet/elements';
 import { getAuthToken } from '@dynamic-labs/sdk-react-core';
 import { makeRequest } from '@/services/request';
+import axiosInterceptorInstance from '@/axiosInterceptorInstance';
+import { AxiosRequestConfig } from 'axios';
 
 const MakePaymentComponent = ({
     story,
@@ -36,22 +38,32 @@ const MakePaymentComponent = ({
                     // Get a payment intent from our own server
                     let url = `${process.env.NEXT_PUBLIC_BASE_URL}/transactions/create-intent/${story?.id}`;
             
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${dynamicJwtToken}`,
-                        },
-                        body: JSON.stringify({
+                    const response = await axiosInterceptorInstance.post(url, 
+                        {
                             narration: "Read Story",
                             type: "read-story",
-                            depositAddress
-                        })
-                    });
+                            depositAddress             
+                        }
+                    );
+
+                    // const res = await fetch(url, {
+                    //     method: 'POST',
+                    //     headers: {
+                    //     'Content-Type': 'application/json',
+                    //     'Authorization': `Bearer ${dynamicJwtToken}`,
+                    //     },
+                    //     body: JSON.stringify({
+                    //         narration: "Read Story",
+                    //         type: "read-story",
+                    //         depositAddress
+                    //     })
+                    // });
                         
-                    const json = await res.json();
-                    console.log(json);
-                    const clientSecret = json?.data?.clientSecret;
+                    // const json = await res.json();
+                    console.log(response);
+                    const clientSecret = response?.data?.clientSecret;
+                    console.log(clientSecret);
+                    
                     
                     if (clientSecret) {
                         button.update({ clientSecret });                    
@@ -67,16 +79,13 @@ const MakePaymentComponent = ({
                         const intent = event?.intent;
                         
                         if (!story?.isPaid) {            
-                            let response = await makeRequest({
-                                url: `${process.env.NEXT_PUBLIC_BASE_URL}/transactions/confirm/${intent}`,
-                                method: "POST", 
-                                body: {
+                            const response = await axiosInterceptorInstance.post(`${process.env.NEXT_PUBLIC_BASE_URL}/transactions/confirm/${intent}`, 
+                                {
                                     storyId: story?.id,
                                     amount, clientSecret, currency, destination, locale, mode,
-                                    type: 'read-story'
-                                }, 
-                                token: dynamicJwtToken,
-                            });
+                                    type: 'read-story'        
+                                }
+                            );
 
                             if (response) {
                                 refetch();
@@ -94,15 +103,25 @@ const MakePaymentComponent = ({
                         const { amount, clientSecret, currency, destination, locale, mode } = event?.options;
                         const intent = event?.intent;
 
-                        let response = await makeRequest({
-                            url: `${process.env.NEXT_PUBLIC_BASE_URL}/transactions/${intent}`,
-                            method: "DELETE", 
-                            body: {
+                        // let response = await makeRequest({
+                        //     url: `${process.env.NEXT_PUBLIC_BASE_URL}/transactions/${intent}`,
+                        //     method: "DELETE", 
+                        //     body: {
+                        //         storyId: story?.id,
+                        //         amount, clientSecret, currency, destination, locale, mode
+                        //     }, 
+                        //     token: dynamicJwtToken,
+                        // });
+
+                        const config: AxiosRequestConfig = {
+                            data: {
+                                amount, clientSecret, currency, destination, locale, mode,           
                                 storyId: story?.id,
-                                amount, clientSecret, currency, destination, locale, mode
-                            }, 
-                            token: dynamicJwtToken,
-                        });
+                            }
+                          };
+                        const response = await axiosInterceptorInstance.delete(`${process.env.NEXT_PUBLIC_BASE_URL}/transactions/${intent}`, 
+                            config
+                        );
             
                     }
                     return true; // Return true to prevent the browser from navigating to the optional cancel URL provided in the confirmParams

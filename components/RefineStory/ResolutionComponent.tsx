@@ -21,6 +21,7 @@ import { settingDetails, storyTones } from '@/lib/data';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Dosis, Inter } from 'next/font/google';
+import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 
 interface ResolutionComponentProps {
     initialStory: StoryInterface;
@@ -53,7 +54,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
     const [resolutionTone, setResolutionTone] = useState<string[]>(initialStory?.resolutionTone ?? []);
     const [resolutionExtraDetails, setResolutionExtraDetails] = useState<string>(initialStory?.resolutionExtraDetails ?? "");
 
-    const dynamicJwtToken = getAuthToken();
+    // const dynamicJwtToken = getAuthToken();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
@@ -253,8 +254,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
     }
     
     const analyzeStory = async (chapter = "") => {
-      const data = chapter ?? resolution
-      if (!data) {
+      if (!resolution) {
         toast.error('Generate some content first')
         return;
       }
@@ -303,7 +303,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
           risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,
           pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPoint,
           climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingAction,
-          resolution: data,
+          resolution: resolution,
           storyIdea: projectDescription,
         });
 
@@ -312,9 +312,9 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
             return;
         }        
 
-        setClimaxConsequences(response?.newObstacles ?? "");
-        setHowCharactersEvolve(response?.discoveryChanges ?? "");
-        setResolutionOfConflict(response?.howStakesEscalate ?? "");
+        setClimaxConsequences(response?.climaxConsequences ?? "");
+        setHowCharactersEvolve(response?.howCharactersEvolve ?? "");
+        setResolutionOfConflict(response?.resolutionOfConflict ?? "");
         setResolutionSetting(response?.setting ?? "");
         setResolutionTone(response?.tone ?? "");
         // setResolutionCharacters(response?.charactersInvolved ?? "");
@@ -333,10 +333,9 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
     const saveAnalysis = async (payload) => {
       if (payload) {                
           // save data
-        let updated = await makeRequest({
-          url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`,
-          method: "PUT", 
-          body: {
+
+        const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+          {
             storyId: initialStory?.id,
             climaxConsequences: payload?.climaxConsequences,
             howCharactersEvolve: payload?.howCharactersEvolve,
@@ -345,9 +344,9 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
             resolutionTone: payload?.tone,
             resolution,
             // resolutionCharacters: payload?.charactersInvolved,
-          }, 
-          token: dynamicJwtToken,
-        });
+          }
+        );
+
         console.log(updated);
         if (updated) {
           refetch()
@@ -358,23 +357,20 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
     const lockChapter = async () => {
         try {           
             showPageLoader();
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
-                    storyId: initialStory?.id,
-                    climaxConsequences,
-                    howCharactersEvolve,
-                    resolutionOfConflict,
-                    // resolutionCharacters,
-                    resolutionSetting,
-                    resolutionTone,
-                    resolution,
-                    resolutionExtraDetails,
-                    resolutionLocked: true,  
-                }, 
-                token: dynamicJwtToken,
-            });
+            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+              {
+                storyId: initialStory?.id,
+                climaxConsequences,
+                howCharactersEvolve,
+                resolutionOfConflict,
+                // resolutionCharacters,
+                resolutionSetting,
+                resolutionTone,
+                resolution,
+                resolutionExtraDetails,
+                resolutionLocked: true, 
+              }
+            );
 
             if (updated) {
               refetch()
@@ -388,16 +384,13 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
 
     const saveGeneration = async (data: string) => {
       if (data) {                
-          let updated = await makeRequest({
-              url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`,
-              method: "PUT", 
-              body: {
-                storyId: initialStory?.id,
-                resolution: data,
-                resolutionLocked: true
-              }, 
-              token: dynamicJwtToken,
-          });
+          const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+            {
+              storyId: initialStory?.id,
+              resolution: data,
+              resolutionLocked: true
+            }
+          );
       }
   }
 
@@ -504,7 +497,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
 
 
             <Sheet open={modifyModalOpen} onOpenChange={setModifyModalOpen}>
-                <SheetContent className="overflow-y-scroll xs:min-w-[90%] sm:min-w-[96%] md:min-w-[65%] lg:min-w-[65%] xl:min-w-[55%]">
+                <SheetContent className="overflow-y-scroll z-[100] xs:min-w-[90%] sm:min-w-[96%] md:min-w-[65%] lg:min-w-[65%] xl:min-w-[55%]">
                     <SheetHeader className=''>
                         <SheetTitle className='font-semibold'>Edit Chapter</SheetTitle>
                         <SheetDescription> </SheetDescription>

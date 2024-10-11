@@ -16,9 +16,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import AuthenticationButton from '../AuthenticationButton';
 
 const DashboardHeader = () => {
-    const { user, primaryWallet, setShowAuthFlow, handleLogOut } = useDynamicContext()
+    // const { user, primaryWallet, setShowAuthFlow, handleLogOut } = useDynamicContext()
 
     const [openSideNav, setOpenSideNav] = useState<boolean>(false);
     const router = useRouter()
@@ -30,11 +31,11 @@ const DashboardHeader = () => {
                 <Menu onClick={() => setOpenSideNav(true)} className='cursor-pointer'/>
             </div>
 
-            <div className='absolute top-5 right-5'>
+            {/* <div className='absolute top-5 right-5'>
                 {
-                !user &&
+                // !user &&
                 <Button 
-                onClick={() => setShowAuthFlow(true)} 
+                // onClick={() => setShowAuthFlow(true)} 
                 variant="outline" 
                 className='flex items-center gap-1 border-green-400 text-green-500 hover:text-green-400'>
                     <span>Login</span>
@@ -42,16 +43,18 @@ const DashboardHeader = () => {
                 </Button>
                 }
                 {
-                user &&
+                // user &&
                 <Button 
-                onClick={() => handleLogOut()} 
+                // onClick={() => handleLogOut()} 
                 variant="outline" 
                 className='flex items-center gap-1 border-green-400 text-green-500 hover:text-green-400'>
                     <span>Logout</span>
                     <LogOut className='w-4 h-4'></LogOut>
                 </Button>
                 }
-            </div>
+            </div> */}
+            <AuthenticationButton />
+
 
             {/* <div className="flex items-center bg-white py-2 px-3  gap-2 rounded-3xl">
                 <div className="border cursor-pointer flex items-center border-[#46aa41] rounded-full hover:bg-[#46aa41] hover:text-white hover:border-white pr-2">                        

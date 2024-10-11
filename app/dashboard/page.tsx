@@ -51,7 +51,7 @@
 // export default DashboardPage
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -69,6 +69,8 @@ import { trimWords, truncateString } from '@/lib/helper';
 import { TransactionInterface } from '@/interfaces/TransactionInterface';
 import PaginationComponent from '@/components/pagination-component';
 import { makeRequest } from '@/services/request';
+import { getUserAuthParams } from '@/services/AuthenticationService';
+import { AppContext } from '@/context/MainContext';
 
 const DashboardPage = () => {
     const [transactions, setTransactions] = useState<[]>([])
@@ -83,13 +85,15 @@ const DashboardPage = () => {
     const [hasNextPage, setHasNextPage] = useState(false);
     const [hasPrevPage, setHasPrevPage] = useState(false);
     const [totalPages, setTotalPages] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
     
-    const dynamicJwtToken = getAuthToken();
-    const { user } = useDynamicContext();
+    const { web3auth } = useContext(AppContext)
+
+    // const dynamicJwtToken = getAuthToken();
+    // const { user } = useDynamicContext();
 
     useEffect(() => {
         getTransactions()
-        
     }, [])
     // const { data: transactionData, isFetching, isError, refetch } = useQuery({
     //     queryKey: ['storyFromScratchFormData', user?.email],
@@ -137,11 +141,17 @@ const DashboardPage = () => {
         //     token: dynamicJwtToken,
         // });
 
+        const idToken = localStorage.getItem("idToken");
+        const publicAddress = localStorage.getItem("publicAddress");
+        const appPubKey = localStorage.getItem("appPubKey");
+        
         const response = await axiosInterceptorInstance.get(url,{
             params: params,
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${dynamicJwtToken}`
+                Authorization: `Bearer ${idToken}`,
+                "Public-Address": publicAddress,
+                "Public-Key": appPubKey
             },
         })
         console.log(response);
@@ -176,7 +186,9 @@ const DashboardPage = () => {
             </Breadcrumb>
 
             <h1 className="text-3xl text-gray-700 font-semibold mt-10 text-center ">
-                <span className='capitalize text-xl'>Welcome, {user?.username}</span>
+                <span className='capitalize text-xl'>Welcome, 
+                    {/* {user?.username} */}
+                    </span>
             </h1>
             
             <div className='grid gap-5 mt-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>

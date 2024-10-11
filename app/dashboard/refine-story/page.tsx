@@ -53,13 +53,7 @@ const RefineStoryPage = () => {
         queryFn: async () => {
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/from-scratch/${storyId}`;
 
-            const response = await axiosInterceptorInstance.get(url,
-                {
-                    headers: {
-                        Authorization: `Bearer ${dynamicJwtToken}`
-                    }
-                }
-            );
+            const response = await axiosInterceptorInstance.get(url);
             if (response?.data?.story) {
                 setStory(response?.data?.story);
             }
@@ -81,15 +75,12 @@ const RefineStoryPage = () => {
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${storyId}`;
 
             showPageLoader();
-            let response = await makeRequest({
-                url,
-                method: "PUT", 
-                body: {
+            const response = await axiosInterceptorInstance.put(url, 
+                {
                     projectTitle,
-                    projectDescription
-                }, 
-                token: dynamicJwtToken,
-            });
+                    projectDescription,
+                }
+            );
 
             const story = response?.data?.story;
             if (!story?.id) {
@@ -122,15 +113,22 @@ const RefineStoryPage = () => {
         if (step === 8) return;
         try {           
             showPageLoader();
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${storyId}`,
-                method: "PUT", 
-                body: {
+            // let updated = await makeRequest({
+            //     url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${storyId}`,
+            //     method: "PUT", 
+            //     body: {
+            //         storyId: storyId,
+            //         writingStep: step               
+            //     }, 
+            //     token: dynamicJwtToken,
+            // });
+
+            const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${storyId}`, 
+                {
                     storyId: storyId,
-                    writingStep: step               
-                }, 
-                token: dynamicJwtToken,
-            });
+                    writingStep: step    
+                }
+            );
 
             if (updated) {
                 refetch()
