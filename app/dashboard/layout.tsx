@@ -16,28 +16,28 @@ export default function DashboardLayout({
 }) {
 
     const router = useRouter();
-    const { user } = useDynamicContext();
+    // const { user } = useDynamicContext();
     const currentPath = usePathname();
-    useEffect(() => {
-        // Example: check if user is authenticated
-        const isAuthenticated = false; // Replace with actual authentication logic
-        if (!user) {
-        // router.push('/'); // Redirect to login page
-        }
-    }, [router]);
+    // useEffect(() => {
+    //     // Example: check if user is authenticated
+    //     const isAuthenticated = false; // Replace with actual authentication logic
+    //     // if (!user) {
+    //     // // router.push('/'); // Redirect to login page
+    //     // }
+    // }, [router]);
 
     return (
-      <div>
+      <div className='mt-[80px]'>
         <div className="sidebar">
-            
+{/*             
             <Link href="/">            
                 <div className="flex justify-center mt-7 mb-10">
                     <Image src="/fable_logo.svg" alt="Fable logo" width={100} height={100} />
                 </div>
-            </Link>
+            </Link> */}
 
             {/* <h1 className="font-bold text-4xl mb-10 p-5 text-center tracking-widest">FABLE</h1> */}
-            <div className='flex flex-col gap-6 px-6'>
+            <div className='flex flex-col gap-6 px-6 pt-10'>
 
 
                 <Link href="/dashboard" className={cn(
@@ -98,7 +98,7 @@ export default function DashboardLayout({
         </div>
 
         <div className="content">
-            <DashboardHeader />
+            {/* <DashboardHeader /> */}
             
             <div className='mt-7 px-5 md:px-10'>
                 {children}  

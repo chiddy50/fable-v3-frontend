@@ -20,6 +20,7 @@ import SampleSelect from '../SampleSelect';
 import { settingDetails, storyTones } from '@/lib/data';
 import { Dosis, Inter } from 'next/font/google';
 import { cn } from '@/lib/utils';
+import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 
 interface RisingActionAndMidpointComponentProps {
     initialStory: StoryInterface;
@@ -52,7 +53,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
     const [risingActionAndMidpointTone, setRisingActionAndMidpointTone] = useState<string[]>(initialStory?.risingActionAndMidpointTone ?? []);
     const [risingActionAndMidpointExtraDetails, setRisingActionAndMidpointExtraDetails] = useState<string>("");
 
-    const dynamicJwtToken = getAuthToken();
+    // const dynamicJwtToken = getAuthToken();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
@@ -305,10 +306,8 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
     const saveAnalysis = async (payload) => {
         if (payload) {                
             // save data
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     challengesProtagonistFaces: payload?.challengesProtagonistFaces,                    
                     protagonistPerspectiveChange: payload?.protagonistPerspectiveChange,                    
@@ -317,9 +316,8 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
                     risingActionAndMidpointSetting: payload?.setting,                    
                     risingActionAndMidpointTone: payload?.tone,
                     risingActionAndMidpoint,
-                }, 
-                token: dynamicJwtToken,
-            });
+                }
+            );
             console.log(updated);
             if (updated) {
                 refetch()
@@ -330,10 +328,9 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
     const lockChapter = async () => {
         try {           
             showPageLoader();
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+
+            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     challengesProtagonistFaces,                    
                     protagonistPerspectiveChange,                    
@@ -343,10 +340,9 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
                     risingActionAndMidpointTone,
                     risingActionAndMidpoint,
                     risingActionAndMidpointExtraDetails,
-                    risingActionAndMidpointLocked: true,               
-                }, 
-                token: dynamicJwtToken,
-            });
+                    risingActionAndMidpointLocked: true,  
+                }
+            );
 
             if (updated) {
                 refetch()
@@ -360,16 +356,13 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
 
     const saveGeneration = async (data: string) => {
         if (data) {                
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+            const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     risingActionAndMidpoint: data,
                     risingActionAndMidpointLocked: true
-                }, 
-                token: dynamicJwtToken,
-            });
+                }
+            );
         }
     }
 

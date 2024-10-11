@@ -2,8 +2,25 @@ import axios from 'axios';
 import { deleteCookie } from 'cookies-next';
 // import Router from 'next/router';
 
+let idToken;
+let publicAddress;
+let appPubKey;
+
+console.log("About to set local storage");
+if (typeof window !== 'undefined') { 
+  console.log("setting local storage");
+  idToken = localStorage?.getItem("idToken");
+  publicAddress = localStorage?.getItem("publicAddress");
+  appPubKey = localStorage?.getItem("appPubKey");
+  console.log("local storage set!!");
+}
 const axiosInterceptorInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BASE_URL, // Replace with your API base URL
+  baseURL: process.env.NEXT_PUBLIC_BASE_URL, // Replace with your API base URL,
+  headers: {
+    Authorization: `Bearer ${idToken}`,
+    "Public-Address": publicAddress,
+    "Public-Key": appPubKey
+  }
 });
 
 

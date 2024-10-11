@@ -31,6 +31,7 @@ import { v4 as uuidv4 } from 'uuid';
 import SampleSelect from '../SampleSelect';
 import { cn } from '@/lib/utils';
 import { Dosis, Inter } from 'next/font/google';
+import axiosInterceptorInstance from '@/axiosInterceptorInstance';
   
 
 interface IntroduceProtagonistAndOrdinaryWorldComponentProps {
@@ -110,7 +111,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
         }
     };
 
-    const dynamicJwtToken = getAuthToken();
+    // const dynamicJwtToken = getAuthToken();
 
     const generateIntroduceProtagonistAndOrdinaryWorld = async () => {
         try {
@@ -300,10 +301,8 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                 return { ...character, id: uuidv4() }
             });
 
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+            const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     genres: payload?.genre,                    
                     introductionSetting: payload?.setting,                    
@@ -311,10 +310,10 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                     protagonistSuggestions: updatedProtagonists,     
                     suggestedCharacters: updatedOtherCharacters,
                     introduceProtagonistAndOrdinaryWorld,
-                    introductionLocked: true               
-                }, 
-                token: dynamicJwtToken,
-            });
+                    introductionLocked: true        
+                }
+            );
+
             console.log(updated);
             if (updated) {
                 refetch()
@@ -325,15 +324,12 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
     const saveGeneration = async (data: string) => {
         if (data) {                
             // save data
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+            const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
-                    introduceProtagonistAndOrdinaryWorld: data                    
-                }, 
-                token: dynamicJwtToken,
-            });
+                    introduceProtagonistAndOrdinaryWorld: data     
+                }
+            );
         }
     }
 
@@ -410,20 +406,17 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
     const lockChapter = async () => {
         try {           
             showPageLoader();
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+            const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     genres: genres.map(genre => genre.value),                    
                     introductionSetting: introductionSetting.map(setting => setting.value),                    
                     introductionTone: tones.map(tone => tone.value),                    
                     protagonistSuggestions: protagonists,     
                     introduceProtagonistAndOrdinaryWorld,
-                    introductionLocked: true               
-                }, 
-                token: dynamicJwtToken,
-            });
+                    introductionLocked: true      
+                }
+            );
 
             if (updated) {
                 refetch()

@@ -85,8 +85,8 @@ const ReadStoryPage = ({id}: {id:string}) => {
 
   // const storyId = useSearchParams().get('story-id');
   const storyId = id
-  const dynamicJwtToken = getAuthToken();
-  const { user, setShowAuthFlow } = useDynamicContext();
+  // const dynamicJwtToken = getAuthToken();
+  // const { user, setShowAuthFlow } = useDynamicContext();
   const { push } = useRouter();
 
   const { data: storyData, isFetching, isError, refetch } = useQuery({
@@ -94,13 +94,7 @@ const ReadStoryPage = ({id}: {id:string}) => {
     queryFn: async () => {
         let url = `${process.env.NEXT_PUBLIC_BASE_URL}/story-access/read/${storyId}`;
 
-        const response = await axiosInterceptorInstance.get(url,
-          {
-            headers: {
-              Authorization: `Bearer ${dynamicJwtToken}`
-            }
-          }
-        );
+        const response = await axiosInterceptorInstance.get(url);
         if (response?.data?.story) {
           setStory(response?.data?.story);
           setAccessRecord(response?.data?.accessRecord)
@@ -108,20 +102,26 @@ const ReadStoryPage = ({id}: {id:string}) => {
         }
         return response?.data?.story;
     },
-    enabled: !!storyId && !!user && !story ,
+    enabled: !!storyId && !story ,
   });
 
   const moveToNextChapter = async (currentChapter: string) => {
     try {           
       showPageLoader();
-      let updated = await makeRequest({
-          url: `${process.env.NEXT_PUBLIC_BASE_URL}/story-access/move-story/${storyId}`,
-          method: "PUT", 
-          body: {
-            currentChapter              
-          }, 
-          token: dynamicJwtToken,
-      });
+      // let updated = await makeRequest({
+      //     url: `${process.env.NEXT_PUBLIC_BASE_URL}/story-access/move-story/${storyId}`,
+      //     method: "PUT", 
+      //     body: {
+      //       currentChapter              
+      //     }, 
+      //     token: dynamicJwtToken,
+      // });
+
+      const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/story-access/move-story/${storyId}`, 
+        {
+          currentChapter              
+        }
+      )
 
       if (updated) {
         refetch()
@@ -151,7 +151,7 @@ const ReadStoryPage = ({id}: {id:string}) => {
   
   return (
     <div className='pb-10'>
-      <div  style={{
+      {/* <div  style={{
         zIndex: "100",
       }} className="flex justify-between items-center p-5 h-[80px] bg-white overflow-hidden fixed top-0 w-full ">
         <Image src="/fable_logo.svg" alt="Fable logo" onClick={() => push("/")} className="cursor-pointer" width={100} height={100} />
@@ -172,7 +172,7 @@ const ReadStoryPage = ({id}: {id:string}) => {
           </div>
           <Menu />
         </div>
-      </div>  
+      </div>   */}
 
       {
         isFetching && !story &&
@@ -183,12 +183,12 @@ const ReadStoryPage = ({id}: {id:string}) => {
         </div>
       }
 
-      {
+      {/* {
         !user && !isFetching &&
         <div className="top-[80px] relative xs:mx-7 sm:mx-7 md:mx-20 lg:mx-40 mb-20 flex justify-center">
-          <Button size="lg" onClick={() => setShowAuthFlow(true) }>Login/Register</Button>
+          <Button size="lg" >Login/Register</Button>
         </div>
-      }
+      } */}
 
       {
         !story && !isFetching &&

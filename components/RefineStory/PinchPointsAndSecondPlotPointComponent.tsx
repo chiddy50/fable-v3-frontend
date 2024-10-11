@@ -20,6 +20,7 @@ import SampleSelect from '../SampleSelect';
 import { settingDetails, storyTones } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { Dosis,Inter } from 'next/font/google';
+import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 
 interface PinchPointsAndSecondPlotPointComponentProps {
     initialStory: StoryInterface;
@@ -53,7 +54,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
     const [pinchPointsAndSecondPlotPointTone, setPinchPointsAndSecondPlotPointTone] = useState<string[]>(initialStory?.pinchPointsAndSecondPlotPointTone ?? []);
     const [pinchPointsAndSecondPlotPointExtraDetails, setPinchPointsAndSecondPlotPointExtraDetails] = useState<string>("");
 
-    const dynamicJwtToken = getAuthToken();
+    // const dynamicJwtToken = getAuthToken();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
@@ -236,16 +237,13 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
     
     const saveGeneration = async (data: string) => {
         if (data) {                
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+            const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     pinchPointsAndSecondPlotPoint: data,
                     pinchPointsAndSecondPlotPointLocked: true
-                }, 
-                token: dynamicJwtToken,
-            });
+                }
+            );
         }
     }
 
@@ -327,10 +325,8 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
     const saveAnalysis = async (payload) => {
         if (payload) {                
             // save data
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     newObstacles: payload?.newObstacles,
                     discoveryChanges: payload?.discoveryChanges,
@@ -339,9 +335,9 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
                     pinchPointsAndSecondPlotPointTone: payload?.tone,
                     pinchPointsAndSecondPlotPoint,
                     // pinchPointsAndSecondPlotPointCharacters: payload?.charactersInvolved,
-                }, 
-                token: dynamicJwtToken,
-            });
+                }
+            );
+
             console.log(updated);
             if (updated) {
                 refetch()
@@ -352,10 +348,8 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
     const lockChapter = async () => {
         try {           
             showPageLoader();
-            let updated = await makeRequest({
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`,
-                method: "PUT", 
-                body: {
+            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+                {
                     storyId: initialStory?.id,
                     newObstacles,
                     discoveryChanges,
@@ -365,10 +359,9 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
                     pinchPointsAndSecondPlotPointTone,
                     pinchPointsAndSecondPlotPoint,
                     pinchPointsAndSecondPlotPointExtraDetails,
-                    pinchPointsAndSecondPlotPointLocked: true,               
-                }, 
-                token: dynamicJwtToken,
-            });
+                    pinchPointsAndSecondPlotPointLocked: true,     
+                }
+            );
 
             if (updated) {
                 refetch()
