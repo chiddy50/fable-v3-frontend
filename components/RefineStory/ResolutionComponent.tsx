@@ -254,7 +254,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
     }
     
     const analyzeStory = async (chapter = "") => {
-      if (!resolution) {
+      if (!chapter && !resolution) {
         toast.error('Generate some content first')
         return;
       }
@@ -303,7 +303,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
           risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,
           pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPoint,
           climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingAction,
-          resolution: resolution,
+          resolution: chapter ?? resolution,
           storyIdea: projectDescription,
         });
 
@@ -431,6 +431,23 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
               className={cn('p-5 mb-4 outline-none border text-md whitespace-pre-wrap rounded-lg w-full leading-5', inter.className)} 
               />
 
+          <div className="flex justify-between items-center mb-3">
+                <Button size="icon" onClick={() => moveToNext(6)} disabled={generating}>
+                    <ArrowLeft />
+                </Button>
+                
+              {resolution && 
+                <Link href={`/dashboard/project-summary?story-id=${initialStory?.id}`}>
+                    <Button size="sm" className='bg-custom_green w-full flex items-center gap-2' >
+                        Summary
+                        <ArrowRight className='w-3 h-3'/>
+                    </Button>
+                    
+                </Link>
+              }
+                
+            </div>
+
             <div id='control-buttons' className='grid text-xs xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4'>
                 
                 {
@@ -481,16 +498,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
                 </Button>
                 }
 
-              {resolution && 
-                <Link href={`/dashboard/project-summary?story-id=${initialStory?.id}`}>
-                    <Button size="sm" className='bg-custom_green w-full flex items-center gap-2' >
-                        Summary
-                        <NotebookText className='w-3 h-3'/>
-                    </Button>
-                    
-                </Link>
-              }
-                
+
             </div>
                 
 
