@@ -13,7 +13,7 @@ import { MessageSquare, Plus, PowerOff, ThumbsUp } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { makeRequest } from '@/services/request';
-import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
+// import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import {

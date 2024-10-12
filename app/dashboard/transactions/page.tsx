@@ -12,15 +12,15 @@ import {
 import { ArrowDown, ArrowUp, Wallet } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
-import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
+// import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { cn } from '@/lib/utils';
 import { trimWords } from '@/lib/helper';
 
 const DashboardTransactionsPage = () => {
     const [transactions, setTransactions] = useState<[]>([])
 
-    const dynamicJwtToken = getAuthToken();
-    const { user } = useDynamicContext();
+    // const dynamicJwtToken = getAuthToken();
+    // const { user } = useDynamicContext();
 
     useEffect(() => {
         getTransactions()
@@ -50,13 +50,7 @@ const DashboardTransactionsPage = () => {
     const getTransactions = async () => {
         let url = `${process.env.NEXT_PUBLIC_BASE_URL}/transactions/user`;
     
-        const response = await axiosInterceptorInstance.get(url,
-            {
-                headers: {
-                    Authorization: `Bearer ${dynamicJwtToken}`
-                }
-            }
-        );
+        const response = await axiosInterceptorInstance.get(url);
         console.log(response);
         
         if (response?.data?.transactions) {

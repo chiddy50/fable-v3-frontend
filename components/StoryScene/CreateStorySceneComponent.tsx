@@ -13,7 +13,7 @@ import { hidePageLoader, showPageLoader } from '@/lib/helper'
 import { ComboboxComponent } from '@/components/combobox-component'
 import { storyGenres } from '@/lib/data'
 import { getAuthToken } from "@dynamic-labs/sdk-react-core";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+// import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 
 
 function CreateStorySceneComponent() {
@@ -27,16 +27,17 @@ function CreateStorySceneComponent() {
     const [storyGenerated, setStoryGenerated] = useState<boolean>(false);
     
     const router = useRouter();
-    const dynamicJwtToken = getAuthToken();
-    const { user, setShowAuthFlow } = useDynamicContext();
-    
-    const storiesPath = `public/scenes/${user?.email}`;
+    // const dynamicJwtToken = getAuthToken();
+    // const { user, setShowAuthFlow } = useDynamicContext();
+
+    const storiesPath = `public/scenes/`;
+    // const storiesPath = `public/scenes/${user?.email}`;
 
     const runScript = async () => {
-        if (!user) {
-            setShowAuthFlow(true);
-            return;
-        }
+        // if (!user) {
+        //     setShowAuthFlow(true);
+        //     return;
+        // }
 
         setRunStarted(true);
         setRunFinished(false)        
@@ -79,7 +80,7 @@ function CreateStorySceneComponent() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ dynamicJwtToken, email: user?.email })
+                // body: JSON.stringify({ dynamicJwtToken, email: user?.email })
             });
             const json = await response.json();
             console.log(json);

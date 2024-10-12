@@ -8,7 +8,7 @@ import GenerateStoryComponent from '@/components/StoryBoardFromScratch/GenerateS
 import StoryStarterComponent from '@/components/StoryBoardFromScratch/StoryStarterComponent';
 import { storyBuilderSteps } from '@/lib/constants';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
-import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
+// import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { useQuery } from '@tanstack/react-query';
 import { CheckCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -44,21 +44,15 @@ const StoryProjectPage = () => {
     const storyId = useSearchParams().get('story-id');
     
     const { push } = useRouter();
-    const dynamicJwtToken = getAuthToken();
-    const { user, setShowAuthFlow } = useDynamicContext();
+    // const dynamicJwtToken = getAuthToken();
+    // const { user, setShowAuthFlow } = useDynamicContext();
 
     const { data: storyData, isFetching, isError, refetch } = useQuery({
         queryKey: ['storyFromScratchFormData', currentStepUrl],
         queryFn: async () => {
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/from-scratch/${storyId}`;
 
-            const response = await axiosInterceptorInstance.get(url,
-                {
-                    headers: {
-                        Authorization: `Bearer ${dynamicJwtToken}`
-                    }
-                }
-            );
+            const response = await axiosInterceptorInstance.get(url);
             if (response?.data?.story) {
                 setStory(response?.data?.story);
             }
@@ -83,21 +77,13 @@ const StoryProjectPage = () => {
             }
             console.log(body);
 
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${dynamicJwtToken}`
-                },
-                body: JSON.stringify(body)
-            });
+            const response = await axiosInterceptorInstance.put(url, body);
 
-            const json = await response.json();
-            console.log(json);
-            if (json?.data?.story) {
-                setStory(json?.data?.story);
+            console.log(response);
+            if (response?.data?.story) {
+                setStory(response?.data?.story);
                 refetch();                    
-                return json?.data?.story;             
+                return response?.data?.story;             
             }
 
             return null;

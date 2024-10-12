@@ -16,7 +16,7 @@ import { ArrowRight, SaveIcon, Copy, ArrowLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { toast } from "sonner"
 import { useRouter } from 'next/navigation';
-import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+// import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { ChatGroq } from '@langchain/groq';
 import { PromptTemplate, ChatPromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
@@ -37,7 +37,7 @@ function ChoosePlotComponent({
     const [characterSuggestions, setCharacterSuggestions] = useState<CharacterInterface[]>([]);
 
     const { push } = useRouter();
-    const { user, setShowAuthFlow } = useDynamicContext();
+    // const { user, setShowAuthFlow } = useDynamicContext();
 
     const llm = new ChatGroq({
         apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
@@ -54,10 +54,10 @@ function ChoosePlotComponent({
     const suggestStoryCharacters = async () => {
         console.log({initialStoryData});
         
-        if (!user) {
-            setShowAuthFlow(true);   
-            return; 
-        }   
+        // if (!user) {
+        //     // setShowAuthFlow(true);   
+        //     return; 
+        // }   
 
         if (!initialStoryData) {
             return;    

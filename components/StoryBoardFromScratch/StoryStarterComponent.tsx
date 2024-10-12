@@ -11,7 +11,7 @@ import { ChatGroq } from "@langchain/groq";
 import { PromptTemplate, ChatPromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { ArrowRight, SaveIcon, FilmIcon } from 'lucide-react';
-import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
+// import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import MultipleSelector, { Option } from '@/components/ui/multiple-selector';
 import { ReusableCombobox } from '../ReusableCombobox';
 import { storyBuilderSteps } from '@/lib/constants';
@@ -73,8 +73,8 @@ const StoryStarterComponent: React.FC<StoryStarterComponentProps> = ({
 
     const [openNewStoryModal, setOpenNewStoryModal] = useState<boolean>(data ? false : true);
 
-    const dynamicJwtToken = getAuthToken();
-    const { user, setShowAuthFlow } = useDynamicContext();
+    // const dynamicJwtToken = getAuthToken();
+    // const { user, setShowAuthFlow } = useDynamicContext();
     const { push } = useRouter();
 
     useEffect(() => {
@@ -139,10 +139,10 @@ const StoryStarterComponent: React.FC<StoryStarterComponentProps> = ({
 
         try {
             
-            if (!user) {
-                setShowAuthFlow(true);   
-                return 
-            }
+            // if (!user) {
+            //     // setShowAuthFlow(true);   
+            //     return 
+            // }
     
             // const genrePrompt = genres.map(genre => genre.value).join(', ');
             // const thematicElementsPrompt = thematicOptions.map(
@@ -363,10 +363,10 @@ const StoryStarterComponent: React.FC<StoryStarterComponentProps> = ({
     }   
 
     const validateForm = async () => {
-        if (!user) {
-            setShowAuthFlow(true);   
-            return; 
-        }
+        // if (!user) {
+        //     setShowAuthFlow(true);   
+        //     return; 
+        // }
 
         const storyStarter: StoryStarterPayloadInterface = {
             thematicOptions,

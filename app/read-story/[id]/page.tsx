@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
-import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
+// import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import { formatDate, hidePageLoader, showPageLoader } from '@/lib/helper';
 import { makeRequest } from '@/services/request';

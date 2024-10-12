@@ -63,7 +63,7 @@ import {
 import { ArrowDown, ArrowUp, BookCheckIcon, BookOpenText, Wallet } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
-import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
+// import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { cn } from '@/lib/utils';
 import { trimWords, truncateString } from '@/lib/helper';
 import { TransactionInterface } from '@/interfaces/TransactionInterface';
