@@ -423,7 +423,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
                     <ArrowLeft />
                 </Button>
 
-                <Button size="icon" onClick={moveToChapter6} disabled={generating || !initialStory?.pinchPointsAndSecondPlotPointLocked}>
+                <Button size="icon" onClick={moveToChapter6} disabled={generating || !pinchPointsAndSecondPlotPoint}>
                     <ArrowRight />
                 </Button>
             </div>
