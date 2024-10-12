@@ -383,7 +383,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
                     <p className='font-bold text-center text-2xl'>
                         Chapter 4 
                     </p>
-                    <Button size="icon" onClick={moveToChapter5} disabled={generating || !initialStory?.risingActionAndMidpointLocked}>
+                    <Button size="icon" onClick={moveToChapter5} disabled={generating || !risingActionAndMidpoint}>
                         <ArrowRight />
                     </Button>
                 </div>
@@ -414,7 +414,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
                     <ArrowLeft />
                 </Button>
                 
-                <Button size="icon" onClick={moveToChapter5} disabled={generating || !initialStory?.risingActionAndMidpointLocked}>
+                <Button size="icon" onClick={moveToChapter5} disabled={generating || !risingActionAndMidpoint}>
                     <ArrowRight />
                 </Button>
             </div>

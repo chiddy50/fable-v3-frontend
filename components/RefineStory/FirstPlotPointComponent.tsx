@@ -369,6 +369,10 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
     }
 
     const moveToChapter4 = async () => {
+        if (!firstPlotPoint) {
+            toast.error("Kindly complete the chapter")
+            return
+        }
         if (!protagonistGoal) {            
             await analyzeStory(false)
         }
@@ -385,7 +389,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                     <p className='font-bold text-center text-2xl'>
                         Chapter 3 
                     </p>
-                    <Button size="icon" onClick={() => moveToNext(4)} disabled={generating || !initialStory?.firstPlotPointLocked}>
+                    <Button size="icon" onClick={() => moveToNext(4)} disabled={generating || !firstPlotPoint}>
                         <ArrowRight />
                     </Button>
                 </div>
@@ -418,7 +422,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                     <ArrowLeft />
                 </Button>
                 
-                <Button size="icon" onClick={moveToChapter4} disabled={generating || !initialStory?.firstPlotPointLocked}>
+                <Button size="icon" onClick={moveToChapter4} disabled={generating}>
                     <ArrowRight />
                 </Button>
             </div>

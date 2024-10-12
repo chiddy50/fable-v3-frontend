@@ -445,7 +445,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                     <p className='font-bold text-center text-2xl'>
                         Chapter 1
                     </p>
-                    <Button size="icon" disabled={!initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld || !initialStory?.introductionLocked || generating} onClick={moveToChapter2}>
+                    <Button size="icon" disabled={!initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld || generating} onClick={moveToChapter2}>
                         <ArrowRight />
                     </Button>
                 </div>

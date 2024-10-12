@@ -374,6 +374,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
     }
 
     const moveToChapter6 = async () => {
+        
         if (!newObstacles) {            
             await analyzeStory(false)
         }
@@ -390,7 +391,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
                     <p className='font-bold text-center text-2xl'>
                         Chapter 5
                     </p>
-                    <Button size="icon" onClick={moveToChapter6} disabled={generating || !initialStory?.pinchPointsAndSecondPlotPointLocked}>
+                    <Button size="icon" onClick={moveToChapter6} disabled={generating || !pinchPointsAndSecondPlotPoint}>
                         <ArrowRight />
                     </Button>
                 </div>
