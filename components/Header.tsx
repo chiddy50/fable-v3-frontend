@@ -3,11 +3,11 @@
 import Link from 'next/link'
 import React from 'react'
 import { BookOpen, FilePen, LogIn, LogOut } from 'lucide-react';
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+// import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { Button } from './ui/button';
 
 function Header() {
-  const { user, primaryWallet, setShowAuthFlow, handleLogOut } = useDynamicContext()
+  // const { user, primaryWallet, setShowAuthFlow, handleLogOut } = useDynamicContext()
 
   return (
     <header className='relative p-16 text-center'>
@@ -30,9 +30,9 @@ function Header() {
 
       <div className='absolute top-5 right-5'>
         {
-          !user &&
+          // !user &&
           <Button 
-          onClick={() => setShowAuthFlow(true)} 
+          // onClick={() => setShowAuthFlow(true)} 
           variant="outline" 
           className='flex items-center gap-1 border-blue-400 text-blue-500 hover:text-blue-400'>
             <span>Login</span>
@@ -40,9 +40,9 @@ function Header() {
           </Button>
         }
         {
-          user &&
+          // user &&
           <Button 
-          onClick={() => handleLogOut()} 
+          // onClick={() => handleLogOut()} 
           variant="outline" 
           className='flex items-center gap-1 border-blue-400 text-blue-500 hover:text-blue-400'>
             <span>Logout</span>

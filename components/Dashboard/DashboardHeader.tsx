@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { ArrowLeftRightIcon, BookCopy, BookOpenTextIcon, Gauge, LogIn, LogOut, Menu } from 'lucide-react';
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+// import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { Button } from '../ui/button';
 import {
     Sheet,

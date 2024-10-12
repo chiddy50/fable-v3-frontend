@@ -2,7 +2,7 @@
 
 import React, { useContext, useEffect, useState } from 'react'
 import { Button } from './ui/button'
-import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+// import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { LogIn, LogOut } from 'lucide-react';
 
 import { Web3Auth } from "@web3auth/modal";

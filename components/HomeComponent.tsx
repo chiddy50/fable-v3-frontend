@@ -6,7 +6,7 @@ import logo from "@/images/logo.png"
 import { Button } from "@/components/ui/button";
 import StoryWriter from "@/components/StoryWriter";
 import { BookOpen, CoinsIcon, FilmIcon, LogIn, LogOut, Menu, MessageSquare, Share2, ThumbsUp } from "lucide-react";
-import { getAuthToken, useDynamicContext } from "@dynamic-labs/sdk-react-core";
+// import { getAuthToken, useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { StoryInterface } from "@/interfaces/StoryInterface";
@@ -36,7 +36,7 @@ const HomeComponent = () => {
 
     // const { user, primaryWallet, setShowAuthFlow, handleLogOut } = useDynamicContext()
     const { push } = useRouter();
-    const dynamicJwtToken = getAuthToken();
+    // const dynamicJwtToken = getAuthToken();
   
     const moveToDashboard = async () => {
     //   if (!loggedIn) {

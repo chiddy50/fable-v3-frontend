@@ -4,7 +4,7 @@ import { BookOpen } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react'
-import { getAuthToken, useDynamicContext } from "@dynamic-labs/sdk-react-core";
+// import { getAuthToken, useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { Button } from '../ui/button';
 import axios from 'axios';
@@ -13,11 +13,10 @@ import { useQuery } from '@tanstack/react-query';
 function StoryScenes() {
     const [stories, setStories] = useState([]);
 
-    const dynamicJwtToken = getAuthToken();
-    const { user } = useDynamicContext()
+    // const dynamicJwtToken = getAuthToken();
+    // const { user } = useDynamicContext()
 
     const createStories = async () => {
-        const dynamicJwtToken = getAuthToken();
 
         try {            
             const response = await fetch("/api/test", {
@@ -25,7 +24,7 @@ function StoryScenes() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ stories, dynamicJwtToken })
+                // body: JSON.stringify({ stories, dynamicJwtToken })
             })            
             
             if (response.ok && response.body) {
@@ -45,13 +44,7 @@ function StoryScenes() {
         try {
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories?type=story-board`;
 
-            const response = await axiosInterceptorInstance.get(url,
-                {
-                    headers: {
-                        Authorization: `Bearer ${dynamicJwtToken}`
-                    }
-                }
-            );
+            const response = await axiosInterceptorInstance.get(url);
             console.log(response);
             if(response?.data){
                 setStories(response?.data.stories)
@@ -77,7 +70,7 @@ function StoryScenes() {
     //     },
     // });
 
-    if(!user) return "Kindly Login";
+    // if(!user) return "Kindly Login";
 
     // if (isPending) return 'Loading...'
 

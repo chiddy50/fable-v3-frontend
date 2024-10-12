@@ -10,7 +10,7 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { hidePageLoader, showPageLoader } from '@/lib/helper'
 import { Input } from "@/components/ui/input"
-import { getAuthToken, useDynamicContext } from "@dynamic-labs/sdk-react-core";
+// import { getAuthToken, useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { ComboboxComponent } from '@/components/combobox-component';
 import { storyGenres } from '@/lib/data'
 
@@ -27,20 +27,21 @@ function CreateStoryBookComponent() {
 
     const [events, setEvents] = useState<Frame[]>([])
     const router = useRouter();
-    const dynamicJwtToken = getAuthToken();
+    // const dynamicJwtToken = getAuthToken();
 
-    const { user, setShowAuthFlow } = useDynamicContext();
+    // const { user, setShowAuthFlow } = useDynamicContext();
 
     const runScript = async () => {
 
-        if (!user) {
-            setShowAuthFlow(true);
-            return;
-        }
+        // if (!user) {
+        //     setShowAuthFlow(true);
+        //     return;
+        // }
 
         setRunStarted(true);
         setRunFinished(false);
 
+        let user = {}
         const storiesPath = `public/books/${user?.email}`;
         
         try {            
@@ -87,7 +88,7 @@ function CreateStoryBookComponent() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ dynamicJwtToken, email: user?.email })
+                // body: JSON.stringify({ dynamicJwtToken, email: user?.email })
             });
             const json = await response.json();
             console.log(json);
