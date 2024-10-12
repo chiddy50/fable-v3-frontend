@@ -49,14 +49,14 @@ const DashboardStoriesPage = () => {
     
     // const { user, setShowAuthFlow, handleLogOut } = useDynamicContext()
     
+    const idToken = localStorage.getItem("idToken");
+    const publicAddress = localStorage.getItem("publicAddress");
+    const appPubKey = localStorage.getItem("appPubKey");
+
     const { data: storyData, isFetching, isError, refetch } = useQuery({
         queryKey: ['storyFromScratchFormData'],
         queryFn: async () => {         
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/from-scratch`;
-
-            const idToken = localStorage.getItem("idToken");
-            const publicAddress = localStorage.getItem("publicAddress");
-            const appPubKey = localStorage.getItem("appPubKey");
             
             // const response = await axiosInterceptorInstance.get(url);
 

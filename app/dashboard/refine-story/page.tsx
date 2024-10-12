@@ -48,9 +48,9 @@ const RefineStoryPage = () => {
 
     const storyId = useSearchParams().get('story-id');
 
-    const idToken = localStorage?.getItem("idToken");
-    const publicAddress = localStorage?.getItem("publicAddress");
-    const appPubKey = localStorage?.getItem("appPubKey");
+    // const idToken = localStorage?.getItem("idToken");
+    // const publicAddress = localStorage?.getItem("publicAddress");
+    // const appPubKey = localStorage?.getItem("appPubKey");
     const { data: storyData, isFetching, isError, refetch } = useQuery({
         queryKey: ['storyFromScratchFormData', storyId],
         queryFn: async () => {
@@ -62,7 +62,8 @@ const RefineStoryPage = () => {
             }
             return response?.data?.story;
         },
-        enabled: !!storyId && !story && !!idToken,
+        enabled: !!storyId && !story 
+        // && !!idToken,
     });
 
     useEffect(() => {

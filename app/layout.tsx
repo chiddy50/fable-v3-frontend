@@ -35,7 +35,7 @@ export default function RootLayout({
       </head>
       <body className={cn(
         "flex flex-col min-h-screen",
-        inter.className
+        montserrat.className
         )}>
       <CustomContext>        
 
