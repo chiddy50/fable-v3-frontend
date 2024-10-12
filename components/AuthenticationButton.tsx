@@ -110,8 +110,7 @@ const AuthenticationButton = () => {
                         setLoggedIn(true)                
                         // const authenticated = await authenticateUser(web3auth);
                     }else{
-                        console.log("NOT CONNECTED");
-                                               
+                        console.log("NOT CONNECTED");                                               
                     }
                 } catch (error) {
                     console.error(error);

@@ -48,6 +48,9 @@ const RefineStoryPage = () => {
 
     const storyId = useSearchParams().get('story-id');
 
+    const idToken = localStorage?.getItem("idToken");
+    const publicAddress = localStorage?.getItem("publicAddress");
+    const appPubKey = localStorage?.getItem("appPubKey");
     const { data: storyData, isFetching, isError, refetch } = useQuery({
         queryKey: ['storyFromScratchFormData', storyId],
         queryFn: async () => {
@@ -59,7 +62,7 @@ const RefineStoryPage = () => {
             }
             return response?.data?.story;
         },
-        enabled: !!storyId && !story,
+        enabled: !!storyId && !story && !!idToken,
     });
 
     useEffect(() => {
@@ -182,10 +185,14 @@ const RefineStoryPage = () => {
                             <textarea rows={5} 
                             onChange={(e) => setProjectDescription(e.target.value) } 
                             value={projectDescription} 
+                            disabled={storyData?.writingStep > 1}
                             placeholder='Kindly share your story idea or any keywords'
                             className='p-5 outline-none text-sm border rounded-lg w-full' 
                             />
-                            <Button onClick={() => updateProject()} className='text-gray-50 mt-3 bg-[#46aa41]'>Update</Button>
+                            <Button onClick={() => updateProject()} 
+                            disabled={storyData?.writingStep > 1}
+
+                            className='text-gray-50 mt-3 bg-[#46aa41]'>Update</Button>
                         </div>
 
                     </div>
