@@ -171,18 +171,18 @@ const DashboardStoriesPage = () => {
             }
 
             showPageLoader()
-            const idToken = localStorage.getItem("idToken");
-            const publicAddress = localStorage.getItem("publicAddress");
-            const appPubKey = localStorage.getItem("appPubKey");
+            // const idToken = localStorage.getItem("idToken");
+            // const publicAddress = localStorage.getItem("publicAddress");
+            // const appPubKey = localStorage.getItem("appPubKey");
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/users/auth`;
 
             const response = await axiosInterceptorInstance.get(url, {
                 params: null,
-                headers: {
-                    Authorization: `Bearer ${idToken}`,
-                    "Public-Address": publicAddress,
-                    "Public-Key": appPubKey
-                },
+                // headers: {
+                //     Authorization: `Bearer ${idToken}`,
+                //     "Public-Address": publicAddress,
+                //     "Public-Key": appPubKey
+                // },
             });
             // let response = await makeRequest({
             //     url,
