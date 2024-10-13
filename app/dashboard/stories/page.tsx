@@ -49,9 +49,9 @@ const DashboardStoriesPage = () => {
     
     // const { user, setShowAuthFlow, handleLogOut } = useDynamicContext()
     
-    const idToken = localStorage.getItem("idToken");
-    const publicAddress = localStorage.getItem("publicAddress");
-    const appPubKey = localStorage.getItem("appPubKey");
+    // const idToken = localStorage?.getItem("idToken");
+    // const publicAddress = localStorage?.getItem("publicAddress");
+    // const appPubKey = localStorage?.getItem("appPubKey");
 
     const { data: storyData, isFetching, isError, refetch } = useQuery({
         queryKey: ['storyFromScratchFormData'],
@@ -62,11 +62,11 @@ const DashboardStoriesPage = () => {
 
             const response = await axiosInterceptorInstance.get(url,{
                 params: null,
-                headers: {
-                    Authorization: `Bearer ${idToken}`,
-                    "Public-Address": publicAddress,
-                    "Public-Key": appPubKey
-                },
+                // headers: {
+                //     Authorization: `Bearer ${idToken}`,
+                //     "Public-Address": publicAddress,
+                //     "Public-Key": appPubKey
+                // },
             })
 
             console.log(response);            

@@ -37,7 +37,7 @@ const HomeComponent = () => {
     } = useContext(AppContext);
 
     // const { user, primaryWallet, setShowAuthFlow, handleLogOut } = useDynamicContext()
-    const { push } = useRouter();
+    const { push, refresh } = useRouter();
     // const dynamicJwtToken = getAuthToken();
   
     const moveToDashboard = async () => {
@@ -156,8 +156,11 @@ const HomeComponent = () => {
             const web3authProvider = await web3auth.connect();            
             setProvider(web3authProvider);            
             if (web3auth.connected) {  
-                getUserAuthParams(web3auth);
+                await getUserAuthParams(web3auth);
                 setLoggedIn(true);
+                // refresh();             
+                window.location.href = "/dashboard/stories";
+
             }            
         } catch (error) {
             console.error(error);            

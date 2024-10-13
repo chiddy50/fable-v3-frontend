@@ -499,7 +499,7 @@ const ProjectSummaryPage = () => {
                     </div> */}
 
                     <div className=" flex justify-between w-full mx-auto">
-                        <div className="flex items-center justify-between">
+                        {/* <div className="flex items-center justify-between">
                         
                             <label htmlFor="uploader">
                                 <div className="cursor-pointer flex items-center">
@@ -512,7 +512,7 @@ const ProjectSummaryPage = () => {
                             </label>
                             <input type="file" onChange={handleFileChange} accept=".jpg, .jpeg, .png" name="uploader" id="uploader" className="hidden"/>
 
-                        </div>
+                        </div> */}
                             
                         {
                             !storyData?.introductionImage &&
