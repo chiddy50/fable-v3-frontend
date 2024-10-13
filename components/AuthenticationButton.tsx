@@ -261,6 +261,8 @@ const AuthenticationButton = () => {
         localStorage.removeItem("idToken");
         localStorage.removeItem("publicAddress");
         localStorage.removeItem("appPubKey")
+        localStorage.removeItem('redirectRoute');
+        
         setProvider(null);
         setLoggedIn(false);
         setOpenLogoutModal(false);

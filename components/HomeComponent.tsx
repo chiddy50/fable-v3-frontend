@@ -41,18 +41,18 @@ const HomeComponent = () => {
     // const dynamicJwtToken = getAuthToken();
   
     const moveToDashboard = async () => {
-    //   if (!loggedIn) {
-    //     // window.localStorage.setItem('redirectRoute', "/dashboard/stories");
-    //     // setShowAuthFlow(true) 
-    //     const authenticated = await login();
-    //     console.log({authenticated});        
-    //     if (!authenticated) {            
-    //         return
-    //     }
-    //     console.log("authenticated");
-        
-    //     // push("/dashboard/stories")
-    //   }
+      if (!loggedIn) {
+        window.localStorage.setItem('redirectRoute', "/dashboard/stories");
+        // setShowAuthFlow(true) 
+        const authenticated = await login();
+        // console.log({authenticated});        
+        // if (!authenticated) {            
+        //     return
+        // }
+        // console.log("authenticated");
+        return
+        // push("/dashboard/stories")
+      }
   
       push("/dashboard/stories")
     }
@@ -158,8 +158,11 @@ const HomeComponent = () => {
             if (web3auth.connected) {  
                 await getUserAuthParams(web3auth);
                 setLoggedIn(true);
-                // refresh();             
-                window.location.href = "/dashboard/stories";
+                // refresh();            
+                
+                let redirectRoute = window.localStorage.getItem('redirectRoute') ?? "/";
+                
+                window.location.href = redirectRoute;
 
             }            
         } catch (error) {
@@ -167,13 +170,13 @@ const HomeComponent = () => {
         }        
     };
 
-    const moveToReadStory = (storyId: string) => {
+    const moveToReadStory = async (storyId: string) => {
         let redirectRoute = `/read-story/${storyId}`;
-        // if (!user) {
-        //   window.localStorage.setItem('redirectRoute', redirectRoute);
-        //   setShowAuthFlow(true);
-        //   return;
-        // }
+        if (!loggedIn) {
+          window.localStorage.setItem('redirectRoute', redirectRoute);
+          await login()          
+          return;
+        }
         push(`/read-story/${storyId}`);
     }
 
