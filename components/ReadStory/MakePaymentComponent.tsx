@@ -139,6 +139,7 @@ const MakePaymentComponent = ({
                     <Card className='my-5 p-7'>
                         <div className="flex justify-center">
                         <div ref={el} />
+                        </div>
                         <p className='mt-3 text-xs text-center'>Your trial session is over, kindly make a payment to proceed</p>
                     </Card>
                 </div>     
