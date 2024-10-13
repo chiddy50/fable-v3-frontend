@@ -8,7 +8,7 @@ import StoryWriter from "@/components/StoryWriter";
 import { BookOpen, CoinsIcon, FilmIcon, LogIn, LogOut, Menu, MessageSquare, Share2, ThumbsUp } from "lucide-react";
 // import { getAuthToken, useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { StoryInterface } from "@/interfaces/StoryInterface";
 import { formatDate, trimWords } from "@/lib/helper";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,6 +20,8 @@ import { AppContext } from "@/context/MainContext";
 import { getUserAuthParams } from "@/services/AuthenticationService";
 import ContinueReadingComponent from "./ReadStory/ContinueReadingComponent";
 import axiosInterceptorInstance from "@/axiosInterceptorInstance";
+import code from '@code-wallet/elements';
+import { Keypair } from "@code-wallet/keys";
 
 const HomeComponent = () => {
     const [publishedStories, setPublishedStories] = useState<StoryInterface[]>([]);
@@ -54,6 +56,55 @@ const HomeComponent = () => {
   
       push("/dashboard/stories")
     }
+
+    // GET CODE LOGIN START
+    const [mounted, setMounted] = useState<boolean>(false);
+    const el = useRef<HTMLDivElement>(null);
+    // useEffect(() => {
+    //     setMounted(true);
+    //     if(mounted){
+    //         setLogin();        
+    //     }
+    // }, [mounted]);
+
+    const setLogin = async () => {
+        let response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/users/get-verifier`);
+        console.log(response);
+        
+        const { verifier, domain } = response?.data;
+        console.log(process.env.NEXT_PUBLIC_BASE_URL, verifier, domain);
+        
+        const { button } = code.elements.create('button', {
+            mode: 'login',
+            login: {
+                verifier: verifier, 
+                domain: "usefable.xyz"
+            },
+
+            confirmParams: {
+                success: { url: `${process.env.NEXT_PUBLIC_URL}/success/{{INTENT_ID}}` }, 
+                cancel: { url: `${process.env.NEXT_PUBLIC_URL}/`, },
+            },
+        });
+
+        if (button) {      
+            button?.mount(el?.current!);
+            // Wait for the button to be clicked
+            button.on('invoke', async () => {
+
+                // Get a payment intent clientSecret value from server.js
+                const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/users/create-intent`);
+                const clientSecret = response?.data?.clientSecret;
+        
+                // Update the button with the new client secret so that our server
+                // can be notified once the payment is complete.
+                button.update({ clientSecret });
+            
+            });
+
+        }
+    }
+    // GET CODE LOGIN END
 
 
     useEffect(() => {
@@ -189,12 +240,15 @@ const HomeComponent = () => {
             Craft, Modify and Generate Stories with the Power of AI
             </p>
             <div className="flex mt-10 justify-center">
+                
               {loggedIn && <Button
               onClick={moveToDashboard} 
               className="bg-custom_green text-white tracking-wider text-md" size="lg">Start writing for free</Button>}
               {!loggedIn && <Button
               onClick={login} 
               className="bg-custom_green text-white tracking-wider text-md" size="lg">Start writing for free</Button>}
+                <div ref={el} />
+
             </div>
           </div>
 

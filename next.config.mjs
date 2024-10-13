@@ -36,6 +36,14 @@ const nextConfig = {
           
         ],
     },
+    async rewrites() {
+      return [
+        {
+          source: '/.well-known/code-payments.json',
+          destination: '/api/well-known/code-payments', // This points to the dynamic API route
+        },
+      ];
+    },
 };
 
 export default nextConfig;
