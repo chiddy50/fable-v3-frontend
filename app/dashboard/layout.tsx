@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeftRightIcon, BookCopy, BookOpenTextIcon, Gauge, Menu } from 'lucide-react'
+import { ArrowLeftRightIcon, BookCopy, BookOpenTextIcon, ClipboardList, Gauge, Menu } from 'lucide-react'
 import Link from 'next/link';
 // import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { usePathname, useRouter } from 'next/navigation';
@@ -15,16 +15,7 @@ export default function DashboardLayout({
     children: React.ReactNode
 }) {
 
-    const router = useRouter();
-    // const { user } = useDynamicContext();
     const currentPath = usePathname();
-    // useEffect(() => {
-    //     // Example: check if user is authenticated
-    //     const isAuthenticated = false; // Replace with actual authentication logic
-    //     // if (!user) {
-    //     // // router.push('/'); // Redirect to login page
-    //     // }
-    // }, [router]);
 
     return (
       <div className='mt-[80px]'>
@@ -79,6 +70,18 @@ export default function DashboardLayout({
                     </span>
                     <span className='text-xs font-semibold'>Stories</span>
                 </Link>
+
+                <div className={cn('flex items-center gap-4 p-2 rounded-3xl opacity-50  relative')}>
+                    <span className={cn(
+                        // currentPath === "/dashboard/stories" ? "bg-custom_green" : "bg-gray-100",
+                        "flex items-center w-8 h-8 rounded-full justify-center bg-gray-100"
+                    )}>
+                        <ClipboardList className={cn(
+                            // currentPath === "/dashboard/stories" ? "text-white" : "text-custom_green", 
+                            'w-4 h-4 bg-transparent text-custom_green')} />
+                    </span>
+                    <p className='text-xs font-semibold '>Articles <span className='text-[7px] border py-0.5 px-2 rounded-2xl absolute top-0 right-4'>Coming soon</span></p>
+                </div>
 
                 {/* <Link href="/dashboard/transactions" className={cn(
                     currentPath === "/dashboard/transactions" ? "bg-custom_green text-white" : "hover:bg-gray-200",

@@ -185,6 +185,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
             const prompt = `
             You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
 
+            We are writing with the 3 act structure.
             You are going to generate the Inciting Incident section of the story by continuing from where the introduction to the protagonist and their ordinary world stopped.
             **CONTEXT**
             We have already introduced the protagonist and their ordinary world: {introduceProtagonistAndOrdinaryWorld}.
@@ -197,7 +198,8 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
             - Maintain the genre and tone.
             - Length: At least 500 words.
             - No titles or additional commentary, just the story.
-            Note: Do not include an title or subtitles while generating the story, we are only focused on the story. Do not add any title, subtitle or anything describing an act.
+            - Use simple grammar.
+            Note: Do not include a title or subtitles while generating the story, we are only focused on the story. Do not add any title, subtitle or anything describing an act.
 
             **INPUT**
             story idea {storyIdea}
@@ -264,7 +266,8 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
             While rewriting, ensure you consider:
             - The inciting event (or inciting incident) is a critical moment in storytelling that triggers the main conflict and sets the protagonist on their journey. It typically occurs early in the story and marks the point where the normal life of the protagonist is disrupted.
             - The type of event, cause of the event, stakes and consequences, setting, tone, genre and any extra details provided to maintain consistency with the story's direction, ensure that all of this stays consistent with the original story idea {storyIdea}.
-            
+            Rewrite the Inciting Incident chapter only according to the new changes for the type of event, the cause of the event, the new setting, the new tone or extra changes.
+
             **Note:** Focus solely on the story. Do not include titles, subtitles, or act labels.
             **INPUT**
             Current Inciting Incident: {incitingIncident}

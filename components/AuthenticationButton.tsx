@@ -158,6 +158,7 @@ const AuthenticationButton = () => {
                 console.log("CONNECTED AFTER LOGIN");
                 setLoggedIn(true);
                 const authenticated = await authenticateUser(web3auth)
+                window.location.href = "/dashboard/stories";
             }else{
                 console.log("NOT CONNECTED AFTER LOGIN");
                 

@@ -122,7 +122,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             Capture the emotional journey of the protagonist by introducing the protagonist(s).
             Do not write about the end of the story just focus on the introduction and description of the character.
              
-            Note: Do not include an title or subtitles while generating the story, we are only focused on the story. Do not add any title, subtitle or anything describing an act.
+            Note: Do not include a title or subtitles while generating the story, we are only focused on the story. Do not add any title, subtitle or anything describing an act.
             **INPUT**
             story idea {storyIdea}
             `;

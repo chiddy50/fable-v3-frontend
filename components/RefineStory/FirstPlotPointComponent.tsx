@@ -110,7 +110,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
             - Maintain the genre and tone.
             - Length: At least 500 words.
             - No titles or additional commentary, just the story.
-            Note: Do not include an title or subtitles while generating the story, we are only focused on the story. Do not add any title, subtitle or anything describing an act.
+            Note: Do not include a title or subtitles while generating the story, we are only focused on the story. Do not add any title, subtitle or anything describing an act.
 
             **INPUT**
             story idea {storyIdea}
