@@ -575,13 +575,16 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
                             /> 
                         </div>
 
-                        <Button disabled={generating} 
-                            onClick={regenerateResolution}
-                            size="lg" 
-                            className='mt-5 border w-full bg-custom_green text-white hover:bg-custom_green hover:text-white'>
-                            Regenerate
-                            <Cog className='ml-2'/>
-                        </Button>
+                        <div className="grid gap-5 mt-5">
+                          <Button disabled={generating} 
+                              onClick={regenerateResolution}
+                              size="lg" 
+                              className='border w-full bg-custom_green text-white hover:bg-custom_green hover:text-white'>
+                              Regenerate
+                              <Cog className='ml-2'/>
+                          </Button>
+                          
+                        </div>
                     </div>
                 </SheetContent>
             </Sheet>

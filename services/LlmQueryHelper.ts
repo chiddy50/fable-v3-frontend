@@ -7,7 +7,7 @@ import { CharacterInterface } from "@/interfaces/CharacterInterface";
 import { ChatOpenAI } from "@langchain/openai";
 import { toast } from "sonner";
 
-export const queryLLM = async (prompt: string, payload: object) => {
+export const queryLLM = async (prompt: string, payload: object, parser = null) => {
    try {      
       const llm = new ChatGroq({
          apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
@@ -20,12 +20,39 @@ export const queryLLM = async (prompt: string, payload: object) => {
           ["human", prompt],
       ]);
   
-      const chain = startingPrompt.pipe(llm).pipe(new StringOutputParser());
+      let chain  = startingPrompt.pipe(llm).pipe(new StringOutputParser());
   
       const response = await chain.invoke(payload);
       console.log(response);
+      let parsedResponse = JSON.parse(response);            
   
-      const parsedResponse = JSON.parse(response);            
+      console.log({parsedResponse});
+  
+      return parsedResponse;
+   } catch (error) {
+      toast.error("Try again please");
+      console.error(error);      
+   }
+}
+
+export const queryStructuredLLM = async (prompt: string, payload: object, parser = null) => {
+   try {      
+      const llm = new ChatGroq({
+         apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
+         // model: "llama3-70b-8192",
+         model: "llama-3.1-70b-versatile"           
+      });
+  
+      const startingPrompt = ChatPromptTemplate.fromMessages([
+          ["system", "You are a professional storyteller, author and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also an expert at answering any question directly even if its not related to storytelling. And you always follow instruction"],
+          ["human", prompt],
+      ]);
+  
+      let chain = startingPrompt.pipe(llm).pipe(parser);               
+  
+      const response = await chain.invoke(payload);
+      console.log(response);
+      let parsedResponse = response
       console.log({parsedResponse});
   
       return parsedResponse;

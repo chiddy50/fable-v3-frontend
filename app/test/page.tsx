@@ -4,6 +4,7 @@ import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import code from '@code-wallet/elements';
 import { Button } from '@/components/ui/button';
+import { WikipediaQueryRun } from "@langchain/community/tools/wikipedia_query_run";
 
 const TestPage = () => {
     // GET CODE LOGIN START
@@ -54,12 +55,19 @@ const TestPage = () => {
     }
     // GET CODE LOGIN END
 
+    const query = async () => {
+
+        let res = await axios.get("/api/test");
+        
+        console.log(res);
+    }
+
 
   return (
     <div>
         <div className='mt-[120px]'>
             <div ref={el} />
-            <Button>Test Login</Button>
+            <Button onClick={query}>Test Login</Button>
         </div>
     </div>
   )
