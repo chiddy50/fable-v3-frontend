@@ -327,7 +327,8 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`, 
                 {
                     storyId: initialStory?.id,
-                    introduceProtagonistAndOrdinaryWorld: data     
+                    introduceProtagonistAndOrdinaryWorld: data,
+                    introductionLocked: true     
                 }
             );
         }
@@ -445,7 +446,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                     <p className='font-bold text-center text-2xl'>
                         Chapter 1
                     </p>
-                    <Button size="icon" disabled={!initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld || generating} onClick={moveToChapter2}>
+                    <Button size="icon" disabled={!introduceProtagonistAndOrdinaryWorld || generating} onClick={moveToChapter2}>
                         <ArrowRight />
                     </Button>
                 </div>
@@ -478,7 +479,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                     <ArrowLeft />
                 </Button>
            
-                <Button size="icon" disabled={!initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld || !initialStory?.introductionLocked || generating} onClick={moveToChapter2}>
+                <Button size="icon" disabled={!introduceProtagonistAndOrdinaryWorld || !initialStory?.introductionLocked || generating} onClick={moveToChapter2}>
                     <ArrowRight />
                 </Button>
             </div>
