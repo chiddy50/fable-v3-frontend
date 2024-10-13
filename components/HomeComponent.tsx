@@ -8,7 +8,7 @@ import StoryWriter from "@/components/StoryWriter";
 import { BookOpen, CoinsIcon, FilmIcon, LogIn, LogOut, Menu, MessageSquare, Share2, ThumbsUp } from "lucide-react";
 // import { getAuthToken, useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { StoryInterface } from "@/interfaces/StoryInterface";
 import { formatDate, trimWords } from "@/lib/helper";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,6 +20,7 @@ import { AppContext } from "@/context/MainContext";
 import { getUserAuthParams } from "@/services/AuthenticationService";
 import ContinueReadingComponent from "./ReadStory/ContinueReadingComponent";
 import axiosInterceptorInstance from "@/axiosInterceptorInstance";
+import code from '@code-wallet/elements';
 
 const HomeComponent = () => {
     const [publishedStories, setPublishedStories] = useState<StoryInterface[]>([]);
@@ -54,6 +55,28 @@ const HomeComponent = () => {
   
       push("/dashboard/stories")
     }
+
+    // GET CODE LOGIN START
+    const [mounted, setMounted] = useState<boolean>(false);
+    const el = useRef<HTMLDivElement>(null);
+    // useEffect(() => {
+    //     if(mounted){
+    //         const { button } = code.elements.create('button', {
+    //             mode: 'login',
+    //             login: {
+    //                 verifier: "", 
+    //                 domain: "",
+    //             },
+
+    //             confirmParams: {
+    //                 success: { url: "" }, // { url: `${hostname}/success/{{INTENT_ID}}`, },
+    //                 cancel: { url: ""} // { url: `${hostname}/`, },
+    //             },
+    //         });
+        
+    //     }
+    // }, []);
+    // // GET CODE LOGIN END
 
 
     useEffect(() => {
