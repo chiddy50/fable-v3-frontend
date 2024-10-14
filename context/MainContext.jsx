@@ -12,6 +12,7 @@ export function MainContext({ children }) {
     const [provider, setProvider] = useState(null);
     const [loggedIn, setLoggedIn] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
+    const [address, setAddress] = useState("");
 
     const login = async () => {
         console.log(web3auth);        
@@ -48,6 +49,7 @@ export function MainContext({ children }) {
             provider, setProvider,
             loggedIn, setLoggedIn,
             isMounted, setIsMounted,
+            address, setAddress,
             login, uiConsole
         }}>
             {children}

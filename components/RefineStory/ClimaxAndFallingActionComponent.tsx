@@ -106,6 +106,7 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
             - No titles or additional commentary, just the story.
             - Ensure the story continues to relate the story idea.
             Note: Do not include a title or subtitles while generating the story, we are only focused on the story. Do not add any title, subtitle or anything describing an act.
+            Do not repeat any story incident or story line in any of the chapters written before, because we don't want the story to look generic.
 
             **INPUT**
             story idea {storyIdea}
@@ -183,6 +184,7 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
             - Align with the original story idea: {storyIdea}
 
             **Note**: Focus only on the narrative, without including titles, subtitles, or act labels.
+            Do not repeat any story incident or story line in any of the chapters written before, because we don't want the story to look generic.
 
             **INPUT**
             - Genre: {genre}

@@ -28,6 +28,7 @@ import { getED25519Key } from "@toruslabs/openlogin-ed25519";
 import { AppContext } from '@/context/MainContext';
 import { useRouter } from 'next/navigation';
 import { getUserAuthParams } from '@/services/AuthenticationService';
+import { toast } from 'sonner';
 
 const clientId = "BHrmTySBsuDsBTQEQs4pMNXNI3Vf76pU41iX_eQ4FUPzAe8JguWC4u64-libfTfJPN1YPj8nKuIVz8g6OQ_fPaw"; // get from https://dashboard.web3auth.io
 
@@ -39,6 +40,7 @@ const AuthenticationButton = () => {
         web3auth, setWeb3auth,
         provider, setProvider,
         loggedIn, setLoggedIn,
+        address, setAddress,
     } = useContext(AppContext)
     const [openLogoutModal, setOpenLogoutModal] = useState<boolean>(false);
 
@@ -105,7 +107,8 @@ const AuthenticationButton = () => {
     
                     if (web3auth.connected) {
                         console.log("CONNECTED");
-                        getUserAuthParams(web3auth);
+                        let payload = await getUserAuthParams(web3auth);
+                        setAddress(payload ? (payload.appPubKey ?? payload.publicAddress) : "" )
 
                         setLoggedIn(true)                
                         // const authenticated = await authenticateUser(web3auth);
@@ -283,15 +286,35 @@ const AuthenticationButton = () => {
         push(`/`)
     }
 
+    const truncateString = (inputString: string) => {
+        if (inputString.length <= 8) {
+            return inputString; // If the string is already 8 characters or less, return it unchanged
+        } else {
+            const truncatedString = inputString.slice(0, 4) + '...' + inputString.slice(-4);
+            return truncatedString;
+        }
+    }
+
+    const copyToClipboard = () => {
+        if (address) {            
+            navigator.clipboard.writeText(address);
+            toast.success("Wallet address copied!");
+        }        
+    };
+
+
     const loggedInView = (
         <div className='flex items-center gap-4'>
             <div className="flex items-center bg-white py-2 px-3 border gap-2 rounded-3xl">
-                <div className="border cursor-pointer flex items-center rounded-full hover:bg-gray-700 hover:text-white hover:border-white pr-2">                        
+                <div 
+                onClick={copyToClipboard}
+                className="border cursor-pointer flex items-center rounded-full hover:bg-gray-700 hover:text-white hover:border-white pr-2">                        
                     <div className="h-6 w-6 rounded-full flex items-center justify-center ">
                         <i className='bx bx-copy text-xs'></i>
                     </div>
                     <p className="text-[9px]" id="primary-wallet-address">
-                        zkdmdv...vdsmds
+                        {/* zkdmdv...vdsmds */}
+                        {truncateString(address)}
                     </p>
                 </div>
                 <div className="border cursor-pointer h-6 w-6 rounded-full flex items-center justify-center hover:bg-gray-700 hover:text-white hover:border-white">
