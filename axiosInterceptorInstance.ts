@@ -1,16 +1,16 @@
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import { deleteCookie } from 'cookies-next';
 
 let idToken: string | null = null;
 let publicAddress: string | null = null;
 let appPubKey: string | null = null;
 
-const axiosInterceptorInstance = axios.create({
+const axiosInterceptorInstance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BASE_URL,
 });
 
 // Function to update headers
-const updateHeaders = () => {
+const updateHeaders = (): void => {
   if (typeof window !== 'undefined') {
     idToken = localStorage.getItem("idToken");
     publicAddress = localStorage.getItem("publicAddress");
@@ -26,6 +26,15 @@ const updateHeaders = () => {
 if (typeof window !== 'undefined') {
   updateHeaders();
 }
+
+// Request interceptor
+axiosInterceptorInstance.interceptors.request.use(
+  (config) => {
+    updateHeaders();
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Response interceptor
 axiosInterceptorInstance.interceptors.response.use(
@@ -47,6 +56,9 @@ axiosInterceptorInstance.interceptors.response.use(
       if (typeof window !== 'undefined') {
         localStorage.removeItem("user");
         localStorage.removeItem("question");
+        localStorage.removeItem("idToken");
+        localStorage.removeItem("publicAddress");
+        localStorage.removeItem("appPubKey");
         // Consider using Next.js router for navigation instead of window.location
         // import { useRouter } from 'next/router';
         // const router = useRouter();
@@ -59,7 +71,7 @@ axiosInterceptorInstance.interceptors.response.use(
 );
 
 // Function to be called on the client-side to ensure headers are set
-export const initializeAxiosHeaders = () => {
+export const initializeAxiosHeaders = (): void => {
   updateHeaders();
 };
 

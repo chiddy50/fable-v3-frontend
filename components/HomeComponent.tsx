@@ -116,25 +116,25 @@ const HomeComponent = () => {
 
     const fetchStories = async () => {
         try {
-          let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all`;
-          setLoading(true)
-          const res = await fetch(url, {
-              method: 'GET',
-              headers: {
-                  'Content-Type': 'application/json',
-              }
-          });
-    
-          const json = await res.json();
-          console.log(json);
-          let data = json?.stories;
-          if (data) {
-            setPublishedStories(data);
-          }
+            let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all`;
+            setLoading(true)
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+        
+            const json = await res.json();
+            console.log(json);
+            let data = json?.stories;
+            if (data) {
+                setPublishedStories(data);
+            }
 
-        //   if (loggedIn) {            
-            const allContinueStories = await getStartedStories();
-        //   }
+            // if (loggedIn) {            
+                const allContinueStories = await getStartedStories();
+            // }
 
         } catch (error) {
           console.error(error);      
@@ -144,7 +144,19 @@ const HomeComponent = () => {
     }
 
     const getStartedStories = async () => {
-        const response = await axiosInterceptorInstance.get(`${process.env.NEXT_PUBLIC_BASE_URL}/story-access/continue`)
+        let idToken = localStorage?.getItem("idToken");
+        let publicAddress = localStorage?.getItem("publicAddress");
+        let appPubKey = localStorage?.getItem("appPubKey");
+        const response = await axiosInterceptorInstance.get(`${process.env.NEXT_PUBLIC_BASE_URL}/story-access/continue`,
+
+            {
+                headers: {
+                    Authorization: `Bearer ${idToken}`,
+                    "Public-Address": publicAddress,
+                    "Public-Key": appPubKey
+                }
+            }
+        )
         console.log(response);
         const stories = response?.data?.stories ?? [];
         
@@ -156,7 +168,8 @@ const HomeComponent = () => {
             const web3authProvider = await web3auth.connect();            
             setProvider(web3authProvider);            
             if (web3auth.connected) {  
-                await getUserAuthParams(web3auth);
+                let payload = await getUserAuthParams(web3auth);
+                // {publicAddress?: string, appPubKey?: string, idToken: string}
                 setLoggedIn(true);
                 // refresh();            
                 

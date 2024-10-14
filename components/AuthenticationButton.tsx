@@ -42,7 +42,7 @@ const AuthenticationButton = () => {
     } = useContext(AppContext)
     const [openLogoutModal, setOpenLogoutModal] = useState<boolean>(false);
 
-    const { push } = useRouter()
+    const { push, refresh } = useRouter()
 
     const chainConfig = {
         chainId: "0x2",
@@ -158,6 +158,8 @@ const AuthenticationButton = () => {
                 console.log("CONNECTED AFTER LOGIN");
                 setLoggedIn(true);
                 const authenticated = await authenticateUser(web3auth)
+                // window.location.reload();
+                // refresh()
                 window.location.href = "/dashboard/stories";
             }else{
                 console.log("NOT CONNECTED AFTER LOGIN");

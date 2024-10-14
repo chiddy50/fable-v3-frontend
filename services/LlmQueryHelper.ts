@@ -6,6 +6,7 @@ import { ThematicOptionInterface } from "@/interfaces/ThematicOptionInterface";
 import { CharacterInterface } from "@/interfaces/CharacterInterface";
 import { ChatOpenAI } from "@langchain/openai";
 import { toast } from "sonner";
+import { JsonOutputParser } from "@langchain/core/output_parsers";
 
 export const queryLLM = async (prompt: string, payload: object, parser = null) => {
    try {      
@@ -35,7 +36,7 @@ export const queryLLM = async (prompt: string, payload: object, parser = null) =
    }
 }
 
-export const queryStructuredLLM = async (prompt: string, payload: object, parser = null) => {
+export const queryStructuredLLM = async (prompt: string, payload: object, parser: JsonOutputParser) => {
    try {      
       const llm = new ChatGroq({
          apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
