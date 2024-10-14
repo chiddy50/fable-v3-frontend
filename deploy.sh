@@ -11,7 +11,7 @@ echo "update API code base"
 
 pwd
 
-cd $BACKEND_DIR || exit
+cd $FRONTEND_DIR || exit
 
 echo "Pulling the latest code from branch $BRANCH..."
 git fetch --all
