@@ -22,8 +22,11 @@ cd $APP_DIR || exit
 
 
 # Rebuild and start the Docker Compose services
-echo "Rebuilding and starting Docker Compose services..."
-docker compose build next-frontend && docker compose up -d next-frontend
+echo "Rebuilding FRONTEND service..."
+docker compose build next-frontend
+
+echo "Restarting FRONTEND service..."
+docker compose up -d next-frontend
 
 echo "waiting for health status"
 sleep 30
