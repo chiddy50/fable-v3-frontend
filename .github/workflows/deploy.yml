@@ -28,4 +28,4 @@ jobs:
 
     - name: Run deployment script
       run: |
-        ssh -i ./id_rsa -o StrictHostKeyChecking=no root@188.245.161.168 "cd /root/fable/fable-v3-api && bash deploy.sh"
+        ssh -i ./id_rsa -o StrictHostKeyChecking=no root@188.245.161.168 "cd /root/fable/fable-v3-frontend && bash deploy.sh"
