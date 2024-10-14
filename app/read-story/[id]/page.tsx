@@ -3,7 +3,7 @@
 
 import { ArrowLeft, ArrowLeftCircle, ArrowLeftToLine, ArrowRight, ArrowRightCircle, ArrowRightToLine, Menu, Share2 } from 'lucide-react';
 import Image from 'next/image';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DM_Sans, Dosis } from "next/font/google";
 import { cn } from '@/lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -25,6 +25,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Suspense } from 'react';
+import { getUserAuthParams } from '@/services/AuthenticationService';
+import { AppContext } from '@/context/MainContext';
 
 // const BlurredContent = ({ content, blurAfter, onPayment }) => {
 //   const [isPaid, setIsPaid] = useState(false);
@@ -83,6 +85,11 @@ const ReadStoryPage = ({id}: {id:string}) => {
   const [depositAddress, seDepositAddress] = useState(null);
   const [mounted, setMounted] = useState<boolean>(false);
 
+  const { 
+    web3auth, 
+    
+} = useContext(AppContext);
+
   // const storyId = useSearchParams().get('story-id');
   const storyId = id
   // const dynamicJwtToken = getAuthToken();
@@ -94,6 +101,9 @@ const ReadStoryPage = ({id}: {id:string}) => {
     queryFn: async () => {
         let url = `${process.env.NEXT_PUBLIC_BASE_URL}/story-access/read/${storyId}`;
 
+        const payload = await getUserAuthParams(web3auth);
+        console.log(payload);
+        
         const response = await axiosInterceptorInstance.get(url);
         if (response?.data?.story) {
           setStory(response?.data?.story);

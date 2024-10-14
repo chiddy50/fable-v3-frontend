@@ -144,19 +144,7 @@ const HomeComponent = () => {
     }
 
     const getStartedStories = async () => {
-        let idToken = localStorage?.getItem("idToken");
-        let publicAddress = localStorage?.getItem("publicAddress");
-        let appPubKey = localStorage?.getItem("appPubKey");
-        const response = await axiosInterceptorInstance.get(`${process.env.NEXT_PUBLIC_BASE_URL}/story-access/continue`,
-
-            {
-                headers: {
-                    Authorization: `Bearer ${idToken}`,
-                    "Public-Address": publicAddress,
-                    "Public-Key": appPubKey
-                }
-            }
-        )
+        const response = await axiosInterceptorInstance.get(`${process.env.NEXT_PUBLIC_BASE_URL}/story-access/continue`)
         console.log(response);
         const stories = response?.data?.stories ?? [];
         
