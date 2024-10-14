@@ -21,7 +21,6 @@ echo "refreshing deploymemnt..."
 cd $APP_DIR || exit
 
 
-# Rebuild and start the Docker Compose services
 echo "Rebuilding FRONTEND service..."
 docker compose build next-frontend
 
