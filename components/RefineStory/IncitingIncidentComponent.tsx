@@ -36,7 +36,7 @@ interface IncitingIncidentComponentProps {
 // Define your desired data structure. Only used for typing the parser output.
 
 
-  interface StoryStructure {
+  interface ChapterAnalysis {
     summary: string;
     charactersInvolved: Array<{
       name: string;
@@ -380,7 +380,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
 
             showPageLoader();
 
-            const parser = new JsonOutputParser<StoryStructure>();
+            const parser = new JsonOutputParser<ChapterAnalysis>();
 
             const response = await queryStructuredLLM(prompt, {
                 introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,

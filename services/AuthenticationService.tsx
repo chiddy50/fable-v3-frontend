@@ -19,7 +19,7 @@ export const getUserAuthParams = async (web3auth: Web3Auth) => {
 
         localStorage?.setItem("idToken", token?.idToken);
 
-        let payload: {publicAddress?: string, appPubKey?: string} = {}
+        let payload: {publicAddress?: string, appPubKey?: string, idToken: string} = { idToken: token.idToken}
 
         // Get user's Solana public address for wallet logins
         const solanaWallet = new SolanaWallet(web3auth?.provider);
@@ -45,7 +45,7 @@ export const getUserAuthParams = async (web3auth: Web3Auth) => {
             localStorage?.setItem("appPubKey", app_pub_key);
         }
 
-        return { payload, idToken: token.idToken}
+        return payload
     } catch (error) {
         console.error(error);
         return false;

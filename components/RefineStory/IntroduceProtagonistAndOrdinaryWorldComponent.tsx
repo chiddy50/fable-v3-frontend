@@ -10,7 +10,7 @@ import {
     SheetTitle,
 } from "@/components/ui/sheet";
 import { StoryInterface } from '@/interfaces/StoryInterface';
-import { extractTemplatePrompts, queryLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
+import { extractTemplatePrompts, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
 import { toast } from 'sonner';
 import {
     Carousel,
@@ -32,6 +32,7 @@ import SampleSelect from '../SampleSelect';
 import { cn } from '@/lib/utils';
 import { Dosis, Inter } from 'next/font/google';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
+import { JsonOutputParser } from "@langchain/core/output_parsers";
   
 
 interface IntroduceProtagonistAndOrdinaryWorldComponentProps {
@@ -58,6 +59,29 @@ interface ProtagonistPayload {
     characterTraits: string[];
 }
 
+interface ChapterAnalysis {
+    protagonists: Array<{
+      name: string;
+      backstory: string;
+      motivations: string;
+      role: string;
+      characterTraits: string[];
+      relationshipToOtherProtagonist?: string;
+    }>;
+    otherCharacters: Array<{
+      name: string;
+      backstory: string;
+      role: string;
+      relationshipToProtagonist: string;
+    }>;
+    tone: string[];
+    genre: string[];
+    summary: string;
+    moodAndAtmosphere: string[];
+    hooks: string[];
+    setting: string[];
+    thematicElement: string[];
+}
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -262,9 +286,12 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             `;
 
             showPageLoader();
-            const response = await queryLLM(prompt, {
+
+            const parser = new JsonOutputParser<ChapterAnalysis>();
+
+            const response = await queryStructuredLLM(prompt, {
                 introduceProtagonistAndOrdinaryWorld: data,
-            });
+            }, parser);
 
             if (!response) {
                 toast.error("Try again please");
