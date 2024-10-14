@@ -3,7 +3,7 @@ name: Deploy to Fable server
 on:
   push:
     branches:
-      - devops-test
+      - devops
 
 jobs:
   deploy:
