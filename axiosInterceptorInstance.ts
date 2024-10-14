@@ -1,78 +1,76 @@
-import axios, { AxiosInstance } from 'axios';
+import axios from 'axios';
 import { deleteCookie } from 'cookies-next';
+// import Router from 'next/router';
 
-let idToken: string | null = null;
-let publicAddress: string | null = null;
-let appPubKey: string | null = null;
 
-const axiosInterceptorInstance: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BASE_URL,
+// const idToken = localStorage?.getItem("idToken");
+// const publicAddress = localStorage?.getItem("publicAddress");
+// const appPubKey = localStorage?.getItem("appPubKey");
+
+const axiosInterceptorInstance = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_BASE_URL, // Replace with your API base URL,
+  // headers: {
+  //   Authorization: `Bearer ${idToken}`,
+  //   "Public-Address": publicAddress,
+  //   "Public-Key": appPubKey
+  // }
 });
 
-// Function to update headers
-const updateHeaders = (): void => {
-  if (typeof window !== 'undefined') {
-    idToken = localStorage.getItem("idToken");
-    publicAddress = localStorage.getItem("publicAddress");
-    appPubKey = localStorage.getItem("appPubKey");
-
-    axiosInterceptorInstance.defaults.headers.common['Authorization'] = `Bearer ${idToken}`;
-    axiosInterceptorInstance.defaults.headers.common['Public-Address'] = publicAddress;
-    axiosInterceptorInstance.defaults.headers.common['Public-Key'] = appPubKey;
-  }
-};
-
-// Call updateHeaders initially if in browser environment
-if (typeof window !== 'undefined') {
-  updateHeaders();
-}
-
-// Request interceptor
 axiosInterceptorInstance.interceptors.request.use(
-  (config) => {
-    updateHeaders();
+  function (config) {
+    // Do something before the request is sent
+    // For example, add an authentication token to the headers
+    const idToken = localStorage.getItem('idToken'); // Retrieve auth token from localStorage
+    const publicAddress = localStorage?.getItem("publicAddress");
+    const appPubKey = localStorage?.getItem("appPubKey");
+    if (idToken) {
+      config.headers.Authorization = `Bearer ${idToken}`;
+      config.headers['Public-Address'] = publicAddress;
+      config.headers['Public-Key'] = appPubKey;
+
+    }
     return config;
   },
-  (error) => Promise.reject(error)
-);
-
-// Response interceptor
-axiosInterceptorInstance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.log("Response Error interceptor: ", error);
-    const message = error?.response?.data?.message;
-    const errorMessages = [
-      "Unauthorized",
-      "Invalid token",
-      "Invalid token format",
-      "Token has expired",
-      'jwt expired', 'jwt malformed', 'invalid signature', 'No token found'
-    ];
-
-    if (errorMessages.includes(message)) {
-      console.log(message);
-      deleteCookie('token');
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem("user");
-        localStorage.removeItem("question");
-        localStorage.removeItem("idToken");
-        localStorage.removeItem("publicAddress");
-        localStorage.removeItem("appPubKey");
-        // Consider using Next.js router for navigation instead of window.location
-        // import { useRouter } from 'next/router';
-        // const router = useRouter();
-        // router.push('/');
-      }
-    }
-
+  function (error) {
+    // Handle the error
     return Promise.reject(error);
   }
 );
 
-// Function to be called on the client-side to ensure headers are set
-export const initializeAxiosHeaders = (): void => {
-  updateHeaders();
-};
 
-export default axiosInterceptorInstance;
+
+// Response interceptor
+axiosInterceptorInstance.interceptors.response.use(
+    (response) => {
+      // Modify the response data here  
+      return response;
+    },
+    (error) => {
+      // Handle response errors here
+      console.log("Response Error interceptor: ",error);
+      let message = error?.response?.data?.message
+      let errorMessages =  [
+        "Unauthorized",
+        "Invalid token",
+        "Invalid token format",
+        "Token has expired",
+        'jwt expired', 'jwt malformed', 'invalid signature', 'No token found'
+      ]
+      if (errorMessages.includes(message)) {
+        console.log(message);
+        deleteCookie('token')
+        localStorage.removeItem("user") 
+        localStorage.removeItem("question")
+        
+        // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHRnZGFhenAwMDAwNWV6eXg5ZDU2d24xIiwibmFtZSI6ImhlbnJ1IiwiaWF0IjoxNzEwMjg0MjM1LCJleHAiOjE3MTAyODc4MzV9.iXn4sTg-PX0bP8htey9W6K4UVf-
+        // window.location.reload();
+
+        // window.location.href = '/';
+      }
+
+      return Promise.reject(error);
+    }
+  );
+  // End of Response interceptor
+  
+  export default axiosInterceptorInstance;
