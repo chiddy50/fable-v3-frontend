@@ -5,7 +5,7 @@ const DashboardStoriesPage = () => {
     // 
     return (
        <>
-       <DashboardStoriesComponent />
+        <DashboardStoriesComponent />
        </>
     )
 }

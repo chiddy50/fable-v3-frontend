@@ -103,7 +103,7 @@ const LoginSuccessPage = ({params: {id}}: Props) => {
                                 <Button size="sm" className='text-xs w-full'>Go dashboard</Button>
                             </Link>
                             <Link href="/">
-                                <Button size="sm" className='text-xs w-full' variant="outline">Return</Button>
+                                <Button size="sm" className='text-xs w-full' variant="outline">Discover</Button>
                             </Link>
                         </div>
                     </div>
