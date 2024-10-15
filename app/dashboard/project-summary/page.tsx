@@ -338,7 +338,7 @@ const ProjectSummaryPage = () => {
 
     const proceedRequest = async () => {
         let published = storyData?.status === "draft" ? false : true;
-
+        
         try {
             showPageLoader()
             setOpenAddAddressModal(false);
@@ -645,23 +645,32 @@ const ProjectSummaryPage = () => {
                     <div>
                         <div className="mb-4">
                             <p className="mb-1 text-xs font-semibold">Kin Wallet Address <span className='text-red-500 text-md font-bold'>*</span></p>
-                            <Input 
-                            defaultValue={depositAddress}
-                            onKeyUp={(e) => setDepositAddress(e.target.value)} 
-                            onPaste={(e) => setDepositAddress(e.target.value)} 
-                            className='w-full text-xs p-5 outline-none border rounded-xl mb-3 resize-none'
-                            placeholder='5wBP4XzTEVoVxkEm4e5NJ2Dgg45DHkH2kSweGEJaJ91w'
-                            />
+                            <div className="flex border items-center rounded-2xl p-1.5">
+                                <div className='flex items-center'>
+                                    <img src="/images/codeImage.png" className='w-6 h-6' alt="code wallet icon" />
+                                </div>
+                                <input type="text" 
+                                value={depositAddress}
+                                className='w-full h-full text-xs pr-4 pl-2 py-2 outline-none border-none'
+                                placeholder='5wBP4XzTEVoVxkEm4e5NJ2Dgg45DHkH2kSweGEJaJ91w'
+                                onChange={(e) => setDepositAddress(e.target.value)} 
+                                />
+                            </div>
                         </div>
                         <div className="mb-3">
                             <p className="mb-1 text-xs font-semibold">Tip card link</p>
-                            <Input 
-                            defaultValue={tipLink}
-                            onKeyUp={(e) => setTipLink(e.target.value)} 
-                            onPaste={(e) => setTipLink(e.target.value)} 
-                            className='w-full text-xs p-5 outline-none border rounded-xl mb-3 resize-none'
-                            placeholder='https://tipcard.getcode.com/X/x-handle'
-                            />
+
+                            <div className="flex border items-center rounded-2xl p-1.5">
+                                <div className='flex items-center'>
+                                    <img src="/images/codeImage.png" className='w-6 h-6' alt="code wallet icon" />
+                                </div>
+                                <input type="text" 
+                                className='w-full h-full text-xs pr-4 pl-2 py-2 outline-none border-none'
+                                placeholder='https://tipcard.getcode.com/X/x-handle'
+                                value={tipLink}
+                                onChange={(e) => setTipLink(e.target.value)} 
+                                />
+                            </div>
                         </div>
 
                         
