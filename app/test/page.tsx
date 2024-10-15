@@ -39,7 +39,7 @@ const TestPage = () => {
                 button.on('invoke', async () => {
     
                     // Get a payment intent clientSecret value from server.js
-                    const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/users/create-intent`);
+                    const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/create-intent`);
                     console.log(res);
                     
                     const clientSecret = res?.data?.clientSecret;
@@ -54,7 +54,7 @@ const TestPage = () => {
     }, [login]);
 
     const fetchData = async () => {
-        let response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/users/get-verifier`);
+        let response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/get-verifier`);
         console.log(response);
         const loginDomain = process.env.TEST_MODE ? "example-getcode.com" : "perk.exchange";
 

@@ -91,7 +91,7 @@ const LoginSuccessPage = ({params: {id}}: Props) => {
             >
                 {
                     authenticated &&
-                    <div className='w-[80%] md:w-[40%] lg:w-[40%] border p-5 rounded-2xl shadow-xl'>                    
+                    <div className='w-[80%] md:w-[40%] lg:w-[30%] border p-5 rounded-2xl shadow-xl'>                    
                         <Lottie options={defaultOptions}
                             isStopped={false}
                             isPaused={false}
@@ -103,7 +103,7 @@ const LoginSuccessPage = ({params: {id}}: Props) => {
                                 <Button size="sm" className='text-xs w-full'>Go dashboard</Button>
                             </Link>
                             <Link href="/">
-                                <Button size="sm" className='text-xs w-full' variant="outline">Discover</Button>
+                                <Button size="sm" className='text-xs w-full' variant="outline">Explore</Button>
                             </Link>
                         </div>
                     </div>

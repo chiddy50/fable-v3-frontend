@@ -53,14 +53,16 @@ axiosInterceptorInstance.interceptors.response.use(
         'jwt expired', 'jwt malformed', 'invalid signature', 'No token found'
       ]
       if (errorMessages.includes(message)) {
-        console.log(message);
+        console.log(`Logout now: ${message}`);
         sessionStorage.removeItem("token") 
         sessionStorage.removeItem("user") 
         
         // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHRnZGFhenAwMDAwNWV6eXg5ZDU2d24xIiwibmFtZSI6ImhlbnJ1IiwiaWF0IjoxNzEwMjg0MjM1LCJleHAiOjE3MTAyODc4MzV9.iXn4sTg-PX0bP8htey9W6K4UVf-
         // window.location.reload();
-
-        // window.location.href = '/';
+        console.log({pathname: window.location.pathname});
+        if (window.location.pathname !== "/") {          
+          // window.location.href = '/';
+        }
       }
 
       return Promise.reject(error);

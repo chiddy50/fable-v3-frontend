@@ -84,35 +84,30 @@ const ReadStoryPage = ({id}: {id:string}) => {
   const [accessRecord, setAccessRecord] = useState(null);
   const [depositAddress, seDepositAddress] = useState(null);
   const [mounted, setMounted] = useState<boolean>(false);
+  const [token, setToken] = useState<string | null>(null);
 
-  const { 
-    web3auth, 
-    
-} = useContext(AppContext);
+  useEffect(() => {
+    // Access sessionStorage only on the client side
+    setToken(sessionStorage.getItem('token'));
+  }, []);
+  const storyId = id;
 
-  // const storyId = useSearchParams().get('story-id');
-  const storyId = id
-  // const dynamicJwtToken = getAuthToken();
-  // const { user, setShowAuthFlow } = useDynamicContext();
   const { push } = useRouter();
 
   const { data: storyData, isFetching, isError, refetch } = useQuery({
     queryKey: ['storyFromScratchFormData', storyId],
     queryFn: async () => {
-        let url = `${process.env.NEXT_PUBLIC_BASE_URL}/story-access/read/${storyId}`;
+      let url = `${process.env.NEXT_PUBLIC_BASE_URL}/story-access/read/${storyId}`;
 
-        // const payload = await getUserAuthParams(web3auth);
-        // console.log(payload);
-        
-        const response = await axiosInterceptorInstance.get(url);
-        if (response?.data?.story) {
-          setStory(response?.data?.story);
-          setAccessRecord(response?.data?.accessRecord)
-          seDepositAddress(response?.data?.depositAddress)
-        }
-        return response?.data?.story;
+      const response = await axiosInterceptorInstance.get(url);
+      if (response?.data?.story) {
+        setStory(response?.data?.story);
+        setAccessRecord(response?.data?.accessRecord)
+        seDepositAddress(response?.data?.depositAddress)
+      }
+      return response?.data?.story;
     },
-    enabled: !!storyId && !story,
+    enabled: !!token && !!storyId && !story,
   });
 
   const moveToNextChapter = async (currentChapter: string) => {
@@ -149,38 +144,35 @@ const ReadStoryPage = ({id}: {id:string}) => {
     const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${blink}`)}`;
     window.open(twitterUrl, '_blank');
   }
+
+  if (!token) {
+    return (
+      <div className='pb-10'>
+        <div className="top-[100px] relative xs:mx-7 sm:mx-7 md:mx-20 lg:mx-40 mb-20 flex justify-center"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "60vh",
+        }}
+        >
+
+          
+          <Button size="lg" >Login/Register</Button>
+        </div>
+      </div>
+    )
+  }
   
   return (
     <div className='pb-10'>
-      {/* <div  style={{
-        zIndex: "100",
-      }} className="flex justify-between items-center p-5 h-[80px] bg-white overflow-hidden fixed top-0 w-full ">
-        <Image src="/fable_logo.svg" alt="Fable logo" onClick={() => push("/")} className="cursor-pointer" width={100} height={100} />
-
-        <div className="flex items-center gap-7">
-          <div className="flex items-center bg-white py-2 px-3 border gap-2 rounded-3xl">
-            <div className="border cursor-pointer flex items-center rounded-full hover:bg-gray-700 hover:text-white hover:border-white pr-2">                        
-                <div className="h-6 w-6 rounded-full flex items-center justify-center ">
-                    <i className='bx bx-copy text-xs'></i>
-                </div>
-                <p className="text-[9px]" id="primary-wallet-address">
-                    zkdmdv...vdsmds
-                </p>
-            </div>
-            <div className="border cursor-pointer h-6 w-6 rounded-full flex items-center justify-center hover:bg-gray-700 hover:text-white hover:border-white">
-                <i className="bx bx-user text-xs"></i>
-            </div>
-          </div>
-          <Menu />
-        </div>
-      </div>   */}
 
       {
         isFetching && !story &&
-        <div className="top-[80px] relative xs:mx-7 sm:mx-7 md:mx-20 lg:mx-40 mb-20 flex justify-center">
-          <Skeleton className="w-full h-[200px] rounded-xl mb-3" />
-          <Skeleton className="w-full h-[200px] rounded-xl mb-3" />
-          <Skeleton className="w-full h-[200px] rounded-xl " />
+        <div className="flex flex-col gap-5 justify-center top-[100px] relative xs:mx-7 sm:mx-7 md:mx-20 lg:mx-40 mb-20">
+          <Skeleton className="w-full h-[100px] rounded-xl mb-3" />
+          <Skeleton className="w-full h-[100px] rounded-xl mb-3" />
+          <Skeleton className="w-full h-[100px] rounded-xl " />
         </div>
       }
 
@@ -193,7 +185,7 @@ const ReadStoryPage = ({id}: {id:string}) => {
 
       {
         !story && !isFetching &&
-        <div className="top-[80px] relative xs:mx-7 sm:mx-7 md:mx-20 lg:mx-40 flex justify-center">
+        <div className="top-[100px] relative xs:mx-7 sm:mx-7 md:mx-20 lg:mx-40 flex justify-center">
           <Button size="lg" onClick={() => refetch()}>Reload</Button>
         </div>
       }
@@ -205,11 +197,11 @@ const ReadStoryPage = ({id}: {id:string}) => {
           <Breadcrumb className='mt-5 mb-5 bg-gray-100 rounded-2xl p-5'>
             <BreadcrumbList>
               <BreadcrumbItem>
-                  <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                <BreadcrumbLink href="/">Home</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                  <BreadcrumbPage>Story</BreadcrumbPage>
+                <BreadcrumbPage>Story</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>

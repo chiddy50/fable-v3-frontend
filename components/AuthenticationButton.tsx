@@ -63,6 +63,10 @@ const AuthenticationButton = () => {
 
     useEffect(() => {
         setIsMounted(true)
+
+        const token = sessionStorage.getItem("token");
+        setIsLoggedIn(token ? true : false);
+
         if (isMounted === true) {
             
             const init = async () => {
@@ -306,13 +310,13 @@ const AuthenticationButton = () => {
 
     const unloggedInView = (
         <>
-        <Button
+        {/* <Button
         // onClick={login} 
         variant="outline" 
         className='flex items-center gap-1 border-green-400 text-green-500 hover:text-green-400'>
             <span>Login</span>
             <LogIn className='w-4 h-4'></LogIn>
-        </Button>
+        </Button> */}
         
         </>
         
