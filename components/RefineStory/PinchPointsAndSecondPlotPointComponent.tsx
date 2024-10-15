@@ -4,7 +4,7 @@ import { StoryInterface } from '@/interfaces/StoryInterface';
 import React, { useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button';
 import { ArrowLeft, ArrowRight, Cog, Lock } from 'lucide-react';
-import { extractTemplatePrompts, queryLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
+import { extractTemplatePrompts, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
 import { toast } from 'sonner';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
 import {
@@ -21,6 +21,7 @@ import { settingDetails, storyTones } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { Dosis,Inter } from 'next/font/google';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
+import { JsonOutputParser } from "@langchain/core/output_parsers";
 
 interface PinchPointsAndSecondPlotPointComponentProps {
     initialStory: StoryInterface;
@@ -29,8 +30,16 @@ interface PinchPointsAndSecondPlotPointComponentProps {
     projectDescription: string;
 }
 
-const inter = Inter({ subsets: ['latin'] });
+interface ChapterAnalysis {
+    summary: string;
+    newObstacles: string;
+    discoveryChanges: string;
+    howStakesEscalate: string;
+    tone: string[];
+    setting: string[];
+}
 
+const inter = Inter({ subsets: ['latin'] });
 
 const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotPointComponentProps> = ({
     initialStory,
@@ -290,14 +299,16 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<PinchPointsAndSecondPlotP
             // charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the inciting incident),            
 
             showPageLoader();
-            const response = await queryLLM(prompt, {
+            const parser = new JsonOutputParser<ChapterAnalysis>();
+
+            const response = await queryStructuredLLM(prompt, {
                 introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
                 incitingIncident: initialStory?.storyStructure?.incitingIncident,
                 firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,
                 risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,
                 pinchPointsAndSecondPlotPoint: data,
                 storyIdea: projectDescription,
-            });
+            }, parser);
 
             if (!response) {
                 toast.error("Try again please");

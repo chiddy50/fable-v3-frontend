@@ -39,8 +39,6 @@ export default function RootLayout({
         )}>
       <CustomContext>        
 
-        {/* Header */}
-        {/* <Header /> */}
         <div  style={{
           zIndex: "100",
         }} className="flex justify-between p-5 h-[80px] overflow-hidden bg-[#F2F8F2] fixed top-0 w-full ">

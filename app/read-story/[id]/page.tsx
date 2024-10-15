@@ -101,8 +101,8 @@ const ReadStoryPage = ({id}: {id:string}) => {
     queryFn: async () => {
         let url = `${process.env.NEXT_PUBLIC_BASE_URL}/story-access/read/${storyId}`;
 
-        const payload = await getUserAuthParams(web3auth);
-        console.log(payload);
+        // const payload = await getUserAuthParams(web3auth);
+        // console.log(payload);
         
         const response = await axiosInterceptorInstance.get(url);
         if (response?.data?.story) {
@@ -112,21 +112,12 @@ const ReadStoryPage = ({id}: {id:string}) => {
         }
         return response?.data?.story;
     },
-    enabled: !!storyId && !story ,
+    enabled: !!storyId && !story,
   });
 
   const moveToNextChapter = async (currentChapter: string) => {
     try {           
       showPageLoader();
-      // let updated = await makeRequest({
-      //     url: `${process.env.NEXT_PUBLIC_BASE_URL}/story-access/move-story/${storyId}`,
-      //     method: "PUT", 
-      //     body: {
-      //       currentChapter              
-      //     }, 
-      //     token: dynamicJwtToken,
-      // });
-
       const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/story-access/move-story/${storyId}`, 
         {
           currentChapter              

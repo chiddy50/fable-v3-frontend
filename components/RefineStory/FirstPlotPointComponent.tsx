@@ -4,7 +4,7 @@ import { StoryInterface } from '@/interfaces/StoryInterface';
 import React, { useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button';
 import { ArrowLeft, ArrowRight, Cog, Lock } from 'lucide-react';
-import { extractTemplatePrompts, queryLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
+import { extractTemplatePrompts, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
 import { toast } from 'sonner';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
 import {
@@ -22,12 +22,28 @@ import { settingDetails, storyTones } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { Dosis, Inter } from 'next/font/google';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
+import { JsonOutputParser } from "@langchain/core/output_parsers";
 
 interface FirstPlotPointComponentProps {
     initialStory: StoryInterface;
     refetch: () => void;
     moveToNext:(step: number) => void;
     projectDescription: string;
+}
+
+interface ChapterAnalysis {
+    summary: string;
+    charactersInvolved: Array<{
+      name: string;
+      backstory: string;
+      role: string;
+      relationshipToProtagonist: string;
+    }>;
+    protagonistGoal: string;
+    protagonistTriggerToAction: string;
+    obstaclesProtagonistWillFace: string;
+    tone: string[];
+    setting: string[];
 }
 
 const inter = Inter({ subsets: ['latin'] });
@@ -274,12 +290,15 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
             `;
 
             showPageLoader();
-            const response = await queryLLM(prompt, {
+
+            const parser = new JsonOutputParser<ChapterAnalysis>();
+
+            const response = await queryStructuredLLM(prompt, {
                 introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
                 incitingIncident: initialStory?.storyStructure?.incitingIncident,
                 firstPlotPoint: firstPlotPoint,
                 storyIdea: projectDescription,
-            });
+            }, parser);
 
             if (!response) {
                 toast.error("Try again please");

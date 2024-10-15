@@ -19,15 +19,11 @@ const axiosInterceptorInstance = axios.create({
 axiosInterceptorInstance.interceptors.request.use(
   function (config) {
     // Do something before the request is sent
-    // For example, add an authentication token to the headers
-    const idToken = localStorage.getItem('idToken'); // Retrieve auth token from localStorage
-    const publicAddress = localStorage?.getItem("publicAddress");
-    const appPubKey = localStorage?.getItem("appPubKey");
-    if (idToken) {
-      config.headers.Authorization = `Bearer ${idToken}`;
-      config.headers['Public-Address'] = publicAddress;
-      config.headers['Public-Key'] = appPubKey;
-
+    const token = sessionStorage.getItem('token'); 
+    console.log({token});
+    
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -58,9 +54,8 @@ axiosInterceptorInstance.interceptors.response.use(
       ]
       if (errorMessages.includes(message)) {
         console.log(message);
-        deleteCookie('token')
-        localStorage.removeItem("user") 
-        localStorage.removeItem("question")
+        sessionStorage.removeItem("token") 
+        sessionStorage.removeItem("user") 
         
         // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHRnZGFhenAwMDAwNWV6eXg5ZDU2d24xIiwibmFtZSI6ImhlbnJ1IiwiaWF0IjoxNzEwMjg0MjM1LCJleHAiOjE3MTAyODc4MzV9.iXn4sTg-PX0bP8htey9W6K4UVf-
         // window.location.reload();

@@ -176,7 +176,7 @@ const DashboardPage = () => {
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
-                        <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+                        <BreadcrumbLink href="/">Home</BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
@@ -186,7 +186,7 @@ const DashboardPage = () => {
             </Breadcrumb>
 
             <h1 className="text-3xl text-gray-700 font-semibold mt-10 text-center ">
-                <span className='capitalize text-xl'>Welcome, 
+                <span className='capitalize text-xl'>Welcome Back 
                     {/* {user?.username} */}
                     </span>
             </h1>

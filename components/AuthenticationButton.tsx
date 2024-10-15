@@ -23,11 +23,12 @@ import {
 // Adapters
 import { getDefaultExternalAdapters, getInjectedAdapters } from "@web3auth/default-solana-adapter"; // All default Solana Adapters
 import { SolanaPrivateKeyProvider, SolanaWallet } from "@web3auth/solana-provider";
-import SolanaRpc from '@/app/solanaRPC';
+// import SolanaRpc from '@/app/solanaRPC';
 import { getED25519Key } from "@toruslabs/openlogin-ed25519";
 import { AppContext } from '@/context/MainContext';
 import { useRouter } from 'next/navigation';
 import { getUserAuthParams } from '@/services/AuthenticationService';
+import { toast } from 'sonner';
 
 const clientId = "BHrmTySBsuDsBTQEQs4pMNXNI3Vf76pU41iX_eQ4FUPzAe8JguWC4u64-libfTfJPN1YPj8nKuIVz8g6OQ_fPaw"; // get from https://dashboard.web3auth.io
 
@@ -35,10 +36,14 @@ const AuthenticationButton = () => {
     // const { user, setShowAuthFlow, handleLogOut } = useDynamicContext()
     const [isMounted, setIsMounted] = useState(false);
     
+    
     const { 
+        isLoggedIn, setIsLoggedIn,
+
         web3auth, setWeb3auth,
         provider, setProvider,
         loggedIn, setLoggedIn,
+        address, setAddress,
     } = useContext(AppContext)
     const [openLogoutModal, setOpenLogoutModal] = useState<boolean>(false);
 
@@ -105,7 +110,8 @@ const AuthenticationButton = () => {
     
                     if (web3auth.connected) {
                         console.log("CONNECTED");
-                        getUserAuthParams(web3auth);
+                        let payload = await getUserAuthParams(web3auth);
+                        setAddress(payload ? (payload.appPubKey ?? payload.publicAddress) : "" )
 
                         setLoggedIn(true)                
                         // const authenticated = await authenticateUser(web3auth);
@@ -116,7 +122,7 @@ const AuthenticationButton = () => {
                     console.error(error);
                 }
             };
-            init();
+            // init();
         }
 
     }, [isMounted]);
@@ -142,29 +148,7 @@ const AuthenticationButton = () => {
 
     const login = async () => {
         try {
-            console.log(web3auth);
             
-            if (!web3auth) {
-                uiConsole("web3auth not initialized yet");
-                return;
-            } 
-    
-            const web3authProvider = await web3auth.connect();
-            console.log({connected: web3auth.connected});
-            
-            setProvider(web3authProvider);
-            
-            if (web3auth.connected) {  
-                console.log("CONNECTED AFTER LOGIN");
-                setLoggedIn(true);
-                const authenticated = await authenticateUser(web3auth)
-                // window.location.reload();
-                // refresh()
-                window.location.href = "/dashboard/stories";
-            }else{
-                console.log("NOT CONNECTED AFTER LOGIN");
-                
-            }
             
         } catch (error) {
             console.error(error);            
@@ -250,54 +234,60 @@ const AuthenticationButton = () => {
     }
 
     const logout = async () => {
-        console.log(web3auth);
+        // console.log(web3auth);
         
-        if (!web3auth) {
-          uiConsole("web3auth not initialized yet");
-          return;
-        }
+        // if (!web3auth) {
+        //   uiConsole("web3auth not initialized yet");
+        //   return;
+        // }
 
-        // setOpenLogoutModal(true);    
-        await web3auth.logout();
-
-        localStorage.removeItem("idToken");
-        localStorage.removeItem("publicAddress");
-        localStorage.removeItem("appPubKey")
-        localStorage.removeItem('redirectRoute');
-        
-        setProvider(null);
-        setLoggedIn(false);
-        setOpenLogoutModal(false);
-        push(`/`)    
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("user");
+        setIsLoggedIn(false);
+        window.location.href = "/"
     };
 
     const confirmLogout = async () => {
-        await web3auth.logout();
 
-        localStorage.removeItem("idToken");
-        localStorage.removeItem("publicAddress");
-        localStorage.removeItem("appPubKey")
-        setProvider(null);
-        setLoggedIn(false);
-        setOpenLogoutModal(false);
-        push(`/`)
+        sessionStorage.removeItem("token");
+        setIsLoggedIn(false);
+        window.location.href = "/"
     }
+
+    const truncateString = (inputString: string) => {
+        if (inputString.length <= 8) {
+            return inputString; // If the string is already 8 characters or less, return it unchanged
+        } else {
+            const truncatedString = inputString.slice(0, 4) + '...' + inputString.slice(-4);
+            return truncatedString;
+        }
+    }
+
+    const copyToClipboard = () => {
+        if (address) {            
+            navigator.clipboard.writeText(address);
+            toast.success("Wallet address copied!");
+        }        
+    };
+
 
     const loggedInView = (
         <div className='flex items-center gap-4'>
-            <div className="flex items-center bg-white py-2 px-3 border gap-2 rounded-3xl">
-                <div className="border cursor-pointer flex items-center rounded-full hover:bg-gray-700 hover:text-white hover:border-white pr-2">                        
+            {/* <div className="flex items-center bg-white py-2 px-3 border gap-2 rounded-3xl">
+                <div 
+                onClick={copyToClipboard}
+                className="border cursor-pointer flex items-center rounded-full hover:bg-gray-700 hover:text-white hover:border-white pr-2">                        
                     <div className="h-6 w-6 rounded-full flex items-center justify-center ">
                         <i className='bx bx-copy text-xs'></i>
                     </div>
                     <p className="text-[9px]" id="primary-wallet-address">
-                        zkdmdv...vdsmds
+                        {truncateString(address)}
                     </p>
                 </div>
                 <div className="border cursor-pointer h-6 w-6 rounded-full flex items-center justify-center hover:bg-gray-700 hover:text-white hover:border-white">
                     <i className="bx bx-user text-xs"></i>
                 </div>
-            </div>
+            </div> */}
             <Button
             onClick={logout} 
             variant="outline" 
@@ -317,7 +307,7 @@ const AuthenticationButton = () => {
     const unloggedInView = (
         <>
         <Button
-        onClick={login} 
+        // onClick={login} 
         variant="outline" 
         className='flex items-center gap-1 border-green-400 text-green-500 hover:text-green-400'>
             <span>Login</span>
@@ -331,7 +321,7 @@ const AuthenticationButton = () => {
     return (
         <div className=''>
             {/* <div className='absolute top-5 right-5'> */}
-            <div className="">{loggedIn ? loggedInView : unloggedInView}</div>
+            <div className="">{isLoggedIn ? loggedInView : unloggedInView}</div>
 
             <AlertDialog open={openLogoutModal} onOpenChange={setOpenLogoutModal}>
                 <AlertDialogContent>
