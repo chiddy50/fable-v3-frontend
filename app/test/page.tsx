@@ -10,7 +10,6 @@ const TestPage = () => {
 
     const [login, setLogin] = useState<{ verifier: string, domain: string }|null>(null);
     // GET CODE LOGIN START
-    const [mounted, setMounted] = useState<boolean>(false);
     const el = useRef<HTMLDivElement>(null);
 
     useEffect(() => {

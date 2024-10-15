@@ -13,7 +13,6 @@ import {
 import { MessageSquare, Plus, PowerOff, ThumbsUp } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
-import { makeRequest } from '@/services/request';
 // import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
@@ -44,6 +43,7 @@ const DashboardStoriesComponent = () => {
     const [projectTitle, setProjectTitle]= useState<string>('');    
     const [depositAddress, setDepositAddress]= useState<string>('');    
     const [tipLink, setTipLink]= useState<string>('');    
+    const [creatorName, setCreatorName]= useState<string>('');    
     
     const [storyData, setStoryData]= useState([]);   
     const [isFetching, setIsFetching] = useState<boolean>(false);
@@ -54,41 +54,14 @@ const DashboardStoriesComponent = () => {
     const [authUser, setAuthUser]= useState(null);   
     const { web3auth, loggedIn, login } = useContext(AppContext)
     
-    // const { user, setShowAuthFlow, handleLogOut } = useDynamicContext()
-    
-    // const idToken = localStorage?.getItem("idToken");
-    // const publicAddress = localStorage?.getItem("publicAddress");
-    // const appPubKey = localStorage?.getItem("appPubKey");
-
     useEffect(() => {
-        // setIsMounted(true)
-        // if (isMounted && localStorage) {            
-        // }
         getData()
     }, []);
 
     const getData = async () => {
         try {
             setIsFetching(true);
-            let idToken = localStorage?.getItem("idToken");
-            let publicAddress = localStorage?.getItem("publicAddress");
-            let appPubKey = localStorage?.getItem("appPubKey");
-            if (!idToken) {
-                window.location.reload()
-                return;
-            }
-
-            let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/from-scratch`;
-
-            const response = await axiosInterceptorInstance.get(url,
-                {
-                    headers: {
-                        Authorization: `Bearer ${idToken}`,
-                        "Public-Address": publicAddress,
-                        "Public-Key": appPubKey
-                    }
-                }
-            )
+            const response = await axiosInterceptorInstance.get(`${process.env.NEXT_PUBLIC_BASE_URL}/stories/from-scratch`)
             setStoryData(response?.data?.stories)
         } catch (error) {
             console.error(error);            
@@ -130,15 +103,15 @@ const DashboardStoriesComponent = () => {
             return false;
         }
 
-        if (!depositAddress) {
-            toast.error("Kindly provide a Kin Deposit Address");
+        if (!creatorName) {
+            toast.error("Kindly provide a Username or Alias");
             return false;
         }
 
-        if (!isValidSolanaAddress(depositAddress)) {
-            toast.error("Invalid KIN deposit address");
-            return;
-        }
+        // if (!isValidSolanaAddress(depositAddress)) {
+        //     toast.error("Invalid KIN deposit address");
+        //     return;
+        // }
 
         return true;
     }
@@ -148,24 +121,13 @@ const DashboardStoriesComponent = () => {
 
         try {
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch`;
-
-            showPageLoader();
-            // let response = await makeRequest({
-            //     url,
-            //     method: "POST", 
-            //     body: {
-            //         projectTitle,
-            //         projectDescription,
-            //         depositAddress: "5wBP4XzTEVoVxkEm4e5NJ2Dgg45DHkH2kSweGEJaJ91w"
-            //     }, 
-            //     token: dynamicJwtToken,
-            // });
-
+            showPageLoader()
             const response = await axiosInterceptorInstance.post(url, 
                 {
                     projectTitle,
                     projectDescription,
-                    depositAddress: "5wBP4XzTEVoVxkEm4e5NJ2Dgg45DHkH2kSweGEJaJ91w"     
+                    creatorName
+                    // depositAddress: "5wBP4XzTEVoVxkEm4e5NJ2Dgg45DHkH2kSweGEJaJ91w"     
                 }
             );
 
@@ -192,48 +154,17 @@ const DashboardStoriesComponent = () => {
     }
 
 
-    /**
-     * Validates if a given string is a valid Solana public address.
-     * @param address - The Solana public address to validate.
-     * @returns boolean - True if the address is valid, otherwise false.
-     */
-    const isValidSolanaAddress = (address: string): boolean => {
-        try {
-            new PublicKey(address);
-            return true;  // If no error is thrown, the address is valid
-        } catch (error) {
-            return false;
-        }
-    };
+    
 
     
     const triggerOpenNewProjectModal = async () => {
         try {
-            if (!loggedIn) {
-                login()
-                return;                
-            }
-
             showPageLoader()
-            // const idToken = localStorage.getItem("idToken");
-            // const publicAddress = localStorage.getItem("publicAddress");
-            // const appPubKey = localStorage.getItem("appPubKey");
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/users/auth`;
 
             const response = await axiosInterceptorInstance.get(url, {
                 params: null,
-                // headers: {
-                //     Authorization: `Bearer ${idToken}`,
-                //     "Public-Address": publicAddress,
-                //     "Public-Key": appPubKey
-                // },
             });
-            // let response = await makeRequest({
-            //     url,
-            //     method: "GET", 
-            //     body: null,
-            //     token: dynamicJwtToken,
-            // });
             console.log(response);
             
             const authUser = response?.data?.user;
@@ -364,7 +295,7 @@ const DashboardStoriesComponent = () => {
                         </div>
                         <div className="mb-3">
                             <p className="mb-1 text-xs font-semibold">Story Idea <span className='text-red-500 text-md font-bold'>*</span></p>
-                            <textarea rows={3} 
+                            <textarea rows={5} 
                             onChange={(e) => setProjectDescription(e.target.value) } 
                             value={projectDescription} 
                             placeholder='Kindly share your story idea or any keywords'
@@ -372,14 +303,27 @@ const DashboardStoriesComponent = () => {
                             />
                         </div>
 
-                        <div className="mb-4">
+                        {authUser && !authUser?.name &&                        
+                            <div className="mb-4">
+                                <p className="mb-1 text-xs font-semibold">Username or Alias<span className='text-red-500 text-md font-bold'>*</span></p>
+                                <Input 
+                                defaultValue={authUser?.name}
+                                onKeyUp={(e) => setCreatorName(e.target.value)} 
+                                onPaste={(e) => setCreatorName(e.target.value)} 
+                                className='w-full text-xs p-5 outline-none border rounded-xl mb-3 resize-none'
+                                placeholder='Username or Alias'
+                                />
+                            </div>
+                        }
+
+                        {/* <div className="mb-4">
                             <p className="mb-1 text-xs font-semibold">Tip card link</p>
                             <Input 
                             defaultValue={tipLink}
                             onKeyUp={(e) => setTipLink(e.target.value)} 
                             onPaste={(e) => setTipLink(e.target.value)} 
                             className='w-full text-xs p-5 outline-none border rounded-xl mb-3 resize-none'
-                            placeholder='Tip Card Link'
+                            placeholder='https://tipcard.getcode.com/X/x-handle'
                             />
                         </div>
 
@@ -392,14 +336,14 @@ const DashboardStoriesComponent = () => {
                             className='w-full text-xs p-5 outline-none border rounded-xl mb-3 resize-none'
                             placeholder='Kin Wallet Address'
                             />
-                        </div>
+                        </div> */}
 
-                        <div className="mb-3 bg-red-100 border border-red-300 p-3 rounded-2xl">
+                        {/* <div className="mb-3 bg-red-100 border border-red-300 p-3 rounded-2xl">
                             <p className='text-[10px] text-red-500'>
                             Caution: Please ensure you provide a valid KIN deposit address. Not all Solana addresses are compatible with KIN transactions. If the address is incorrect, you may not receive tips or payments for your content. Double-check your KIN wallet address to avoid missing out on rewards.
                             </p>
-                        </div>
-                        <Button onClick={() => createNewProject("refine-story")} className='text-gray-50 mr-5 bg-[#46aa41]'>Proceed</Button>
+                        </div> */}
+                        <Button onClick={() => createNewProject("refine-story")} className='text-gray-50 mr-5 w-full bg-[#46aa41]'>Proceed</Button>
                         {/* <Button onClick={() => createNewProject("refine-story")} variant="outline" className=''>Refine & Publish</Button> */}
 
                     </div>

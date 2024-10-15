@@ -8,6 +8,8 @@ export const AppContext = createContext();
 
 export function MainContext({ children }) {
 
+    const [isLoggedIn, setIsLoggedIn] = useState(true);
+
     const [web3auth, setWeb3auth] = useState(null);
     const [provider, setProvider] = useState(null);
     const [loggedIn, setLoggedIn] = useState(false);
@@ -44,7 +46,7 @@ export function MainContext({ children }) {
 
     return (
         <AppContext.Provider value={{ 
-
+            isLoggedIn, setIsLoggedIn,
             web3auth, setWeb3auth,
             provider, setProvider,
             loggedIn, setLoggedIn,

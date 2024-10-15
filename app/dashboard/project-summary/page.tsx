@@ -34,9 +34,18 @@ import { PromptTemplate, ChatPromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { toast } from 'sonner';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { makeRequest } from '@/services/request';
 import Image from 'next/image';
 import code from '@code-wallet/elements';
+import { Input } from '@/components/ui/input';
+import { PublicKey } from '@solana/web3.js';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -65,8 +74,11 @@ const ProjectSummaryPage = () => {
     const [modifyModalOpen, setModifyModalOpen] = useState<boolean>(false);
     const [generating, setGenerating] = useState<boolean>(false);
     const [storyOverview, setStoryOverview] = useState<string>(story?.overview ?? "");
+    const [depositAddress, setDepositAddress]= useState<string>('');    
+    const [tipLink, setTipLink]= useState<string>('');    
 
     const [mounted, setMounted] = useState<boolean>(false);
+    const [openAddAddressModal, setOpenAddAddressModal] = useState<boolean>(false);
 
     const el = useRef<HTMLDivElement>(null);
 
@@ -183,6 +195,8 @@ const ProjectSummaryPage = () => {
             const response = await axiosInterceptorInstance.get(url);
             if (response?.data?.story) {
                 setStory(response?.data?.story);
+                setDepositAddress(response?.data?.story?.user?.depositAddress)
+                setTipLink(response?.data?.story?.user?.tipLink)
             }
             return response?.data?.story;
         },
@@ -261,8 +275,7 @@ const ProjectSummaryPage = () => {
             Return a simple description that includes dynamic elements and character activity, avoiding titles, subtitles, or any unwanted symbols—just a detailed image description.
 
             **INPUT**
-            story idea: {storyIdea}`
-            ;
+            story idea: {storyIdea}`;
     
             const llm = new ChatGroq({
                 apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
@@ -297,24 +310,45 @@ const ProjectSummaryPage = () => {
         }
     }
 
-    const publishStory = async () => {
-        if (!storyData?.introductionImage) {
-            toast.error("Kindly add a story banner image") 
-            return
-        }
-        if (!storyOverview) {
-            toast.error("Kindly provide the story overview") 
-            return
-        }
+    const unpublishStory = async () => {
+        await proceedRequest();        
+    }
 
+    const publishStory = async () => {
+        if (!isValidSolanaAddress(depositAddress)) {
+            toast.error("Invalid KIN deposit address");
+            return;
+        }
+        await proceedRequest();
+    }
+
+    /**
+     * Validates if a given string is a valid Solana public address.
+     * @param address - The Solana public address to validate.
+     * @returns boolean - True if the address is valid, otherwise false.
+     */
+    const isValidSolanaAddress = (address: string): boolean => {
+        try {
+            new PublicKey(address);
+            return true;  // If no error is thrown, the address is valid
+        } catch (error) {
+            return false;
+        }
+    };
+
+    const proceedRequest = async () => {
         let published = storyData?.status === "draft" ? false : true;
 
         try {
             showPageLoader()
-            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${storyId}`, 
+            setOpenAddAddressModal(false);
+
+            const updated = await axiosInterceptorInstance.put(`/stories/publish/${storyId}`, 
                 {
                     status: published === true ? "draft" : "published",
-                    publishedAt: published === true ? null : new Date
+                    publishedAt: published === true ? null : new Date,
+                    depositAddress,
+                    tipLink
                 }
             );
 
@@ -329,6 +363,25 @@ const ProjectSummaryPage = () => {
         }finally{
             hidePageLoader()
         }
+    }
+
+    const validateData = async () => {
+        if (!storyData?.introductionImage) {
+            toast.error("Kindly add a story banner image") 
+            return
+        }
+        if (!storyOverview) {
+            toast.error("Kindly provide the story overview") 
+            return
+        }
+
+        setOpenAddAddressModal(true);
+
+        // if (!storyData?.user?.publicKey) {
+        //     setOpenAddAddressModal(true);
+        //     return;
+        // }
+        // await proceedRequest()
     }
 
     const saveChapterBanner = async (imgUrl: string) => {
@@ -538,255 +591,31 @@ const ProjectSummaryPage = () => {
                     <Button onClick={saveStoryOverview} disabled={!storyOverview || generating}>Save</Button>
                     </div>
                 </div>
-                {/* <div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
-                    <span className="text-xs text-red-600">
-                        Note: You have just one free image generation. Any further generation will occur an extra of $0.05. 
-                    </span>
-                </div>
+             
+
                 {
-                    storyData?.introductionImage &&
-                    <Button size="sm">Pay with code</Button>
-                } */}
-            
-
-                {/* <Accordion type="single" className='' collapsible>
-                    <AccordionItem value="item-1 " className='mb-3 border-none'>
-                        <AccordionTrigger className='text-xs bg-custom_green px-4 rounded-2xl text-gray-100 mb-3'>Chapter 1</AccordionTrigger>
+                    storyData?.status === "draft" &&
+                    <Button disabled={generating} onClick={validateData} className='w-full mt-5 flex items-center gap-2 bg-custom_green'>
+                        Publish
                         
-                        <AccordionContent>
-                            {
-                                !story?.introductionImage &&
-                                <div className='p-5 border flex items-center justify-center h-40 rounded-2xl mb-3 bg-gray-100'>
-                                    <ImageIcon />
-                                </div>            
-                            }
-                            {
-                                story?.introductionImage &&
-                                <img src={story?.introductionImage} alt="" className='w-full object-cover h-[250px] mb-3 rounded-2xl' />          
-                            }
+                        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96" preserveAspectRatio="xMidYMid meet">
+                            <g transform="translate(0,96) scale(0.1,-0.1)" fill="#FFFFFF" stroke="none">
+                                <path d="M431 859 c-81 -16 -170 -97 -186 -169 -5 -22 -15 -32 -42 -41 -46 -15 -99 -63 -125 -112 -27 -54 -27 -140 1 -194 40 -78 157 -151 181 -112 12 18 4 27 -38 45 -76 31 -112 85 -112 167 0 62 25 108 79 144 44 29 132 32 176 5 35 -22 55 -18 55 9 0 22 -66 59 -105 59 -23 0 -25 3 -20 23 11 35 57 88 95 108 46 25 134 25 180 0 19 -10 48 -35 64 -55 41 -50 49 -145 17 -206 -24 -46 -26 -66 -9 -76 14 -9 54 39 69 84 10 30 14 33 38 27 14 -3 41 -21 60 -40 27 -27 35 -43 39 -84 2 -27 2 -61 -2 -75 -9 -36 -62 -84 -107 -96 -28 -8 -39 -16 -39 -30 0 -30 56 -26 106 6 112 73 131 213 42 310 -23 25 -57 49 -81 57 -38 12 -42 17 -49 57 -22 127 -155 215 -287 189z"/>
+                                <path d="M464 460 c-29 -11 -104 -99 -104 -121 0 -30 32 -23 62 13 l27 33 1 -127 c0 -139 4 -158 30 -158 26 0 30 19 30 158 l1 127 27 -33 c29 -35 62 -43 62 -14 0 19 -72 107 -98 121 -10 5 -26 5 -38 1z"/>
+                            </g>
+                        </svg>
+                    </Button>
+                }
 
-<div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
-                                <span className="text-xs text-red-600">
-                                    Note: One generation per chapter. Any further generation will occur an extra of $0.05. 
-                                </span>
-                            </div>
-                            {
-                                !story?.introductionImage &&
-                                <Button onClick={() => generateBanner(story?.storyStructure.introduceProtagonistAndOrdinaryWorld, "introduction")} size="sm">Generate Banner</Button>
-                            }
-                            {
-                                story?.introductionImage &&
-                                <Button size="sm">Pay with code</Button>
-                            }
-                            
-                        </AccordionContent>                        
-                    </AccordionItem>
+                {
+                    storyData?.status !== "draft" &&
+                    <Button disabled={generating} onClick={unpublishStory} className='w-full mt-5 flex items-center gap-2 bg-custom_green'>
+                        Unpublish                        
+                        <Download className='w-4 h-4'/> 
+                    </Button>
+                }
 
-                    <AccordionItem value="item-2" className='mb-3 border-none'>
-                        <AccordionTrigger className='text-xs bg-custom_green px-4 rounded-2xl text-gray-100 mb-3'>Chapter 2</AccordionTrigger>
-                        
-                        <AccordionContent>
-                            {
-                                !story?.incitingIncidentImage &&
-                                <div className='p-5 border flex items-center justify-center h-40 rounded-2xl mb-3 bg-gray-100'>
-                                    <ImageIcon />
-                                </div>            
-                            }
-                            {
-                                story?.incitingIncidentImage &&
-                                <img src={story?.incitingIncidentImage} alt="" className='w-full object-cover h-[250px] mb-3 rounded-2xl' />          
-                            }   
-
-<div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
-                                <span className="text-xs text-red-600">
-                                    Note: One generation per chapter. Any further generation will occur an extra of $0.05. 
-                                </span>
-                            </div>
-                            {
-                                !story?.incitingIncidentImage &&
-                                <Button onClick={() => generateBanner(story?.storyStructure?.incitingIncident, "incitingIncident")} size="sm">Generate Banner</Button>
-                            }
-                            {
-                                story?.incitingIncidentImage &&
-                                <Button size="sm">Pay with code</Button>
-                            }
-                        </AccordionContent>                        
-                    </AccordionItem>
-
-                    <AccordionItem value="item-3" className='mb-3 border-none'>
-                        <AccordionTrigger className='text-xs bg-custom_green px-4 rounded-2xl text-gray-100 mb-3'>Chapter 3</AccordionTrigger>
-                        
-                        <AccordionContent>
-                            {
-                                !story?.firstPlotPointImage &&
-                                <div className='p-5 border flex items-center justify-center h-40 rounded-2xl mb-3 bg-gray-100'>
-                                    <ImageIcon />
-                                </div>            
-                            }
-                            {
-                                story?.firstPlotPointImage &&
-                                <img src={story?.firstPlotPointImage} alt="" className='w-full object-cover h-[250px] mb-3 rounded-2xl' />          
-                            }   
-
-<div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
-                                <span className="text-xs text-red-600">
-                                    Note: One generation per chapter. Any further generation will occur an extra of $0.05. 
-                                </span>
-                            </div>
-
-                            {
-                                !story?.firstPlotPointImage &&
-                                <Button onClick={() => generateBanner(story?.storyStructure?.firstPlotPoint, "firstPlotPoint")} size="sm">Generate Banner</Button>
-                            }
-                            {
-                                story?.firstPlotPointImage &&
-                                <Button size="sm">Pay with code</Button>
-                            }
-                        </AccordionContent>                        
-                    </AccordionItem>
-
-                    <AccordionItem value="item-4" className='mb-3 border-none'>
-                        <AccordionTrigger className='text-xs bg-custom_green px-4 rounded-2xl text-gray-100 mb-3'>Chapter 4</AccordionTrigger>
-                        
-                        <AccordionContent>
-                            {
-                                !story?.risingActionAndMidpointImage &&
-                                <div className='p-5 border flex items-center justify-center h-40 rounded-2xl mb-3 bg-gray-100'>
-                                    <ImageIcon />
-                                </div>            
-                            }
-                            {
-                                story?.risingActionAndMidpointImage &&
-                                <img src={story?.risingActionAndMidpointImage} alt="" className='w-full object-cover h-[250px] mb-3 rounded-2xl' />          
-                            }   
-
-                            <div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
-                                <span className="text-xs text-red-600">
-                                    Note: One generation per chapter. Any further generation will occur an extra of $0.05. 
-                                </span>
-                            </div> 
-
-                            {
-                                !story?.risingActionAndMidpointImage &&
-                                <Button onClick={() => generateBanner(story?.storyStructure?.risingActionAndMidpoint, "risingActionAndMidpoint")} size="sm">Generate Banner</Button>
-                            }
-                            {
-                                story?.risingActionAndMidpointImage &&
-                                <Button size="sm">Pay with code</Button>
-                            }
-                            
-                        </AccordionContent>                        
-                    </AccordionItem>
-
-
-                    <AccordionItem value="item-5" className='mb-3 border-none'>
-                        <AccordionTrigger className='text-xs bg-custom_green px-4 rounded-2xl text-gray-100 mb-3'>Chapter 5</AccordionTrigger>
-                        
-                        <AccordionContent>
-                            {
-                                !story?.pinchPointsAndSecondPlotPointImage &&
-                                <div className='p-5 border flex items-center justify-center h-40 rounded-2xl mb-3 bg-gray-100'>
-                                    <ImageIcon />
-                                </div>            
-                            }
-                            {
-                                story?.pinchPointsAndSecondPlotPointImage &&
-                                <img src={story?.pinchPointsAndSecondPlotPointImage} alt="" className='w-full object-cover h-[250px] mb-3 rounded-2xl' />          
-                            }   
-
-                            <div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
-                                <span className="text-xs text-red-600">
-                                    Note: One generation per chapter. Any further generation will occur an extra of $0.05. 
-                                </span>
-                            </div>
-                            {
-                                !story?.pinchPointsAndSecondPlotPointImage &&
-                                <Button onClick={() => generateBanner(story?.storyStructure?.pinchPointsAndSecondPlotPoint, "pinchPointsAndSecondPlotPoint")} size="sm">Generate Banner</Button>
-                            }
-                            {
-                                story?.pinchPointsAndSecondPlotPointImage &&
-                                <Button size="sm">Pay with code</Button>
-                            }
-                        </AccordionContent>                        
-                    </AccordionItem>
-
-                    <AccordionItem value="item-6" className='mb-3 border-none'>
-                        <AccordionTrigger className='text-xs bg-custom_green px-4 rounded-2xl text-gray-100 mb-3'>Chapter 6</AccordionTrigger>
-                        
-                        <AccordionContent>
-                            {
-                                !story?.climaxAndFallingActionImage &&
-                                <div className='p-5 border flex items-center justify-center h-40 rounded-2xl mb-3 bg-gray-100'>
-                                    <ImageIcon />
-                                </div>            
-                            }
-                            {
-                                story?.climaxAndFallingActionImage &&
-                                <img src={story?.climaxAndFallingActionImage} alt="" className='w-full object-cover h-[250px] mb-3 rounded-2xl' />          
-                            }   
-
-                            <div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
-                                <span className="text-xs text-red-600">
-                                    Note: One generation per chapter. Any further generation will occur an extra of $0.05. 
-                                </span>
-                            </div>
-                            {
-                                !story?.climaxAndFallingActionImage &&
-                                <Button onClick={() => generateBanner(story?.storyStructure?.climaxAndFallingAction, "climaxAndFallingAction")} size="sm">Generate Banner</Button>
-                            }
-                            {
-                                story?.climaxAndFallingActionImage &&
-                                <Button size="sm">Pay with code</Button>
-                            }
-                        </AccordionContent>                        
-                    </AccordionItem>
-
-                    <AccordionItem value="item-7" className='mb-3 border-none'>
-                        <AccordionTrigger className='text-xs bg-custom_green px-4 rounded-2xl text-gray-100 mb-3'>Chapter 7</AccordionTrigger>
-                        
-                        <AccordionContent>
-                            {
-                                !story?.resolutionImage &&
-                                <div className='p-5 border flex items-center justify-center h-40 rounded-2xl mb-3 bg-gray-100'>
-                                    <ImageIcon />
-                                </div>            
-                            }
-                            {
-                                story?.resolutionImage &&
-                                <img src={story?.resolutionImage} alt="" className='w-full object-cover h-[250px] mb-3 rounded-2xl' />          
-                            }   
-
-                            <div className="mt-3 p-3 rounded-2xl bg-red-100 border-red-500 border mb-3">
-                                <span className="text-xs text-red-600">
-                                    Note: One generation per chapter. Any further generation will occur an extra of $0.05. 
-                                </span>
-                            </div>
-                            {
-                                !story?.resolutionImage &&
-                                <Button onClick={() => generateBanner(story?.storyStructure?.resolution, "resolution")} size="sm">Generate Banner</Button>
-                            }
-                            {
-                                story?.resolutionImage &&
-                                <Button size="sm">Pay with code</Button>
-                            }
-                        </AccordionContent>                        
-                    </AccordionItem>
-                </Accordion> */}
-
-                 <Button disabled={generating} onClick={publishStory} className='w-full mt-5 flex items-center gap-2 bg-custom_green'>
-                    {storyData?.status === "draft" ? "Publish" : "Unpublish"}
-                    
-                    {storyData?.status === "draft" ? 
-                    <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96" preserveAspectRatio="xMidYMid meet">
-                        <g transform="translate(0,96) scale(0.1,-0.1)" fill="#FFFFFF" stroke="none">
-                            <path d="M431 859 c-81 -16 -170 -97 -186 -169 -5 -22 -15 -32 -42 -41 -46 -15 -99 -63 -125 -112 -27 -54 -27 -140 1 -194 40 -78 157 -151 181 -112 12 18 4 27 -38 45 -76 31 -112 85 -112 167 0 62 25 108 79 144 44 29 132 32 176 5 35 -22 55 -18 55 9 0 22 -66 59 -105 59 -23 0 -25 3 -20 23 11 35 57 88 95 108 46 25 134 25 180 0 19 -10 48 -35 64 -55 41 -50 49 -145 17 -206 -24 -46 -26 -66 -9 -76 14 -9 54 39 69 84 10 30 14 33 38 27 14 -3 41 -21 60 -40 27 -27 35 -43 39 -84 2 -27 2 -61 -2 -75 -9 -36 -62 -84 -107 -96 -28 -8 -39 -16 -39 -30 0 -30 56 -26 106 6 112 73 131 213 42 310 -23 25 -57 49 -81 57 -38 12 -42 17 -49 57 -22 127 -155 215 -287 189z"/>
-                            <path d="M464 460 c-29 -11 -104 -99 -104 -121 0 -30 32 -23 62 13 l27 33 1 -127 c0 -139 4 -158 30 -158 26 0 30 19 30 158 l1 127 27 -33 c29 -35 62 -43 62 -14 0 19 -72 107 -98 121 -10 5 -26 5 -38 1z"/>
-                        </g>
-                    </svg> :   
-                    <Download className='w-4 h-4'/> 
-                    }
-
-                </Button>
+                
             </div>
 
 
@@ -806,6 +635,47 @@ const ProjectSummaryPage = () => {
                     </div>
                 </SheetContent>
             </Sheet>
+
+            <Dialog open={openAddAddressModal} onOpenChange={setOpenAddAddressModal}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className=''>Provide your tip address</DialogTitle>
+                        <DialogDescription></DialogDescription>
+                    </DialogHeader>
+                    <div>
+                        <div className="mb-4">
+                            <p className="mb-1 text-xs font-semibold">Kin Wallet Address <span className='text-red-500 text-md font-bold'>*</span></p>
+                            <Input 
+                            defaultValue={depositAddress}
+                            onKeyUp={(e) => setDepositAddress(e.target.value)} 
+                            onPaste={(e) => setDepositAddress(e.target.value)} 
+                            className='w-full text-xs p-5 outline-none border rounded-xl mb-3 resize-none'
+                            placeholder='5wBP4XzTEVoVxkEm4e5NJ2Dgg45DHkH2kSweGEJaJ91w'
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <p className="mb-1 text-xs font-semibold">Tip card link</p>
+                            <Input 
+                            defaultValue={tipLink}
+                            onKeyUp={(e) => setTipLink(e.target.value)} 
+                            onPaste={(e) => setTipLink(e.target.value)} 
+                            className='w-full text-xs p-5 outline-none border rounded-xl mb-3 resize-none'
+                            placeholder='https://tipcard.getcode.com/X/x-handle'
+                            />
+                        </div>
+
+                        
+
+                        <div className="mb-3 bg-red-100 border border-red-300 p-3 rounded-2xl">
+                            <p className='text-[10px] text-red-500'>
+                            Caution: Please ensure you provide a valid KIN deposit address. Not all Solana addresses are compatible with KIN transactions. If the address is incorrect, you may not receive tips or payments for your content. Double-check your KIN wallet address to avoid missing out on rewards.
+                            </p>
+                        </div>
+                        <Button onClick={publishStory} className='text-gray-50 mr-5 w-full bg-[#46aa41]'>Proceed</Button>
+
+                    </div>
+                </DialogContent>
+            </Dialog>
             
         </div>
     );
