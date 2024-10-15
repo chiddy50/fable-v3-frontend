@@ -506,7 +506,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                     <ArrowLeft />
                 </Button>
            
-                <Button size="icon" disabled={!introduceProtagonistAndOrdinaryWorld || !initialStory?.introductionLocked || generating} onClick={moveToChapter2}>
+                <Button size="icon" disabled={!introduceProtagonistAndOrdinaryWorld || generating} onClick={moveToChapter2}>
                     <ArrowRight />
                 </Button>
             </div>

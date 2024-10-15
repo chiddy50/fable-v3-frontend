@@ -27,83 +27,72 @@ const HomeComponent = () => {
     const [publishedStories, setPublishedStories] = useState<StoryInterface[]>([]);
     const [continueStories, setContinueStories] = useState<[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [isMounted, setIsMounted] = useState<boolean>(false);
     const [initialFetchDone, setInitialFetchDone] = useState(false);
 
     const { 
         web3auth, setWeb3auth,
         provider, setProvider,
         loggedIn, setLoggedIn,
+
+        isLoggedIn, setIsLoggedIn,
         
     } = useContext(AppContext);
 
-    // const { user, primaryWallet, setShowAuthFlow, handleLogOut } = useDynamicContext()
     const { push, refresh } = useRouter();
-    // const dynamicJwtToken = getAuthToken();
   
-    const moveToDashboard = async () => {
-      if (!loggedIn) {
-        window.localStorage.setItem('redirectRoute', "/dashboard/stories");
-        // setShowAuthFlow(true) 
-        const authenticated = await login();
-        // console.log({authenticated});        
-        // if (!authenticated) {            
-        //     return
-        // }
-        // console.log("authenticated");
-        return
-        // push("/dashboard/stories")
-      }
-  
+    const moveToDashboard = () => {  
       push("/dashboard/stories")
     }
 
     // GET CODE LOGIN START
-    const [mounted, setMounted] = useState<boolean>(false);
+    const [loginAuth, setLoginAuth] = useState<{ verifier: string, domain: string }|null>(null);
+
     const el = useRef<HTMLDivElement>(null);
-    // useEffect(() => {
-    //     setMounted(true);
-    //     if(mounted){
-    //         setLogin();        
-    //     }
-    // }, [mounted]);
 
-    const setLogin = async () => {
-        let response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/users/get-verifier`);
-        console.log(response);
+    useEffect(() => {
+        fetchAuthData();        
+    }, []);
+
+    useEffect(() => {
+        setIsMounted(true)
+        if(loginAuth && isMounted ){
+            let token = sessionStorage.getItem("token");   
+
+            setIsLoggedIn(token ? true : false);
+            console.log({isLoggedIn, token});
+
+            if (!token) {                
+                const { button } = code.elements.create('button', {
+                    mode: 'login',
+                    login: {
+                        verifier: loginAuth?.verifier,  
+                        domain: loginAuth?.domain // "usefable.xyz"
+                    },
+                    // appearance: window.localStorage.getItem("joy-mode") == "light" ? "dark" : "light",
+                    confirmParams: {
+                        success: { url: `${process.env.NEXT_PUBLIC_URL}/login-success/{{INTENT_ID}}` }, 
+                        cancel: { url: `${process.env.NEXT_PUBLIC_URL}/`, },
+                    },
+                });
+                
+                if (button && !token) {      
+                    button?.mount(el?.current!);
+    
+                    button.on('invoke', async () => {
+                        // Get a payment intent clientSecret value from server.js
+                        const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/users/create-intent`);
+                        console.log(res);
+                        
+                        const clientSecret = res?.data?.clientSecret;
+                        button.update({ clientSecret });                
+                    });
         
-        const { verifier, domain } = response?.data;
-        console.log(process.env.NEXT_PUBLIC_BASE_URL, verifier, domain);
-        
-        const { button } = code.elements.create('button', {
-            mode: 'login',
-            login: {
-                verifier: verifier, 
-                domain: "usefable.xyz"
-            },
-
-            confirmParams: {
-                success: { url: `${process.env.NEXT_PUBLIC_URL}/success/{{INTENT_ID}}` }, 
-                cancel: { url: `${process.env.NEXT_PUBLIC_URL}/`, },
-            },
-        });
-
-        if (button) {      
-            button?.mount(el?.current!);
-            // Wait for the button to be clicked
-            button.on('invoke', async () => {
-
-                // Get a payment intent clientSecret value from server.js
-                const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/users/create-intent`);
-                const clientSecret = response?.data?.clientSecret;
-        
-                // Update the button with the new client secret so that our server
-                // can be notified once the payment is complete.
-                button.update({ clientSecret });
+                }
+            }
             
-            });
-
         }
-    }
+    }, [loginAuth, isMounted]);
     // GET CODE LOGIN END
 
 
@@ -132,9 +121,9 @@ const HomeComponent = () => {
                 setPublishedStories(data);
             }
 
-            // if (loggedIn) {            
+            if (isLoggedIn) {            
                 const allContinueStories = await getStartedStories();
-            // }
+            }
 
         } catch (error) {
           console.error(error);      
@@ -144,41 +133,40 @@ const HomeComponent = () => {
     }
 
     const getStartedStories = async () => {
-        const response = await axiosInterceptorInstance.get(`${process.env.NEXT_PUBLIC_BASE_URL}/story-access/continue`)
+        const token = sessionStorage.getItem('token'); 
+        if (!token) {
+           return; 
+        }
+        const response = await axiosInterceptorInstance.get(`${process.env.NEXT_PUBLIC_BASE_URL}/story-access/continue`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
         console.log(response);
         const stories = response?.data?.stories ?? [];
         
         setContinueStories(stories);
     }
 
-    const login = async () => {
-        try {        
-            const web3authProvider = await web3auth.connect();            
-            setProvider(web3authProvider);            
-            if (web3auth.connected) {  
-                let payload = await getUserAuthParams(web3auth);
-                // {publicAddress?: string, appPubKey?: string, idToken: string}
-                setLoggedIn(true);
-                // refresh();            
-                
-                let redirectRoute = window.localStorage.getItem('redirectRoute') ?? "/";
-                
-                window.location.href = redirectRoute;
+    const fetchAuthData = async () => {
+        let response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/users/get-verifier`);
+        console.log(response);
 
-            }            
-        } catch (error) {
-            console.error(error);            
-        }        
-    };
+        if (!response) {
+            throw new Error("Network response was not ok");
+        }
+        const data: { verifier: string, domain: string } = response?.data;
+        setLoginAuth(data);        
+    }
 
     const moveToReadStory = async (storyId: string) => {
-        let redirectRoute = `/read-story/${storyId}`;
-        if (!loggedIn) {
-          window.localStorage.setItem('redirectRoute', redirectRoute);
-          await login()          
-          return;
-        }
+        // let redirectRoute = `/read-story/${storyId}`;
+        // if (!loggedIn) {
+        //   window.localStorage.setItem('redirectRoute', redirectRoute)
+        //   return;
+        // }
         push(`/read-story/${storyId}`);
+        // window.location.href = `/read-story/${storyId}`
     }
 
     const generateShareLink = (hashtags, via, solanaBlink, solanaAction) => {
@@ -207,7 +195,7 @@ const HomeComponent = () => {
       
       return shareUrl;
     };
-  
+    
     const shareStory = async (story: StoryInterface) => {
       const url = `${process.env.NEXT_PUBLIC_URL}/read-story/${story?.id}`;
       
@@ -248,12 +236,12 @@ const HomeComponent = () => {
             </p>
             <div className="flex mt-10 justify-center">
                 
-              {loggedIn && <Button
+              {isLoggedIn && <Button
               onClick={moveToDashboard} 
               className="bg-custom_green text-white tracking-wider text-md" size="lg">Start writing for free</Button>}
-              {!loggedIn && <Button
+              {/* {!loggedIn && <Button
               onClick={login} 
-              className="bg-custom_green text-white tracking-wider text-md" size="lg">Start writing for free</Button>}
+              className="bg-custom_green text-white tracking-wider text-md" size="lg">Start writing for free</Button>} */}
                 <div ref={el} />
 
             </div>
@@ -261,107 +249,109 @@ const HomeComponent = () => {
 
         </div>
 
-        <div className="mt-40 mb-10">
+        {
+            isLoggedIn &&
+            <div className="mt-40 mb-10">
+                <div className=" mx-auto xs:px-5 sm:px-5 md:px-10 lg:px-20">
+                    
+                    {/* <div className="mb-10 border-b border-gray-200 text-sm gap-5 flex items-end">
+                    <p className="border-b-4 cursor-pointer border-gray-600">Books</p>
+                    <p className="border-b-4 cursor-pointer border-white">Stories</p>
+                    </div> */}
 
-          <div className=" mx-auto xs:px-5 sm:px-5 md:px-10 lg:px-20">
-            
-            {/* <div className="mb-10 border-b border-gray-200 text-sm gap-5 flex items-end">
-              <p className="border-b-4 cursor-pointer border-gray-600">Books</p>
-              <p className="border-b-4 cursor-pointer border-white">Stories</p>
-            </div> */}
-
-            {loading && 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5">
-              <Skeleton className="w-full h-[190px] rounded-xl" />
-              <Skeleton className="w-full h-[190px] rounded-xl" />
-              <Skeleton className="w-full h-[190px] rounded-xl" />
-              <Skeleton className="w-full h-[190px] rounded-xl" />
-            </div>}
-
-            {
-                !loading && continueStories?.length > 0 && 
-                <div>
-                    <h1 className="mb-5 text-gray-600 xs:text-3xl sm:text-3xl text-4xl font-bold">
-                    Continue reading
-                    </h1>
-                    <ContinueReadingComponent continueStories={continueStories} moveToReadStory={moveToReadStory}/>
-                </div>
-            }
-              
-            {
-                !loading && 
-                <div>
-                    <h1 className="mb-5 text-gray-600 xs:text-3xl sm:text-3xl text-4xl font-bold">
-                    Checkout these stories..
-                    </h1>
-
+                    {loading && 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5">
-                    {publishedStories?.filter(story => story.publishedAt).map((story, index) => (
+                    <Skeleton className="w-full h-[190px] rounded-xl" />
+                    <Skeleton className="w-full h-[190px] rounded-xl" />
+                    <Skeleton className="w-full h-[190px] rounded-xl" />
+                    <Skeleton className="w-full h-[190px] rounded-xl" />
+                    </div>}
 
-                        <div key={index} className="p-5 flex flex-col justify-between w-full bg-gray-800 text-gray-50 rounded-lg border">
-                        <div className="flex justify-between items-center mb-1">
-                        <p className="text-xs font-semibold">{story?.publishedAt ? formatDate(story?.publishedAt) : ""}</p>
-                        <p className="font-bold text-[10px]">5 min read</p>
+                    {
+                        !loading && continueStories?.length > 0 && 
+                        <div>
+                            <h1 className="mb-5 text-gray-600 xs:text-3xl sm:text-3xl text-4xl font-bold">
+                            Continue reading
+                            </h1>
+                            <ContinueReadingComponent continueStories={continueStories} moveToReadStory={moveToReadStory}/>
                         </div>
-                        <h1 className="font-bold text-xl capitalize mb-3">{story?.projectTitle.slice(0, 14)}...</h1>
-                        <p className="font-light mt-2 text-xs capitalize">By {story?.user?.name}</p>
-                        {/* <div className="font-semibold mt-2 text-[10px] capitalize flex flex-wrap gap-2">
-                        {
-                            story?.genres?.map((genre, index) => (
-                                <p key={index} className="px-4 py-1 border rounded-2xl bg-gray-50">{genre}</p>
-                            ))
-                        }
-                        </div> */}
+                    }
+                    
+                    {
+                        !loading && 
+                        <div>
+                            <h1 className="mb-5 text-gray-600 xs:text-3xl sm:text-3xl text-4xl font-bold">
+                            Checkout these stories..
+                            </h1>
 
-                        <div className="font-semibold mt-2 text-[10px]">
-                            {story?.genres?.join(" | ")}
-                        </div>
-                        
-                        <div className="mt-4">
-                        {
-                            !story?.introductionImage && <img src="/no-image.png" alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
-                        }
-                        {
-                            story?.introductionImage && <img src={story?.introductionImage} alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
-                        }
-                        </div>
-                        <p className="mt-5 text-xs text-gray-50">
-                        { story?.overview?.slice(0, 200)}...
-                        </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5">
+                            {publishedStories?.filter(story => story.publishedAt).map((story, index) => (
 
-                        <div className="mt-4 flex justify-between items-center">
-                            <Button onClick={() => moveToReadStory(story?.id)} size="sm" className="text-gray-700" variant="outline">
-                            Read
-                            <BookOpen className="w-4 h-4 ml-2"/>
-                            </Button>
+                                <div key={index} className="p-5 flex flex-col justify-between w-full bg-gray-800 text-gray-50 rounded-lg border">
+                                <div className="flex justify-between items-center mb-1">
+                                <p className="text-xs font-semibold">{story?.publishedAt ? formatDate(story?.publishedAt) : ""}</p>
+                                <p className="font-bold text-[10px]">5 min read</p>
+                                </div>
+                                <h1 className="font-bold text-xl capitalize mb-3">{story?.projectTitle.slice(0, 14)}...</h1>
+                                <p className="font-light mt-2 text-xs capitalize">By {story?.user?.name}</p>
+                                {/* <div className="font-semibold mt-2 text-[10px] capitalize flex flex-wrap gap-2">
+                                {
+                                    story?.genres?.map((genre, index) => (
+                                        <p key={index} className="px-4 py-1 border rounded-2xl bg-gray-50">{genre}</p>
+                                    ))
+                                }
+                                </div> */}
 
-                        
-                        </div>
-                        
-                        <div className="mt-4 flex justify-between items-center">
-                            
-                            <div onClick={() => shareBlink(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
-                            {/* <Share2 className="w-4 h-4" /> */}
-                            <span className="text-xs">Share Blink on</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#fff" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
+                                <div className="font-semibold mt-2 text-[10px]">
+                                    {story?.genres?.join(" | ")}
+                                </div>
+                                
+                                <div className="mt-4">
+                                {
+                                    !story?.introductionImage && <img src="/no-image.png" alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
+                                }
+                                {
+                                    story?.introductionImage && <img src={story?.introductionImage} alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
+                                }
+                                </div>
+                                <p className="mt-5 text-xs text-gray-50">
+                                { story?.overview?.slice(0, 200)}...
+                                </p>
+
+                                <div className="mt-4 flex justify-between items-center">
+                                    <Button onClick={() => moveToReadStory(story?.id)} size="sm" className="text-gray-700" variant="outline">
+                                    Read
+                                    <BookOpen className="w-4 h-4 ml-2"/>
+                                    </Button>
+
+                                
+                                </div>
+                                
+                                <div className="mt-4 flex justify-between items-center">
+                                    
+                                    <div onClick={() => shareBlink(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
+                                    {/* <Share2 className="w-4 h-4" /> */}
+                                    <span className="text-xs">Share Blink on</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#fff" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
+                                    </div>
+
+                                    <div onClick={() => shareStory(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
+                                    {/* <Share2 className="w-4 h-4" /> */}
+                                    <span className="text-xs">Post on </span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#fff" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
+
+                                    </div>
+                                </div>
+
+                                </div>
+                            ))}
                             </div>
-
-                            <div onClick={() => shareStory(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
-                            {/* <Share2 className="w-4 h-4" /> */}
-                            <span className="text-xs">Post on </span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#fff" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
-
-                            </div>
                         </div>
-
-                        </div>
-                    ))}
-                    </div>
+                    }
+                
                 </div>
-            }
-          
-          </div>
-        </div>
+            </div>
+        }
         
 
       </main>

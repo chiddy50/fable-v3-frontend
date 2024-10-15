@@ -4,7 +4,7 @@ import { StoryInterface } from '@/interfaces/StoryInterface';
 import React, { useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button';
 import { ArrowLeft, ArrowRight, Cog, Lock, NotebookText } from 'lucide-react';
-import { extractTemplatePrompts, queryLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
+import { extractTemplatePrompts, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
 import { toast } from 'sonner';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
 import {
@@ -22,12 +22,22 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Dosis, Inter } from 'next/font/google';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
+import { JsonOutputParser } from "@langchain/core/output_parsers";
 
 interface ResolutionComponentProps {
     initialStory: StoryInterface;
     refetch: () => void;
     moveToNext:(step: number) => void;
     projectDescription: string;
+}
+
+interface ChapterAnalysis {
+  summary: string;
+  climaxConsequences: string;
+  howCharactersEvolve: string;
+  resolutionOfConflict: string;
+  tone: string[];
+  setting: string[];
 }
 
 const inter = Inter({ subsets: ['latin'] });
@@ -122,6 +132,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
           - No titles or additional commentary, just the story.
           - Ensure the story continues to relate the story idea.
           Note: Do not include a title or subtitles while generating the story, we are only focused on the story. Do not add any title, subtitle or anything describing an act.
+            Do not repeat any story incident or story line in any of the chapters written before, because we don't want the story to look generic.
 
           **INPUT**
           story idea {storyIdea}
@@ -201,6 +212,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
             - Align with the original story idea: {storyIdea}
 
             **Note**: Focus only on the narrative, without including titles, subtitles, or act labels.
+            Do not repeat any story incident or story line in any of the chapters written before, because we don't want the story to look generic.
 
             **INPUT**
             - Genre: {genre}
@@ -296,7 +308,10 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
         // charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the inciting incident),            
 
         showPageLoader();
-        const response = await queryLLM(prompt, {
+
+        const parser = new JsonOutputParser<ChapterAnalysis>();
+
+        const response = await queryStructuredLLM(prompt, {
           introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
           incitingIncident: initialStory?.storyStructure?.incitingIncident,
           firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,
@@ -305,7 +320,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
           climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingAction,
           resolution: chapter ?? resolution,
           storyIdea: projectDescription,
-        });
+        }, parser);
 
         if (!response) {
             toast.error("Try again please");
