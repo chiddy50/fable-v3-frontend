@@ -193,7 +193,7 @@ const DashboardPage = () => {
             
             <div className='grid gap-5 mt-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
                 <div className='flex gap-5 bg-gray-50 p-5 rounded-2xl'>
-                    <div className='flex items-center justify-center w-10 h-10 bg-custom_green text-gray-50 rounded-full'>
+                    <div className='flex items-center justify-center w-10 h-10 bg-red-600 text-gray-50 rounded-full'>
                         <BookCheckIcon />
                     </div>
                     <div className="flex flex-col justify-between">
@@ -205,7 +205,7 @@ const DashboardPage = () => {
                 </div>
 
                 <div className='flex gap-5 bg-gray-50 p-5 rounded-2xl'>
-                    <div className='flex items-center justify-center w-10 h-10 bg-red-600 text-gray-50 rounded-full'>
+                    <div className='flex items-center justify-center w-10 h-10 bg-custom_green text-gray-50 rounded-full'>
                         <BookOpenText />
                     </div>
                     <div className="flex flex-col justify-between">
@@ -242,13 +242,13 @@ const DashboardPage = () => {
                         <div key={transaction?.id} className='flex gap-5 bg-gray-50 p-5 mb-3 border rounded-2xl'>
                             <div className={
                                 cn(
-                                    "flex items-center self-center justify-center w-7 h-7 border  text-gray-50 rounded-full",
-                                    transaction?.type === 'create-story' ? "border-red-600" : "border-custom_green"
+                                    "flex items-center self-center justify-center w-7 h-7 text-gray-50 rounded-full",
+                                    transaction?.type === 'create-story' ? "bg-red-600" : "bg-custom_green"
                                 )
                             }>
                                 
-                                { transaction?.type === 'create-story' && <ArrowUp className='w-5 h-5 text-red-600'/> }
-                                { transaction?.type === 'read-story' && <ArrowDown className='w-5 h-5 text-custom_green'/> }
+                                { transaction?.type === 'create-story' && <BookCheckIcon className='w-4 h-4 text-white'/> }
+                                { transaction?.type === 'read-story' && <BookOpenText className='w-4 h-4 text-white'/> }
                             </div>
                             <div className='flex flex-[80%] flex-col'>
                                 <div className='flex xs:flex-col sm:flex-row xs:gap-2 sm:gap-2 justify-between'>

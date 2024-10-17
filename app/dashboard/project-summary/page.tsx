@@ -41,11 +41,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { makeRequest } from '@/services/request';
-import Image from 'next/image';
-import code from '@code-wallet/elements';
-import { Input } from '@/components/ui/input';
-import { PublicKey } from '@solana/web3.js';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -660,9 +655,7 @@ const ProjectSummaryPage = () => {
                                 />
                             </div>
                         </div>
-
                         
-
                         <div className="mb-3 bg-red-100 border border-red-300 p-3 rounded-2xl">
                             <p className='text-[10px] text-red-500'>
                             Caution: Please ensure you provide a valid KIN deposit address. Not all Solana addresses are compatible with KIN transactions. If the address is incorrect, you may not receive tips or payments for your content. Double-check your KIN wallet address to avoid missing out on rewards.
