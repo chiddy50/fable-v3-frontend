@@ -39,7 +39,7 @@ export const queryLLM = async (prompt: string, payload: object, parser = null) =
 export const queryStructuredLLM = async (prompt: string, payload: object, parser: JsonOutputParser) => {
    try {      
       const llm = new ChatGroq({
-         apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
+         apiKey: process.env.NEXT_PUBLIC_GROQ_JSONOUTPUT_API_KEY ?? process.env.NEXT_PUBLIC_GROQ_API_KEY,
          // model: "llama3-70b-8192",
          model: "llama-3.1-70b-versatile"           
       });
