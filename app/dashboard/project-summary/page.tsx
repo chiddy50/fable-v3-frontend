@@ -33,7 +33,7 @@ import { ChatGroq } from '@langchain/groq';
 import { PromptTemplate, ChatPromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { toast } from 'sonner';
-import { hidePageLoader, showPageLoader } from '@/lib/helper';
+import { hidePageLoader, isValidSolanaAddress, showPageLoader } from '@/lib/helper';
 import {
     Dialog,
     DialogContent,
@@ -322,19 +322,7 @@ const ProjectSummaryPage = () => {
         await proceedRequest();
     }
 
-    /**
-     * Validates if a given string is a valid Solana public address.
-     * @param address - The Solana public address to validate.
-     * @returns boolean - True if the address is valid, otherwise false.
-     */
-    const isValidSolanaAddress = (address: string): boolean => {
-        try {
-            new PublicKey(address);
-            return true;  // If no error is thrown, the address is valid
-        } catch (error) {
-            return false;
-        }
-    };
+    
 
     const proceedRequest = async () => {
         let published = storyData?.status === "draft" ? false : true;

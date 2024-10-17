@@ -290,7 +290,7 @@ const EditProtagonistComponent: React.FC<EditProtagonistComponentProps> = ({
                             <p className='text-md'>{selectedCharacter?.isProtagonist ? "Protagonist & " : ""}{selectedCharacter?.role}</p>
                         </div>
                     </div>
-                    <SheetDescription> </SheetDescription>
+                    <SheetDescription></SheetDescription>                    
                     {/* 
                     <div className='mt-3 bg-white p-5 rounded-2xl'>
                         <span className='text-gray-900 text-md font-bold'>Role</span>

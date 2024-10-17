@@ -231,7 +231,12 @@ const DashboardPage = () => {
 
             <div className="my-10 bg-white p-7 rounded-2xl">
                 <h1 className="text-xl font-bold mb-5">Transactions</h1>
-
+                {
+                    transactions.length < 1 &&
+                    <div className='flex justify-center text-sm text-gray-600'>
+                        No transaction yet
+                    </div>
+                }
                 {
                     transactions.length > 0 && transactions?.map((transaction: TransactionInterface) =>  (
                         <div key={transaction?.id} className='flex gap-5 bg-gray-50 p-5 mb-3 border rounded-2xl'>

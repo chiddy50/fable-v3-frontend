@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import AuthenticationButton from "@/components/AuthenticationButton";
 import Image from "next/image";
 import Link from "next/link";
+import { Menu } from "lucide-react";
 
 const inter = Inter({ subsets: ["latin"] });
 const montserrat = Montserrat({ 
@@ -41,9 +42,9 @@ export default function RootLayout({
 
         <div  style={{
           zIndex: "100",
-        }} className="flex justify-between p-5 h-[80px] overflow-hidden bg-[#F2F8F2] fixed top-0 w-full ">
+        }} className="flex justify-between items-center p-5 h-[80px] overflow-hidden bg-[#F2F8F2] fixed top-0 w-full ">
           <Link href="/" className="cursor-pointer"> 
-          <Image src="/fable_logo.svg" alt="Fable logo" className=" " width={100} height={100} />
+            <Image src="/fable_logo.svg" alt="Fable logo" className=" " width={100} height={100} />
           </Link>
           {/* <Menu /> */}
           <AuthenticationButton />

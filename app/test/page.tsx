@@ -56,7 +56,7 @@ const TestPage = () => {
     const fetchData = async () => {
         let response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/get-verifier`);
         console.log(response);
-        const loginDomain = process.env.TEST_MODE ? "example-getcode.com" : "perk.exchange";
+        const loginDomain = "usefable.xyz";
 
         if (!response) {
             throw new Error("Network response was not ok");
