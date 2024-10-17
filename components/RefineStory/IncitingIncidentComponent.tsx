@@ -539,7 +539,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
                         <p className='mt-3 text-xs text-center'>
                             Your trial session is over
                             <br/> 
-                            Kindly make a payment of $0.05 to proceed
+                            Kindly make a payment of $0.25 to proceed
                         </p>
                     </Card>
                 </div>     
