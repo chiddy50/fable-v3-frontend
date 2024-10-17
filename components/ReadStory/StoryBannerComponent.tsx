@@ -10,7 +10,7 @@ const StoryBannerComponent = ({
     <div className='mb-10 mt-10'>
       { image &&                     
         <div>
-          <img src={image} alt="" className='w-full object-cover h-[250px] mb-5 rounded-2xl' />          
+          <img src={image} alt="" className='w-full object-cover h-[400px] mb-5 rounded-2xl' />          
         </div>
       }
     </div>
