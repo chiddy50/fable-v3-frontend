@@ -1,5 +1,6 @@
 // import { getPlaiceholder } from "plaiceholder"
 
+import { PublicKey } from "@solana/web3.js";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
 
@@ -86,3 +87,17 @@ export const truncateString = (inputString: string) => {
         return truncatedString;
     }
 }
+
+/**
+ * Validates if a given string is a valid Solana public address.
+ * @param address - The Solana public address to validate.
+ * @returns boolean - True if the address is valid, otherwise false.
+ */
+export const isValidSolanaAddress = (address: string): boolean => {
+    try {
+        new PublicKey(address);
+        return true;  // If no error is thrown, the address is valid
+    } catch (error) {
+        return false;
+    }
+};

@@ -86,7 +86,7 @@ div.content {
     background: #cfead1;
     margin-left: 250px;
     min-height: 100svh;
-    padding: 60px 0px 1px 0px; /* Increased top padding to account for fixed header */
+    padding: 10px 0px 1px 0px; /* Increased top padding to account for fixed header */
 }
 
 #nav-header {
@@ -112,7 +112,7 @@ div.content {
     /* .sidebar a {float: left;} */
     div.content {
         margin-left: 0;
-        padding-top: 60px; /* Adjust for fixed header */
+        padding-top: 10px; /* Adjust for fixed header */
     }
     #nav-header {
         left: 0; /* Full width on small screens */

@@ -3,6 +3,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import Lottie from 'react-lottie';
 import * as animationData from "@/public/animations/animation.json"
+import * as legoAnimationData from "@/public/animations/lottie_lego.json"
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -28,6 +29,15 @@ const LoginSuccessPage = ({params: {id}}: Props) => {
         loop: true,
         autoplay: true, 
         animationData: animationData,
+        rendererSettings: {
+            preserveAspectRatio: 'xMidYMid slice'
+        }
+    };
+
+    const notAuthenticatedOptions = {
+        loop: true,
+        autoplay: true, 
+        animationData: legoAnimationData,
         rendererSettings: {
             preserveAspectRatio: 'xMidYMid slice'
         }
@@ -78,7 +88,7 @@ const LoginSuccessPage = ({params: {id}}: Props) => {
     }
 
     return (
-        <div className='mt-[120px]'>
+        <div className='mt-[120px] flex justify-center'>
 
             <div
                 className="w-[90%]"
@@ -91,7 +101,7 @@ const LoginSuccessPage = ({params: {id}}: Props) => {
             >
                 {
                     authenticated &&
-                    <div className='w-[80%] md:w-[40%] lg:w-[30%] border p-5 rounded-2xl shadow-xl'>                    
+                    <div className='w-[85%] sm:w-[60%] md:w-[40%] lg:w-[30%] border p-5 rounded-2xl shadow-xl'>                    
                         <Lottie options={defaultOptions}
                             isStopped={false}
                             isPaused={false}
@@ -112,7 +122,7 @@ const LoginSuccessPage = ({params: {id}}: Props) => {
                 {
                     !authenticated &&
                     <div className='w-[80%] md:w-[40%] lg:w-[40%] border p-5 rounded-2xl shadow-xl'>                    
-                        {/* <Lottie options={defaultOptions}
+                        {/* <Lottie options={notAuthenticatedOptions}
                             isStopped={false}
                             isPaused={false}
                         /> */}

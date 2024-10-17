@@ -153,10 +153,6 @@ const DashboardStoriesComponent = () => {
         }
     }
 
-
-    
-
-    
     const triggerOpenNewProjectModal = async () => {
         try {
             showPageLoader()
