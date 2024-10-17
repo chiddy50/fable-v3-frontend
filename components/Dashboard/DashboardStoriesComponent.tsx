@@ -121,7 +121,7 @@ const DashboardStoriesComponent = () => {
 
         try {
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch`;
-            showPageLoader()
+            showPageLoader();
             const response = await axiosInterceptorInstance.post(url, 
                 {
                     projectTitle,
@@ -169,8 +169,9 @@ const DashboardStoriesComponent = () => {
                 return;
             }
 
-            setDepositAddress(authUser?.depositAddress);
-            setTipLink(authUser?.tipLink)
+            // setDepositAddress(authUser?.depositAddress);
+            // setTipLink(authUser?.tipLink);
+            setCreatorName(authUser?.name ?? "");
             setAuthUser(authUser);
             setOpenNewProjectModal(true);
         } catch (error) {
