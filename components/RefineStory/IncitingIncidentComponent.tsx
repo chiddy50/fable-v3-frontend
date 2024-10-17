@@ -88,7 +88,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
             const { button } = code.elements.create('button', {
                 currency: 'usd',
                 destination: process.env.NEXT_PUBLIC_CODE_WALLET_DEPOSIT_ADDRESS,
-                amount: 0.05,
+                amount: 0.25,
                 // idempotencyKey: `${initialStory?.id}`,
             });
             
@@ -104,7 +104,8 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
                     const response = await axiosInterceptorInstance.post(url, 
                         {
                             narration: "Create Story",
-                            type: "create-story" 
+                            type: "create-story",
+                            amount: 0.25 
                         }
                     );
                         
@@ -535,7 +536,11 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
                         <div className="flex justify-center">
                             <div ref={el} />
                         </div>
-                        <p className='mt-3 text-xs text-center'>Your trial session is over, kindly make a payment to proceed</p>
+                        <p className='mt-3 text-xs text-center'>
+                            Your trial session is over
+                            <br/> 
+                            Kindly make a payment of $0.05 to proceed
+                        </p>
                     </Card>
                 </div>     
             }

@@ -46,7 +46,7 @@ const GenerateStoryComponent: React.FC<GenerateStoryComponentProps> = ({
       const { button } = code.elements.create('button', {
         currency: 'usd',
         destination: process.env.NEXT_PUBLIC_CODE_WALLET_DEPOSIT_ADDRESS,
-        amount: 0.05,
+        amount: 0.25,
         // idempotencyKey: `${initialStory?.id}`,
       });
       
@@ -67,6 +67,8 @@ const GenerateStoryComponent: React.FC<GenerateStoryComponentProps> = ({
             },
             body: JSON.stringify({
               narration: "Create Story",
+              type: "create-story",
+              amount: 0.25 
             })
           });
             
@@ -290,7 +292,11 @@ const GenerateStoryComponent: React.FC<GenerateStoryComponentProps> = ({
             <div className="flex justify-center">
               <div ref={el} />
             </div>
-            <p className='mt-3 text-xs text-center'>Your trial session is over, kindly make a payment to proceed</p>
+            <p className='mt-3 text-xs text-center'>
+              Your trial session is over
+              <br/> 
+              Kindly make a payment of $0.25 to proceed
+            </p>
           </Card>
         </div>     
       }

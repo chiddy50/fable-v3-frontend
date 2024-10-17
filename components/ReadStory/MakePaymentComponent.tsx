@@ -140,7 +140,11 @@ const MakePaymentComponent = ({
                         <div className="flex justify-center">
                         <div ref={el} />
                         </div>
-                        <p className='mt-3 text-xs text-center'>Your trial session is over, kindly make a payment to proceed</p>
+                        <p className='mt-3 text-xs text-center'>
+                            Your trial session is over
+                            <br/> 
+                            Kindly make a payment of $0.05 to proceed
+                        </p>                    
                     </Card>
                 </div>     
             }
