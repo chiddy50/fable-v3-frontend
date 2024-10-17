@@ -94,7 +94,7 @@ export default function DashboardLayout({
 
         <Sheet open={openSideNav} onOpenChange={setOpenSideNav}>
 
-            <SheetContent side="left" className="overflow-y-scroll z-[100] xs:max-w-[50%] sm:max-w-[50%] md:max-w-[40%] lg:max-w-[15%] xl:max-w-[15%]">
+            <SheetContent side="left" className="overflow-y-scroll z-[100] xs:max-w-[95%] sm:max-w-[50%] md:max-w-[40%] lg:max-w-[15%] xl:max-w-[15%]">
 
                 <SheetHeader>
                     <SheetTitle></SheetTitle>

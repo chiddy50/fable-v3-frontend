@@ -10,7 +10,7 @@ import { BookOpen, CoinsIcon, FilmIcon, LogIn, LogOut, Menu, MessageSquare, Shar
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
 import { StoryInterface } from "@/interfaces/StoryInterface";
-import { formatDate, trimWords } from "@/lib/helper";
+import { formatDate, shareStory, trimWords } from "@/lib/helper";
 import { Skeleton } from "@/components/ui/skeleton";
 import AuthenticationButton from "@/components/AuthenticationButton";
 import { useQuery } from "@tanstack/react-query";
@@ -195,14 +195,6 @@ const HomeComponent = () => {
       
       return shareUrl;
     };
-    
-    const shareStory = async (story: StoryInterface) => {
-      const url = `${process.env.NEXT_PUBLIC_URL}/read-story/${story?.id}`;
-      
-      const message = `Read my latest story on Fable!  `;
-      const twitterUrl = `https://twitter.com/intent/tweet?text=${message} ${encodeURIComponent(` \n\n ${url} \n\n #fable @meta_fable @getcode`)}`;
-      window.open(twitterUrl, '_blank');
-    }
     
     const shareBlink = (story: StoryInterface) => {      
       const url = `${process.env.NEXT_PUBLIC_URL}`;

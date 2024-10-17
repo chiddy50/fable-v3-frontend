@@ -3,6 +3,7 @@
 import { PublicKey } from "@solana/web3.js";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
+import { StoryInterface } from "@/interfaces/StoryInterface";
 
 export const showPageLoader = () => {
     let fullPageLoader = document.getElementById("full-page-loader") as HTMLElement
@@ -101,3 +102,12 @@ export const isValidSolanaAddress = (address: string): boolean => {
         return false;
     }
 };
+
+    
+export const shareStory = async (story: StoryInterface) => {
+    const url = `${process.env.NEXT_PUBLIC_URL}/read-story/${story?.id}`;
+    
+    const message = `Read my latest story on Fable!  `;
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${message} ${encodeURIComponent(` \n\n ${url} \n\n #fable @meta_fable @getcode`)}`;
+    window.open(twitterUrl, '_blank');
+}
