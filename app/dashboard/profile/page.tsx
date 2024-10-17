@@ -119,7 +119,7 @@ const UserProfilePage = () => {
                         <div className='flex items-center'>
                             {
                                 authUser?.depositAddress &&
-                                <a href={`https://explorer.solana.com/address/${authUser?.depositAddress}`} className='cursor-pointer'>
+                                <a href={`https://explorer.solana.com/address/${authUser?.depositAddress}`} target='_blank' className='cursor-pointer'>
                                     <img src="/images/codeImage.png" className='w-6 h-6' alt="code wallet icon" />
                                 </a>
                             }
