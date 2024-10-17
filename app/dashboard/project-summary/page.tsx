@@ -33,7 +33,7 @@ import { ChatGroq } from '@langchain/groq';
 import { PromptTemplate, ChatPromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { toast } from 'sonner';
-import { hidePageLoader, isValidSolanaAddress, showPageLoader } from '@/lib/helper';
+import { hidePageLoader, isValidSolanaAddress, shareStory, showPageLoader } from '@/lib/helper';
 import {
     Dialog,
     DialogContent,
@@ -41,6 +41,8 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import * as animationData from "@/public/animations/balloons.json"
+import Lottie from 'react-lottie';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -56,6 +58,15 @@ const CHAPTER_IMAGE_MAP = {
 } as const;
   
 type ChapterKey = keyof typeof CHAPTER_IMAGE_MAP;
+
+const defaultOptions = {
+    loop: true,
+    autoplay: true, 
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: 'xMidYMid slice'
+    }
+};
 
 function MyComponent() {
     return (
@@ -74,6 +85,7 @@ const ProjectSummaryPage = () => {
 
     const [mounted, setMounted] = useState<boolean>(false);
     const [openAddAddressModal, setOpenAddAddressModal] = useState<boolean>(false);
+    const [isPublished, setIsPublished] = useState<boolean>(false);
 
     const el = useRef<HTMLDivElement>(null);
 
@@ -337,7 +349,9 @@ const ProjectSummaryPage = () => {
 
             if (updated && !published) {
                 // refetch();
-                push("/dashboard/stories")
+                // push("/dashboard/stories")
+                setIsPublished(true);
+
             }else{
                 refetch();
             }
@@ -513,7 +527,7 @@ const ProjectSummaryPage = () => {
 
             <div className='my-10 p-7 bg-gray-50 rounded-2xl'>
                 <div>
-                    <h1 className="font-bold text-2xl mb-4">Story banner*</h1>
+                    <h1 className="font-bold text-2xl mb-4">Story banner</h1>
 
                     <div className="flex mb-3 w-full items-center h-[300px] justify-center border-gray-200 border bg-gray-100 rounded-2xl">
                         {!storyData?.introductionImage &&
@@ -559,19 +573,19 @@ const ProjectSummaryPage = () => {
 
                 <div className='mt-7'>
                     <p className="mb-2 font-semibold text-sm">Story Overview</p>
-                    <textarea rows={5} 
+                    <textarea rows={7} 
                     onChange={(e) => setStoryOverview(e.target.value) } 
                     value={storyOverview} 
                     placeholder='Kindly share your story idea or any keywords'
                     className='p-5 outline-none text-sm border rounded-lg w-full' 
                     />
-                    <div className="grid grid-cols-2 mt-3 gap-4">
 
-                    <Button disabled={generating} onClick={generateStoryOverview}>
-                        Generate Overview
-                        {generating && <i className='bx bx-loader-alt bx-spin text-white ml-2' ></i> }
-                    </Button>
-                    <Button onClick={saveStoryOverview} disabled={!storyOverview || generating}>Save</Button>
+                    <div className="grid grid-cols-2 xs:grid-cols-1 sm:grid-cols-2 mt-3 gap-4">
+                        <Button disabled={generating} onClick={generateStoryOverview}>
+                            Generate Overview
+                            {generating && <i className='bx bx-loader-alt bx-spin text-white ml-2' ></i> }
+                        </Button>
+                        <Button onClick={saveStoryOverview} disabled={!storyOverview || generating}>Save</Button>
                     </div>
                 </div>
              
@@ -663,6 +677,32 @@ const ProjectSummaryPage = () => {
                         </div>
                         <Button onClick={publishStory} className='text-gray-50 mr-5 w-full bg-[#46aa41]'>Proceed</Button>
 
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isPublished} onOpenChange={setIsPublished}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className=''>Story Published!</DialogTitle>
+                        <DialogDescription></DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-center mb-3">
+                        {/* <i className='bx bx-party bx-tada text-[6rem] text-green-600' ></i> */}
+                        <div className="w-[40%]">                            
+                            <Lottie options={defaultOptions}           
+                                isStopped={false}
+                                isPaused={false}/>
+                        </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <div onClick={() => shareStory(storyData)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-800 rounded-2xl">
+                            <span className="text-xs">Post on </span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#000" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
+                        </div>
+                        <Link href="/dashboard/stories">
+                            <Button>View Stories</Button>
+                        </Link>
                     </div>
                 </DialogContent>
             </Dialog>

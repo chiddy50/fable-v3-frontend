@@ -10,7 +10,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { MessageSquare, Plus, PowerOff, ThumbsUp } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Plus, PowerOff, ThumbsUp } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
 // import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
@@ -28,7 +28,7 @@ import { useQuery } from '@tanstack/react-query';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { Skeleton } from "@/components/ui/skeleton"
 import { StoryInterface } from '@/interfaces/StoryInterface';
-import { formatDate, hidePageLoader, showPageLoader, trimWords } from '@/lib/helper';
+import { formatDate, hidePageLoader, shareStory, showPageLoader, trimWords } from '@/lib/helper';
 import Link from 'next/link';
 import { PublicKey } from '@solana/web3.js';
 import { AppContext } from '@/context/MainContext';
@@ -37,7 +37,6 @@ import dynamic from 'next/dynamic';
 
 const DashboardStoriesComponent = () => {
     const router = useRouter();
-    // const dynamicJwtToken = getAuthToken();
 
     const [openNewProjectModal, setOpenNewProjectModal] = useState<boolean>(false);
     const [projectTitle, setProjectTitle]= useState<string>('');    
@@ -186,7 +185,7 @@ const DashboardStoriesComponent = () => {
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
-                    <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+                    <BreadcrumbLink href="/">Home</BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
@@ -205,8 +204,13 @@ const DashboardStoriesComponent = () => {
             {
                 !isFetching &&
                 <div className="my-10">
-                    <div className="flex items-center mb-5">
-                        <Button className='bg-custom_green hover:bg-custom_green' onClick={triggerOpenNewProjectModal}>
+                    <div className="flex items-center justify-between mb-5">
+                        <Link href="/">
+                            <Button variant="outline" size="sm" onClick={triggerOpenNewProjectModal}>
+                                <ArrowLeft className='w-4 h-4 mr-2'/>Return home
+                            </Button>
+                        </Link>
+                        <Button size="sm" className='bg-custom_green hover:bg-custom_green' onClick={triggerOpenNewProjectModal}>
                         <Plus className='w-4 h-4'/>
                         New Story
                         </Button>
@@ -256,11 +260,21 @@ const DashboardStoriesComponent = () => {
                                     }
                                     </div>
 
-                                    <div className=" flex mt-3 justify-between items-center">
+
+                                    <div className=" flex xs:flex-col xs:gap-4 mt-3 justify-between items-center">
                                         <p className='text-sm font-bold capitalize'>{story?.status}</p>
-                                        <Link href={`/dashboard/refine-story?story-id=${story.id}`}>                                            
-                                            <Button size="sm" variant="outline" className='text-gray-900'>Edit</Button>
-                                        </Link>
+
+                                        <div className="flex items-center gap-5">
+                                            {   story?.status === "published" &&
+                                                <div onClick={() => shareStory(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
+                                                    <span className="text-xs">Post on </span>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#fff" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
+                                                </div>
+                                            }
+                                            <Link href={`/dashboard/refine-story?story-id=${story.id}`}>                                            
+                                                <Button size="sm" variant="outline" className='text-gray-900'>Edit</Button>
+                                            </Link>
+                                        </div>
                                     </div>                           
                   
                                   </div>
