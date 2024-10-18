@@ -10,10 +10,9 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { ArrowLeft, MessageSquare, Plus, PowerOff, ThumbsUp } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Plus, PowerOff, Share2Icon, ThumbsUp } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
-// import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import {
@@ -180,6 +179,13 @@ const DashboardStoriesComponent = () => {
         }        
     }
 
+    const copyToClipboard = (link: string) => {
+        if (link) {            
+            navigator.clipboard.writeText(link);
+            toast.info("Story link copied!");
+        }        
+    };
+
     return (
         <div>
             <Breadcrumb>
@@ -266,10 +272,17 @@ const DashboardStoriesComponent = () => {
 
                                         <div className="flex items-center gap-5">
                                             {   story?.status === "published" &&
-                                                <div onClick={() => shareStory(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
-                                                    <span className="text-xs">Post on </span>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#fff" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
+                                                <div className='flex items-center gap-5'>
+                                                    <div onClick={() => shareStory(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
+                                                        <span className="text-xs">Post on </span>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#fff" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
+                                                    </div>
+                                                    <Button onClick={() => copyToClipboard(`${process.env.NEXT_PUBLIC_URL}/read-story/${story?.id}`)} size="sm" variant="outline" className='text-gray-900 text-xs'>
+                                                        Copy link
+                                                        <Share2Icon className="h-3 w-3 ml-2"/>
+                                                    </Button>                                                    
                                                 </div>
+
                                             }
                                             <Link href={`/dashboard/refine-story?story-id=${story.id}`}>                                            
                                                 <Button size="sm" variant="outline" className='text-gray-900'>Edit</Button>
