@@ -442,6 +442,8 @@ const ProjectSummaryPage = () => {
                 overview += chunk;   
                 setStoryOverview(overview);                     
             }
+
+            await saveStoryOverview();
         } catch (error) {
             console.error(error);            
         }finally{
