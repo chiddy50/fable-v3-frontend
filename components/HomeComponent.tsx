@@ -5,23 +5,19 @@ import Link from "next/link";
 import logo from "@/images/logo.png"
 import { Button } from "@/components/ui/button";
 import StoryWriter from "@/components/StoryWriter";
-import { BookOpen, CoinsIcon, FilmIcon, LogIn, LogOut, Menu, MessageSquare, Share2, ThumbsUp } from "lucide-react";
-// import { getAuthToken, useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { BookOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
 import { StoryInterface } from "@/interfaces/StoryInterface";
 import { formatDate, shareStory, trimWords } from "@/lib/helper";
 import { Skeleton } from "@/components/ui/skeleton";
-import AuthenticationButton from "@/components/AuthenticationButton";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { v4 as uuidv4 } from 'uuid';
 import { AppContext } from "@/context/MainContext";
-import { getUserAuthParams } from "@/services/AuthenticationService";
 import ContinueReadingComponent from "./ReadStory/ContinueReadingComponent";
 import axiosInterceptorInstance from "@/axiosInterceptorInstance";
 import code from '@code-wallet/elements';
-import { Keypair } from "@code-wallet/keys";
 
 const HomeComponent = () => {
     const [publishedStories, setPublishedStories] = useState<StoryInterface[]>([]);
@@ -31,12 +27,8 @@ const HomeComponent = () => {
     const [initialFetchDone, setInitialFetchDone] = useState(false);
 
     const { 
-        web3auth, setWeb3auth,
-        provider, setProvider,
         loggedIn, setLoggedIn,
-
-        isLoggedIn, setIsLoggedIn,
-        
+        isLoggedIn, setIsLoggedIn,        
     } = useContext(AppContext);
 
     const { push, refresh } = useRouter();
@@ -55,12 +47,11 @@ const HomeComponent = () => {
     }, []);
 
     useEffect(() => {
-        setIsMounted(true)
+        setIsMounted(true);
         if(loginAuth && isMounted ){
             let token = sessionStorage.getItem("token");   
 
             setIsLoggedIn(token ? true : false);
-            console.log({isLoggedIn, token});
 
             if (!token) {                
                 const { button } = code.elements.create('button', {
@@ -197,14 +188,22 @@ const HomeComponent = () => {
     };
     
     const shareBlink = (story: StoryInterface) => {      
-      const url = `${process.env.NEXT_PUBLIC_URL}`;
+        const url = `${process.env.NEXT_PUBLIC_URL}`;
 
-      const blink = `https://dial.to/?action=solana-action:${url}/api/tip-me?storyId=${story?.id}`;
-      
-      const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${blink}`)}`;
-      window.open(twitterUrl, '_blank');
+        const blink = `https://dial.to/?action=solana-action:${url}/api/tip-me?storyId=${story?.id}`;
+        
+        const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${blink}`)}`;
+        window.open(twitterUrl, '_blank');
     }
     
+    const handleScroll = (e) => {
+        e.preventDefault();
+        const element = document.getElementById('published-content');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+
     return (
       <main className="flex-1 " >         
        
@@ -228,9 +227,19 @@ const HomeComponent = () => {
             </p>
             <div className="flex mt-10 justify-center">
                 
-              {isLoggedIn && <Button
-              onClick={moveToDashboard} 
-              className="bg-custom_green text-white tracking-wider text-md" size="lg">Start writing for free</Button>}
+                {isLoggedIn && 
+                    <div className="flex flex-col gap-6">
+                        <Button
+                        onClick={moveToDashboard} 
+                        className="bg-custom_green text-white tracking-wider text-md" size="lg">
+                        Start writing for free
+                        </Button>
+                        <Button onClick={handleScroll} className="text-md" size="lg">
+                            Explore
+                            <i className='bx bx-chevrons-down bx-tada text-4xl'  ></i>
+                        </Button>
+                    </div>
+                }
               {/* {!loggedIn && <Button
               onClick={login} 
               className="bg-custom_green text-white tracking-wider text-md" size="lg">Start writing for free</Button>} */}
@@ -271,7 +280,7 @@ const HomeComponent = () => {
                     
                     {
                         !loading && 
-                        <div>
+                        <div id="published-content">
                             <h1 className="mb-5 text-gray-600 xs:text-3xl sm:text-3xl text-4xl font-bold">
                             Checkout these stories..
                             </h1>
@@ -284,15 +293,8 @@ const HomeComponent = () => {
                                 <p className="text-xs font-semibold">{story?.publishedAt ? formatDate(story?.publishedAt) : ""}</p>
                                 <p className="font-bold text-[10px]">5 min read</p>
                                 </div>
-                                <h1 className="font-bold text-xl capitalize mb-3">{story?.projectTitle.slice(0, 14)}...</h1>
+                                <h1 className="font-bold text-xl capitalize mb-3">{story?.projectTitle}</h1>
                                 <p className="font-light mt-2 text-xs capitalize">By {story?.user?.name}</p>
-                                {/* <div className="font-semibold mt-2 text-[10px] capitalize flex flex-wrap gap-2">
-                                {
-                                    story?.genres?.map((genre, index) => (
-                                        <p key={index} className="px-4 py-1 border rounded-2xl bg-gray-50">{genre}</p>
-                                    ))
-                                }
-                                </div> */}
 
                                 <div className="font-semibold mt-2 text-[10px]">
                                     {story?.genres?.join(" | ")}
@@ -328,9 +330,9 @@ const HomeComponent = () => {
                                     </div>
 
                                     <div onClick={() => shareStory(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
-                                    {/* <Share2 className="w-4 h-4" /> */}
-                                    <span className="text-xs">Post on </span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#fff" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
+                                        {/* <Share2 className="w-4 h-4" /> */}
+                                        <span className="text-xs">Post on </span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#fff" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
 
                                     </div>
                                 </div>
