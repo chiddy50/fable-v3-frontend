@@ -27,12 +27,8 @@ const HomeComponent = () => {
     const [initialFetchDone, setInitialFetchDone] = useState(false);
 
     const { 
-        web3auth, setWeb3auth,
-        provider, setProvider,
         loggedIn, setLoggedIn,
-
-        isLoggedIn, setIsLoggedIn,
-        
+        isLoggedIn, setIsLoggedIn,        
     } = useContext(AppContext);
 
     const { push, refresh } = useRouter();
@@ -200,6 +196,14 @@ const HomeComponent = () => {
         window.open(twitterUrl, '_blank');
     }
     
+    const handleScroll = (e) => {
+        e.preventDefault();
+        const element = document.getElementById('published-content');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+
     return (
       <main className="flex-1 " >         
        
@@ -223,9 +227,19 @@ const HomeComponent = () => {
             </p>
             <div className="flex mt-10 justify-center">
                 
-              {isLoggedIn && <Button
-              onClick={moveToDashboard} 
-              className="bg-custom_green text-white tracking-wider text-md" size="lg">Start writing for free</Button>}
+                {isLoggedIn && 
+                    <div className="flex flex-col gap-6">
+                        <Button
+                        onClick={moveToDashboard} 
+                        className="bg-custom_green text-white tracking-wider text-md" size="lg">
+                        Start writing for free
+                        </Button>
+                        <Button onClick={handleScroll} className="text-md" size="lg">
+                            Explore
+                            <i className='bx bx-chevrons-down bx-tada text-4xl'  ></i>
+                        </Button>
+                    </div>
+                }
               {/* {!loggedIn && <Button
               onClick={login} 
               className="bg-custom_green text-white tracking-wider text-md" size="lg">Start writing for free</Button>} */}
@@ -266,7 +280,7 @@ const HomeComponent = () => {
                     
                     {
                         !loading && 
-                        <div>
+                        <div id="published-content">
                             <h1 className="mb-5 text-gray-600 xs:text-3xl sm:text-3xl text-4xl font-bold">
                             Checkout these stories..
                             </h1>
@@ -281,13 +295,6 @@ const HomeComponent = () => {
                                 </div>
                                 <h1 className="font-bold text-xl capitalize mb-3">{story?.projectTitle}</h1>
                                 <p className="font-light mt-2 text-xs capitalize">By {story?.user?.name}</p>
-                                {/* <div className="font-semibold mt-2 text-[10px] capitalize flex flex-wrap gap-2">
-                                {
-                                    story?.genres?.map((genre, index) => (
-                                        <p key={index} className="px-4 py-1 border rounded-2xl bg-gray-50">{genre}</p>
-                                    ))
-                                }
-                                </div> */}
 
                                 <div className="font-semibold mt-2 text-[10px]">
                                     {story?.genres?.join(" | ")}
