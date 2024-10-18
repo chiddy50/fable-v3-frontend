@@ -27,6 +27,7 @@ import {
 import { Suspense } from 'react';
 import { getUserAuthParams } from '@/services/AuthenticationService';
 import { AppContext } from '@/context/MainContext';
+import GetCodeLoginComponent from '@/components/GetCodeLoginComponent';
 
 // const BlurredContent = ({ content, blurAfter, onPayment }) => {
 //   const [isPaid, setIsPaid] = useState(false);
@@ -83,20 +84,25 @@ const ReadStoryPage = ({id}: {id:string}) => {
   const [story, setStory] = useState<StoryInterface|null>(null)
   const [accessRecord, setAccessRecord] = useState(null);
   const [depositAddress, seDepositAddress] = useState(null);
-  const [mounted, setMounted] = useState<boolean>(false);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
     // Access sessionStorage only on the client side
     setToken(sessionStorage.getItem('token'));
+    if (sessionStorage.getItem('token')) {
+      sessionStorage.removeItem("storyId");      
+    }
   }, []);
   const storyId = id;
 
   const { push } = useRouter();
 
-  const { data: storyData, isFetching, isError, refetch } = useQuery({
+  const { data: storyData, isFetching, isLoading, isError, refetch } = useQuery({
     queryKey: ['storyFromScratchFormData', storyId],
     queryFn: async () => {
+      setLoading(true);
       let url = `${process.env.NEXT_PUBLIC_BASE_URL}/story-access/read/${storyId}`;
 
       const response = await axiosInterceptorInstance.get(url);
@@ -105,10 +111,19 @@ const ReadStoryPage = ({id}: {id:string}) => {
         setAccessRecord(response?.data?.accessRecord)
         seDepositAddress(response?.data?.depositAddress)
       }
+      setLoading(false);
+
       return response?.data?.story;
     },
     enabled: !!token && !!storyId && !story,
   });
+
+  useEffect(() => {
+    if (!token) {
+      setLoading(false);      
+    }
+  }, [storyData])
+
 
   const moveToNextChapter = async (currentChapter: string) => {
     try {           
@@ -145,20 +160,29 @@ const ReadStoryPage = ({id}: {id:string}) => {
     window.open(twitterUrl, '_blank');
   }
 
-  if (!token) {
+  if (loading || isLoading || isFetching) {
     return (
       <div className='pb-10'>
-        <div className="top-[100px] relative xs:mx-7 sm:mx-7 md:mx-20 lg:mx-40 mb-20 flex justify-center"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "60vh",
-        }}
-        >
+        {
+          <div className="flex flex-col gap-5 justify-center top-[100px] relative xs:mx-7 sm:mx-7 md:mx-20 lg:mx-40 mb-20">
+            <Skeleton className="w-full h-[100px] rounded-xl mb-3" />
+            <Skeleton className="w-full h-[100px] rounded-xl mb-3" />
+            <Skeleton className="w-full h-[100px] rounded-xl " />
+          </div>
+        }
+      </div>
+    )
+  }
 
-          
-          <Button size="lg" >Login/Register</Button>
+  if (!token && (!isLoading || !isFetching || !loading)) {
+    return (
+      <div className='pb-10'>
+        <div className="top-[100px] relative mb-20 flex flex-col h-[60vh] items-center justify-center xs:mx-7 sm:mx-7 md:mx-20 lg:mx-40">
+          <div className='text-center mb-3'>
+            <h1 className='mb-7 text-2xl font-bold'>To read this story, login with your Code App</h1>
+            <p className='text-sm'>Don’t have the Code App yet? <a href="https://getcode.com/download" target='_blank' className="underline">Download It Now</a></p>
+          </div>
+          <GetCodeLoginComponent redirectUrl="read-story/login-success" storyId={id} />
         </div>
       </div>
     )

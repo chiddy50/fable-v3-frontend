@@ -6,6 +6,7 @@ import * as animationData from "@/public/animations/animation.json"
 import * as legoAnimationData from "@/public/animations/lottie_lego.json"
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 
 interface Props {
@@ -14,13 +15,15 @@ interface Props {
     };
 }
 
-const LoginSuccessPage = ({params: {id}}: Props) => {
+const ReadStoryLoginSuccessPage = ({params: {id}}: Props) => {
     const decodedId = decodeURIComponent(id);
 
     const [authenticated, setAuthenticated] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
+    const [storyId, setStoryId] = useState<string>("");
     
-    
+    const { push } = useRouter();
+
     useEffect(() => {
         authenticate();
     }, []);
@@ -48,7 +51,13 @@ const LoginSuccessPage = ({params: {id}}: Props) => {
             }
             setAuthenticated(true);
             sessionStorage.setItem("token", token);    
-            sessionStorage.setItem("user", JSON.stringify(user));    
+            sessionStorage.setItem("user", JSON.stringify(user));  
+            const storyId = sessionStorage.getItem("storyId");
+
+            setStoryId(storyId ?? "");
+            setTimeout(() => {
+                push(`/read-story/${storyId}`)
+            }, 4000);
             
         } catch (error) {
             console.error(error);            
@@ -99,12 +108,9 @@ const LoginSuccessPage = ({params: {id}}: Props) => {
                         />
                         <h1 className='mt-3 font-semibold text-lg text-center'>Successfully logged in</h1>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5">
-                            <Link href="/dashboard/stories">
-                                <Button size="sm" className='text-xs w-full'>Go dashboard</Button>
-                            </Link>
-                            <Link href="/">
-                                <Button size="sm" className='text-xs w-full' variant="outline">Explore</Button>
+                        <div className="mt-5">
+                            <Link href={`/read-story/${storyId}`} className='w-full'>
+                                <Button size="sm" className='text-xs w-full'>Read Story</Button>
                             </Link>
                         </div>
                     </div>
@@ -134,4 +140,4 @@ const LoginSuccessPage = ({params: {id}}: Props) => {
     )
 }
 
-export default LoginSuccessPage
+export default ReadStoryLoginSuccessPage

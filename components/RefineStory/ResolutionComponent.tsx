@@ -453,7 +453,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
                 
               {resolution && 
                 <Link href={`/dashboard/project-summary?story-id=${initialStory?.id}`}>
-                    <Button size="sm" className='bg-custom_green w-full flex items-center gap-2' >
+                    <Button disabled={generating} size="sm" className='bg-custom_green w-full flex items-center gap-2' >
                         Summary
                         <ArrowRight className='w-3 h-3'/>
                     </Button>
