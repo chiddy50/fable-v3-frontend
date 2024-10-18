@@ -91,7 +91,7 @@ const UserProfilePage = () => {
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
-                        <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+                        <BreadcrumbLink href="/">Home</BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
@@ -114,7 +114,7 @@ const UserProfilePage = () => {
                 </div>
 
                 <div className="mb-4">
-                    <p className="mb-1 text-xs font-semibold">Kin wallet address</p>
+                    <p className="mb-1 text-xs font-semibold">Code wallet address</p>
                     <div className="flex border items-center bg-white rounded-2xl p-1.5">
                         <div className='flex items-center'>
                             {
