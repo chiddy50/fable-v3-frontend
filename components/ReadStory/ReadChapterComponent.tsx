@@ -20,8 +20,48 @@ const ReadChapterComponent = ({
     depositAddress
 }) => {
 
+    const [user, setUser] = useState(null);
+    useEffect(() => {
+        try {
+            const userData = sessionStorage.getItem("user");
+            console.log('Raw userData:', userData);
+
+            if (userData) {
+                const parsedUserData = JSON.parse(userData);
+                console.log('Parsed userData:', parsedUserData);
+                setUser(parsedUserData);
+            } else {
+                console.log('No user data found in sessionStorage');
+            }
+        } catch (error) {
+            console.error('Error parsing user data:', error);
+        }
+    }, []);
+
+    useEffect(() => {
+        console.log('Updated user state:', user);
+    }, [user]);
+
     const move = (value: string) => {
         if (value === "prev" && accessRecord?.currentChapter === "1") return;
+
+        if (accessRecord.userId === story.userId) {
+            let currentChapter = accessRecord?.currentChapter ? parseInt(accessRecord?.currentChapter) : parseInt("1");
+            let nextChapter = 1;
+            if (value === "prev") {            
+                nextChapter = currentChapter - 1; 
+            }
+            if (value === "next") {            
+                nextChapter = currentChapter + 1; 
+            }
+
+            if (nextChapter > 7) {
+                return;
+            }
+
+            moveToNextChapter(nextChapter?.toString())
+            return;
+        }
 
         if (accessRecord?.hasAccess === false && value === "next" && accessRecord?.currentChapter === "2") {
             toast.error("Payment is required")
@@ -76,32 +116,52 @@ const ReadChapterComponent = ({
                 }
 
                 {
-                    accessRecord?.currentChapter === "2" && accessRecord.hasAccess === false &&
+                    accessRecord.userId === story.userId &&
                     <>
-                        <StoryBannerComponent image={story?.introductionImage} />
+                        {   
+                            accessRecord?.currentChapter === "2" && 
+                            <>
+                                <StoryBannerComponent image={story?.introductionImage} />
+                                <p className={cn("text-xl first-letter:text-4xl whitespace-pre-wrap", inter.className)}>{story?.storyStructure?.incitingIncident}</p>
+                            </>
+                        }
+                    </>
+                }
 
-                        <p className={cn(`ont-semibold text-xl first-letter:text-4xl whitespace-pre-wrap testing mb-7 
-                           bg-clip-text text-transparent bg-gradient-to-b from-black to-transparent 
-                            `, inter.className)}>
-                            {/* {story?.storyStructure?.incitingIncident} */}
-                            {story?.storyStructure?.incitingIncident ? trimWords(story?.storyStructure?.incitingIncident, 200) : ""}
-                        </p>
+                {
+                    accessRecord.userId !== story.userId &&
+                    <>
+                    
                         {
-                            accessRecord.hasAccess === false && 
-                            <div>
-                                <MakePaymentComponent accessRecord={accessRecord} depositAddress={depositAddress} story={story} refetch={refetch}/>
-                            </div>
-                        }                        
+                            accessRecord?.currentChapter === "2" && accessRecord.hasAccess === false &&
+                            <>
+                                <StoryBannerComponent image={story?.introductionImage} />
+        
+                                <p className={cn(`ont-semibold text-xl first-letter:text-4xl whitespace-pre-wrap testing mb-7 
+                                bg-clip-text text-transparent bg-gradient-to-b from-black to-transparent 
+                                    `, inter.className)}>
+                                    {/* {story?.storyStructure?.incitingIncident} */}
+                                    {story?.storyStructure?.incitingIncident ? trimWords(story?.storyStructure?.incitingIncident, 200) : ""}
+                                </p>
+                                {
+                                    accessRecord.hasAccess === false && 
+                                    <div>
+                                        <MakePaymentComponent accessRecord={accessRecord} depositAddress={depositAddress} story={story} refetch={refetch}/>
+                                    </div>
+                                }                        
+                            </>
+                        }
+        
+                        {   
+                            accessRecord?.currentChapter === "2" && accessRecord.hasAccess === true && 
+                            <>
+                                <StoryBannerComponent image={story?.introductionImage} />
+                                <p className={cn("text-xl first-letter:text-4xl whitespace-pre-wrap", inter.className)}>{story?.storyStructure?.incitingIncident}</p>
+                            </>
+                        }
                     </>
                 }
 
-                {   
-                    accessRecord?.currentChapter === "2" && accessRecord.hasAccess === true && 
-                    <>
-                        <StoryBannerComponent image={story?.introductionImage} />
-                        <p className={cn("text-xl first-letter:text-4xl whitespace-pre-wrap", inter.className)}>{story?.storyStructure?.incitingIncident}</p>
-                    </>
-                }
 
                 {
                     accessRecord?.currentChapter === "3" && accessRecord.hasAccess === true && 
