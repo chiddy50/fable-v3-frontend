@@ -79,7 +79,7 @@ const StoryStarterComponent: React.FC<StoryStarterComponentProps> = ({
 
     useEffect(() => {
         if (data) {
-          setGenres(data.genres || []);
+          setGenres(data.genres ? data.genres.map(genre => ({ value: genre, label: genre })) : []);
           setSuspenseTechnique(data.suspenseTechnique || null);
           setThematicElements(data?.thematicElements || []);
           setThematicOptions(data?.thematicOptions || []);
@@ -559,12 +559,12 @@ const StoryStarterComponent: React.FC<StoryStarterComponentProps> = ({
                 </div> */}
             </div>
 
-            <Steps
+            {/* <Steps
                 enabled={true}
                 steps={storyStarterGuide}
                 initialStep={0}
                 onExit={onExit}
-            />
+            /> */}
         </>
     )
 }

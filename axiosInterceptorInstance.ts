@@ -19,9 +19,10 @@ const axiosInterceptorInstance = axios.create({
 axiosInterceptorInstance.interceptors.request.use(
   function (config) {
     // Do something before the request is sent
-    const token = sessionStorage.getItem('token'); 
+    const sessionStorageToken = sessionStorage.getItem('token'); 
+    const localStorageToken = localStorage.getItem('token'); 
+    const token = sessionStorageToken ?? localStorageToken;
     console.log({token});
-    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

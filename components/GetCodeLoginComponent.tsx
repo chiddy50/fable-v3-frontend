@@ -27,8 +27,9 @@ const GetCodeLoginComponent: React.FC<Props> = ({
     useEffect(() => {
         setIsMounted(true);
         if(loginAuth && isMounted ){
-            let token = sessionStorage.getItem("token");   
-
+            let sessionStorageToken = sessionStorage.getItem("token");   
+            let localStorageTokenToken = localStorage.getItem("token");   
+            let token = sessionStorageToken ?? localStorageTokenToken;
             setIsLoggedIn(token ? true : false);
 
             if (!token) {                
@@ -52,6 +53,7 @@ const GetCodeLoginComponent: React.FC<Props> = ({
                         const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/create-intent`);
                         console.log(res);
                         sessionStorage.setItem("storyId", storyId);
+                        localStorage.setItem("storyId", storyId);                        
                         
                         const clientSecret = res?.data?.clientSecret;
                         button.update({ clientSecret });                

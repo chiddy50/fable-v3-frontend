@@ -172,7 +172,7 @@ const CreatePlotComponent: React.FC<CreatePlotComponentProps> = ({
                                         <p className="text-xs font-bold mb-1 text-gray-700">Suggestions</p>
                                         <div className="flex flex-wrap gap-3">
                                             {
-                                                initialStoryData?.storyStructure?.settingSuggestions.map((setting: string, index: number) => (
+                                                initialStoryData?.storyStructure?.settingSuggestions?.map((setting: string, index: number) => (
                                                     <p onClick={() => setStorySetting(setting)} className='py-2 px-4 rounded-2xl cursor-pointer text-[10px] border bg-gray-50 text-400 border-gray-400' 
                                                     key={index}>
                                                         {setting}
