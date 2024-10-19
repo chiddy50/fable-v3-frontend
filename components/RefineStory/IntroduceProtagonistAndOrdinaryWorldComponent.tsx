@@ -59,21 +59,49 @@ interface ProtagonistPayload {
     characterTraits: string[];
 }
 
+
+interface Character {
+    name: string;
+    age: string;
+    role: string;
+    habits: string;
+    innerConflict: string;
+    antagonistForce: string;
+    gender: string;
+    relevanceToAudience: string;
+    motivations: string[];
+    skinTone: string;
+    height: string;
+    weight: string;
+    hairTexture: string;
+    hairLength: string;
+    hairQuirk: string;
+    facialHair: string;
+    facialFeatures: string;
+    characterTraits: string[];
+    angst: string;
+    backstory: string;
+    weaknesses: string[];
+    strengths: string[];
+    coreValues: string[];
+    skills: string[];
+    speechPattern: string;
+}
+  
+interface Protagonist extends Character {
+    relationshipToOtherProtagonist?: string;
+}
+  
+interface OtherCharacter extends Character {
+    relationshipToProtagonists: {
+        protagonistName: string;
+        relationship: string;
+    }[];
+}
+  
 interface ChapterAnalysis {
-    protagonists: Array<{
-      name: string;
-      backstory: string;
-      motivations: string;
-      role: string;
-      characterTraits: string[];
-      relationshipToOtherProtagonist?: string;
-    }>;
-    otherCharacters: Array<{
-      name: string;
-      backstory: string;
-      role: string;
-      relationshipToProtagonist: string;
-    }>;
+    protagonists: Protagonist[];
+    otherCharacters: OtherCharacter[];
     tone: string[];
     genre: string[];
     summary: string;
@@ -251,11 +279,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
     }
 
     const analyzeStory = async (showModal = true) => {
-        const data = introduceProtagonistAndOrdinaryWorld
-        console.log({
-            introduceProtagonistAndOrdinaryWorld,
-            data
-        });
+        const data = introduceProtagonistAndOrdinaryWorld;
         
         if (!data) {
             toast.error('Generate some content first')
@@ -269,8 +293,8 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             I need you analyze the generated content and give an analysis of the characters involved in the story, tone, genre, thematic element, suspense technique, plot twist, setting.
 
             Return your response in a json or javascript object format like: 
-            protagonists(array of objects with keys name(string), backstory(string), motivations(string), role(string), characterTraits(array) & relationshipToOtherProtagonist(string, this should only be provided if there is more than one protagonist)). 
-            otherCharacters(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string)). 
+            protagonists(array of objects with keys like name(string), age(string), role(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), weight(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToOtherProtagonist(string, this should only be provided if there is more than one protagonist))
+            otherCharacters(array of objects with keys like name(string), age(string), backstory(string), role(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), weight(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToProtagonists(array of object with keys like protagonistName(string) & relationship(string)) )
             tone(array of string),
             genre(array of string),
             summary(string, this is a summary of the events in the Introduction of the Protagonist & Ordinary World section of the story),
@@ -280,6 +304,8 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             thematicElement(array of string),
             Please ensure the only keys in the object are protagonists, otherCharacters, tone, genre, thematicElement, suspenseTechnique, plotTwist and setting keys only.
             Do not add any text extra line or text with the json response, just a json object, no acknowledgement or do not return any title, just return json response. Do not go beyond this instruction.                               
+
+            For protagonists and otherCharacters ensure to provide suggestions for very facial feature and every option because they are all required do not leave any one empty.
 
             **INPUT**
             Story Introduction {introduceProtagonistAndOrdinaryWorld}

@@ -10,7 +10,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { ArrowLeft, MessageSquare, Plus, PowerOff, Share2Icon, ThumbsUp } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Plus, PowerOff, Share2Icon, ThumbsUp, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -186,6 +186,24 @@ const DashboardStoriesComponent = () => {
         }        
     };
 
+    const deleteStory = async (storyId: string) => {
+        try {
+            let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/delete/${storyId}`;
+            showPageLoader();
+            const response = await axiosInterceptorInstance.delete(url);
+            getData();
+        } catch (error) {
+            console.error(error);            
+            console.error(error?.response?.data?.message);            
+            let errorMsg = error?.response?.data?.message;
+            if (errorMsg) {
+                toast.error(errorMsg)
+            }
+        }finally{
+            hidePageLoader();
+        }
+    }
+
     return (
         <div>
             <Breadcrumb>
@@ -211,11 +229,14 @@ const DashboardStoriesComponent = () => {
                 !isFetching &&
                 <div className="my-10">
                     <div className="flex items-center justify-between mb-5">
-                        <Link href="/">
-                            <Button variant="outline" size="sm" onClick={triggerOpenNewProjectModal}>
-                                <ArrowLeft className='w-4 h-4 mr-2'/>Return home
-                            </Button>
-                        </Link>
+                        <div className="flex items-center gap-5">
+                            <Link href="/">
+                                <Button variant="outline" size="sm" onClick={triggerOpenNewProjectModal}>
+                                    <ArrowLeft className='w-4 h-4 mr-2'/>Explore other stories
+                                </Button>
+                            </Link>
+                            
+                        </div>
                         <Button size="sm" className='bg-custom_green hover:bg-custom_green' onClick={triggerOpenNewProjectModal}>
                         <Plus className='w-4 h-4'/>
                         New Story
@@ -242,21 +263,11 @@ const DashboardStoriesComponent = () => {
                                     {/* <p className="font-bold text-[10px]">5 min read</p> */}
                                     </div>
                                     <h1 className="font-bold text-xl capitalize mb-3">{story?.projectTitle}</h1>
-                                    {/* <p className="font-light mt-2 text-xs capitalize">By {story?.user?.name}</p> */}
-                                    {/* <div className="font-semibold mt-2 text-[10px] capitalize flex flex-wrap gap-2">
-                                    {
-                                        story?.genres?.map((genre, index) => (
-                                            <p key={index} className="px-4 py-1 border rounded-2xl bg-gray-50">{genre}</p>
-                                        ))
-                                    }
-                                    </div> */}
                   
                                     <div className="font-semibold mt-2 text-[10px]">
                                       {story?.genres?.join(" | ")}
                                     </div>
-                                    {/* <p className="mt-5 text-xs text-gray-600">
-                                    { trimWords(story?.projectDescription, 15)}
-                                    </p> */}
+                         
                                     <div className="mt-4">
                                     {
                                         !story?.introductionImage && <img src="/no-image.png" alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
@@ -267,7 +278,7 @@ const DashboardStoriesComponent = () => {
                                     </div>
 
 
-                                    <div className=" flex xs:flex-col xs:gap-4 mt-3 justify-between items-center">
+                                    <div className=" flex xs:flex-col sm:flex-col md:flex-col lg:flex-col xl:flex-row xs:gap-4 mt-3 justify-between items-center">
                                         <p className='text-sm font-bold capitalize'>{story?.status}</p>
 
                                         <div className="flex items-center gap-5">
@@ -283,6 +294,13 @@ const DashboardStoriesComponent = () => {
                                                     </Button>                                                    
                                                 </div>
 
+                                            }
+
+                                            {   story?.status === "draft" &&
+                                                <Button onClick={() => deleteStory(story?.id)} size="sm" variant="destructive" className=' text-xs'>
+                                                    Delete
+                                                    <Trash2 className="h-3 w-3 ml-2"/>
+                                                </Button>    
                                             }
                                             <Link href={`/dashboard/refine-story?story-id=${story.id}`}>                                            
                                                 <Button size="sm" variant="outline" className='text-gray-900'>Edit</Button>

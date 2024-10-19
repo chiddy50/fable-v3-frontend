@@ -180,7 +180,8 @@ const ReadStoryPage = ({id}: {id:string}) => {
         <div className="top-[100px] relative mb-20 flex flex-col h-[60vh] items-center justify-center xs:mx-7 sm:mx-7 md:mx-20 lg:mx-40">
           <div className='text-center mb-3'>
             <h1 className='mb-7 text-2xl font-bold'>To read this story, login with your Code App</h1>
-            <p className='text-sm'>Don’t have the Code App yet? <a href="https://getcode.com/download" target='_blank' className="underline">Download It Now</a></p>
+            <p className='text-sm'>Don’t have the Code App yet? 
+              <br/><a href="https://getcode.com/download" target='_blank' className="underline">Download It Now</a></p>
           </div>
           <GetCodeLoginComponent redirectUrl="read-story/login-success" storyId={id} />
         </div>
