@@ -191,7 +191,7 @@ const RefineStoryPage = () => {
                             className='p-5 outline-none text-sm border rounded-lg w-full' 
                             />
                             <Button onClick={() => updateProject()} 
-                            disabled={storyData?.writingStep > 1}
+                            // disabled={storyData?.writingStep > 1}
 
                             className='text-gray-50 mt-3 bg-[#46aa41]'>Update</Button>
                         </div>
