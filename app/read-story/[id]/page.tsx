@@ -90,8 +90,9 @@ const ReadStoryPage = ({id}: {id:string}) => {
 
   useEffect(() => {
     // Access sessionStorage only on the client side
-    setToken(sessionStorage.getItem('token'));
-    if (sessionStorage.getItem('token')) {
+    const token = sessionStorage.getItem('token') ?? localStorage.getItem('token')
+    setToken(token);
+    if (token) {
       sessionStorage.removeItem("storyId");      
     }
   }, []);

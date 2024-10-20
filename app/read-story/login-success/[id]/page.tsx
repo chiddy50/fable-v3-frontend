@@ -51,8 +51,10 @@ const ReadStoryLoginSuccessPage = ({params: {id}}: Props) => {
             }
             setAuthenticated(true);
             sessionStorage.setItem("token", token);    
+            localStorage.setItem("token", token);    
             sessionStorage.setItem("user", JSON.stringify(user));  
-            const storyId = sessionStorage.getItem("storyId");
+            localStorage.setItem("user", JSON.stringify(user));  
+            const storyId = sessionStorage.getItem("storyId") ?? localStorage.getItem("storyId");
 
             setStoryId(storyId ?? "");
             setTimeout(() => {
