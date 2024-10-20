@@ -186,7 +186,7 @@ const RefineStoryPage = () => {
                             <textarea rows={5} 
                             onChange={(e) => setProjectDescription(e.target.value) } 
                             value={projectDescription} 
-                            disabled={storyData?.writingStep > 1}
+                            // disabled={storyData?.writingStep > 1}
                             placeholder='Kindly share your story idea or any keywords'
                             className='p-5 outline-none text-sm border rounded-lg w-full' 
                             />
