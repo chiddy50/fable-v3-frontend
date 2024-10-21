@@ -9,8 +9,12 @@ export const GET = async (req: Request) => {
         const params = new URLSearchParams(url.search);
         const storyId = params.get('storyId'); //question id
 
+        // const url = `https://usefable.xyz/read-story/${story?.id}`;
+
+        const base_url = `https://api.usefable.xyz`;
         // Fetch story by id
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/story-access/view/${storyId}`)
+        // const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/story-access/view/${storyId}`)
+        const response = await axios.get(`${base_url}/story-access/view/${storyId}`)
         const story = response?.data?.story;
         if (!story) {
             throw new Error("Could not find story");
@@ -61,9 +65,11 @@ export const POST = async (req: Request) => {
     if (!storyId) throw new Error("Could not find story id");
 
     try {
+        const base_url = `https://api.usefable.xyz`;
 
         // Get story
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/story-access/view/${storyId}`)
+        // const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/story-access/view/${storyId}`)
+        const response = await axios.get(`${base_url}/story-access/view/${storyId}`)
         
         
         const story = response?.data?.story;

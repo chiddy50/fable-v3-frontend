@@ -188,7 +188,8 @@ const HomeComponent = () => {
     };
     
     const shareBlink = (story: StoryInterface) => {      
-        const url = `${process.env.NEXT_PUBLIC_URL}`;
+        // const url = `${process.env.NEXT_PUBLIC_URL}`;
+        const url = `https://usefable.xyz/read-story/${story?.id}`;
 
         const blink = `https://dial.to/?action=solana-action:${url}/api/tip-me?storyId=${story?.id}`;
         
@@ -323,11 +324,11 @@ const HomeComponent = () => {
                                 
                                 <div className="mt-4 flex justify-between items-center">
                                     
-                                    <div onClick={() => shareBlink(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
                                     {/* <Share2 className="w-4 h-4" /> */}
+                                    {/* <div onClick={() => shareBlink(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
                                     <span className="text-xs">Share Blink on</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#fff" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
-                                    </div>
+                                    </div> */}
 
                                     <div onClick={() => shareStory(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
                                         {/* <Share2 className="w-4 h-4" /> */}
