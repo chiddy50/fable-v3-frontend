@@ -51,6 +51,10 @@ const AuthenticationButton = () => {
     const logout = async () => {
         sessionStorage.removeItem("token");
         sessionStorage.removeItem("user");
+        sessionStorage.removeItem("storyId");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("storyId");
         setIsLoggedIn(false);
         window.location.href = "/"
     };

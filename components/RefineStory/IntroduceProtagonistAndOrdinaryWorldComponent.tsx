@@ -33,6 +33,7 @@ import { cn } from '@/lib/utils';
 import { Dosis, Inter } from 'next/font/google';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { JsonOutputParser } from "@langchain/core/output_parsers";
+import { SuggestedOtherCharacterInterface, SuggestedProtagonistInterface } from '@/interfaces/CreateStoryInterface';
   
 
 interface IntroduceProtagonistAndOrdinaryWorldComponentProps {
@@ -59,49 +60,10 @@ interface ProtagonistPayload {
     characterTraits: string[];
 }
 
-
-interface Character {
-    name: string;
-    age: string;
-    role: string;
-    habits: string;
-    innerConflict: string;
-    antagonistForce: string;
-    gender: string;
-    relevanceToAudience: string;
-    motivations: string[];
-    skinTone: string;
-    height: string;
-    weight: string;
-    hairTexture: string;
-    hairLength: string;
-    hairQuirk: string;
-    facialHair: string;
-    facialFeatures: string;
-    characterTraits: string[];
-    angst: string;
-    backstory: string;
-    weaknesses: string[];
-    strengths: string[];
-    coreValues: string[];
-    skills: string[];
-    speechPattern: string;
-}
-  
-interface Protagonist extends Character {
-    relationshipToOtherProtagonist?: string;
-}
-  
-interface OtherCharacter extends Character {
-    relationshipToProtagonists: {
-        protagonistName: string;
-        relationship: string;
-    }[];
-}
   
 interface ChapterAnalysis {
-    protagonists: Protagonist[];
-    otherCharacters: OtherCharacter[];
+    protagonists: SuggestedProtagonistInterface[];
+    otherCharacters: SuggestedOtherCharacterInterface[];
     tone: string[];
     genre: string[];
     summary: string;
@@ -293,8 +255,8 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             I need you analyze the generated content and give an analysis of the characters involved in the story, tone, genre, thematic element, suspense technique, plot twist, setting.
 
             Return your response in a json or javascript object format like: 
-            protagonists(array of objects with keys like name(string), age(string), role(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), weight(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToOtherProtagonist(string, this should only be provided if there is more than one protagonist))
-            otherCharacters(array of objects with keys like name(string), age(string), backstory(string), role(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), weight(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToProtagonists(array of object with keys like protagonistName(string) & relationship(string)) )
+            protagonists(array of objects with keys like name(string), age(string), role(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), weight(string), clothDescription(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToOtherProtagonist(string, this should only be provided if there is more than one protagonist))
+            otherCharacters(array of objects with keys like name(string), age(string), backstory(string), role(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), clothDescription(string), weight(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToProtagonists(array of object with keys like protagonistName(string) & relationship(string)) )
             tone(array of string),
             genre(array of string),
             summary(string, this is a summary of the events in the Introduction of the Protagonist & Ordinary World section of the story),
@@ -305,10 +267,12 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             Please ensure the only keys in the object are protagonists, otherCharacters, tone, genre, thematicElement, suspenseTechnique, plotTwist and setting keys only.
             Do not add any text extra line or text with the json response, just a json object, no acknowledgement or do not return any title, just return json response. Do not go beyond this instruction.                               
 
+            When suggesting the genre ensure your choice comes from the predefined list of genres here: {genreList}.
             For protagonists and otherCharacters ensure to provide suggestions for very facial feature and every option because they are all required do not leave any one empty.
 
             **INPUT**
             Story Introduction {introduceProtagonistAndOrdinaryWorld}
+            Predefined List of genres: {genreList}
             `;
 
             showPageLoader();
@@ -317,6 +281,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
 
             const response = await queryStructuredLLM(prompt, {
                 introduceProtagonistAndOrdinaryWorld: data,
+                genreList: storyGenres.map(genre => genre.value).join(", ")
             }, parser);
 
             if (!response) {
@@ -531,6 +496,8 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                 <Button size="icon" onClick={() => moveToNext(1)} disabled={true}>
                     <ArrowLeft />
                 </Button>
+
+                {/* {genres?.length > 0 && <Button className='bg-custom_green'>Characters</Button>} */}
            
                 <Button size="icon" disabled={!introduceProtagonistAndOrdinaryWorld || generating} onClick={moveToChapter2}>
                     <ArrowRight />
@@ -567,7 +534,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                     }
                 }}
                 >
-                    {storyGenres ? "Analysis" : "Analyze"}
+                    {genres.length > 0 ? "Analysis" : "Analyze"}
                     <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96">
                     <g fill="#FFFFFF">
                         <path d="M9.4 12.5c-.4 1.4-.4 15.5-.2 31.3.4 24.5.7 29.3 2.3 33 2.4 5.8 5.9 8.1 14.7 9.2 8 1 55.7 1.4 58.2.4 2.1-.8 2.1-4 0-4.8-.9-.3-15.1-.6-31.5-.6H22.9l.6-2.3c.4-1.2 2.8-6.1 5.2-11 7.3-14.1 11.6-15.9 20.3-8.2 4.4 3.9 5.7 4.5 9.5 4.5 5.7 0 9-2.9 14.8-12.5 3.7-6.1 4.8-7.2 8.5-8.3 2.9-1 4.2-1.9 4.2-3.2 0-2.3-1.7-2.9-5.4-1.9-4.9 1.4-7.4 3.7-11.1 10.1-7.4 12.6-10.5 13.7-18.7 6.3-4.2-3.8-5.7-4.5-9.2-4.5-7.9 0-13.1 5.5-20.5 21.5-3.2 6.9-3.3 7-4.6 4.5-1.1-2-1.4-8.8-1.5-32.7 0-16.6-.3-30.8-.6-31.7-1-2.6-4.3-1.9-5 .9zM27.3 13.7c-2 .8-1.5 4.1.7 4.8 2.9.9 6-.3 6-2.5 0-2.5-3.4-3.7-6.7-2.3zM27.3 25.7c-1.8.7-1.6 4 .3 4.7.9.3 4.6.6 8.4.6 3.8 0 7.5-.3 8.4-.6 2.1-.8 2.1-4 0-4.8-1.9-.7-15.3-.7-17.1.1z"/>

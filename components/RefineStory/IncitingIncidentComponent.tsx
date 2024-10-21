@@ -1,7 +1,7 @@
 "use client"
 
 import { StoryInterface } from '@/interfaces/StoryInterface';
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button';
 import { ArrowLeft, ArrowRight, Cog, Lock } from 'lucide-react';
 import { extractTemplatePrompts, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
@@ -26,6 +26,8 @@ import { Inter } from 'next/font/google';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { AxiosRequestConfig } from 'axios';
 import { JsonOutputParser } from "@langchain/core/output_parsers";
+import { v4 as uuidv4 } from 'uuid';
+import { SuggestedOtherCharacterInterface } from '@/interfaces/CreateStoryInterface';
 
 interface IncitingIncidentComponentProps {
     initialStory: StoryInterface;
@@ -35,15 +37,9 @@ interface IncitingIncidentComponentProps {
 }
 // Define your desired data structure. Only used for typing the parser output.
 
-
-  interface ChapterAnalysis {
+interface ChapterAnalysis {
     summary: string;
-    charactersInvolved: Array<{
-      name: string;
-      backstory: string;
-      role: string;
-      relationshipToProtagonist: string;
-    }>;
+    charactersInvolved: SuggestedOtherCharacterInterface[];
     tone: string[];
     typeOfEvent: string;
     causeOfTheEvent: string;
@@ -54,7 +50,7 @@ interface IncitingIncidentComponentProps {
     suspenseTechnique: string[];
     moodAndAtmosphere: string[];
     setting: string[];
-  }
+}
   
 const inter = Inter({ subsets: ['latin'] });
 
@@ -76,6 +72,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
     const [incitingIncidentSetting, setIncitingIncidentSetting] = useState<string[]>(initialStory?.incitingIncidentSetting ?? "");
     const [incitingIncidentTone, setIncitingIncidentTone] = useState<string[]>(initialStory?.incitingIncidentTone ?? "");
     const [incitingIncidentExtraDetails, setIncitingIncidentExtraDetails] = useState<string>("");
+    const [suggestedCharacters, setSuggestedCharacters] = useState<[]>([]);
     const [mounted, setMounted] = useState<boolean>(false);
 
     // const dynamicJwtToken = getAuthToken();
@@ -345,7 +342,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
         try {
             const data = incitingIncident
             if (!data) {
-                toast.error('Generate some content first')
+                toast.error('Generate some content first');
                 return;
             }
 
@@ -359,7 +356,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
 
             Return your response in a json or javascript object format like: 
             summary(string, a summary of the story soo far),
-            charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the inciting incident),
+            charactersInvolved(array of objects with keys like name(string), age(string), backstory(string), role(string), clothDescription(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), weight(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToProtagonists(array of object with keys like protagonistName(string) & relationship(string)) )
             tone(array of strings),
             typeOfEvent(string, this refers to the type of event that triggers the Inciting Incident, be very detailed in explaining what happened),
             causeOfTheEvent(string, this refers to the Cause of the Inciting Incident, be very detailed in explaining what happened),
@@ -372,6 +369,8 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
             setting(array of strings).                        
             Please ensure the only keys in the object are summary, charactersInvolved, tone, genre, typeOfEvent, causeOfTheEvent, stakesAndConsequences, suspenseTechnique, mysteryOrSurprise, thematicElement, moodAndAtmosphere, plotTwist and setting keys only.
             Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
+
+            charactersInvolved are the characters involved in this chapter except the protagonist.
 
             **INPUT**
             Story Introduction {introduceProtagonistAndOrdinaryWorld}
@@ -399,6 +398,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
             setStakesAndConsequences(response?.stakesAndConsequences ?? "");
             setIncitingIncidentSetting(response?.setting ?? "");
             setIncitingIncidentTone(response?.tone ?? "");
+            setSuggestedCharacters(response?.charactersInvolved);
 
             let saved = await saveAnalysis(response);
             
@@ -413,6 +413,10 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
 
     const saveAnalysis = async (payload) => {
         if (payload) {                
+            const suggestedCharacters = setSupportingCharacters();
+            console.log({suggestedCharacters});
+            // return;
+
             // save data
             const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
                 {
@@ -422,7 +426,8 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
                     stakesAndConsequences: payload?.stakesAndConsequences,                    
                     incitingIncidentSetting: payload?.setting,                    
                     incitingIncidentTone: payload?.tone,
-                    incitingIncident  
+                    incitingIncident,
+                    suggestedCharacters  
                 }
             );
 
@@ -482,6 +487,31 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
         }
         moveToNext(3);
     }
+
+    const setSupportingCharacters = useCallback(() => {        
+        const existingCharacterNames = new Set(initialStory.suggestedCharacters.map(char => char.name));
+        
+        const newCharacters = suggestedCharacters.filter(char => !existingCharacterNames.has(char.name));
+        console.log({newCharacters});
+        
+        // const updatedCharacters = [
+        //     ...initialStory.suggestedCharacters,
+        //     // ...newCharacters,
+        //     ...newCharacters.map((character: object) => ( { ...character, id: uuidv4() } ))
+        // ];
+        const updatedCharacters = [...initialStory.suggestedCharacters, ...newCharacters.map((character: object) => {
+            return { ...character, id: uuidv4() }
+        })];
+        
+        console.log({
+            existing: initialStory.suggestedCharacters, 
+            new: newCharacters.map((character: object) => ( { ...character, id: uuidv4() } )),
+            updatedCharacters
+        });
+        return updatedCharacters;
+    }, [initialStory, suggestedCharacters]);
+    
+    
 
     return (
         <div className="my-10 bg-gray-50 p-5 rounded-2xl">
@@ -552,6 +582,8 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
                         <Button size="icon" onClick={() => moveToNext(1)} disabled={generating}>
                             <ArrowLeft />
                         </Button>
+
+                        {/* <Button onClick={setSupportingCharacters} className='bg-custom_green'>Characters</Button> */}
                         
                         <Button 
                             size="icon" 

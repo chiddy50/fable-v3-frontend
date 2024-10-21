@@ -1,7 +1,7 @@
 "use client";
 
 import { StoryInterface } from '@/interfaces/StoryInterface';
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button';
 import { ArrowLeft, ArrowRight, Cog, Lock } from 'lucide-react';
 import { extractTemplatePrompts, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
@@ -23,6 +23,8 @@ import { cn } from '@/lib/utils';
 import { Dosis, Inter } from 'next/font/google';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { JsonOutputParser } from "@langchain/core/output_parsers";
+import { SuggestedOtherCharacterInterface } from '@/interfaces/CreateStoryInterface';
+import { v4 as uuidv4 } from 'uuid';
 
 interface FirstPlotPointComponentProps {
     initialStory: StoryInterface;
@@ -33,12 +35,7 @@ interface FirstPlotPointComponentProps {
 
 interface ChapterAnalysis {
     summary: string;
-    charactersInvolved: Array<{
-      name: string;
-      backstory: string;
-      role: string;
-      relationshipToProtagonist: string;
-    }>;
+    charactersInvolved: SuggestedOtherCharacterInterface[];
     protagonistGoal: string;
     protagonistTriggerToAction: string;
     obstaclesProtagonistWillFace: string;
@@ -61,16 +58,17 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
 
     
     // What is the protagonist's new goal or desire?
-    const [protagonistGoal, setProtagonistGoal] = useState<string>("");    
+    const [protagonistGoal, setProtagonistGoal] = useState<string>(initialStory?.protagonistGoal ?? "");    
     // What triggers the protagonist to take action? 
-    const [protagonistTriggerToAction, setProtagonistTriggerToAction] = useState<string>("");    
+    const [protagonistTriggerToAction, setProtagonistTriggerToAction] = useState<string>(initialStory?.protagonistTriggerToAction ?? "");    
     // What obstacles or challenges will the protagonist face?
-    const [obstaclesProtagonistWillFace, setObstaclesProtagonistWillFace] = useState<string>("");    
+    const [obstaclesProtagonistWillFace, setObstaclesProtagonistWillFace] = useState<string>(initialStory?.obstaclesProtagonistWillFace ?? "");    
 
     const [firstPlotPointCharacters, setFirstPlotPointCharacters] = useState<[]>([]);    
     const [firstPlotPointSetting, setFirstPlotPointSetting] = useState<string[]>(initialStory?.firstPlotPointSetting ?? []);
     const [firstPlotPointTone, setFirstPlotPointTone] = useState<string[]>(initialStory?.firstPlotPointTone ?? []);
     const [firstPlotPointExtraDetails, setFirstPlotPointExtraDetails] = useState<string>("");
+    const [suggestedCharacters, setSuggestedCharacters] = useState<[]>([]);
 
     // const dynamicJwtToken = getAuthToken();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -272,8 +270,8 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
             - Inciting Incident: {incitingIncident}
 
             Return your response in a json or javascript object format like: 
-            summary(string, a summary of the story soo far),
-            charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the inciting incident),
+            summary(string, a summary of the story soo far),            
+            charactersInvolved(array of objects with keys like name(string), age(string), backstory(string), role(string), clothDescription(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), weight(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToProtagonists(array of object with keys like protagonistName(string) & relationship(string)) )
             protagonistGoal(string, this refers to the answer to the question, What is the protagonist's new goal or desire?),            
             protagonistTriggerToAction(string, this refers to the answer to the question, What triggers the protagonist to take action?),            
             obstaclesProtagonistWillFace(string, this refers to the answer to the question, What obstacles or challenges will the protagonist face?),            
@@ -281,6 +279,8 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
             setting(array of strings).                        
             Please ensure the only keys in the object are summary, charactersInvolved, protagonistGoal, protagonistTriggerToAction, obstaclesProtagonistWillFace, tone and setting keys only.
             Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
+
+            charactersInvolved refers to the characters involved in the inciting incident.
 
             **INPUT**
             Story Introduction {introduceProtagonistAndOrdinaryWorld}
@@ -336,7 +336,11 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
     }
 
     const saveAnalysis = async (payload) => {
-        if (payload) {                
+        if (payload) {  
+            const suggestedCharacters = setSupportingCharacters();
+            // console.log({suggestedCharacters});
+            // return;
+
             // save data
             const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
                 {
@@ -348,7 +352,9 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                     firstPlotPointSetting: payload?.setting,                    
                     firstPlotPointTone: payload?.tone,
                     firstPlotPoint,
-                    firstPlotPointLocked: true
+                    firstPlotPointLocked: true,
+                    suggestedCharacters  
+
                 }
             );
 
@@ -398,6 +404,16 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
         moveToNext(4)
     }
 
+    const setSupportingCharacters = useCallback(() => {        
+        const existingCharacterNames = new Set(initialStory.suggestedCharacters.map(char => char.name));        
+        const newCharacters = suggestedCharacters.filter(char => !existingCharacterNames.has(char.name));
+        const updatedCharacters = [...initialStory.suggestedCharacters, ...newCharacters.map((character: object) => {
+            return { ...character, id: uuidv4() }
+        })];
+
+        return updatedCharacters;
+    }, [initialStory, suggestedCharacters]);
+
     return (
         <div className="my-10 bg-gray-50 p-5 rounded-2xl">
             <div className='mb-5'>
@@ -408,7 +424,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                     <p className='font-bold text-center text-2xl'>
                         Chapter 3 
                     </p>
-                    <Button size="icon" onClick={() => moveToNext(4)} disabled={generating || !firstPlotPoint}>
+                    <Button size="icon" onClick={moveToChapter4} disabled={generating || !firstPlotPoint}>
                         <ArrowRight />
                     </Button>
                 </div>
