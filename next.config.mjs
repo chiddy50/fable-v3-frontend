@@ -32,8 +32,7 @@ const nextConfig = {
             protocol: 'https',
             hostname: 'cdn2.stablediffusionapi.com',
             pathname: '/**',
-          },
-          
+          },                  
         ],
     },
     async rewrites() {

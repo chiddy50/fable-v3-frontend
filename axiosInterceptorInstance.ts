@@ -62,7 +62,7 @@ axiosInterceptorInstance.interceptors.response.use(
         // window.location.reload();
         console.log({pathname: window.location.pathname});
         if (window.location.pathname !== "/") {          
-          // window.location.href = '/';
+          window.location.href = '/';
         }
       }
 

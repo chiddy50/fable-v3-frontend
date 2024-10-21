@@ -210,12 +210,28 @@ const ProjectSummaryPage = () => {
         enabled: !!storyId && !story
     });
 
+    const extractProtagonistFeatures = () => {
+        console.log({protagonistSuggestions: storyData.protagonistSuggestions});
+
+        let protagonistFeatures = ``
+        storyData.protagonistSuggestions.forEach(protagonist => {
+            protagonistFeatures += `Name: ${protagonist.name}. Facial features: ${protagonist?.facialFeatures}. skills: ${protagonist.skills}
+            Facial hair: ${protagonist.facialHair}. Age: ${protagonist.age}. Skin tone: ${protagonist.skinTone}. Weight: ${protagonist.weight}.
+            Cloth description: ${protagonist.clothDescription}. Hair length: ${protagonist.hairLength}. 
+            Hair quirk: ${protagonist.hairQuirk}. Hair texture: ${protagonist.hairTexture}. Role: ${protagonist.role}.
+            Height: ${protagonist.height}.
+            `;
+        });
+        return protagonistFeatures;
+        console.log({protagonistFeatures});
+    }
     const generateBanner = async () => {
+
         try {
             showPageLoader();
             let prompt = await getGenerationPrompt()
-            console.log(prompt);
-        
+            // console.log(prompt);
+            // return;
             if (!prompt) {
                 return;
             }
@@ -247,7 +263,7 @@ const ProjectSummaryPage = () => {
             console.log(res);
             console.log(res?.data?.output?.[0]);
 
-            let imgUrl = res?.data?.output?.[0] ?? res?.data?.proxy_links?.[0];
+            let imgUrl = res?.data?.output?.[0] ?? res?.data?.proxy_links?.[0] ?? res?.data?.future_links?.[0];
             if (!imgUrl) {
                 toast.error("Unable to generate image banner");
                 return;
@@ -267,6 +283,8 @@ const ProjectSummaryPage = () => {
         try {
             showPageLoader();
             
+            const protagonistFeatures = extractProtagonistFeatures();
+    
             const prompt = `
             Analyze the following chapters of a story and a story idea and generate a prompt that can be used to create an image banner that visually represents the story. Ensure the image captures a sense of motion and involves actions from the characters. 
             The following sections of the story have already been generated:
@@ -278,7 +296,10 @@ const ProjectSummaryPage = () => {
             - Climax and Falling Action (Chapter 6): {climaxAndFallingAction}
             - Resolution & Epilogue: (Chapter 7) {resolution}
 
-            Analyze the chapters one after the order and come up with a fitting story or movie banner that describes the story.
+            Here are the physical details of the protagonist(s): {protagonistFeatures}.
+            Use the physical details to represent the character(s).
+
+            Analyze the chapters one after the order and come up with a fitting movie or story banner that describes the story.
             Return a simple description that includes dynamic elements and character activity, avoiding titles, subtitles, or any unwanted symbols—just a detailed image description.
 
             **INPUT**
@@ -305,7 +326,8 @@ const ProjectSummaryPage = () => {
                 risingActionAndMidpoint: story?.storyStructure?.risingActionAndMidpoint,
                 pinchPointsAndSecondPlotPoint: story?.storyStructure?.pinchPointsAndSecondPlotPoint,
                 climaxAndFallingAction: story?.storyStructure?.climaxAndFallingAction,    
-                resolution: story?.storyStructure?.resolution,                                 
+                resolution: story?.storyStructure?.resolution,    
+                protagonistFeatures                             
             });
             return response;
         } catch (error) {
@@ -437,13 +459,13 @@ const ProjectSummaryPage = () => {
                 toast.error("Try again please");
                 return;
             }
-            let overview = ``;
+            let overview:string = ``;
             for await (const chunk of response) {
                 overview += chunk;   
                 setStoryOverview(overview);                     
             }
 
-            await saveStoryOverview();
+            await saveStoryOverview(overview);
         } catch (error) {
             console.error(error);            
         }finally{
@@ -451,16 +473,19 @@ const ProjectSummaryPage = () => {
         }
     }
 
-    const saveStoryOverview = async () => {
-        if (!storyOverview) {
+    const saveStoryOverview = async (overview = "") => {
+        if (!storyOverview && !overview) {
             toast.error("Provide a story overview");
             return;
         }
+        
+        let payload = storyOverview !== "" && storyOverview ? storyOverview : overview;
+
         try {
             showPageLoader();
             const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${storyId}`, 
                 {
-                    overview: storyOverview
+                    overview: payload
                 }
             );
         
@@ -531,14 +556,14 @@ const ProjectSummaryPage = () => {
                 <div>
                     <h1 className="font-bold text-2xl mb-4">Story banner</h1>
 
-                    <div className="flex mb-3 w-full items-center h-[300px] justify-center border-gray-200 border bg-gray-100 rounded-2xl">
+                    <div className="flex mb-3 w-full items-center h-[400px] justify-center border-gray-200 border bg-gray-100 rounded-2xl">
                         {!storyData?.introductionImage &&
                         <div className="flex flex-col items-center gap-2 ">
                             <ImageIcon/>
                             <span className='text-xs'>Generate a banner</span>
                         </div>}
                         {storyData?.introductionImage &&
-                            <img src={storyData?.introductionImage} alt="story banner" className='w-full object-cover rounded-2xl h-[300px]'/>
+                            <img src={storyData?.introductionImage} alt="story banner" className='w-full object-cover rounded-2xl h-[400px]'/>
                         }
                     </div>
 
@@ -568,7 +593,7 @@ const ProjectSummaryPage = () => {
                             
                         {
                             !storyData?.introductionImage &&
-                            <Button onClick={() => generateBanner()} size="sm">Generate Banner</Button>
+                            <Button onClick={generateBanner} size="sm">Generate Banner</Button>
                         }
                     </div>
                 </div>
