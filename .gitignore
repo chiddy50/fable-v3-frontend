@@ -43,7 +43,6 @@ next-env.d.ts
 /public/scenes2
 /public/books
 
-
 backup.json
 
 .env

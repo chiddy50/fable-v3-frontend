@@ -146,7 +146,8 @@ const ReadStoryPage = ({id}: {id:string}) => {
   };
   
   const shareStory = async (story: StoryInterface) => {
-    const url = `http://localhost:3000/read-story/${story?.id}` ?? `https://fable-v3-frontend.vercel.app/read-story/${story?.id}`;
+    const url = `https://usefable.xyz/read-story/${story?.id}`;
+    // const url = `http://localhost:3002/read-story/${story?.id}` ?? `https://usefable.xyz/read-story/${story?.id}`;
     
     const message = `Read my latest story on Fable! `;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${message} ${encodeURIComponent(` \n\n ${url} #fable @meta_fable @getcode`)}`;
@@ -154,7 +155,7 @@ const ReadStoryPage = ({id}: {id:string}) => {
   }
   
   const shareBlink = (story: StoryInterface) => {      
-    const url = `http://localhost:3000` ?? `https://fable-v3-frontend.vercel.app`;
+    const url = `https://usefable.xyz`;
     const blink = `https://dial.to/?action=solana-action:${url}/api/tip-me?storyId=${story?.id}`;
     
     const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${blink}`)}`;

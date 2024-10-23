@@ -9,8 +9,8 @@ const StoryBannerComponent = ({
   return (
     <div className='mb-10 mt-10'>
       { image &&                     
-        <div>
-          <img src={image} alt="" className='w-full object-cover h-[400px] mb-5 rounded-2xl' />          
+        <div className='flex justify-center'>
+          <img src={image} alt="" className='w-[800px] object-cover h-[400px] mb-5 rounded-2xl' />          
         </div>
       }
     </div>
