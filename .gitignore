@@ -44,3 +44,6 @@ next-env.d.ts
 /public/books
 
 backup.json
+
+.env
+
