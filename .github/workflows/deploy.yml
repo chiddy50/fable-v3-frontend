@@ -1,0 +1,31 @@
+name: Deploy to Fable server
+
+on:
+  push:
+    branches:
+      - devops
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # - name: Setup SSH
+    #   uses: webfactory/ssh-agent@
+    #   with:
+    #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    # - name: Run deployment script
+    #   run: |
+    #     ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "bash ./deploy.sh"
+
+    - name: Set SSH private key permissions
+      run: |
+        chmod 600 ./id_rsa
+
+    - name: Run deployment script
+      run: |
+        ssh -i ./id_rsa -o StrictHostKeyChecking=no root@188.245.161.168 "cd /root/fable/fable-v3-frontend && bash deploy.sh"
