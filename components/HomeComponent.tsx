@@ -314,7 +314,7 @@ const HomeComponent = () => {
                     }
                     
                     {
-                        !loading && publishedStories?.length &&
+                        !loading && publishedStories?.length > 0 &&
                         <div id="published-content">
                             <h1 className="mb-5 text-gray-600 xs:text-3xl sm:text-3xl text-4xl font-bold">
                             Checkout these stories..
