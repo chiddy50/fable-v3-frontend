@@ -265,7 +265,7 @@ const DashboardStoriesComponent = () => {
                                     <h1 className="font-bold text-xl capitalize mb-3">{story?.projectTitle}</h1>
                   
                                     <div className="font-semibold mt-2 text-[10px]">
-                                      {story?.genres?.join(" | ")}
+                                      {story?.genres?.map(genre => genre.value)?.join(" | ")}
                                     </div>
                          
                                     <div className="mt-4">
