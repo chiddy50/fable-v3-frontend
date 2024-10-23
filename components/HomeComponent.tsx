@@ -5,7 +5,7 @@ import Link from "next/link";
 import logo from "@/images/logo.png"
 import { Button } from "@/components/ui/button";
 import StoryWriter from "@/components/StoryWriter";
-import { BookOpen } from "lucide-react";
+import { BookOpen, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
 import { StoryInterface } from "@/interfaces/StoryInterface";
@@ -18,6 +18,9 @@ import { AppContext } from "@/context/MainContext";
 import ContinueReadingComponent from "./ReadStory/ContinueReadingComponent";
 import axiosInterceptorInstance from "@/axiosInterceptorInstance";
 import code from '@code-wallet/elements';
+import { ReusableCombobox } from "./ReusableCombobox";
+import { storyGenres } from "@/lib/data";
+import { toast } from "sonner";
 
 const HomeComponent = () => {
     const [publishedStories, setPublishedStories] = useState<StoryInterface[]>([]);
@@ -25,6 +28,8 @@ const HomeComponent = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [isMounted, setIsMounted] = useState<boolean>(false);
     const [initialFetchDone, setInitialFetchDone] = useState(false);
+    const [genre, setGenre] = useState<{ value:string,label:string,description:string }|null>(null);
+    const [genreList, setGenreList] = useState<[]>([]);
 
     const { 
         loggedIn, setLoggedIn,
@@ -94,9 +99,9 @@ const HomeComponent = () => {
     }, []);
 
 
-    const fetchStories = async () => {
+    const fetchStories = async (genre = "") => {
         try {
-            let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all`;
+            let url = genre === "" ? `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all` : `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all?genre=${genre}`;
             setLoading(true)
             const res = await fetch(url, {
                 method: 'GET',
@@ -112,6 +117,15 @@ const HomeComponent = () => {
                 setPublishedStories(data);
             }
 
+            const genres = json?.genres.map(genre => {
+                return {
+                    id: genre.id,
+                    label: genre.name,
+                    value: genre.name,
+                }
+            })
+            setGenreList(genres ?? []);
+
             if (isLoggedIn) {            
                 const allContinueStories = await getStartedStories();
             }
@@ -122,7 +136,11 @@ const HomeComponent = () => {
           setLoading(false)
         }
     }
-
+    
+    const reset = async () => {
+        await fetchStories()
+        setGenre(null);
+    }
     const getStartedStories = async () => {
         const token = sessionStorage.getItem('token'); 
         if (!token) {
@@ -205,6 +223,22 @@ const HomeComponent = () => {
         }
     };
 
+    const updateGenre = async (value) => {        
+        let genreResult = storyGenres.find(genre => genre.value === value);
+        setGenre(genreResult);
+        
+        let selectedGenre = genreList.find(genre => genre.value === value)
+        console.log({genreResult, value, genreList, selectedGenre});
+        if (value && value !== '') {            
+            await fetchStories(selectedGenre.id);
+            toast.message(`${value}`, {
+                description: `${genreResult?.description}`,
+            });
+        }
+    }   
+
+
+
     return (
       <main className="flex-1 " >         
        
@@ -286,6 +320,20 @@ const HomeComponent = () => {
                             Checkout these stories..
                             </h1>
 
+                            <div className="mb-7 w-1/2 flex gap-4 items-center">
+                                <ReusableCombobox
+                                    options={genreList}
+                                    placeholder="Select genre..."
+                                    defaultValue={genre}
+                                    onSelect={(value) => updateGenre(value)}
+                                    className="my-custom-class w-full text-xs"
+                                    emptyMessage="No genre found."
+                                />
+                                <Button onClick={reset} size="icon" className="">
+                                    <RotateCcw className="w-5 h-5"/>     
+                                </Button>
+                            </div>
+                            
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5">
                             {publishedStories?.filter(story => story.publishedAt).map((story, index) => (
 
@@ -298,7 +346,7 @@ const HomeComponent = () => {
                                 <p className="font-light mt-2 text-xs capitalize">By {story?.user?.name}</p>
 
                                 <div className="font-semibold mt-2 text-[10px]">
-                                    {story?.genres?.join(" | ")}
+                                    {story?.genres?.map(genre => genre.value)?.join(" | ")}
                                 </div>
                                 
                                 <div className="mt-4">

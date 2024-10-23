@@ -211,9 +211,8 @@ const ProjectSummaryPage = () => {
     });
 
     const extractProtagonistFeatures = () => {
-        console.log({protagonistSuggestions: storyData.protagonistSuggestions});
+        let protagonistFeatures = ``;
 
-        let protagonistFeatures = ``
         storyData.protagonistSuggestions.forEach(protagonist => {
             protagonistFeatures += `Name: ${protagonist.name}. Facial features: ${protagonist?.facialFeatures}. skills: ${protagonist.skills}
             Facial hair: ${protagonist.facialHair}. Age: ${protagonist.age}. Skin tone: ${protagonist.skinTone}. Weight: ${protagonist.weight}.
@@ -223,15 +222,14 @@ const ProjectSummaryPage = () => {
             `;
         });
         return protagonistFeatures;
-        console.log({protagonistFeatures});
     }
+
     const generateBanner = async () => {
 
         try {
             showPageLoader();
             let prompt = await getGenerationPrompt()
-            // console.log(prompt);
-            // return;
+
             if (!prompt) {
                 return;
             }
@@ -370,7 +368,7 @@ const ProjectSummaryPage = () => {
             );
 
             if (updated && !published) {
-                // refetch();
+                refetch();
                 // push("/dashboard/stories")
                 setIsPublished(true);
 
@@ -386,8 +384,8 @@ const ProjectSummaryPage = () => {
 
     const validateData = async () => {
         if (!storyData?.introductionImage) {
-            toast.error("Kindly add a story banner image") 
-            return
+            // toast.error("Kindly add a story banner image") 
+            // return
         }
         if (!storyOverview) {
             toast.error("Kindly provide the story overview") 
@@ -529,6 +527,7 @@ const ProjectSummaryPage = () => {
         //     reader.readAsDataURL(file);
         // }
     }
+
     return (
         <div>
             
@@ -641,11 +640,6 @@ const ProjectSummaryPage = () => {
 
                 
             </div>
-
-
-
-
-
 
             <Sheet open={modifyModalOpen} onOpenChange={setModifyModalOpen}>
                 <SheetContent className="overflow-y-scroll xs:min-w-[90%] sm:min-w-[96%] md:min-w-[65%] lg:min-w-[65%] xl:min-w-[55%]">

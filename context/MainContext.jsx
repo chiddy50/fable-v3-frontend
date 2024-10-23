@@ -8,7 +8,7 @@ export const AppContext = createContext();
 
 export function MainContext({ children }) {
 
-    const [isLoggedIn, setIsLoggedIn] = useState(true);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const [web3auth, setWeb3auth] = useState(null);
     const [provider, setProvider] = useState(null);

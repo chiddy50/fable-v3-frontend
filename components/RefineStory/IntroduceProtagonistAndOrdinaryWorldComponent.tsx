@@ -34,6 +34,7 @@ import { Dosis, Inter } from 'next/font/google';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { JsonOutputParser } from "@langchain/core/output_parsers";
 import { SuggestedOtherCharacterInterface, SuggestedProtagonistInterface } from '@/interfaces/CreateStoryInterface';
+import axios from 'axios';
   
 
 interface IntroduceProtagonistAndOrdinaryWorldComponentProps {
@@ -87,16 +88,20 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
 
     const [storyAnalysis, setStoryAnalysis] = useState(null);
     const [genres, setGenres] = useState<Option[]>(initialStory?.genres ?? []);
+    const [genreList, setGenreList] = useState<[]>([]);
     const [tones, setTones] = useState<Option[]>(initialStory?.introductionTone ?? []);
     const [introductionSetting, setIntroductionSetting] = useState<Option[]>(initialStory?.introductionSetting ?? []);
     const [introductionSettingSuggestions, setIntroductionSettingSuggestions] = useState<Option[]>([]);
     const [protagonists, setProtagonists] = useState<ProtagonistPayload[]>([]);
     const [introductionExtraDetails, setIntroductionExtraDetails] = useState<string>("");
 
+    useEffect(() => {
+        fetchGenres();
+    }, []);
 
     useEffect(() => {
         setIntroduceProtagonistAndOrdinaryWorld(initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld ?? "")
-        setGenres(initialStory?.genres ? initialStory?.genres?.map(item => ( { label: item, value: item } )) : []);
+        setGenres(initialStory?.genres ? initialStory?.genres : []);
         setTones(initialStory?.introductionTone ? initialStory?.introductionTone?.map(item => ( { label: item, value: item } )) : []);
         setIntroductionSetting(initialStory?.introductionSetting ? initialStory?.introductionSetting?.map(item => ( { label: item, value: item } )) : []);
         setIntroductionSettingSuggestions(initialStory?.introductionSetting ? initialStory?.introductionSetting?.map(item => ( { label: item, value: item } )) : []);
@@ -110,7 +115,26 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-    const scrollToBottom = () => {
+    const fetchGenres = async () => {
+        try{
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/genres`); 
+            console.log(response);
+            if (response?.data?.genres) {
+                const genres = response?.data?.genres.map(genre => {
+                    return {
+                        id: genre.id,
+                        label: genre.name,
+                        value: genre.name,
+                    }
+                })
+                setGenreList(genres);
+            }
+        }catch(err){
+            console.error(err);            
+        }
+    }
+
+     const scrollToBottom = () => {
         const element = document.getElementById("control-buttons");
         if (element) {            
             element.scrollIntoView({ behavior: "smooth" });
@@ -319,10 +343,16 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                 return { ...character, id: uuidv4() }
             });
 
+            const chosenGenres = () => {
+                return genreList.filter(genre => payload?.genre.includes(genre.value));
+            };
+
+            console.log({ genreList, chosenGenres: chosenGenres() });
+            
             const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`, 
                 {
                     storyId: initialStory?.id,
-                    genres: payload?.genre,                    
+                    genres: chosenGenres(),                    
                     introductionSetting: payload?.setting,                    
                     introductionTone: payload?.tone,                    
                     protagonistSuggestions: updatedProtagonists,     
@@ -578,7 +608,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                                 // disabled={initialStory?.introductionLocked}
                                 value={genres}
                                 onChange={setGenres}
-                                defaultOptions={storyGenres}
+                                defaultOptions={genreList}
                                 placeholder="Choose genres"
                                 emptyIndicator={
                                     <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">

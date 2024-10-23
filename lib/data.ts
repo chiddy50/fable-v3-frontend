@@ -22,12 +22,10 @@ export const storyGenres = [
     { value: "Ghost Story", label: "Ghost Story", description: "Tales that involve spirits, hauntings, and the supernatural, often designed to evoke fear or suspense." },
     { value: "Gothic", label: "Gothic", description: "Dark, mysterious stories often set in gloomy castles or mansions, featuring supernatural elements, romance, and psychological horror." },
     { value: "Historical", label: "Historical", description: "Stories set in the past, often with careful attention to period details, and sometimes involving real historical events or figures." },
-    { value: "Horror", label: "Horror", description: "Stories designed to evoke fear, dread, and shock, often involving monsters, the supernatural, or psychological terror." },
     { value: "Humor", label: "Humor", description: "Stories intended to provoke laughter and entertain through wit, satire, and comedic situations." },
     { value: "Juvenile", label: "Juvenile", description: "Stories aimed at young readers, usually with themes and language suitable for children and pre-teens." },
     { value: "Legal Thriller", label: "Legal Thriller", description: "Dramatic stories set in the legal world, often involving courtroom battles, legal intrigue, and moral dilemmas." },
     { value: "Literary Fiction", label: "Literary Fiction", description: "Character-driven stories that focus on the human condition, often with a strong emphasis on style and thematic depth." },
-    { value: "Magical Realism", label: "Magical Realism", description: "Stories that blend realistic narratives with fantastical elements, treating the extraordinary as part of everyday life." },
     { value: "Mystery", label: "Mystery", description: "Stories that involve solving a puzzle or crime, often featuring a detective or amateur sleuth." },
     { value: "Mythology", label: "Mythology", description: "Stories derived from ancient myths and legends, often involving gods, heroes, and the origins of the world." },
     { value: "Nautical", label: "Nautical", description: "Stories centered around the sea, ships, and sailors, often involving adventure and exploration." },
@@ -55,11 +53,10 @@ export const storyGenres = [
     { value: "Tragedy", label: "Tragedy", description: "Stories that focus on sorrowful or disastrous events, typically involving the downfall of the protagonist due to a flaw or fate." },
     { value: "Urban Fantasy", label: "Urban Fantasy", description: "Fantasy stories set in modern urban environments, blending magical elements with contemporary life." },
     { value: "Utopian", label: "Utopian", description: "Stories that depict an ideal or perfect society, often exploring themes of social, political, and technological advancement." },
-    { value: "Vampire Fiction", label: "Vampire Fiction", description: "Stories centered around vampires, often exploring themes of immortality, power, and the struggle between humanity and monstrosity." },
     { value: "War", label: "War", description: "Stories that focus on the experiences of individuals and societies during times of war, often highlighting the horrors, heroism, and moral complexities of conflict." },
     { value: "Western", label: "Western", description: "Stories set in the American frontier, often involving cowboys, outlaws, and the rugged landscape, emphasizing themes of law, order, and survival." },
     { value: "Young Adult", label: "Young Adult", description: "Stories written for and about adolescents, often exploring themes of identity, friendship, love, and the challenges of growing up." }
-]
+];
 
 export const storyTones = [
     "Optimistic",
