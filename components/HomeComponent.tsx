@@ -21,15 +21,21 @@ import code from '@code-wallet/elements';
 import { ReusableCombobox } from "./ReusableCombobox";
 import { storyGenres } from "@/lib/data";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import PublishedStoryComponent from "./Home/PublishedStoryComponent";
+import PublishedArticleComponent from "./Home/PublishedArticleComponent";
+import { ArticleInterface } from "@/interfaces/ArticleInterface";
+import ReaderArticleItem from "./Article/ReaderArticleItem";
 
 const HomeComponent = () => {
     const [publishedStories, setPublishedStories] = useState<StoryInterface[]>([]);
-    const [continueStories, setContinueStories] = useState<[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [isMounted, setIsMounted] = useState<boolean>(false);
+    const [publishedArticles, setPublishedArticles] = useState<ArticleInterface[]>([]);
+    const [continueStories, setContinueStories]   = useState<[]>([]);
+    const [loading, setLoading]                   = useState<boolean>(true);
+    const [isMounted, setIsMounted]               = useState<boolean>(false);
     const [initialFetchDone, setInitialFetchDone] = useState(false);
-    const [genre, setGenre] = useState<{ value:string,label:string,description:string }|null>(null);
-    const [genreList, setGenreList] = useState<[]>([]);
+    const [genre, setGenre]                       = useState<{ value:string,label:string,description:string }|null>(null);
+    const [genreList, setGenreList]               = useState<[]>([]);
 
     const { 
         loggedIn, setLoggedIn,
@@ -95,6 +101,7 @@ const HomeComponent = () => {
     useEffect(() => {
         if (publishedStories.length < 1) {            
             fetchStories();
+            fetchArticles();
         }
     }, []);
 
@@ -127,8 +134,34 @@ const HomeComponent = () => {
             setGenreList(genres ?? []);
 
             if (isLoggedIn) {            
-                const allContinueStories = await getStartedStories();
+                await getStartedStories();
             }
+
+        } catch (error) {
+          console.error(error);      
+        }finally{
+          setLoading(false)
+        }
+    }
+
+    const fetchArticles = async () => {
+        try {
+            let url = `${process.env.NEXT_PUBLIC_BASE_URL}/articles`;
+            setLoading(true)
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+        
+            const json = await res.json();
+            let data = json?.articles;
+            if (data) setPublishedArticles(data);            
+
+            // if (isLoggedIn) {            
+            //     const allContinueStories = await getStartedStories();
+            // }
 
         } catch (error) {
           console.error(error);      
@@ -297,10 +330,10 @@ const HomeComponent = () => {
 
                     {loading && 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5">
-                    <Skeleton className="w-full h-[190px] rounded-xl" />
-                    <Skeleton className="w-full h-[190px] rounded-xl" />
-                    <Skeleton className="w-full h-[190px] rounded-xl" />
-                    <Skeleton className="w-full h-[190px] rounded-xl" />
+                        <Skeleton className="w-full h-[190px] rounded-xl" />
+                        <Skeleton className="w-full h-[190px] rounded-xl" />
+                        <Skeleton className="w-full h-[190px] rounded-xl" />
+                        <Skeleton className="w-full h-[190px] rounded-xl" />
                     </div>}
 
                     {
@@ -314,81 +347,52 @@ const HomeComponent = () => {
                     }
                     
                     {
-                        !loading && publishedStories?.length > 0 &&
+                        !loading && 
                         <div id="published-content">
-                            <h1 className="mb-5 text-gray-600 xs:text-3xl sm:text-3xl text-4xl font-bold">
-                            Checkout these stories..
-                            </h1>
+                            {
+                                <div>
+                                    <Tabs defaultValue="stories" className="w-full">
+                                        <TabsList>
+                                            <TabsTrigger value="stories">Stories</TabsTrigger>
+                                            <TabsTrigger value="articles">Articles</TabsTrigger>
+                                        </TabsList>
+                                        <TabsContent value="stories">
+                                            {/* <h1 className="mb-5 mt-10 text-gray-600 xs:text-3xl sm:text-3xl text-4xl font-bold">
+                                            Checkout these stories..
+                                            </h1> */}
 
-                            <div className="mb-7 w-1/2 flex gap-4 items-center">
-                                <ReusableCombobox
-                                    options={genreList}
-                                    placeholder="Select genre..."
-                                    defaultValue={genre}
-                                    onSelect={(value) => updateGenre(value)}
-                                    className="my-custom-class w-full text-xs"
-                                    emptyMessage="No genre found."
-                                />
-                                <Button onClick={reset} size="icon" className="">
-                                    <RotateCcw className="w-5 h-5"/>     
-                                </Button>
-                            </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5">
-                            {publishedStories?.filter(story => story.publishedAt).map((story, index) => (
+                                            {
+                                                genreList.length > 0 &&
+                                                <div className="mb-7 mt-10 md:w-full lg:w-1/2 flex gap-4 items-center">
+                                                    <ReusableCombobox
+                                                        options={genreList}
+                                                        placeholder="Select genre..."
+                                                        defaultValue={genre}
+                                                        onSelect={(value) => updateGenre(value)}
+                                                        className="my-custom-class w-full text-xs"
+                                                        emptyMessage="No genre found."
+                                                    />
+                                                    <Button onClick={reset} size="icon" className="">
+                                                        <RotateCcw className="w-5 h-5"/>     
+                                                    </Button>
+                                                </div>
+                                            }
 
-                                <div key={index} className="p-5 flex flex-col justify-between w-full bg-gray-800 text-gray-50 rounded-lg border">
-                                <div className="flex justify-between items-center mb-1">
-                                <p className="text-xs font-semibold">{story?.publishedAt ? formatDate(story?.publishedAt) : ""}</p>
-                                <p className="font-bold text-[10px]">5 min read</p>
+                                            {
+                                                publishedStories?.length > 0 &&
+                                                <PublishedStoryComponent publishedStories={publishedStories} />
+                                            }
+                                        </TabsContent>
+                                        <TabsContent value="articles">                                            
+                                            <ul className="mt-10">
+                                                {publishedArticles.map(article => (
+                                                    <ReaderArticleItem key={article.id} article={article} />
+                                                ))}
+                                            </ul>
+                                        </TabsContent>
+                                    </Tabs>
                                 </div>
-                                <h1 className="font-bold text-xl capitalize mb-3">{story?.projectTitle}</h1>
-                                <p className="font-light mt-2 text-xs capitalize">By {story?.user?.name}</p>
-
-                                <div className="font-semibold mt-2 text-[10px]">
-                                    {story?.genres?.map(genre => genre.value)?.join(" | ")}
-                                </div>
-                                
-                                <div className="mt-4">
-                                {
-                                    !story?.introductionImage && <img src="/no-image.png" alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
-                                }
-                                {
-                                    story?.introductionImage && <img src={story?.introductionImage} alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
-                                }
-                                </div>
-                                <p className="mt-5 text-xs text-gray-50">
-                                { story?.overview?.slice(0, 200)}...
-                                </p>
-
-                                <div className="mt-4 flex justify-between items-center">
-                                    <Button onClick={() => moveToReadStory(story?.id)} size="sm" className="text-gray-700" variant="outline">
-                                    Read
-                                    <BookOpen className="w-4 h-4 ml-2"/>
-                                    </Button>
-
-                                
-                                </div>
-                                
-                                <div className="mt-4 flex justify-between items-center">
-                                    
-                                    {/* <Share2 className="w-4 h-4" /> */}
-                                    <div onClick={() => shareBlink(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
-                                        <span className="text-xs">Share Blink on</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#fff" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
-                                    </div>
-
-                                    <div onClick={() => shareStory(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
-                                        {/* <Share2 className="w-4 h-4" /> */}
-                                        <span className="text-xs">Post on </span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#fff" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
-
-                                    </div>
-                                </div>
-
-                                </div>
-                            ))}
-                            </div>
+                            }
                         </div>
                     }
                 

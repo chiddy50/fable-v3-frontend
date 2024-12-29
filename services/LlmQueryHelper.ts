@@ -7,6 +7,21 @@ import { CharacterInterface } from "@/interfaces/CharacterInterface";
 import { ChatOpenAI } from "@langchain/openai";
 import { toast } from "sonner";
 import { JsonOutputParser } from "@langchain/core/output_parsers";
+import { RunnableSequence, RunnablePassthrough } from "@langchain/core/runnables"
+import { ClimaxAndFallingActionChapterAnalysis, FirstPlotPointChapterAnalysis, PinchPointsAndSecondPlotPointChapterAnalysis, ResolutionChapterAnalysis, RisingActionChapterAnalysis } from "@/interfaces/CreateStoryInterface";
+
+const llm = new ChatGroq({
+   apiKey: process.env.NEXT_PUBLIC_GROQ_JSONOUTPUT_API_KEY,
+   model: "llama-3.1-70b-versatile"           
+});
+
+export const modelInstance = () => {
+   const llm = new ChatGroq({
+      apiKey: process.env.NEXT_PUBLIC_GROQ_JSONOUTPUT_API_KEY,
+      model: "llama-3.1-70b-versatile"           
+   });
+   return llm;
+}
 
 export const queryLLM = async (prompt: string, payload: object, parser = null) => {
    try {      
@@ -40,8 +55,9 @@ export const queryStructuredLLM = async (prompt: string, payload: object, parser
    try {      
       const llm = new ChatGroq({
          apiKey: process.env.NEXT_PUBLIC_GROQ_JSONOUTPUT_API_KEY,
-         // model: "llama3-70b-8192",
-         model: "llama-3.1-70b-versatile"           
+         // apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
+         model: "llama3-70b-8192",
+         // model: "llama-3.1-70b-versatile"           
       });
   
       const startingPrompt = ChatPromptTemplate.fromMessages([
@@ -67,8 +83,8 @@ export const streamLLMResponse = async (prompt: string, payload: object) => {
    try {      
       const llm = new ChatGroq({
          apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
-         // model: "llama3-70b-8192",
-         model: "llama-3.1-70b-versatile"           
+         model: "llama3-70b-8192",
+         // model: "llama-3.1-70b-versatile"           
       });
   
       const startingPrompt = ChatPromptTemplate.fromMessages([
@@ -329,4 +345,335 @@ export const mergeStorytellingFormWithIdea = async (character: CharacterInterfac
      return null;    
    }
 }  
+
+/**
+ * ---------------------------------|
+ * CHAPTER SUMMARY HELPER FUNCTIONS |
+ * ---------------------------------|
+ */
+
+/**
+ * Chapter 1 Summary
+ * @returns 
+ */
+export const getIntroductionSummary = async (llm: ChatGroq) => {
+   const introductionTemplate = `
+   You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic. 
+   The introduction to the protagonist and their ordinary world section has already been written, your task is to summarize it and extract the key events of the story.
+   Return the summary of the The introduction to the protagonist and their ordinary world.
+   - Ensure the summary highlights and describes all the characters involved.
+   - Ensure the summary contains the last events that occurred that would lead to the next chapter. 
+
+   Story Introduction {introduceProtagonistAndOrdinaryWorld}
+   introduction of protagonist(s) ordinary world summary:  
+   `;
+   return getSummary(introductionTemplate);
+}
+
+/**
+ * Chapter 2 Summary
+ * @returns 
+ */
+export const getIncitingIncidentSummary = async (llm: ChatGroq) => {
+   const incitingIncidentTemplate = `
+   You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic. 
+   Given the inciting incident of a story, using the three act structure.
+   Return the summary of the inciting incident.
+   - Ensure the summary highlights the main events the inciting incident.
+   - Ensure the summary has all the elements of the inciting incident of the story and also the characters.
+   - Ensure the summary highlights and describes all the characters involved.
+   - Ensure the summary contains the last events that occurred that would lead to the next chapter. 
+
+   Introduction summary {introductionSummary}
+   Inciting Incident {incitingIncident}
+   Inciting Incident summary:  
+   `;
+   return getSummary(incitingIncidentTemplate);
+}
+
+/**
+ * Chapter 3 Summary
+ * @returns 
+ */
+export const getFirstPlotPointSummary = async (llm: ChatGroq) => {
+   const firstPlotPointTemplate = `
+   You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic. 
+   Given the First Plot Point of a story, using the three act structure.
+   Return the summary of the following First Plot Point chapter of a story.
+   - Ensure the summary highlights and describes all the characters involved. 
+   - Ensure the summary contains the last events that occurred that would lead to the next chapter. 
+
+   First Plot Point {firstPlotPoint}
+   First Plot Point summary:  
+   `;
+   return getSummary(firstPlotPointTemplate);
+}
+
+/**
+ * Chapter 4 Summary
+ * @returns 
+ */
+export const getRisingActionAndMidpointSummary = async (llm: ChatGroq) => {
+   const firstPlotPointTemplate = `
+   You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic. 
+   Given the Rising Action & Midpoint of a story, using the three act structure.
+   Return the summary of the following Rising Action & Midpoint chapter of a story.
+   - Ensure the summary highlights and describes all the characters involved.
+   - Ensure the summary contains the last events that occurred that would lead to the next chapter. 
+
+   Rising Action & Midpoint {risingActionAndMidpoint}   
+   Rising Action & Midpoint summary:  
+   `;
+   return getSummary(firstPlotPointTemplate);
+}
+
+/**
+ * Chapter 5 Summary
+ * @returns 
+ */
+export const getPinchPointsAndSecondPlotPointSummary = async (llm: ChatGroq) => {
+   const pinchPointsAndSecondPlotPointTemplate = `
+   You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic. 
+   Given the Pinch Points And Second Plot Point of a story, using the three act structure.
+   Return the summary of the following Pinch Points And Second Plot Point chapter of a story.
+   - Ensure the summary highlights and describes all the characters involved.
+   - Ensure the summary contains the last events that occurred that would lead to the next chapter. 
+
+   Pinch Points And Second Plot Point {pinchPointsAndSecondPlotPoint}   
+   Pinch Points And Second Plot Point summary:  
+   `;
+   return getSummary(pinchPointsAndSecondPlotPointTemplate);
+}
+
+/**
+ * Chapter 6 Summary
+ * @returns 
+ */
+export const getClimaxAndFallingActionSummary = async (llm: ChatGroq) => {
+   const climaxAndFallingActionTemplate = `
+   You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic. 
+   Given the Climax And Falling Action of a story, using the three act structure.
+   Return the summary of the following Climax And Falling Action chapter of a story.
+   - Ensure the summary highlights and describes all the characters involved. 
+   - Ensure the summary contains the last events that occurred that would lead to the next chapter. 
+
+   Climax And Falling Action {climaxAndFallingAction}   
+   Climax And Falling Action summary:  
+   `;
+   return getSummary(climaxAndFallingActionTemplate);
+}
+
+/**
+ * Chapter 7 Summary
+ * @returns 
+ */
+export const getResolutionSummary = async (llm: ChatGroq) => {
+   const climaxAndFallingActionTemplate = `
+   You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic. 
+   Given the Resolution & Epilogue section of a story, using the three act structure.
+   Return the summary of the following Resolution & Epilogue chapter of a story.
+   - Ensure the summary highlights and describes all the characters involved
+
+   Resolution & Epilogue {climaxAndFallingAction}   
+   Resolution & Epilogue summary:  
+   `;
+   return getSummary(climaxAndFallingActionTemplate);
+}
+
+
+/**
+ * ----------------------------------|
+ * CHAPTER ANALYSIS HELPER FUNCTIONS |
+ * ----------------------------------|
+ */
+
+/**
+ * Chapter 3 Analysis
+ * @returns 
+ */
+export const getFirstPlotPointAnalysis = async (llm: ChatGroq) => {
+   const firstPlotPointTemplate = `
+   You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic. 
+   Given the First Plot Point of a story analyze it and return the following information about it.
+   Return your response in a json or javascript object format like: 
+   summary(string, a summary of the first plot point section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),            
+   charactersInvolved(array of objects with keys like name(string), age(string), backstory(string), role(string), clothDescription(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), weight(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToProtagonists(array of object with keys like protagonistName(string) & relationship(string)) )
+   protagonistGoal(string, this refers to the answer to the question, What is the protagonist's new goal or desire?),            
+   protagonistTriggerToAction(string, this refers to the answer to the question, What triggers the protagonist to take action?),            
+   obstaclesProtagonistWillFace(string, this refers to the answer to the question, What obstacles or challenges will the protagonist face?),            
+   tone(array of strings),
+   setting(array of strings).                        
+   Please ensure the only keys in the object are summary, charactersInvolved, protagonistGoal, protagonistTriggerToAction, obstaclesProtagonistWillFace, tone and setting keys only.
+   Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
+
+   charactersInvolved refers to the characters involved in the inciting incident.
+   Ensure the summary contains all the events step by step as they occurred and the summary should also contain the characters and the impacts they have had on each other.
+
+   Inciting Incident: {incitingIncidentSummary}
+   First Plot Point {firstPlotPoint}
+   `;
+   const parser = new JsonOutputParser<FirstPlotPointChapterAnalysis>();            
+   return getJsonAnalysis(firstPlotPointTemplate, parser, llm);
+}
+
+/**
+ * Chapter 4 Analysis
+ * @returns 
+ */
+export const getRisingActionAndMidpointAnalysis = async (llm: ChatGroq) => {
+   const firstPlotPointTemplate = `
+   You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic. 
+   We have currently generated the Rising Action & Midpoint section of the story. 
+   I need you analyze the generated Rising Action & Midpoint and give an analysis of the characters involved in the story, tone, genre, setting, and Characters involved.
+   I need you to also analyze the generated Rising Action & Midpoint and the answer following questions:
+   - What challenges does the protagonist face on their journey?
+   - How does the protagonist's perspective change through these challenges?
+   - What major event pushes the protagonist towards the climax?
+   **CONTEXT**
+   Here is the Rising Action & Midpoint: {risingActionAndMidpoint}.
+   Return your response in a json or javascript object format like: 
+   summary(string, a summary of the rising action and midpoint section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),            
+   charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the inciting incident),
+   challengesProtagonistFaces(string, this refers to the answer to the question, What challenges does the protagonist face on their journey?),            
+   protagonistPerspectiveChange(string, this refers to the answer to the question, How does the protagonist's perspective change through these challenges?),            
+   majorEventPropellingClimax(string, this refers to the answer to the question, What major event pushes the protagonist towards the climax?),            
+   tone(array of strings),
+   setting(array of strings).                        
+   Please ensure the only keys in the object are summary, charactersInvolved, protagonistGoal, protagonistTriggerToAction, obstaclesProtagonistWillFace, tone and setting keys only.
+   Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
+
+   Ensure the summary contains all the events step by step as they occurred and the summary should also contain the characters and the impacts they have had on each other.
+
+   **INPUT**
+   Rising Action & Midpoint {risingActionAndMidpoint}
+   story idea {storyIdea}
+   `;
+   const parser = new JsonOutputParser<RisingActionChapterAnalysis>();            
+   return getJsonAnalysis(firstPlotPointTemplate, parser, llm);
+}
+
+/**
+ * Chapter 5 Analysis
+ * @returns 
+ */
+export const getPinchPointsAndSecondPlotPointAnalysis = async (llm: ChatGroq) => {
+   const template = `
+   You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic. 
+   We have currently generated the Pinch Points & Second Plot Point section of the story. 
+   I need you analyze the generated Pinch Points & Second Plot Point and give an analysis of the characters involved in the story, tone, genre, setting, and Characters involved.
+   I need you to also analyze the generated Pinch Points & Second Plot Point and the answer following questions:
+   - What new obstacles challenge the protagonist?
+   - What discovery changes what the protagonist does next? 
+   - How does the protagonist's world, stakes, or understanding of the conflict escalate or change?
+   
+   **CONTEXT**
+   Here is the Pinch Points & Second Plot Point: {pinchPointsAndSecondPlotPoint}.
+
+   Return your response in a json or javascript object format like: 
+   summary(string, a summary of the pinch point and second plot point section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),            
+   newObstacles(string, this refers to the answer to the question, What new obstacles challenge the protagonist?),            
+   discoveryChanges(string, this refers to the answer to the question, What discovery changes what the protagonist does next?),            
+   howStakesEscalate(string, this refers to the answer to the question, How does the protagonist's world, stakes, or understanding of the conflict escalate or change?),            
+   tone(array of strings),
+   setting(array of strings).                        
+   Please ensure the only keys in the object are summary, newObstacles, discoveryChanges, howStakesEscalate, tone and setting keys only.
+   Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
+
+   Ensure the summary contains all the events step by step as they occurred and the summary should also contain the characters and the impacts they have had on each other.
+
+   **INPUT**
+   Here is the Pinch Points & Second Plot Point: {pinchPointsAndSecondPlotPoint}.
+   story idea {storyIdea}
+   `;
+   const parser = new JsonOutputParser<PinchPointsAndSecondPlotPointChapterAnalysis>();            
+   return getJsonAnalysis(template, parser, llm);
+}
+
+/**
+ * Chapter 6 Analysis
+ * @returns 
+ */
+export const getClimaxAndFallingActionAnalysis = async (llm: ChatGroq) => {
+   const template = `
+   You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
+   We have currently generated the Climax and Falling Action section of the story. 
+   I need you analyze the generated Climax and Falling Action and give an analysis of the characters involved in the story, tone, genre, setting, and Characters involved.
+   I need you to also analyze the generated Climax and Falling Action and the answer following questions:
+   - What is the final confrontation or challenge that the protagonist must face? 
+   - How does the protagonist overcome or succumb to the challenge?
+   - How do the events of the climax resolve the story's conflicts and provide closure for the characters?
+   
+   **CONTEXT**
+   Here is the Climax and Falling Action: {climaxAndFallingAction}.
+
+   Return your response in a json or javascript object format like: 
+   summary(string, a summary of the climax and falling action section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),            
+   finalChallenge(string, this refers to the answer to the question, What is the final confrontation or challenge that the protagonist must face?),            
+   challengeOutcome(string, this refers to the answer to the question, How does the protagonist overcome or succumb to the challenge?),            
+   storyResolution(string, this refers to the answer to the question, How do the events of the climax resolve the story's conflicts and provide closure for the characters?),            
+   tone(array of strings),
+   setting(array of strings).                        
+   Please ensure the only keys in the object are summary, finalChallenge, challengeOutcome, storyResolution, tone and setting keys only.
+   Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
+
+   Ensure the summary contains all the events step by step as they occurred and the summary should also contain the characters and the impacts they have had on each other.
+
+   **INPUT**
+   Climax and Falling Action: {climaxAndFallingAction}.
+   story idea {storyIdea}
+   `;
+
+   const parser = new JsonOutputParser<ClimaxAndFallingActionChapterAnalysis>();            
+   return getJsonAnalysis(template, parser, llm);
+}
+
+/**
+ * Chapter 7 Analysis
+ * @returns 
+ */
+export const getResolutionAnalysis = async (llm: ChatGroq) => {
+   const template = `
+   You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
+   We have currently generated the Resolution & Epilogue section of the story. 
+   I need you analyze the generated Resolution & Epilogue and give an analysis of the characters involved in the story, tone, genre, setting, and Characters involved.
+   I need you to also analyze the generated Resolution & Epilogue and the answer following questions:
+   - What are the consequences of the climax?
+   - How do the characters evolve or change?
+   - What is the new status quo or resolution of the conflict?
+
+   **CONTEXT**
+   Here is the Resolution & Epilogue: {resolution}.
+
+   Return your response in a json or javascript object format like: 
+   summary(string, a summary of the resolution section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),            
+   climaxConsequences(string, this refers to the answer to the question, What are the consequences of the climax?),            
+   howCharactersEvolve(string, this refers to the answer to the question, How do the characters evolve or change?),            
+   resolutionOfConflict(string, this refers to the answer to the question, What is the new status quo or resolution of the conflict?),            
+   tone(array of strings),
+   setting(array of strings).                        
+   Please ensure the only keys in the object are summary, climaxConsequences, howCharactersEvolve, resolutionOfConflict, tone and setting keys only.
+   Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
+
+   Ensure the summary contains all the events step by step as they occurred and the summary must also contain the characters and the impacts they have had on each other.
+
+   **INPUT**
+   story idea {storyIdea}
+   `;
+
+   const parser = new JsonOutputParser<ResolutionChapterAnalysis>();            
+   return getJsonAnalysis(template, parser, llm);
+}
+
+
+const getSummary = (template: string) => {
+   const prompt = PromptTemplate.fromTemplate(template)            
+   const chain = RunnableSequence.from([prompt, llm, new StringOutputParser()])
+   return chain;
+}
+
+const getJsonAnalysis = (template: string, parser: JsonOutputParser, llm: ChatGroq) => {
+   const prompt = PromptTemplate.fromTemplate(template)            
+   const chain = RunnableSequence.from([prompt, llm, parser]);
+   return chain;
+}
 

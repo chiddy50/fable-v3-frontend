@@ -33,14 +33,14 @@ import { PublicKey } from '@solana/web3.js';
 import { AppContext } from '@/context/MainContext';
 import { getUserAuthParams } from '@/services/AuthenticationService';
 import dynamic from 'next/dynamic';
+import { createSlugFromName } from '@/lib/utils';
 
 const DashboardStoriesComponent = () => {
     const router = useRouter();
 
     const [openNewProjectModal, setOpenNewProjectModal] = useState<boolean>(false);
     const [projectTitle, setProjectTitle]= useState<string>('');    
-    const [depositAddress, setDepositAddress]= useState<string>('');    
-    const [tipLink, setTipLink]= useState<string>('');    
+    const [slug, setSlug]= useState<string>('');    
     const [creatorName, setCreatorName]= useState<string>('');    
     
     const [storyData, setStoryData]= useState([]);   
@@ -52,6 +52,17 @@ const DashboardStoriesComponent = () => {
     const [authUser, setAuthUser]= useState(null);   
     const { web3auth, loggedIn, login } = useContext(AppContext)
     
+    useEffect(() => {
+        if (projectTitle) {
+            const slug = createSlugFromName(projectTitle)
+            console.log({slug});
+            
+            if (slug) {
+                setSlug(slug)
+            }
+        }
+    }, [projectTitle])
+
     useEffect(() => {
         getData()
     }, []);
@@ -107,7 +118,7 @@ const DashboardStoriesComponent = () => {
         }
 
         // if (!isValidSolanaAddress(depositAddress)) {
-        //     toast.error("Invalid KIN deposit address");
+        //     toast.error("Invalid Code Wallet deposit address");
         //     return;
         // }
 
@@ -258,57 +269,66 @@ const DashboardStoriesComponent = () => {
                             {
                                 storyData?.map((story: StoryInterface) => (                                
                                     <div key={story?.id} className="p-5 flex flex-col justify-between w-full bg-gray-800 text-gray-50 rounded-lg border">
-                                    <div className="flex justify-between items-center mb-1">
-                                    <p className="text-xs font-semibold">{story?.publishedAt ? formatDate(story?.publishedAt) : ""}</p>
-                                    {/* <p className="font-bold text-[10px]">5 min read</p> */}
-                                    </div>
-                                    <h1 className="font-bold text-xl capitalize mb-3">{story?.projectTitle}</h1>
-                  
-                                    <div className="font-semibold mt-2 text-[10px]">
-                                      {story?.genres?.map(genre => genre.value)?.join(" | ")}
-                                    </div>
-                         
-                                    <div className="mt-4">
-                                    {
-                                        !story?.introductionImage && <img src="/no-image.png" alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
-                                    }
-                                    {
-                                        story?.introductionImage && <img src={story?.introductionImage} alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
-                                    }
-                                    </div>
+                                        <div className="flex justify-between items-center mb-1">
+                                            <p className="text-xs font-semibold">{story?.publishedAt ? formatDate(story?.publishedAt) : ""}</p>
+                                            {/* <p className="font-bold text-[10px]">5 min read</p> */}
+                                            <p className='text-sm font-bold capitalize'>{story?.status}</p>
 
-
-                                    <div className=" flex xs:flex-col sm:flex-col md:flex-col lg:flex-col xl:flex-row xs:gap-4 mt-3 justify-between items-center">
-                                        <p className='text-sm font-bold capitalize'>{story?.status}</p>
-
-                                        <div className="flex items-center gap-5">
-                                            {   story?.status === "published" &&
-                                                <div className='flex items-center gap-5'>
-                                                    <div onClick={() => shareStory(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
-                                                        <span className="text-xs">Post on </span>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#fff" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
-                                                    </div>
-                                                    <Button onClick={() => copyToClipboard(`${process.env.NEXT_PUBLIC_URL}/read-story/${story?.id}`)} size="sm" variant="outline" className='text-gray-900 text-xs'>
-                                                        Copy link
-                                                        <Share2Icon className="h-3 w-3 ml-2"/>
-                                                    </Button>                                                    
-                                                </div>
-
-                                            }
-
-                                            {   story?.status === "draft" &&
-                                                <Button onClick={() => deleteStory(story?.id)} size="sm" variant="destructive" className=' text-xs'>
-                                                    Delete
-                                                    <Trash2 className="h-3 w-3 ml-2"/>
-                                                </Button>    
-                                            }
-                                            <Link href={`/dashboard/refine-story?story-id=${story.id}`}>                                            
-                                                <Button size="sm" variant="outline" className='text-gray-900'>Edit</Button>
-                                            </Link>
                                         </div>
-                                    </div>                           
-                  
-                                  </div>
+                                        <h1 className="font-bold text-xl capitalize mb-3">{story?.projectTitle}</h1>
+                    
+                                        <div className="font-semibold mt-2 text-[10px]">
+                                            {story?.genres?.map(genre => genre.value)?.join(" | ")}
+                                        </div>
+                            
+                                        <div className="mt-4">
+                                            {
+                                                !story?.introductionImage && <img src="/no-image.png" alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
+                                            }
+                                            {
+                                                story?.introductionImage && <img src={story?.introductionImage} alt="walk" className="w-full h-[200px] rounded-xl object-cover" />
+                                            }
+                                        </div>
+
+
+                                        <div className="mt-5">
+                                        {/* <div className=" flex xs:flex-col sm:flex-col md:flex-col lg:flex-col xl:flex-row xs:gap-4 mt-3 justify-between items-center"> */}
+                                            <div className="flex items-center justify-between mb-3">
+                                                <Link href={`/dashboard/refine-story?story-id=${story.id}`}>                                            
+                                                    <Button size="sm" variant="outline" className='text-gray-900'>Chapters</Button>
+                                                </Link>
+                                                <Link href={`/dashboard/project-summary?story-id=${story.id}`}>                                            
+                                                    <Button size="sm" variant="outline" className='text-gray-900'>
+                                                        { story?.status === "draft" ? "Publish" : "Unpublish" }
+                                                    </Button>
+                                                </Link>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                {   story?.status === "published" &&
+                                                    <div className='flex items-center gap-5'>
+                                                        <div onClick={() => shareStory(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
+                                                            <span className="text-xs">Post on </span>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className="w-4 h-4"><path fill="#fff" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
+                                                        </div>
+                                                        <Button onClick={() => copyToClipboard(`${process.env.NEXT_PUBLIC_URL}/read-story/${story?.id}`)} size="sm" variant="outline" className='text-gray-900 text-xs'>
+                                                            Copy link
+                                                            <Share2Icon className="h-3 w-3 ml-2"/>
+                                                        </Button>                                                    
+                                                    </div>
+
+                                                }
+
+                                                {   story?.status === "draft" &&
+                                                    <Button onClick={() => deleteStory(story?.id)} size="sm" variant="destructive" className=' text-xs'>
+                                                        Delete
+                                                        <Trash2 className="h-3 w-3 ml-2"/>
+                                                    </Button>    
+                                                }
+                                            </div>
+                                            
+                                        </div>                           
+                    
+                                    </div>
                                 ))
                             }
                         </div>
@@ -335,6 +355,18 @@ const DashboardStoriesComponent = () => {
                             placeholder='Project title'
                             />
                         </div>
+
+                        <div className="mb-3">
+                            <p className="mb-1 text-xs font-semibold">Slug <span className='text-red-500 text-md font-bold'>*</span></p>
+                            <Input 
+                            type='text'
+                            defaultValue={slug}
+                            onKeyUp={(e) => setSlug(e.target.value)} 
+                            className='w-full text-xs p-5 outline-none border rounded-xl mb-3 resize-none'
+                            placeholder='slug'
+                            />
+                        </div>      
+
                         <div className="mb-3">
                             <p className="mb-1 text-xs font-semibold">Story Idea <span className='text-red-500 text-md font-bold'>*</span></p>
                             <textarea rows={5} 
@@ -370,19 +402,19 @@ const DashboardStoriesComponent = () => {
                         </div>
 
                         <div className="mb-3">
-                            <p className="mb-1 text-xs font-semibold">Kin Wallet Address <span className='text-red-500 text-md font-bold'>*</span></p>
+                            <p className="mb-1 text-xs font-semibold">Code Wallet Address <span className='text-red-500 text-md font-bold'>*</span></p>
                             <Input 
                             defaultValue={depositAddress}
                             onKeyUp={(e) => setDepositAddress(e.target.value)} 
                             onPaste={(e) => setDepositAddress(e.target.value)} 
                             className='w-full text-xs p-5 outline-none border rounded-xl mb-3 resize-none'
-                            placeholder='Kin Wallet Address'
+                            placeholder='Code Wallet Address'
                             />
                         </div> */}
 
                         {/* <div className="mb-3 bg-red-100 border border-red-300 p-3 rounded-2xl">
                             <p className='text-[10px] text-red-500'>
-                            Caution: Please ensure you provide a valid KIN deposit address. Not all Solana addresses are compatible with KIN transactions. If the address is incorrect, you may not receive tips or payments for your content. Double-check your KIN wallet address to avoid missing out on rewards.
+                            Caution: Please ensure you provide a valid Code deposit address. Not all Solana addresses are compatible with Code transactions. If the address is incorrect, you may not receive tips or payments for your content. Double-check your Code wallet address to avoid missing out on rewards.
                             </p>
                         </div> */}
                         <Button onClick={() => createNewProject("refine-story")} className='text-gray-50 mr-5 w-full bg-[#46aa41]'>Proceed</Button>

@@ -80,7 +80,7 @@ const UserProfilePage = () => {
         }
 
         if (depositAddress && !isValidSolanaAddress(depositAddress)) {
-            toast.error("Invalid KIN deposit address");
+            toast.error("Invalid Code Wallet deposit address");
             return false;
         }
         return true;

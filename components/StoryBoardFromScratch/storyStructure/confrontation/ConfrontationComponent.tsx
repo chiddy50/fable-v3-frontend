@@ -11,7 +11,7 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 
-import { charactersToString, extractCharacters, extractCharacterSummary, extractTemplatePrompts, queryLLM, threeActStructureDefinition } from '@/services/LlmQueryHelper';
+import { charactersToString, extractCharacters, extractCharacterSummary, extractTemplatePrompts, queryLLM } from '@/services/LlmQueryHelper';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
 
 import { CharacterInterface, SuggestedCharacterInterface } from '@/interfaces/CharacterInterface';

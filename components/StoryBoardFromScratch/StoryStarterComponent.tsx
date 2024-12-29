@@ -37,7 +37,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import { Steps } from 'intro.js-react';
-import { extractTemplatePrompts, queryLLM, threeActStructureDefinition } from '@/services/LlmQueryHelper';
+import { extractTemplatePrompts, queryLLM } from '@/services/LlmQueryHelper';
 
 interface StoryStarterComponentProps {
     data?: StoryInterface;

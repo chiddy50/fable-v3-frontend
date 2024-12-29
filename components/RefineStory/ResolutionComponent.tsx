@@ -23,21 +23,13 @@ import { cn } from '@/lib/utils';
 import { Dosis, Inter } from 'next/font/google';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { JsonOutputParser } from "@langchain/core/output_parsers";
+import { ResolutionChapterAnalysis } from '@/interfaces/CreateStoryInterface';
 
 interface ResolutionComponentProps {
     initialStory: StoryInterface;
     refetch: () => void;
     moveToNext:(step: number) => void;
     projectDescription: string;
-}
-
-interface ChapterAnalysis {
-  summary: string;
-  climaxConsequences: string;
-  howCharactersEvolve: string;
-  resolutionOfConflict: string;
-  tone: string[];
-  setting: string[];
 }
 
 const inter = Inter({ subsets: ['latin'] });
@@ -57,8 +49,9 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
     // How do the characters evolve or change?
     const [howCharactersEvolve, setHowCharactersEvolve] = useState<string>(initialStory?.howCharactersEvolve ?? "");        
     // What is the new status quo or resolution of the conflict?
-    const [resolutionOfConflict, setResolutionOfConflict] = useState<string>(initialStory?.resolutionOfConflict ?? "");    
-
+    const [resolutionOfConflict, setResolutionOfConflict] = useState<string>(initialStory?.resolutionOfConflict ?? "");
+            
+    const [resolutionSummary, setResolutionSummary] = useState<string>(initialStory?.storyStructure?.resolutionSummary ?? "");    
     const [resolutionCharacters, setResolutionCharacters] = useState<[]>([]);    
     const [resolutionSetting, setResolutionSetting] = useState<string[]>(initialStory?.resolutionSetting ?? []);
     const [resolutionTone, setResolutionTone] = useState<string[]>(initialStory?.resolutionTone ?? []);
@@ -68,13 +61,14 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
+      setResolutionSummary(initialStory?.storyStructure?.resolutionSummary ?? "")
       setClimaxConsequences(initialStory?.climaxConsequences ?? "")
       setHowCharactersEvolve(initialStory?.howCharactersEvolve ?? "")
       setResolutionOfConflict(initialStory?.resolutionOfConflict ?? "")
       setResolutionSetting(initialStory?.resolutionSetting ?? [])
       setResolutionTone(initialStory?.resolutionTone ?? [])
       setResolutionExtraDetails(initialStory?.resolutionExtraDetails ?? "")
-  }, [initialStory]);
+    }, [initialStory]);
 
     useEffect(() => {
         adjustHeight();
@@ -144,17 +138,17 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
           
           setGenerating(true);
           const response = await streamLLMResponse(prompt, {
-              storyIdea: projectDescription,
-              genre: genrePrompt,
-              tones: tonePrompt,
-              setting: settingPrompt,
-              protagonists: protagonistSuggestionsPrompt,
-              introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
-              incitingIncident: initialStory?.storyStructure?.incitingIncident,                
-              firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,     
-              risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,   
-              pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPoint,          
-              climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingAction,                                     
+            storyIdea: projectDescription,
+            genre: genrePrompt,
+            tones: tonePrompt,
+            setting: settingPrompt,
+            protagonists: protagonistSuggestionsPrompt,
+            introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary,
+            incitingIncident: initialStory?.storyStructure?.incitingIncidentSummary,                
+            firstPlotPoint: initialStory?.storyStructure?.firstPlotPointSummary,     
+            risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpointSummary,   
+            pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPointSummary,          
+            climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingActionSummary,                                     
           });
 
           if (!response) {
@@ -189,7 +183,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
             const prompt = `
             You are a skilled storyteller known for crafting immersive narratives, deep characters, and vivid worlds. Your writing is creative, engaging, and detail-oriented. 
 
-            The following story sections have already been generated:
+            The following story sections have already been generated and here is there summary:
             - Introduction: {introduceProtagonistAndOrdinaryWorld}
             - Inciting Incident: {incitingIncident}
             - First Plot Point: {firstPlotPoint}
@@ -224,12 +218,12 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
             setModifyModalOpen(false);
             const response = await streamLLMResponse(prompt, {
               storyIdea: projectDescription,
-              introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
-              incitingIncident: initialStory?.storyStructure?.incitingIncident,
-              firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,
-              risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,
-              pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPoint,
-              climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingAction,
+              introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary,
+              incitingIncident: initialStory?.storyStructure?.incitingIncidentSummary,
+              firstPlotPoint: initialStory?.storyStructure?.firstPlotPointSummary,
+              risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpointSummary,
+              pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPointSummary,
+              climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingActionSummary,
               resolution,
               climaxConsequences,
               howCharactersEvolve,
@@ -271,6 +265,8 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
         return;
       }
       try {
+
+
         const prompt = `
         You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
         We have currently generated the Resolution & Epilogue section of the story. 
@@ -282,6 +278,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
 
         **CONTEXT**
         Here is the Resolution & Epilogue: {resolution}.
+
         The following sections of the story have already been generated:
         - The introduction to the protagonist and their ordinary world: {introduceProtagonistAndOrdinaryWorld}
         - Inciting Incident: {incitingIncident}
@@ -292,7 +289,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
         - Resolution & Epilogue: {resolution}
 
         Return your response in a json or javascript object format like: 
-        summary(string, a summary of the story soo far),
+        summary(string, this is a summary of the events in the Resolution & Epilogue section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),
         climaxConsequences(string, this refers to the answer to the question, What are the consequences of the climax?),            
         howCharactersEvolve(string, this refers to the answer to the question, How do the characters evolve or change?),            
         resolutionOfConflict(string, this refers to the answer to the question, What is the new status quo or resolution of the conflict?),            
@@ -301,23 +298,25 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
         Please ensure the only keys in the object are summary, climaxConsequences, howCharactersEvolve, resolutionOfConflict, tone and setting keys only.
         Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
 
+        Ensure the summary contains all the events step by step as they occurred and the summary must also contain the characters and the impacts they have had on each other.
+
         **INPUT**
-        Rising Action & Midpoint {risingActionAndMidpoint}
+        Resolution & Epilogue: {resolution}.
         story idea {storyIdea}
         `;
         // charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the inciting incident),            
 
         showPageLoader();
 
-        const parser = new JsonOutputParser<ChapterAnalysis>();
+        const parser = new JsonOutputParser<ResolutionChapterAnalysis>();
 
         const response = await queryStructuredLLM(prompt, {
-          introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
-          incitingIncident: initialStory?.storyStructure?.incitingIncident,
-          firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,
-          risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,
-          pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPoint,
-          climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingAction,
+          introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary,
+          incitingIncident: initialStory?.storyStructure?.incitingIncidentSummary,
+          firstPlotPoint: initialStory?.storyStructure?.firstPlotPointSummary,
+          risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpointSummary,
+          pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPointSummary,
+          climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingActionSummary,
           resolution: chapter ?? resolution,
           storyIdea: projectDescription,
         }, parser);
@@ -357,6 +356,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
             resolutionOfConflict: payload?.resolutionOfConflict,
             resolutionSetting: payload?.setting,
             resolutionTone: payload?.tone,
+            resolutionSummary: payload?.summary,
             resolution,
             // resolutionCharacters: payload?.charactersInvolved,
           }
@@ -485,7 +485,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
                 className=' flex items-center gap-2'
                 disabled={generating || !resolution}
                 onClick={() => {
-                    if (climaxConsequences) {
+                    if (resolutionSummary) {
                         setModifyModalOpen(true);
                     }else{
                         analyzeStory()
@@ -590,7 +590,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
                             /> 
                         </div>
 
-                        <div className="grid gap-5 mt-5">
+                        <div className="grid grid-cols-2 gap-5 mt-5">
                           <Button disabled={generating} 
                               onClick={regenerateResolution}
                               size="lg" 
@@ -598,7 +598,17 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
                               Regenerate
                               <Cog className='ml-2'/>
                           </Button>
-                          
+                          <Button disabled={generating} 
+                            onClick={() => analyzeStory()}
+                            size="lg" 
+                            className='w-full '>
+                            Reanalyze
+                            <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4 ml-2' viewBox="0 0 96 96">
+                            <g fill="#FFFFFF">
+                                <path d="M9.4 12.5c-.4 1.4-.4 15.5-.2 31.3.4 24.5.7 29.3 2.3 33 2.4 5.8 5.9 8.1 14.7 9.2 8 1 55.7 1.4 58.2.4 2.1-.8 2.1-4 0-4.8-.9-.3-15.1-.6-31.5-.6H22.9l.6-2.3c.4-1.2 2.8-6.1 5.2-11 7.3-14.1 11.6-15.9 20.3-8.2 4.4 3.9 5.7 4.5 9.5 4.5 5.7 0 9-2.9 14.8-12.5 3.7-6.1 4.8-7.2 8.5-8.3 2.9-1 4.2-1.9 4.2-3.2 0-2.3-1.7-2.9-5.4-1.9-4.9 1.4-7.4 3.7-11.1 10.1-7.4 12.6-10.5 13.7-18.7 6.3-4.2-3.8-5.7-4.5-9.2-4.5-7.9 0-13.1 5.5-20.5 21.5-3.2 6.9-3.3 7-4.6 4.5-1.1-2-1.4-8.8-1.5-32.7 0-16.6-.3-30.8-.6-31.7-1-2.6-4.3-1.9-5 .9zM27.3 13.7c-2 .8-1.5 4.1.7 4.8 2.9.9 6-.3 6-2.5 0-2.5-3.4-3.7-6.7-2.3zM27.3 25.7c-1.8.7-1.6 4 .3 4.7.9.3 4.6.6 8.4.6 3.8 0 7.5-.3 8.4-.6 2.1-.8 2.1-4 0-4.8-1.9-.7-15.3-.7-17.1.1z"/>
+                            </g>
+                            </svg>
+                        </Button>
                         </div>
                     </div>
                 </SheetContent>

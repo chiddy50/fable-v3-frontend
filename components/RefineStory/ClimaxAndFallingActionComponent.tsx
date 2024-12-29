@@ -4,7 +4,7 @@ import { StoryInterface } from '@/interfaces/StoryInterface';
 import React, { useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button';
 import { ArrowLeft, ArrowRight, Cog, Lock } from 'lucide-react';
-import { extractTemplatePrompts, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
+import { extractTemplatePrompts, getFirstPlotPointSummary, getIncitingIncidentSummary, getIntroductionSummary, getPinchPointsAndSecondPlotPointSummary, getRisingActionAndMidpointSummary, modelInstance, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
 import { toast } from 'sonner';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
 import {
@@ -15,33 +15,28 @@ import {
     SheetTitle,
 } from "@/components/ui/sheet";
 import { makeRequest } from '@/services/request';
-import { getAuthToken } from '@dynamic-labs/sdk-react-core';
+
 import SampleSelect from '../SampleSelect';
 import { settingDetails, storyTones } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { Inter } from 'next/font/google';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { JsonOutputParser } from "@langchain/core/output_parsers";
+import { RunnableSequence, RunnablePassthrough } from "@langchain/core/runnables";
+import { PromptTemplate } from "@langchain/core/prompts";
+import { StringOutputParser } from "@langchain/core/output_parsers";
+import { ClimaxAndFallingActionChapterAnalysis } from '@/interfaces/CreateStoryInterface';
 
-interface ClimaxAndFallingActionComponentProps {
+interface Props {
     initialStory: StoryInterface;
     refetch: () => void;
     moveToNext:(step: number) => void;
     projectDescription: string;
 }
 
-interface ChapterAnalysis {
-    summary: string;
-    finalChallenge: string;
-    challengeOutcome: string;
-    storyResolution: string;
-    tone: string[];
-    setting: string[];
-}
-
 const inter = Inter({ subsets: ['latin'] });
 
-const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentProps> = ({
+const ClimaxAndFallingActionComponent: React.FC<Props> = ({
     initialStory,
     refetch,
     moveToNext,
@@ -58,17 +53,22 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
     // How do the events of the climax resolve the story's conflicts and provide closure for the characters?
     const [storyResolution, setStoryResolution] = useState<string>(initialStory?.storyResolution ?? "");    
 
+    const [climaxAndFallingActionSummary, setClimaxAndFallingActionSummary] = useState<string>(initialStory?.storyStructure?.climaxAndFallingActionSummary ?? "");        
     const [climaxAndFallingActionCharacters, setClimaxAndFallingActionCharacters] = useState<[]>([]);    
     const [climaxAndFallingActionSetting, setClimaxAndFallingActionSetting] = useState<string[]>(initialStory?.climaxAndFallingActionSetting ?? []);
     const [climaxAndFallingActionTone, setClimaxAndFallingActionTone] = useState<string[]>(initialStory?.climaxAndFallingActionTone ?? []);
     const [climaxAndFallingActionExtraDetails, setClimaxAndFallingActionExtraDetails] = useState<string>(initialStory?.climaxAndFallingActionExtraDetails ?? "");
 
-    const dynamicJwtToken = getAuthToken();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
         adjustHeight();
     }, [climaxAndFallingAction]);
+
+    useEffect(() => {
+        setClimaxAndFallingActionSummary(initialStory?.storyStructure?.climaxAndFallingActionSummary ?? "");
+    }, [initialStory]);
+
     
     const adjustHeight = () => {
         const textarea = textareaRef.current;
@@ -85,7 +85,7 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
         }
     }
 
-    const generateClimaxAndFallingAction = async () => {
+    const generateClimaxAndFallingAction2 = async () => {
         let { genrePrompt, protagonistSuggestionsPrompt, tonePrompt, settingPrompt } = extractTemplatePrompts(initialStory);
 
         try {            
@@ -157,6 +157,151 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
             scrollToBottom();
             await saveGeneration(chapter)
             // await analyzeStory(chapter)
+
+        } catch (error) {
+            console.error(error);            
+        }finally{
+            setGenerating(false);
+        }
+    }
+
+    const generateClimaxAndFallingAction = async () => {
+        let { genrePrompt, protagonistSuggestionsPrompt, tonePrompt, settingPrompt } = extractTemplatePrompts(initialStory);
+
+        try {                  
+            const llm = modelInstance();
+
+            const introductionChain = await getIntroductionSummary(llm);         
+            const incitingIncidentChain = await getIncitingIncidentSummary(llm);
+            const firstPlotPointChain = await getFirstPlotPointSummary(llm);
+            const risingActionAndMidpointChain = await getRisingActionAndMidpointSummary(llm);
+            const pinchPointsAndSecondPlotPointChain = await getPinchPointsAndSecondPlotPointSummary(llm);
+
+            const climaxAndFallingActionTemplate = `
+            You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
+
+            **CONTEXT**
+            The following sections of the story have already been generated:
+            - The introduction (Chapter 1): {introduceProtagonistAndOrdinaryWorld}
+            - Inciting Incident (Chapter 2): {incitingIncident}
+            - First Plot Point (Chapter 3): {firstPlotPoint}
+            - Rising Action & Midpoint (Chapter 4): {risingActionAndMidpoint}
+            - Pinch Points & Second Plot Point (Chapter 5): {pinchPointsAndSecondPlotPoint}
+
+            You are going to generate the Climax and Falling Action chapter of the story by continuing from where the Pinch Points & Second Plot Point.
+            When crafting the Climax and Falling Action, ensure the story answers the following questions:
+            - What is the final confrontation or challenge that the protagonist must face? 
+            - How does the protagonist overcome or succumb to the challenge?
+            - How do the events of the climax resolve the story's conflicts and provide closure for the characters?
+
+            **OUTPUT**
+            - Generate the *Climax and Falling Action*. 
+            - The scene should be emotionally impactful, genre-appropriate, and aligned with the protagonist’s motivations. 
+            - Use vivid descriptions and dialogue when necessary. 
+            - Ensure the transition from the Pinch Points & Second Plot Point to the Climax and Falling Action is smooth.
+            - Maintain the genre and tone.
+            - Length: At least 500 words.
+            - No titles or additional commentary, just the story.
+            - Ensure the story continues to relate the story idea.
+            Note: Do not include a title or subtitles while generating the story, we are only focused on the story. Do not add any title, subtitle or anything describing an act.
+            Do not repeat any story incident or story line in any of the chapters written before, because we don't want the story to look generic.
+
+            **INPUT**
+            story idea {storyIdea}
+            Protagonists: {protagonists}
+            Tone: {tones}
+            Setting: {setting}
+            Genre: {genre}            
+            `;
+            const climaxAndFallingActionPrompt = PromptTemplate.fromTemplate(climaxAndFallingActionTemplate)            
+            const climaxAndFallingActionChain = RunnableSequence.from([climaxAndFallingActionPrompt, llm, new StringOutputParser()])
+            
+            const chain = RunnableSequence.from([
+                {
+                    introductionSummary: introductionChain,
+                    data: (value) => value,    
+                    original_input: new RunnablePassthrough(),
+                    incitingIncident: (val) => val.incitingIncident,
+                    storyIdea: (val) => val.storyIdea,
+                    pinchPointsAndSecondPlotPoint: (val) => val.pinchPointsAndSecondPlotPoint,
+                },
+                {
+                    incitingIncidentSummary: incitingIncidentChain,
+                    data2: (value) => value,    
+                    original_input: new RunnablePassthrough(),
+                    genre: ({ original_input }) => original_input.genre,
+                    setting: ({ original_input }) => original_input.setting,
+                    tones: ({ original_input }) => original_input.tones,
+                    incitingIncident: ({ original_input }) => original_input.incitingIncident,
+                    firstPlotPoint: ({ original_input }) => original_input.firstPlotPoint,
+                    storyIdea: ({ original_input }) => original_input.storyIdea,
+                },
+                {
+                    firstPlotPointSummary: firstPlotPointChain,
+                    data3: (value) => value,    
+                    original_input: new RunnablePassthrough(),
+                    incitingIncident: (val) => val.incitingIncident,
+                    firstPlotPoint: (val) => val.firstPlotPoint,
+                    genre: (val) => val.genre,
+                    setting: (val) => val.setting,
+                    tones: (val) => val.tones,
+                    risingActionAndMidpoint: ({ original_input }) => original_input.risingActionAndMidpoint,
+                    pinchPointsAndSecondPlotPoint: ({ original_input }) => original_input.pinchPointsAndSecondPlotPoint,
+                    storyIdea: (val) => val.storyIdea,
+                },
+                {
+                    risingActionAndMidpointSummary: risingActionAndMidpointChain,
+                    data4: (value) => value,    
+                    storyIdea: (val) => val.storyIdea,
+                    pinchPointsAndSecondPlotPoint: ({ original_input }) => original_input.pinchPointsAndSecondPlotPoint,
+                },
+                {
+                    // pinchPointsAndSecondPlotPointSummary: pinchPointsAndSecondPlotPointChain,
+                    pinchPointsAndSecondPlotPoint: pinchPointsAndSecondPlotPointChain,
+                    storyIdea: (val) => val.storyIdea,
+                    genre: (val) => val.genre,
+                    setting: (val) => val.setting,
+                    tones: (val) => val.tones,
+                    introduceProtagonistAndOrdinaryWorld: ({ data4 }) => data4.data3.data2.introductionSummary,
+                    incitingIncident: ({ data4 }) => data4.data3.incitingIncidentSummary,
+                    firstPlotPoint: ({ data4 }) => data4.firstPlotPointSummary,
+                    risingActionAndMidpoint: (value) => value.risingActionAndMidpointSummary,
+                    protagonists: ({ data4 }) => data4.data3.data2.data.protagonists,                    
+                },
+                climaxAndFallingActionChain
+            ]);
+
+            setGenerating(true);
+
+            const response = await chain.invoke({
+                storyIdea: projectDescription,
+                genre: genrePrompt,
+                tones: initialStory?.introductionTone?.join(', '),
+                setting: initialStory?.introductionSetting?.join(', '),
+                protagonists: protagonistSuggestionsPrompt,
+                introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+                incitingIncident: initialStory?.storyStructure?.incitingIncident,
+                firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,
+                risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,
+                pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPoint,
+            });
+
+            if (!response) {
+                setGenerating(false);   
+                toast.error("Try again please");
+                return;
+            }
+
+            scrollToBottom();   
+            let chapter = ``;
+            for await (const chunk of response) {
+                // scrollToBottom()
+                chapter += chunk;   
+                setClimaxAndFallingAction(chapter);         
+            }
+            
+            scrollToBottom();
+            await saveGeneration(chapter)
 
         } catch (error) {
             console.error(error);            
@@ -254,6 +399,41 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
         }
 
         try {
+            // const prompt = `
+            // You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
+            // We have currently generated the Climax and Falling Action section of the story. 
+            // I need you analyze the generated Climax and Falling Action and give an analysis of the characters involved in the story, tone, genre, setting, and Characters involved.
+            // I need you to also analyze the generated Climax and Falling Action and the answer following questions:
+            // - What is the final confrontation or challenge that the protagonist must face? 
+            // - How does the protagonist overcome or succumb to the challenge?
+            // - How do the events of the climax resolve the story's conflicts and provide closure for the characters?
+            
+            // **CONTEXT**
+            // Here is the Climax and Falling Action: {climaxAndFallingAction}.
+            // The following sections of the story have already been generated:
+            // - The introduction to the protagonist and their ordinary world: {introduceProtagonistAndOrdinaryWorld}
+            // - Inciting Incident: {incitingIncident}
+            // - First Plot Point: {firstPlotPoint}
+            // - Rising Action & Midpoint: {risingActionAndMidpoint}
+            // - Pinch Points & Second Plot Point: {pinchPointsAndSecondPlotPoint}
+            // - Climax and Falling Action: {climaxAndFallingAction}
+
+            // Return your response in a json or javascript object format like: 
+            // summary(string, this is a summary of the events in the Climax and Falling Action section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),
+            // finalChallenge(string, this refers to the answer to the question, What is the final confrontation or challenge that the protagonist must face?),            
+            // challengeOutcome(string, this refers to the answer to the question, How does the protagonist overcome or succumb to the challenge?),            
+            // storyResolution(string, this refers to the answer to the question, How do the events of the climax resolve the story's conflicts and provide closure for the characters?),            
+            // tone(array of strings),
+            // setting(array of strings).                        
+            // Please ensure the only keys in the object are summary, finalChallenge, challengeOutcome, storyResolution, tone and setting keys only.
+            // Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
+
+            // Ensure the summary contains all the events step by step as they occurred and the summary must also contain the characters and the impacts they have had on each other.
+
+            // **INPUT**
+            // Climax and Falling Action: {climaxAndFallingAction}
+            // story idea {storyIdea}
+            // `;
             const prompt = `
             You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
             We have currently generated the Climax and Falling Action section of the story. 
@@ -264,17 +444,13 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
             - How do the events of the climax resolve the story's conflicts and provide closure for the characters?
             
             **CONTEXT**
-            Here is the Climax and Falling Action: {pinchPointsAndSecondPlotPoint}.
+            Here is the Climax and Falling Action: {climaxAndFallingAction}.
             The following sections of the story have already been generated:
             - The introduction to the protagonist and their ordinary world: {introduceProtagonistAndOrdinaryWorld}
-            - Inciting Incident: {incitingIncident}
-            - First Plot Point: {firstPlotPoint}
-            - Rising Action & Midpoint: {risingActionAndMidpoint}
-            - Pinch Points & Second Plot Point: {pinchPointsAndSecondPlotPoint}
             - Climax and Falling Action: {climaxAndFallingAction}
 
             Return your response in a json or javascript object format like: 
-            summary(string, a summary of the story soo far),
+            summary(string, this is a summary of the events in the Climax and Falling Action section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),
             finalChallenge(string, this refers to the answer to the question, What is the final confrontation or challenge that the protagonist must face?),            
             challengeOutcome(string, this refers to the answer to the question, How does the protagonist overcome or succumb to the challenge?),            
             storyResolution(string, this refers to the answer to the question, How do the events of the climax resolve the story's conflicts and provide closure for the characters?),            
@@ -283,22 +459,24 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
             Please ensure the only keys in the object are summary, finalChallenge, challengeOutcome, storyResolution, tone and setting keys only.
             Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
 
+            Ensure the summary contains all the events step by step as they occurred and the summary must also contain the characters and the impacts they have had on each other.
+
             **INPUT**
-            Rising Action & Midpoint {risingActionAndMidpoint}
+            Climax and Falling Action: {climaxAndFallingAction}
             story idea {storyIdea}
             `;
             // charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the inciting incident),            
 
             showPageLoader();
 
-            const parser = new JsonOutputParser<ChapterAnalysis>();
+            const parser = new JsonOutputParser<ClimaxAndFallingActionChapterAnalysis>();
 
             const response = await queryStructuredLLM(prompt, {
-                introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
-                incitingIncident: initialStory?.storyStructure?.incitingIncident,
-                firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,
-                risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,
-                pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPoint,
+                introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary,
+                // incitingIncident: initialStory?.storyStructure?.incitingIncidentSummary,
+                // firstPlotPoint: initialStory?.storyStructure?.firstPlotPointSummary,
+                // risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpointSummary,
+                // pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPointSummary,
                 climaxAndFallingAction: data,
                 storyIdea: projectDescription,
             }, parser);
@@ -326,7 +504,91 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
         }
     }
 
-    const saveAnalysis = async (payload) => {
+    // const analyzeStory2 = async (showModal = true) => {
+    //     const data = climaxAndFallingAction
+    //     if (!data) {
+    //         toast.error('Generate some content first')
+    //         return;
+    //     }
+
+    //     try {
+
+    //         const prompt = `
+    //         You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
+    //         We have currently generated the Climax and Falling Action section of the story. 
+    //         I need you analyze the generated Climax and Falling Action and give an analysis of the characters involved in the story, tone, genre, setting, and Characters involved.
+    //         I need you to also analyze the generated Climax and Falling Action and the answer following questions:
+    //         - What is the final confrontation or challenge that the protagonist must face? 
+    //         - How does the protagonist overcome or succumb to the challenge?
+    //         - How do the events of the climax resolve the story's conflicts and provide closure for the characters?
+            
+    //         **CONTEXT**
+    //         Here is the Climax and Falling Action: {climaxAndFallingAction}.
+    //         The following sections of the story have already been generated:
+    //         - The introduction to the protagonist and their ordinary world: {introduceProtagonistAndOrdinaryWorld}
+    //         - Inciting Incident: {incitingIncident}
+    //         - First Plot Point: {firstPlotPoint}
+    //         - Rising Action & Midpoint: {risingActionAndMidpoint}
+    //         - Pinch Points & Second Plot Point: {pinchPointsAndSecondPlotPoint}
+    //         - Climax and Falling Action: {climaxAndFallingAction}
+
+    //         Return your response in a json or javascript object format like: 
+    //         summary(string, a summary of the story soo far),
+    //         finalChallenge(string, this refers to the answer to the question, What is the final confrontation or challenge that the protagonist must face?),            
+    //         challengeOutcome(string, this refers to the answer to the question, How does the protagonist overcome or succumb to the challenge?),            
+    //         storyResolution(string, this refers to the answer to the question, How do the events of the climax resolve the story's conflicts and provide closure for the characters?),            
+    //         tone(array of strings),
+    //         setting(array of strings).                        
+    //         Please ensure the only keys in the object are summary, finalChallenge, challengeOutcome, storyResolution, tone and setting keys only.
+    //         Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
+
+    //         **INPUT**
+    //         Rising Action & Midpoint {risingActionAndMidpoint}
+    //         story idea {storyIdea}
+    //         `;
+
+    //         showPageLoader();
+
+    //         const llm = modelInstance();
+
+    //         const introductionChain = await getIntroductionSummary(llm);         
+    //         const incitingIncidentChain = await getIncitingIncidentSummary(llm);
+    //         const firstPlotPointChain = await getFirstPlotPointSummary(llm);
+    //         const risingActionAndMidpointChain = await getRisingActionAndMidpointSummary(llm);
+    //         const pinchPointsAndSecondPlotPointChain = await getPinchPointsAndSecondPlotPointAnalysis(llm);
+            
+
+    //         // if (!response) {
+    //         //     toast.error("Try again please");
+    //         //     return;
+    //         // }        
+
+    //         // setFinalChallenge(response?.finalChallenge ?? "");
+    //         // setChallengeOutcome(response?.challengeOutcome ?? "");
+    //         // setStoryResolution(response?.storyResolution ?? "");
+    //         // setClimaxAndFallingActionSetting(response?.setting ?? "");
+    //         // setClimaxAndFallingActionTone(response?.tone ?? "");
+    //         // // setClimaxAndFallingActionCharacters(response?.charactersInvolved ?? "");
+
+    //         // let saved = await saveAnalysis(response);
+            
+    //         // if(showModal) setModifyModalOpen(true);
+
+    //     } catch (error) {
+    //         console.error(error);            
+    //     }finally{
+    //         hidePageLoader()
+    //     }
+    // }
+
+    const saveAnalysis = async (payload: {
+        finalChallenge: string,
+        challengeOutcome: string,
+        storyResolution: string,
+        setting: string[],
+        tone: string[],
+        summary: string,
+    }) => {
         if (payload) {                
             // save data
             const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
@@ -337,6 +599,7 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
                     storyResolution: payload?.storyResolution,
                     climaxAndFallingActionSetting: payload?.setting,
                     climaxAndFallingActionTone: payload?.tone,
+                    climaxAndFallingActionSummary: payload?.summary,
                     climaxAndFallingAction,
                     // climaxAndFallingActionCharacters: payload?.charactersInvolved,    
                 }
@@ -390,7 +653,7 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
     }
 
     const moveToChapter7 = async () => {
-        if (!finalChallenge) {            
+        if (!climaxAndFallingActionSummary) {            
             await analyzeStory(false)
         }
         moveToNext(7)
@@ -448,7 +711,7 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
                     <Button 
                     className='flex items-center gap-2'
                     disabled={generating}                            
-                    size="sm" onClick={generateClimaxAndFallingAction}>
+                    size="sm" onClick={generateClimaxAndFallingAction2}>
                         Generate
                         <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96" preserveAspectRatio="xMidYMid meet">
                             <g transform="translate(0,96) scale(0.1,-0.1)" fill="#FFFFFF" stroke="none">
@@ -464,7 +727,7 @@ const ClimaxAndFallingActionComponent: React.FC<ClimaxAndFallingActionComponentP
                 className='flex items-center gap-2'
                 disabled={generating || !climaxAndFallingAction}
                 onClick={() => {
-                    if (finalChallenge) {
+                    if (climaxAndFallingActionSummary) {
                         setModifyModalOpen(true);
                     }else{
                         analyzeStory()

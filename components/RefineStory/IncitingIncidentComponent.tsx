@@ -64,7 +64,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
     const [modifyModalOpen, setModifyModalOpen] = useState<boolean>(false);
     const [generating, setGenerating] = useState<boolean>(false);
 
-    
+    const [incitingIncidentSummary, setIncitingIncidentSummary] = useState<string>(initialStory?.storyStructure?.incitingIncidentSummary ?? "");        
     const [typeOfEvent, setTypeOfEvent] = useState<string>(initialStory?.typeOfEvent ?? "");
     const [causeOfTheEvent, setCauseOfEvent] = useState<string>(initialStory?.causeOfTheEvent ?? "");
     const [stakesAndConsequences, setStakesAndConsequences] = useState<string>(initialStory?.stakesAndConsequences ?? "");
@@ -169,6 +169,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
 
 
     useEffect(() => {
+        setIncitingIncidentSummary(initialStory?.storyStructure?.incitingIncidentSummary ?? "");
         setTypeOfEvent(initialStory?.typeOfEvent ?? "");
         setCauseOfEvent(initialStory?.causeOfTheEvent ?? "");
         setStakesAndConsequences(initialStory?.stakesAndConsequences ?? "");
@@ -208,6 +209,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
 
             We are writing with the 3 act structure.
             You are going to generate the Inciting Incident section of the story by continuing from where the introduction to the protagonist and their ordinary world stopped.
+            
             **CONTEXT**
             We have already introduced the protagonist and their ordinary world: {introduceProtagonistAndOrdinaryWorld}.
             
@@ -237,7 +239,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
                 tones: tonePrompt,
                 setting: settingPrompt,
                 protagonists: protagonistSuggestionsPrompt,
-                introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld
+                introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary
             });
 
             if (!response) {
@@ -355,14 +357,14 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
             Here is the Story Introduction {introduceProtagonistAndOrdinaryWorld}. Here is the Inciting Incident {incitingIncident}.
 
             Return your response in a json or javascript object format like: 
-            summary(string, a summary of the story soo far),
+            summary(string, this is a summary of the events in the inciting incident section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),
             charactersInvolved(array of objects with keys like name(string), age(string), backstory(string), role(string), clothDescription(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), weight(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToProtagonists(array of object with keys like protagonistName(string) & relationship(string)) )
             tone(array of strings),
             typeOfEvent(string, this refers to the type of event that triggers the Inciting Incident, be very detailed in explaining what happened),
             causeOfTheEvent(string, this refers to the Cause of the Inciting Incident, be very detailed in explaining what happened),
             stakesAndConsequences(string, this refers to the Stakes and consequences of the Inciting Incident),
             mysteryOrSurprise(string, this refers to the Mystery or surprise of the Inciting Incident section),            
-            summary(string, this is a summary of the events in the Introduction of the Protagonist & Ordinary World section of the story),
+            summary(string, this is a summary of the events in the inciting incident section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),
             thematicElement(array of string),
             suspenseTechnique(array of string),
             moodAndAtmosphere(array of string),
@@ -371,6 +373,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
             Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
 
             charactersInvolved are the characters involved in this chapter except the protagonist.
+            Ensure the summary contains all the events step by step as they occurred and the summary must also contain the characters and the impacts they have had on each other.
 
             **INPUT**
             Story Introduction {introduceProtagonistAndOrdinaryWorld}
@@ -426,6 +429,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
                     stakesAndConsequences: payload?.stakesAndConsequences,                    
                     incitingIncidentSetting: payload?.setting,                    
                     incitingIncidentTone: payload?.tone,
+                    incitingIncidentSummary: payload?.summary,
                     incitingIncident,
                     suggestedCharacters  
                 }
@@ -615,7 +619,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
                         className='flex items-center gap-2'
                         disabled={generating || !incitingIncident}
                         onClick={() => {
-                            if (typeOfEvent) {
+                            if (incitingIncidentSummary) {
                                 setModifyModalOpen(true);
                             }else{
                                 analyzeStory()

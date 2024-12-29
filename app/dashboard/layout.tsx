@@ -12,6 +12,7 @@ import {
     SheetHeader,
     SheetTitle,
 } from "@/components/ui/sheet"
+// import './prosemirror.css'
 
 export default function DashboardLayout({
     children, // will be a page or nested layout
@@ -30,7 +31,6 @@ export default function DashboardLayout({
         <div className="sidebar">
 
             <div className='flex flex-col gap-6 px-6 pt-10'>
-
 
                 <Link href="/dashboard" className={cn(
                     currentPath === "/dashboard" ? "bg-custom_green text-white " : "hover:bg-gray-200",
@@ -58,7 +58,7 @@ export default function DashboardLayout({
                     <span className='text-xs font-semibold'>Stories</span>
                 </Link>
 
-                <div className={cn('flex items-center gap-4 p-2 rounded-3xl opacity-50  relative')}>
+                {/* <div className={cn('flex items-center gap-4 p-2 rounded-3xl opacity-50  relative')}>
                     <span className={cn(
                         // currentPath === "/dashboard/stories" ? "bg-custom_green" : "bg-gray-100",
                         "flex items-center w-8 h-8 rounded-full justify-center bg-gray-100"
@@ -68,7 +68,20 @@ export default function DashboardLayout({
                             'w-4 h-4 bg-transparent text-custom_green')} />
                     </span>
                     <p className='text-xs font-semibold '>Articles <span className='text-[7px] border py-0.5 px-2 rounded-2xl absolute top-0 right-4'>Coming soon</span></p>
-                </div>
+                </div> */}
+
+                <Link href="/dashboard/articles" className={cn(
+                    currentPath === "/dashboard/articles" ? "bg-custom_green text-white" : "hover:bg-gray-200",
+                    'flex items-center gap-4 p-2 rounded-3xl'
+                )}>
+                    <span className={cn(
+                        currentPath === "/dashboard/articles" ? "bg-custom_green" : "bg-gray-100",
+                        "flex items-center w-8 h-8 rounded-full justify-center"
+                    )}>
+                        <ClipboardList className={cn(currentPath === "/dashboard/articles" ? "text-white" : "text-custom_green", 'w-4 h-4 bg-transparent')} />
+                    </span>
+                    <span className='text-xs font-semibold'>Articles</span>
+                </Link>
 
                 <Link href="/dashboard/profile" className={cn(
                     currentPath === "/dashboard/profile" ? "bg-custom_green text-white" : "hover:bg-gray-200",

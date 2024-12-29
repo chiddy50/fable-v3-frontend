@@ -49,6 +49,7 @@ interface StoryAnalysisPayload {
     tone: [];
     genre: [];
     setting: [];
+    summary?: string|null;
 }
 
 interface ProtagonistPayload {
@@ -86,6 +87,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
     const [generating, setGenerating] = useState<boolean>(false);
     const [projectDescription, setProjectDescription]= useState<string>(initialStory?.projectDescription ?? '');   
 
+    const [introductionSummary, setIntroductionSummary] = useState<string>(initialStory?.storyStructure?.introductionSummary ?? "");    
     const [storyAnalysis, setStoryAnalysis] = useState(null);
     const [genres, setGenres] = useState<Option[]>(initialStory?.genres ?? []);
     const [genreList, setGenreList] = useState<[]>([]);
@@ -100,6 +102,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
     }, []);
 
     useEffect(() => {
+        setIntroductionSummary(initialStory?.storyStructure?.introductionSummary ?? "");
         setIntroduceProtagonistAndOrdinaryWorld(initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld ?? "")
         setGenres(initialStory?.genres ? initialStory?.genres : []);
         setTones(initialStory?.introductionTone ? initialStory?.introductionTone?.map(item => ( { label: item, value: item } )) : []);
@@ -277,13 +280,13 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
             We have currently generated the Introduction of the Protagonist & Ordinary World section of the story. 
             I need you analyze the generated content and give an analysis of the characters involved in the story, tone, genre, thematic element, suspense technique, plot twist, setting.
-
+         
             Return your response in a json or javascript object format like: 
             protagonists(array of objects with keys like name(string), age(string), role(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), weight(string), clothDescription(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToOtherProtagonist(string, this should only be provided if there is more than one protagonist))
             otherCharacters(array of objects with keys like name(string), age(string), backstory(string), role(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), clothDescription(string), weight(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToProtagonists(array of object with keys like protagonistName(string) & relationship(string)) )
             tone(array of string),
             genre(array of string),
-            summary(string, this is a summary of the events in the Introduction of the Protagonist & Ordinary World section of the story),
+            summary(string, this is a summary of the events in the Introduction of the Protagonist & Ordinary World section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),
             moodAndAtmosphere(array of string)
             hooks(array of string, the hook raises questions or sparks curiosity, making the reader want to continue reading). 
             setting(array of string, generate at least 3 setting suggestions).                        
@@ -293,6 +296,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
 
             When suggesting the genre ensure your choice comes from the predefined list of genres here: {genreList}.
             For protagonists and otherCharacters ensure to provide suggestions for very facial feature and every option because they are all required do not leave any one empty.
+            Ensure the summary contains all the events step by step as they occurred and the summary must also contain the characters and the impacts they have had on each other.
 
             **INPUT**
             Story Introduction {introduceProtagonistAndOrdinaryWorld}
@@ -355,6 +359,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                     genres: chosenGenres(),                    
                     introductionSetting: payload?.setting,                    
                     introductionTone: payload?.tone,                    
+                    introductionSummary: payload?.summary,                    
                     protagonistSuggestions: updatedProtagonists,     
                     suggestedCharacters: updatedOtherCharacters,
                     introduceProtagonistAndOrdinaryWorld,
@@ -478,7 +483,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
     }
 
     const moveToChapter2 = async () => {
-        if (genres?.length < 1) {
+        if (!introductionSummary) {
             let analysis = await analyzeStory(false)
         }
         moveToNext(2);
@@ -557,7 +562,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                 onClick={() => {
                     console.log({genres: genres?.length > 0});
                     
-                    if (genres?.length > 0) {
+                    if (introductionSummary) {
                         setModifyModalOpen(true);
                     }else{
                         analyzeStory()
