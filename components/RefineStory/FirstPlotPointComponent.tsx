@@ -4,7 +4,7 @@ import { StoryInterface } from '@/interfaces/StoryInterface';
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button';
 import { ArrowLeft, ArrowRight, Cog, Lock } from 'lucide-react';
-import { extractTemplatePrompts, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
+import { extractTemplatePrompts, getFirstPlotPointAnalysis, getFirstPlotPointSummaryChain, getIncitingIncidentSummary, getIntroductionSummary, modelInstance, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
 import { toast } from 'sonner';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
 import {
@@ -23,27 +23,20 @@ import { cn } from '@/lib/utils';
 import { Dosis, Inter } from 'next/font/google';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { JsonOutputParser } from "@langchain/core/output_parsers";
-import { SuggestedOtherCharacterInterface } from '@/interfaces/CreateStoryInterface';
+import { FirstPlotPointChapterAnalysis, SuggestedOtherCharacterInterface } from '@/interfaces/CreateStoryInterface';
 import { v4 as uuidv4 } from 'uuid';
+import { ChatGroq } from '@langchain/groq';
+import { PromptTemplate } from "@langchain/core/prompts"
+import { RunnableSequence, RunnablePassthrough } from "@langchain/core/runnables"
+import { StringOutputParser } from "@langchain/core/output_parsers"
 
+const inter = Inter({ subsets: ['latin'] });
 interface FirstPlotPointComponentProps {
     initialStory: StoryInterface;
     refetch: () => void;
     moveToNext:(step: number) => void;
     projectDescription: string;
 }
-
-interface ChapterAnalysis {
-    summary: string;
-    charactersInvolved: SuggestedOtherCharacterInterface[];
-    protagonistGoal: string;
-    protagonistTriggerToAction: string;
-    obstaclesProtagonistWillFace: string;
-    tone: string[];
-    setting: string[];
-}
-
-const inter = Inter({ subsets: ['latin'] });
 
 
 const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
@@ -64,6 +57,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
     // What obstacles or challenges will the protagonist face?
     const [obstaclesProtagonistWillFace, setObstaclesProtagonistWillFace] = useState<string>(initialStory?.obstaclesProtagonistWillFace ?? "");    
 
+    const [firstPlotPointSummary, setFirstPlotPointSummary] = useState<string>(initialStory?.storyStructure?.firstPlotPointSummary ?? "");        
     const [firstPlotPointCharacters, setFirstPlotPointCharacters] = useState<[]>([]);    
     const [firstPlotPointSetting, setFirstPlotPointSetting] = useState<string[]>(initialStory?.firstPlotPointSetting ?? []);
     const [firstPlotPointTone, setFirstPlotPointTone] = useState<string[]>(initialStory?.firstPlotPointTone ?? []);
@@ -76,6 +70,10 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
     useEffect(() => {
         adjustHeight();
     }, [firstPlotPoint]);
+
+    useEffect(() => {
+        setFirstPlotPointSummary(initialStory?.storyStructure?.firstPlotPointSummary ?? "");
+    }, [initialStory]);
 
     const adjustHeight = () => {
         const textarea = textareaRef.current;
@@ -285,13 +283,13 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
             **INPUT**
             Story Introduction {introduceProtagonistAndOrdinaryWorld}
             Inciting Incident {incitingIncident}
-            Inciting Incident {firstPlotPoint}
-            First Plot Point {storyIdea}
+            First Plot Point {firstPlotPoint}
+            Story Idea {storyIdea}
             `;
 
             showPageLoader();
 
-            const parser = new JsonOutputParser<ChapterAnalysis>();
+            const parser = new JsonOutputParser<FirstPlotPointChapterAnalysis>();
 
             const response = await queryStructuredLLM(prompt, {
                 introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
@@ -315,6 +313,70 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
             let saved = await saveAnalysis(response);
             
             if (showModal)  setModifyModalOpen(true);
+
+        } catch (error) {
+            console.error(error);            
+        }finally{
+            hidePageLoader()
+        }
+    }
+
+    const analyzeStory2 = async (showModal = true) => {
+        const data = firstPlotPoint 
+        if (!data) {
+            toast.error('Generate some content first')
+            return;
+        }
+
+        try {
+            const llm = modelInstance();
+                      
+            const introductionChain = await getIntroductionSummary(llm);         
+            const incitingIncidentChain = await getIncitingIncidentSummary(llm);
+            const firstPlotPointChain = await getFirstPlotPointAnalysis(llm);
+
+            showPageLoader();
+
+            const chain = RunnableSequence.from([
+                {
+                    introductionSummary: introductionChain,
+                    original_input: new RunnablePassthrough(),
+                    incitingIncident: (val) => val.incitingIncident,
+                    storyIdea: (val) => val.storyIdea,
+                },
+                {
+                    incitingIncidentSummary: incitingIncidentChain,
+                    incitingIncident: ({ original_input }) => original_input.incitingIncident,
+                    firstPlotPoint: ({ original_input }) => original_input.firstPlotPoint,
+                    storyIdea: ({ original_input }) => original_input.storyIdea,
+                },
+                firstPlotPointChain
+            ]);
+
+            const response = await chain.invoke({
+                introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+                incitingIncident: initialStory?.storyStructure?.incitingIncident,
+                firstPlotPoint,
+                storyIdea: projectDescription,
+            });
+
+            console.log(response);
+
+            if (!response) {
+                toast.error("Try again please");
+                return;
+            }        
+
+            setProtagonistGoal(response?.protagonistGoal ?? "");
+            setProtagonistTriggerToAction(response?.protagonistTriggerToAction ?? "");
+            setObstaclesProtagonistWillFace(response?.obstaclesProtagonistWillFace ?? "");
+            setFirstPlotPointCharacters(response?.charactersInvolved ?? "")
+            setFirstPlotPointSetting(response?.setting ?? "");
+            setFirstPlotPointTone(response?.tone ?? "");
+
+            let saved = await saveAnalysis(response);
+            
+            if (showModal)  setModifyModalOpen(true);            
 
         } catch (error) {
             console.error(error);            
@@ -351,6 +413,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                     firstPlotPointCharacters: payload?.charactersInvolved,                                                   
                     firstPlotPointSetting: payload?.setting,                    
                     firstPlotPointTone: payload?.tone,
+                    firstPlotPointSummary: payload?.summary,
                     firstPlotPoint,
                     firstPlotPointLocked: true,
                     suggestedCharacters  
@@ -398,7 +461,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
             toast.error("Kindly complete the chapter")
             return
         }
-        if (!protagonistGoal) {            
+        if (!firstPlotPointSummary) {            
             await analyzeStory(false)
         }
         moveToNext(4)
@@ -484,7 +547,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                 className='flex items-center gap-2'
                 disabled={generating || !firstPlotPoint}
                 onClick={() => {
-                    if (protagonistGoal) {
+                    if (firstPlotPointSummary) {
                         setModifyModalOpen(true);
                     }else{
                         analyzeStory(true)

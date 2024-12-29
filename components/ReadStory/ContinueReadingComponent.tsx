@@ -35,7 +35,7 @@ const ContinueReadingComponent = ({
                                     <div className='relative overflow-hidden h-[300px]'>                    
                                         <Image
                                         fill={true}
-                                        src={item?.story?.introductionImage ?? '/user-image.jpeg'}
+                                        src={item?.story?.introductionImage ?? '/no-image.png'}
                                         alt={item?.projectTitle ?? 'character description'}                        
                                         className='w-full rounded-t-xl h-full object-cover object-center'                     
                                         loading="lazy"

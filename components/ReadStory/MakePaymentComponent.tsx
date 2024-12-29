@@ -1,7 +1,8 @@
+"use client";
+
 import React, { useEffect, useRef, useState } from 'react'
 import { Card } from '../ui/card'
 import code from '@code-wallet/elements';
-import { getAuthToken } from '@dynamic-labs/sdk-react-core';
 import { makeRequest } from '@/services/request';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { AxiosRequestConfig } from 'axios';
@@ -15,7 +16,6 @@ const MakePaymentComponent = ({
     const [mounted, setMounted] = useState<boolean>(false);
 
     const el = useRef<HTMLDivElement>(null);
-    const dynamicJwtToken = getAuthToken();
 
     useEffect(() => {
         setMounted(true)

@@ -89,3 +89,4 @@ export interface SuggestedCharacterInterface {
     relationshipToProtagonist: string;
     disabled?: boolean;
 }
+

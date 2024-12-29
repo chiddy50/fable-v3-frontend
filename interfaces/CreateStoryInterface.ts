@@ -1,3 +1,5 @@
+import { SuggestedCharacterInterface } from "./CharacterInterface";
+
 export interface GenericCharacterInterface {
     name: string;
     age: string;
@@ -36,4 +38,51 @@ export interface SuggestedOtherCharacterInterface extends GenericCharacterInterf
         protagonistName: string;
         relationship: string;
     }[];
+}
+
+export interface FirstPlotPointChapterAnalysis {
+    summary: string;
+    charactersInvolved: SuggestedOtherCharacterInterface[];
+    protagonistGoal: string;
+    protagonistTriggerToAction: string;
+    obstaclesProtagonistWillFace: string;
+    tone: string[];
+    setting: string[];
+}
+
+export interface RisingActionChapterAnalysis {
+    summary: string;
+    charactersInvolved: SuggestedCharacterInterface[];
+    challengesProtagonistFaces: string;
+    protagonistPerspectiveChange: string;
+    majorEventPropellingClimax: string;
+    tone: string[];
+    setting: string[];
+}
+
+export interface PinchPointsAndSecondPlotPointChapterAnalysis {
+    summary: string;
+    newObstacles: string;
+    discoveryChanges: string;
+    howStakesEscalate: string;
+    tone: string[];
+    setting: string[];
+}
+
+export interface ClimaxAndFallingActionChapterAnalysis {
+    summary: string;
+    finalChallenge: string;
+    challengeOutcome: string;
+    storyResolution: string;
+    tone: string[];
+    setting: string[];
+}
+
+export interface ResolutionChapterAnalysis {
+    summary: string;
+    climaxConsequences: string;
+    howCharactersEvolve: string;
+    resolutionOfConflict: string;
+    tone: string[];
+    setting: string[];
 }

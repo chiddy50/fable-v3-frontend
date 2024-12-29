@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Montserrat } from "next/font/google";
 import "./globals.css";
+// import './prosemirror.css'
+
 import "./css/style.css";
 import Header from "@/components/Header";
 import { Toaster } from "@/components/ui/sonner";
@@ -29,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className='scroll-smooth' suppressHydrationWarning>
       <head>
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet' />
         <link rel="icon" href="/images/fable_black.png" sizes="any" />
@@ -49,7 +51,10 @@ export default function RootLayout({
           {/* <Menu /> */}
           <AuthenticationButton />
         </div>   
-        {children}
+
+        <div className="">
+          {children}
+        </div>
 
         {/* Toaster */ }
         <Toaster duration={4000} position="top-right" richColors/>

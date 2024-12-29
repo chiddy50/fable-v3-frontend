@@ -4,7 +4,7 @@ import { StoryInterface } from '@/interfaces/StoryInterface';
 import React, { useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button';
 import { ArrowLeft, ArrowRight, Cog, Lock } from 'lucide-react';
-import { extractTemplatePrompts, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
+import { extractTemplatePrompts, getFirstPlotPointSummary, getIncitingIncidentSummary, getIntroductionSummary, getRisingActionAndMidpointAnalysis, modelInstance, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
 import { toast } from 'sonner';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
 import {
@@ -22,25 +22,11 @@ import { Dosis, Inter } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { JsonOutputParser } from "@langchain/core/output_parsers";
+import { RisingActionChapterAnalysis } from '@/interfaces/CreateStoryInterface';
+import { RunnableSequence, RunnablePassthrough } from "@langchain/core/runnables";
 
 
-interface Character {
-    name: string;
-    backstory: string;
-    role: string;
-    relationshipToProtagonist: string;
-}
-  
-interface ChapterAnalysis {
-    summary: string;
-    charactersInvolved: Character[];
-    challengesProtagonistFaces: string;
-    protagonistPerspectiveChange: string;
-    majorEventPropellingClimax: string;
-    tone: string[];
-    setting: string[];
-}
-interface RisingActionAndMidpointComponentProps {
+interface Props {
     initialStory: StoryInterface;
     refetch: () => void;
     moveToNext:(step: number) => void;
@@ -49,7 +35,7 @@ interface RisingActionAndMidpointComponentProps {
 
 const inter = Inter({ subsets: ['latin'] });
 
-const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponentProps> = ({
+const RisingActionAndMidpointComponent: React.FC<Props> = ({
     initialStory,
     refetch,
     moveToNext,
@@ -66,6 +52,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
     // What major event pushes the protagonist towards the climax?    
     const [majorEventPropellingClimax, setMajorEventPropellingClimax] = useState<string>("");    
 
+    const [risingActionAndMidpointSummary, setRisingActionAndMidpointSummary] = useState<string>(initialStory?.storyStructure?.risingActionAndMidpointSummary ?? "");    
     const [risingActionAndMidpointCharacters, setRisingActionAndMidpointCharacters] = useState<[]>([]);    
     const [risingActionAndMidpointSetting, setRisingActionAndMidpointSetting] = useState<string[]>(initialStory?.risingActionAndMidpointSetting ?? []);
     const [risingActionAndMidpointTone, setRisingActionAndMidpointTone] = useState<string[]>(initialStory?.risingActionAndMidpointTone ?? []);
@@ -77,6 +64,10 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
     useEffect(() => {
         adjustHeight();
     }, [risingActionAndMidpoint]);
+
+    useEffect(() => {
+        setRisingActionAndMidpointSummary(initialStory?.storyStructure?.risingActionAndMidpointSummary ?? "")
+    }, [initialStory]);
     
     const adjustHeight = () => {
         const textarea = textareaRef.current;
@@ -155,7 +146,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
     
             let chapter = ``;
             for await (const chunk of response) {
-                scrollToBottom()
+                // scrollToBottom()
                 chapter += chunk;   
                 setRisingActionAndMidpoint(chapter);         
             }
@@ -274,7 +265,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
             - First Plot Point: {firstPlotPoint}
 
             Return your response in a json or javascript object format like: 
-            summary(string, a summary of the story soo far),
+            summary(string, this is a summary of the events in the Rising Action & Midpoint section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),
             charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the inciting incident),
             challengesProtagonistFaces(string, this refers to the answer to the question, What challenges does the protagonist face on their journey?),            
             protagonistPerspectiveChange(string, this refers to the answer to the question, How does the protagonist's perspective change through these challenges?),            
@@ -284,6 +275,8 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
             Please ensure the only keys in the object are summary, charactersInvolved, protagonistGoal, protagonistTriggerToAction, obstaclesProtagonistWillFace, tone and setting keys only.
             Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
 
+            Ensure the summary contains all the events step by step as they occurred and the summary must also contain the characters and the impacts they have had on each other.
+
             **INPUT**
             Rising Action & Midpoint {risingActionAndMidpoint}
             story idea {storyIdea}
@@ -291,12 +284,12 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
 
             showPageLoader();
 
-            const parser = new JsonOutputParser<ChapterAnalysis>();
+            const parser = new JsonOutputParser<RisingActionChapterAnalysis>();
 
             const response = await queryStructuredLLM(prompt, {
-                introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
-                incitingIncident: initialStory?.storyStructure?.incitingIncident,
-                firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,
+                introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary,
+                incitingIncident: initialStory?.storyStructure?.incitingIncidentSummary,
+                firstPlotPoint: initialStory?.storyStructure?.firstPlotPointSummary,
                 risingActionAndMidpoint: data,
                 storyIdea: projectDescription,
             }, parser);
@@ -324,7 +317,93 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
         }
     }
 
-    const saveAnalysis = async (payload) => {
+    const analyzeStory2 = async (showModal = true) => {
+        const data = risingActionAndMidpoint
+        if (!data) {
+            toast.error('Generate some content first')
+            return;
+        }
+
+        try {
+            const llm = modelInstance();
+
+            const introductionChain = await getIntroductionSummary(llm);         
+            const incitingIncidentChain = await getIncitingIncidentSummary(llm);
+            const firstPlotPointChain = await getFirstPlotPointSummary(llm);
+            const risingActionAndMidpointChain = await getRisingActionAndMidpointAnalysis(llm);
+            // const risingActionAndMidpointChain = await getRisingActionAndMidpointSummary(llm);
+            // const pinchPointsAndSecondPlotPointChain = await getPinchPointsAndSecondPlotPointSummary(llm);
+            // const climaxAndFallingActionChain = await getClimaxAndFallingActionSummary(llm);
+            // const resolutionChain = await getResolutionSummary(llm);
+            
+            showPageLoader();
+
+            const chain = RunnableSequence.from([
+                {
+                    introductionSummary: introductionChain,
+                    original_input: new RunnablePassthrough(),
+                    incitingIncident: (val) => val.incitingIncident,
+                    storyIdea: (val) => val.storyIdea,
+                },
+                {
+                    incitingIncidentSummary: incitingIncidentChain,
+                    original_input: new RunnablePassthrough(),
+                    incitingIncident: ({ original_input }) => original_input.incitingIncident,
+                    firstPlotPoint: ({ original_input }) => original_input.firstPlotPoint,
+                    storyIdea: ({ original_input }) => original_input.storyIdea,
+                },
+                {
+                    firstPlotPointSummary: firstPlotPointChain,
+                    incitingIncident: (val) => val.incitingIncident,
+                    firstPlotPoint: (val) => val.firstPlotPoint,
+                    risingActionAndMidpoint: ({ original_input }) => original_input.risingActionAndMidpoint,
+                    storyIdea: (val) => val.storyIdea,
+                },
+                risingActionAndMidpointChain
+            ]);
+
+            const response = await chain.invoke({
+                introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+                incitingIncident: initialStory?.storyStructure?.incitingIncident,
+                firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,
+                risingActionAndMidpoint: data,
+                storyIdea: projectDescription,
+            });
+
+            console.log(response);
+
+            if (!response) {
+                toast.error("Try again please");
+                return;
+            }        
+
+            setChallengesProtagonistFaces(response?.challengesProtagonistFaces ?? "");
+            setProtagonistPerspectiveChange(response?.protagonistPerspectiveChange ?? "");
+            setMajorEventPropellingClimax(response?.majorEventPropellingClimax ?? "");
+            setRisingActionAndMidpointCharacters(response?.charactersInvolved ?? null)
+            setRisingActionAndMidpointSetting(response?.setting ?? null);
+            setRisingActionAndMidpointTone(response?.tone ?? null);
+
+            let saved = await saveAnalysis(response);
+            
+            if(showModal) setModifyModalOpen(true);
+
+        } catch (error) {
+            console.error(error);            
+        }finally{
+            hidePageLoader()
+        }
+    }
+
+    const saveAnalysis = async (payload: {
+        challengesProtagonistFaces: string,
+        protagonistPerspectiveChange: string,
+        majorEventPropellingClimax: string,
+        summary: string,
+        charactersInvolved: any[],
+        setting: string[],
+        tone: string[],
+    }) => {
         if (payload) {                
             // save data
             const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
@@ -336,6 +415,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
                     risingActionAndMidpointCharacters: payload?.charactersInvolved,                                                   
                     risingActionAndMidpointSetting: payload?.setting,                    
                     risingActionAndMidpointTone: payload?.tone,
+                    risingActionAndMidpointSummary: payload?.summary,
                     risingActionAndMidpoint,
                 }
             );
@@ -388,7 +468,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
     }
 
     const moveToChapter5 = async () => {
-        if (!challengesProtagonistFaces) {            
+        if (!risingActionAndMidpointSummary) {            
             await analyzeStory(false)
         }
         moveToNext(5)
@@ -462,7 +542,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
                 className=' flex items-center gap-2'
                 disabled={generating || !risingActionAndMidpoint}
                 onClick={() => {
-                    if (challengesProtagonistFaces) {
+                    if (risingActionAndMidpointSummary) {
                         setModifyModalOpen(true);
                     }else{
                         analyzeStory()

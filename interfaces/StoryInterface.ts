@@ -39,7 +39,7 @@ export interface StoryStructureInterface {
   introductionToneSuggestions: string[];
   introductionStakes: string[];
   introductionStakesSuggestions: string[];
-
+  
   // STORY GENERATION ELEMENTS START
   introduceProtagonistAndOrdinaryWorld:  string;
   incitingIncident:            string;
@@ -48,7 +48,14 @@ export interface StoryStructureInterface {
   pinchPointsAndSecondPlotPoint: string;
   climaxAndFallingAction:  string;
   resolution:  string;
-
+  
+  introductionSummary: string;
+  incitingIncidentSummary: string;
+  firstPlotPointSummary:  string;
+  risingActionAndMidpointSummary: string;
+  pinchPointsAndSecondPlotPointSummary: string;
+  climaxAndFallingActionSummary:  string;
+  resolutionSummary:  string;
 
   antagonists: CharacterInterface[];
   antagonistSuggestions: CharacterInterface[];

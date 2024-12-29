@@ -26,7 +26,7 @@ import {
     SheetTitle,
 } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Download, ImageIcon } from 'lucide-react';
+import { Download, ImageIcon, Users } from 'lucide-react';
 import axios from 'axios';
 import { queryLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
 import { ChatGroq } from '@langchain/groq';
@@ -43,6 +43,9 @@ import {
 } from "@/components/ui/dialog";
 import * as animationData from "@/public/animations/balloons.json"
 import Lottie from 'react-lottie';
+import { Switch } from "@/components/ui/switch";
+import { Label } from '@/components/ui/label'
+import { Slider } from "@/components/ui/slider"
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -75,13 +78,17 @@ function MyComponent() {
       </Suspense>
     );
 }
+
 const ProjectSummaryPage = () => {
     const [story, setStory] = useState<StoryInterface|null>(null)
-    const [modifyModalOpen, setModifyModalOpen] = useState<boolean>(false);
+    const [charactersModalOpen, setCharactersModalOpen] = useState<boolean>(false);
     const [generating, setGenerating] = useState<boolean>(false);
     const [storyOverview, setStoryOverview] = useState<string>(story?.overview ?? "");
     const [depositAddress, setDepositAddress]= useState<string>('');    
-    const [tipLink, setTipLink]= useState<string>('');    
+    const [tipLink, setTipLink]= useState<string>('');  
+    const [isFree, setIsFree] = useState<boolean>(false);
+    const [price, setPrice] = useState<number>(0);  
+    // const [price, setPrice] = useState<number[]>([0]);  
 
     const [mounted, setMounted] = useState<boolean>(false);
     const [openAddAddressModal, setOpenAddAddressModal] = useState<boolean>(false);
@@ -203,7 +210,10 @@ const ProjectSummaryPage = () => {
             if (response?.data?.story) {
                 setStory(response?.data?.story);
                 setDepositAddress(response?.data?.story?.user?.depositAddress)
-                setTipLink(response?.data?.story?.user?.tipLink)
+                setTipLink(response?.data?.story?.user?.tipLink);
+                const defaultPrice = response?.data?.story?.price ? response?.data?.story?.price : 0;
+                setPrice(defaultPrice);
+                setIsFree(response?.data?.story?.isFree)
             }
             return response?.data?.story;
         },
@@ -261,6 +271,16 @@ const ProjectSummaryPage = () => {
             console.log(res);
             console.log(res?.data?.output?.[0]);
 
+            if (res.data.status !== "success") {
+                // Handle failure
+                saveChapterBanner({
+                    imageId: res?.data?.id?.toString(),
+                    imageStatus: res.data.status,
+                    imgUrl: null,
+                });
+                return;
+            }
+
             let imgUrl = res?.data?.output?.[0] ?? res?.data?.proxy_links?.[0] ?? res?.data?.future_links?.[0];
             if (!imgUrl) {
                 toast.error("Unable to generate image banner");
@@ -268,12 +288,17 @@ const ProjectSummaryPage = () => {
             }
 
 
-            await saveChapterBanner(imgUrl);
+            await saveChapterBanner({
+                imgUrl,
+                imageStatus: res?.data?.status,
+                imageId: storyData?.imageId
+            });
             
         } catch (error) {
             console.error(error);            
         }finally{
             hidePageLoader()
+            refetch()
         }
     }
 
@@ -305,7 +330,8 @@ const ProjectSummaryPage = () => {
     
             const llm = new ChatGroq({
                 apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
-                model: "llama-3.1-70b-versatile",
+                // model: "llama-3.1-70b-versatile",
+                model: "llama3-70b-8192",
                 // model: "3.1-8b-instant",  // "llama3-70b-8192",
             });
             
@@ -318,13 +344,13 @@ const ProjectSummaryPage = () => {
             
             const response = await chain.invoke({
                 storyIdea: story?.projectDescription,
-                introduceProtagonistAndOrdinaryWorld: story?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
-                incitingIncident: story?.storyStructure?.incitingIncident,
-                firstPlotPoint: story?.storyStructure?.firstPlotPoint,
-                risingActionAndMidpoint: story?.storyStructure?.risingActionAndMidpoint,
-                pinchPointsAndSecondPlotPoint: story?.storyStructure?.pinchPointsAndSecondPlotPoint,
-                climaxAndFallingAction: story?.storyStructure?.climaxAndFallingAction,    
-                resolution: story?.storyStructure?.resolution,    
+                introduceProtagonistAndOrdinaryWorld: story?.storyStructure?.introductionSummary,
+                incitingIncident: story?.storyStructure?.incitingIncidentSummary,
+                firstPlotPoint: story?.storyStructure?.firstPlotPointSummary,
+                risingActionAndMidpoint: story?.storyStructure?.risingActionAndMidpointSummary,
+                pinchPointsAndSecondPlotPoint: story?.storyStructure?.pinchPointsAndSecondPlotPointSummary,
+                climaxAndFallingAction: story?.storyStructure?.climaxAndFallingActionSummary,    
+                resolution: story?.storyStructure?.resolutionSummary,    
                 protagonistFeatures                             
             });
             return response;
@@ -343,17 +369,17 @@ const ProjectSummaryPage = () => {
 
     const publishStory = async () => {
         if (!isValidSolanaAddress(depositAddress)) {
-            toast.error("Invalid KIN deposit address");
+            toast.error("Invalid Code Wallet deposit address");
             return;
         }
         await proceedRequest();
     }
 
-    
-
     const proceedRequest = async () => {
         let published = storyData?.status === "draft" ? false : true;
         
+        console.log({ isFree, price: price });
+
         try {
             showPageLoader()
             setOpenAddAddressModal(false);
@@ -363,7 +389,9 @@ const ProjectSummaryPage = () => {
                     status: published === true ? "draft" : "published",
                     publishedAt: published === true ? null : new Date,
                     depositAddress,
-                    tipLink
+                    tipLink,
+                    isFree, 
+                    price: price
                 }
             );
 
@@ -401,13 +429,17 @@ const ProjectSummaryPage = () => {
         // await proceedRequest()
     }
 
-    const saveChapterBanner = async (imgUrl: string) => {
+    const saveChapterBanner = async (payload: { imageId?: number|null, imageStatus?: string|null, imgUrl?: string|null }) => {
         // const payload = { [CHAPTER_IMAGE_MAP[chapter]]: imgUrl };
-      
+        const { imageId, imageStatus, imgUrl } = payload;
+
         try {
             const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${storyId}`, 
                 {
-                    introductionImage: imgUrl
+                    introductionImage: imgUrl,
+                    imageUrl: imgUrl,
+                    imageStatus,
+                    imageId
                 }
             );
 
@@ -443,13 +475,13 @@ const ProjectSummaryPage = () => {
             
             const response = await streamLLMResponse(prompt, {
                 storyIdea: story?.projectDescription,
-                introduceProtagonistAndOrdinaryWorld: story?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
-                incitingIncident: story?.storyStructure?.incitingIncident,
-                firstPlotPoint: story?.storyStructure?.firstPlotPoint,
-                risingActionAndMidpoint: story?.storyStructure?.risingActionAndMidpoint,
-                pinchPointsAndSecondPlotPoint: story?.storyStructure?.pinchPointsAndSecondPlotPoint,
-                climaxAndFallingAction: story?.storyStructure?.climaxAndFallingAction,    
-                resolution: story?.storyStructure?.resolution,                     
+                introduceProtagonistAndOrdinaryWorld: story?.storyStructure?.introductionSummary,
+                incitingIncident: story?.storyStructure?.incitingIncidentSummary,
+                firstPlotPoint: story?.storyStructure?.firstPlotPointSummary,
+                risingActionAndMidpoint: story?.storyStructure?.risingActionAndMidpointSummary,
+                pinchPointsAndSecondPlotPoint: story?.storyStructure?.pinchPointsAndSecondPlotPointSummary,
+                climaxAndFallingAction: story?.storyStructure?.climaxAndFallingActionSummary,    
+                resolution: story?.storyStructure?.resolutionSummary,                     
             });
     
             if (!response) {
@@ -463,7 +495,7 @@ const ProjectSummaryPage = () => {
                 setStoryOverview(overview);                     
             }
 
-            await saveStoryOverview(overview);
+            await updateStory(overview);
         } catch (error) {
             console.error(error);            
         }finally{
@@ -471,7 +503,27 @@ const ProjectSummaryPage = () => {
         }
     }
 
-    const saveStoryOverview = async (overview = "") => {
+    const fetchPendingImage = async () => {
+        let response = await axios.post("https://modelslab.com/api/v6/images/fetch", {
+            "key": process.env.NEXT_PUBLIC_STABLE_FUSION_API_KEY,
+            "request_id": 119074274
+        });
+        console.log(response);        
+        if (response.data.status !== "success") {
+            // Handle failure
+            toast.error("Image is still being processed")
+            return
+        }
+
+        const imgUrl = response?.data?.output?.[0] ?? response?.data?.proxy_links?.[0];
+        await saveChapterBanner({ 
+            imgUrl,  
+            imageStatus: response.data.status,
+            imageId: storyData?.imageId
+        });
+    }
+ 
+    const updateStory = async (overview = "") => {
         if (!storyOverview && !overview) {
             toast.error("Provide a story overview");
             return;
@@ -483,7 +535,9 @@ const ProjectSummaryPage = () => {
             showPageLoader();
             const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${storyId}`, 
                 {
-                    overview: payload
+                    overview: payload,
+                    isFree, 
+                    price
                 }
             );
         
@@ -491,7 +545,7 @@ const ProjectSummaryPage = () => {
                 refetch();
             }
         } catch (error) {
-            console.error('Error saving chapter banner:', error);
+            console.error('Error updating story:', error);
         }finally{
             hidePageLoader()
         }
@@ -591,13 +645,19 @@ const ProjectSummaryPage = () => {
                         </div> */}
                             
                         {
-                            !storyData?.introductionImage &&
+                            !storyData?.introductionImage && storyData?.imageStatus === null &&
                             <Button onClick={generateBanner} size="sm">Generate Banner</Button>
                         }
+
+                        {
+                            storyData?.imageStatus === "processing" &&
+                            <Button onClick={fetchPendingImage} size="sm">Fetch Banner</Button>
+                        }
+
                     </div>
                 </div>
 
-                <div className='mt-7'>
+                <div className='mt-7 mb-4'>
                     <p className="mb-2 font-semibold text-sm">Story Overview</p>
                     <textarea rows={7} 
                     onChange={(e) => setStoryOverview(e.target.value) } 
@@ -606,42 +666,82 @@ const ProjectSummaryPage = () => {
                     className='p-5 outline-none text-sm border rounded-lg w-full' 
                     />
 
-                    <div className="grid grid-cols-2 xs:grid-cols-1 sm:grid-cols-2 mt-3 gap-4">
-                        <Button disabled={generating} onClick={generateStoryOverview}>
+                    {/* <div className="grid grid-cols-2 xs:grid-cols-1 sm:grid-cols-2 mt-3 gap-4"> */}
+                        <Button disabled={generating} onClick={generateStoryOverview} className='mt-2'>
                             Generate Overview
                             {generating && <i className='bx bx-loader-alt bx-spin text-white ml-2' ></i> }
                         </Button>
-                        <Button onClick={saveStoryOverview} disabled={!storyOverview || generating}>Save</Button>
+                        {/* <Button onClick={() => updateStory()} disabled={!storyOverview || generating}>Save</Button> */}
+                    {/* </div> */}
+                </div>
+
+                <div className="flex items-center space-x-2 mb-3">
+                    <Switch
+                        id="story-free"
+                        checked={isFree}
+                        onCheckedChange={(value) => setIsFree(value)}
+                    />
+                    <Label htmlFor="story-free">Free Story</Label>
+                </div>
+
+                {
+                !isFree && 
+                <div className="mb-3">
+                    <Label htmlFor="price">Price - ${price}</Label>     
+                
+                    <div className="mt-2">                            
+                        {/* <Slider 
+                            onValueChange={(values) => setPrice(values)}
+                            defaultValue={[0]} minStepsBetweenThumbs={5} min={0} max={1} step={0.01} 
+                        /> */}
+                        <input
+                            type="range"
+                            className="w-full"
+                            min={0}
+                            max={1}
+                            step={0.1}
+                            value={price}
+                            onChange={e => setPrice(parseFloat(e.target.value))}
+                        />
+
                     </div>
                 </div>
+                }
              
+                {/* <Button disabled={generating} onClick={() => setCharactersModalOpen(true)} variant="outline" className='w-full mt-3 '>
+                    Characters                        
+                    <Users className='w-4 h-4 ml-2' />        
+                </Button> */}
 
-                {
-                    storyData?.status === "draft" &&
-                    <Button disabled={generating} onClick={validateData} className='w-full mt-5 flex items-center gap-2 bg-custom_green'>
-                        Publish
-                        
-                        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96" preserveAspectRatio="xMidYMid meet">
-                            <g transform="translate(0,96) scale(0.1,-0.1)" fill="#FFFFFF" stroke="none">
-                                <path d="M431 859 c-81 -16 -170 -97 -186 -169 -5 -22 -15 -32 -42 -41 -46 -15 -99 -63 -125 -112 -27 -54 -27 -140 1 -194 40 -78 157 -151 181 -112 12 18 4 27 -38 45 -76 31 -112 85 -112 167 0 62 25 108 79 144 44 29 132 32 176 5 35 -22 55 -18 55 9 0 22 -66 59 -105 59 -23 0 -25 3 -20 23 11 35 57 88 95 108 46 25 134 25 180 0 19 -10 48 -35 64 -55 41 -50 49 -145 17 -206 -24 -46 -26 -66 -9 -76 14 -9 54 39 69 84 10 30 14 33 38 27 14 -3 41 -21 60 -40 27 -27 35 -43 39 -84 2 -27 2 -61 -2 -75 -9 -36 -62 -84 -107 -96 -28 -8 -39 -16 -39 -30 0 -30 56 -26 106 6 112 73 131 213 42 310 -23 25 -57 49 -81 57 -38 12 -42 17 -49 57 -22 127 -155 215 -287 189z"/>
-                                <path d="M464 460 c-29 -11 -104 -99 -104 -121 0 -30 32 -23 62 13 l27 33 1 -127 c0 -139 4 -158 30 -158 26 0 30 19 30 158 l1 127 27 -33 c29 -35 62 -43 62 -14 0 19 -72 107 -98 121 -10 5 -26 5 -38 1z"/>
-                            </g>
-                        </svg>
-                    </Button>
-                }
+                <div className="grid grid-cols-2 xs:grid-cols-1 sm:grid-cols-2 mt-3 gap-4">
+                    {
+                        storyData?.status === "draft" &&
+                        <Button disabled={generating} onClick={validateData} className='w-full flex items-center gap-2 bg-custom_green'>
+                            Publish
+                            
+                            <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96" preserveAspectRatio="xMidYMid meet">
+                                <g transform="translate(0,96) scale(0.1,-0.1)" fill="#FFFFFF" stroke="none">
+                                    <path d="M431 859 c-81 -16 -170 -97 -186 -169 -5 -22 -15 -32 -42 -41 -46 -15 -99 -63 -125 -112 -27 -54 -27 -140 1 -194 40 -78 157 -151 181 -112 12 18 4 27 -38 45 -76 31 -112 85 -112 167 0 62 25 108 79 144 44 29 132 32 176 5 35 -22 55 -18 55 9 0 22 -66 59 -105 59 -23 0 -25 3 -20 23 11 35 57 88 95 108 46 25 134 25 180 0 19 -10 48 -35 64 -55 41 -50 49 -145 17 -206 -24 -46 -26 -66 -9 -76 14 -9 54 39 69 84 10 30 14 33 38 27 14 -3 41 -21 60 -40 27 -27 35 -43 39 -84 2 -27 2 -61 -2 -75 -9 -36 -62 -84 -107 -96 -28 -8 -39 -16 -39 -30 0 -30 56 -26 106 6 112 73 131 213 42 310 -23 25 -57 49 -81 57 -38 12 -42 17 -49 57 -22 127 -155 215 -287 189z"/>
+                                    <path d="M464 460 c-29 -11 -104 -99 -104 -121 0 -30 32 -23 62 13 l27 33 1 -127 c0 -139 4 -158 30 -158 26 0 30 19 30 158 l1 127 27 -33 c29 -35 62 -43 62 -14 0 19 -72 107 -98 121 -10 5 -26 5 -38 1z"/>
+                                </g>
+                            </svg>
+                        </Button>
+                    }
 
-                {
-                    storyData?.status !== "draft" &&
-                    <Button disabled={generating} onClick={unpublishStory} className='w-full mt-5 flex items-center gap-2 bg-custom_green'>
-                        Unpublish                        
-                        <Download className='w-4 h-4'/> 
-                    </Button>
-                }
+                    {
+                        storyData?.status !== "draft" &&
+                        <Button disabled={generating} onClick={unpublishStory} className='w-full flex items-center gap-2 bg-red-600'>
+                            Unpublish                        
+                            <Download className='w-4 h-4'/> 
+                        </Button>
+                    }
 
+                    <Button onClick={() => updateStory()} disabled={!storyOverview || generating}>Save</Button>
+                </div>
                 
             </div>
 
-            <Sheet open={modifyModalOpen} onOpenChange={setModifyModalOpen}>
+            <Sheet open={charactersModalOpen} onOpenChange={setCharactersModalOpen}>
                 <SheetContent className="overflow-y-scroll xs:min-w-[90%] sm:min-w-[96%] md:min-w-[65%] lg:min-w-[65%] xl:min-w-[55%]">
                     <SheetHeader className=''>
                         <SheetTitle>Edit Chapter</SheetTitle>
@@ -662,7 +762,7 @@ const ProjectSummaryPage = () => {
                     </DialogHeader>
                     <div>
                         <div className="mb-4">
-                            <p className="mb-1 text-xs font-semibold">Kin Wallet Address <span className='text-red-500 text-md font-bold'>*</span></p>
+                            <p className="mb-1 text-xs font-semibold">Code Wallet Address <span className='text-red-500 text-md font-bold'>*</span></p>
                             <div className="flex border items-center rounded-2xl p-1.5">
                                 <div className='flex items-center'>
                                     <img src="/images/codeImage.png" className='w-6 h-6' alt="code wallet icon" />
@@ -693,7 +793,7 @@ const ProjectSummaryPage = () => {
                         
                         <div className="mb-3 bg-red-100 border border-red-300 p-3 rounded-2xl">
                             <p className='text-[10px] text-red-500'>
-                            Caution: Please ensure you provide a valid KIN deposit address. Not all Solana addresses are compatible with KIN transactions. If the address is incorrect, you may not receive tips or payments for your content. Double-check your KIN wallet address to avoid missing out on rewards.
+                            Caution: Please ensure you provide a valid Code Wallet deposit address. Not all Solana addresses are compatible with Code Wallet transactions. If the address is incorrect, you may not receive tips or payments for your content. Double-check your Code Wallet wallet address to avoid missing out on rewards.
                             </p>
                         </div>
                         <Button onClick={publishStory} className='text-gray-50 mr-5 w-full bg-[#46aa41]'>Proceed</Button>

@@ -2,100 +2,99 @@
 
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import code from '@code-wallet/elements';
 import { Button } from '@/components/ui/button';
 import { WikipediaQueryRun } from "@langchain/community/tools/wikipedia_query_run";
 
+import { TavilySearchResults } from "@langchain/community/tools/tavily_search";
+import { ChatOpenAI } from "@langchain/openai";
+import { MemorySaver } from "@langchain/langgraph";
+import { HumanMessage } from "@langchain/core/messages";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+import { ChatGroq } from '@langchain/groq';
+import { cn } from '@/lib/utils';
+// import ReactMarkdown from 'react-markdown'
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { dark } from "react-syntax-highlighter/dist/esm/styles/prism";
+
+import {
+    EditorBubble,
+    EditorBubbleItem,
+    EditorCommand,
+    EditorCommandItem,
+    EditorContent,
+    EditorRoot,
+} from "novel";
+
 const TestPage = () => {
-
-    const [login, setLogin] = useState<{ verifier: string, domain: string }|null>(null);
-    // GET CODE LOGIN START
-    const el = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        fetchData();        
-    }, []);
-
-    useEffect(() => {
-        if(login){
-            console.log(login);
-            const { button } = code.elements.create('button', {
-                mode: 'login',
-                login: {
-                    verifier: login?.verifier, 
-                    // domain: "usefable.xyz"
-                    domain: login?.domain
-                },
-                // appearance: window.localStorage.getItem("joy-mode") == "light" ? "dark" : "light",
-                confirmParams: {
-                    success: { url: `${process.env.NEXT_PUBLIC_URL}/login-success/{{INTENT_ID}}` }, 
-                    cancel: { url: `${process.env.NEXT_PUBLIC_URL}/`, },
-                },
-            });
-    
-            if (button) {      
-                button?.mount(el?.current!);
-                // Wait for the button to be clicked
-                button.on('invoke', async () => {
-    
-                    // Get a payment intent clientSecret value from server.js
-                    const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/create-intent`);
-                    console.log(res);
-                    
-                    const clientSecret = res?.data?.clientSecret;
-            
-                    // Update the button with the new client secret so that our server
-                    // can be notified once the payment is complete.
-                    button.update({ clientSecret });                
-                });
-    
-            }
-        }
-    }, [login]);
-
-    const fetchData = async () => {
-        let response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/get-verifier`);
-        console.log(response);
-        const loginDomain = "usefable.xyz";
-
-        if (!response) {
-            throw new Error("Network response was not ok");
-        }
-        const data: { verifier: string, domain: string } = response?.data;
-        setLogin(data);        
-    }
-
+    const [content, setContent] = useState(null);
+    const [post, setPost] = useState<string>(``);
     const query = async () => {
+        const response = await fetch('/api/test')
+        const reader = response.body.getReader()
 
-        let res = await axios.get("/api/test");
-        
-        console.log(res);
+        setPost("")
+        while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            const text = new TextDecoder().decode(value)
+            console.log(text) // Or append to your UI
+            setPost(prev => prev += text);
+        }
+        // const res = await axios.get("/api/test");
+        // console.log(res);
     }
 
 
-  return (
-    <div>
-        <div className='mt-[120px]'>
+    return (
+        <div>
+            <div className='mt-[120px]'>
 
-            <Button onClick={query}>Test Login</Button>
+                <Button onClick={query}>Test Login</Button>
+
             
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    height: "60vh",
-                }}
-            >
-                <div className="flex flex-col items-center gap-5">
+                <div className="m-7 whitespace-pre-wrap p-5 border rounded-2xl outline-none" contentEditable>
+                    {/* <ReactMarkdown>{post}</ReactMarkdown> */}
+                    
+                    {/* <ReactMarkdown
+                        components={{
+                            code({ className, children, ...rest }) {
+                                const match = /language-(\w+)/.exec(className || "");
+                                return match ? (
+                                <SyntaxHighlighter
+                                    PreTag="div"
+                                    language={match[1]}
+                                    style={dark}
+                                    {...rest}
+                                >
+                                    {children}
+                                </SyntaxHighlighter>
+                                ) : (
+                                <code {...rest} className={className}>
+                                    {children}
+                                </code>
+                                );
+                            },
+                        }}
+                    >
+                        {post}
+                    </ReactMarkdown> */}
 
-                    <h1>Connect your account to Code Wallet</h1>
-                    {login && <div ref={el} />}
+                    {/* <textarea 
+                        rows={30} 
+                    
+                        onChange={(e) => {
+                            setPost(e.target.value);
+                        }}
+                        value={post} 
+                        placeholder=''
+                        className={cn('p-5 mb-4 outline-none border text-sm whitespace-pre-wrap rounded-lg w-full leading-5',)} 
+                    /> */}
                 </div>
-            </div>
+
+
+            </div>  
         </div>
-    </div>
-  )
+    )
 }
 
 export default TestPage

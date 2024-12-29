@@ -19,8 +19,7 @@ const LoginSuccessPage = ({params: {id}}: Props) => {
 
     const [authenticated, setAuthenticated] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
-    
-    
+        
     useEffect(() => {
         authenticate();
     }, []);
