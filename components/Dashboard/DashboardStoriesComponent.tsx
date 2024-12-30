@@ -277,9 +277,9 @@ const DashboardStoriesComponent = () => {
                                         </div>
                                         <h1 className="font-bold text-xl capitalize mb-3">{story?.projectTitle}</h1>
                     
-                                        <div className="font-semibold mt-2 text-[10px]">
-                                            {story?.genres?.map(genre => genre.value)?.join(" | ")}
-                                        </div>
+                                        {story?.publishedAt && <div className="font-semibold mt-2 text-[10px]">
+                                            {story?.genres?.length > 0 ? story?.genres?.map(genre => genre.value ?? genre)?.join(" | ") : ""}
+                                        </div>}
                             
                                         <div className="mt-4">
                                             {
@@ -303,6 +303,7 @@ const DashboardStoriesComponent = () => {
                                                     </Button>
                                                 </Link>
                                             </div>
+                                            {story.publishedAt && 
                                             <div className="flex items-center justify-between">
                                                 {   story?.status === "published" &&
                                                     <div className='flex items-center gap-5'>
@@ -324,7 +325,7 @@ const DashboardStoriesComponent = () => {
                                                         <Trash2 className="h-3 w-3 ml-2"/>
                                                     </Button>    
                                                 }
-                                            </div>
+                                            </div>}
                                             
                                         </div>                           
                     
