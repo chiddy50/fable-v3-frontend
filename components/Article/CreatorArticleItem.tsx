@@ -25,6 +25,7 @@ export default function CreatorArticleItem({ article }: { article: ArticleInterf
           </div>
 
           <ArticleTagsComponent data={article?.articleTags ?? []} />
+          
           <div className='mt-7 flex flex-col gap-5 justify-between text-xs text-muted-foreground'>
             <div className='flex items-center gap-4'>
               <Sparkle className='h-4 w-4 fill-yellow-500 text-yellow-500' />
