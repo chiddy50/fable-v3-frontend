@@ -9,7 +9,7 @@ const ArticleTagsComponent = ({ data }) => {
         {
             data.map(tag => (
                 <div key={tag.id}>
-                    <Badge>{tag?.articleTag?.title}</Badge>
+                    <Badge className='text-[0.6rem]'>{tag?.articleTag?.title}</Badge>
                 </div>
             ))
         }
