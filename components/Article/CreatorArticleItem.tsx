@@ -20,12 +20,12 @@ export default function CreatorArticleItem({ article }: { article: ArticleInterf
         {/* Post details */}
         <div className='mt-4 w-full sm:mt-0 sm:w-3/4'>
           <div className='space-y-1'>
-            <h3 className='font-serif text-xl font-bold'>{article.title}</h3>
+            <h3 className='text-xl font-bold'>{article.title}</h3>
             <p className='text-sm text-muted-foreground'>{article.excerpt}</p>
           </div>
 
           <ArticleTagsComponent data={article?.articleTags ?? []} />
-          
+
           <div className='mt-7 flex flex-col gap-5 justify-between text-xs text-muted-foreground'>
             <div className='flex items-center gap-4'>
               <Sparkle className='h-4 w-4 fill-yellow-500 text-yellow-500' />
