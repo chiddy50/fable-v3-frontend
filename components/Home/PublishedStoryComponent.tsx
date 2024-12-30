@@ -8,6 +8,7 @@ import { formatDate, shareStory } from '@/lib/helper';
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import { combineName } from '@/lib/utils';
 import AuthorAvatarComponent from '../Author/AuthorAvatarComponent';
+import StarRatingComponent from '../Rating/StarRatingComponent';
 
 const PublishedStoryComponent = ({
     publishedStories,
@@ -47,9 +48,11 @@ const PublishedStoryComponent = ({
 
                             <AuthorAvatarComponent user={story?.user} />
 
-                            <div className="font-semibold mt-2 text-[10px]">
-                                {story?.genres?.map(genre => genre.value)?.join(" | ")}
+                            <div className="font-semibold mt-2 mb-2 text-[10px]">
+                                {story?.genres.length > 0 ? story?.genres?.map(genre => genre.value ?? genre)?.join(" | ") : ""}
                             </div>
+
+                            <StarRatingComponent rating={story?.averageRating} />
                             
                             <div className="mt-4">
                             {
@@ -65,7 +68,7 @@ const PublishedStoryComponent = ({
 
                             <div className="mt-4 flex justify-between items-center">
                                 <Button onClick={() => moveToReadStory(story?.id)} size="sm" className="text-gray-700" variant="outline">
-                                    Read
+                                    Read for { story.isFree ? 'Free' : `$${story.price}` }
                                     <BookOpen className="w-4 h-4 ml-2"/>
                                 </Button>                            
                             </div>

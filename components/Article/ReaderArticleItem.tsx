@@ -54,7 +54,7 @@ export default function ReaderArticleItem({ article }: { article: ArticleInterfa
             <Link href={`/articles/${article.id}`} >
 
               <Button variant="outline" size="sm" className='text-gray-800 mt-4'>
-                Read
+                Read for { article.isFree ? 'Free' : `$${article.price}` }
                 <BookOpen />
               </Button>
             </Link>

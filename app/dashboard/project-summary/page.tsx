@@ -88,6 +88,7 @@ const ProjectSummaryPage = () => {
     const [tipLink, setTipLink]= useState<string>('');  
     const [isFree, setIsFree] = useState<boolean>(false);
     const [price, setPrice] = useState<number>(0);  
+    const [paidStoryTransaction, setPaidStoryTransaction] = useState(null)
     // const [price, setPrice] = useState<number[]>([0]);  
 
     const [mounted, setMounted] = useState<boolean>(false);
@@ -208,6 +209,8 @@ const ProjectSummaryPage = () => {
     
             const response = await axiosInterceptorInstance.get(url);
             if (response?.data?.story) {
+                
+                setPaidStoryTransaction(response?.data?.paidStoryTransaction);
                 setStory(response?.data?.story);
                 setDepositAddress(response?.data?.story?.user?.depositAddress)
                 setTipLink(response?.data?.story?.user?.tipLink);
@@ -364,6 +367,10 @@ const ProjectSummaryPage = () => {
     }
 
     const unpublishStory = async () => {
+        if (paidStoryTransaction) {
+            toast.error("A user has already paid for this content");
+            return;
+        }
         await proceedRequest();        
     }
 
@@ -657,7 +664,7 @@ const ProjectSummaryPage = () => {
                     </div>
                 </div>
 
-                <div className='mt-7 mb-4'>
+                <div className='mt-7 mb-7'>
                     <p className="mb-2 font-semibold text-sm">Story Overview</p>
                     <textarea rows={7} 
                     onChange={(e) => setStoryOverview(e.target.value) } 
@@ -713,7 +720,7 @@ const ProjectSummaryPage = () => {
                     <Users className='w-4 h-4 ml-2' />        
                 </Button> */}
 
-                <div className="grid grid-cols-2 xs:grid-cols-1 sm:grid-cols-2 mt-3 gap-4">
+                <div className="grid grid-cols-2 xs:grid-cols-1 sm:grid-cols-2 mt-5 gap-4">
                     {
                         storyData?.status === "draft" &&
                         <Button disabled={generating} onClick={validateData} className='w-full flex items-center gap-2 bg-custom_green'>
