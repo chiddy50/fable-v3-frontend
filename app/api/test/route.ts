@@ -17,9 +17,9 @@ import { ChatGroq } from "@langchain/groq";
 
 
 import { TavilySearchResults } from "@langchain/community/tools/tavily_search";
-import { MemorySaver } from "@langchain/langgraph";
+// import { MemorySaver } from "@langchain/langgraph";
 import { HumanMessage } from "@langchain/core/messages";
-import { createReactAgent } from "@langchain/langgraph/prebuilt";
+// import { createReactAgent } from "@langchain/langgraph/prebuilt";
 
 export async function POST(request: NextRequest) {
     const { imageUrl, dynamicJwtToken } = await request.json();
@@ -56,85 +56,85 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-    try { 
+    // try { 
 
-        // Initialize the stream
-        const encoder = new TextEncoder()
-        const stream = new TransformStream()
-        const writer = stream.writable.getWriter()
+    //     // Initialize the stream
+    //     const encoder = new TextEncoder()
+    //     const stream = new TransformStream()
+    //     const writer = stream.writable.getWriter()
         
-        // const { query } = await request.json();
-        let query = "Write a post about the different rust array functions and their use cases and give code examples for each array function"
+    //     // const { query } = await request.json();
+    //     let query = "Write a post about the different rust array functions and their use cases and give code examples for each array function"
 
-        const agentModel = new ChatGroq({
-            apiKey: process.env.NEXT_PUBLIC_GROQ_JSONOUTPUT_API_KEY,
-            model: "llama-3.1-70b-versatile"           
-        });
+    //     const agentModel = new ChatGroq({
+    //         apiKey: process.env.NEXT_PUBLIC_GROQ_JSONOUTPUT_API_KEY,
+    //         model: "llama-3.1-70b-versatile"           
+    //     });
 
-        // Define the tools for the agent to use
-        const agentTools = [new TavilySearchResults({ 
-            maxResults: 3,
-            apiKey: process.env.NEXT_PUBLIC_TAVILY_API_KEY,
-        })];
+    //     // Define the tools for the agent to use
+    //     const agentTools = [new TavilySearchResults({ 
+    //         maxResults: 3,
+    //         apiKey: process.env.NEXT_PUBLIC_TAVILY_API_KEY,
+    //     })];
 
-        // Initialize memory to persist state between graph runs
-        const agentCheckpointer = new MemorySaver();
-        const agent = createReactAgent({
-            llm: agentModel,
-            tools: agentTools,
-            checkpointSaver: agentCheckpointer,
-        });
+    //     // Initialize memory to persist state between graph runs
+    //     const agentCheckpointer = new MemorySaver();
+    //     const agent = createReactAgent({
+    //         llm: agentModel,
+    //         tools: agentTools,
+    //         checkpointSaver: agentCheckpointer,
+    //     });
 
-        // Now it's time to use!
-        const researchState = await agent.invoke(
-            { messages: [new HumanMessage(query)] },
-            { configurable: { thread_id: "42" } },
-        );
+    //     // Now it's time to use!
+    //     const researchState = await agent.invoke(
+    //         { messages: [new HumanMessage(query)] },
+    //         { configurable: { thread_id: "42" } },
+    //     );
 
-        // Extract the research results
-        const researchContent = researchState.messages[researchState.messages.length - 1].content;
+    //     // Extract the research results
+    //     const researchContent = researchState.messages[researchState.messages.length - 1].content;
 
-        // Now create a blog post using the research data
-        const blogPrompt = new HumanMessage(
-        `Using the following research data as context, write a well-structured, engaging blog post about "${query}". 
-        Make sure to include an attention-grabbing introduction, clear main points, and a conclusion.
-        The post should be informative yet conversational in tone.
+    //     // Now create a blog post using the research data
+    //     const blogPrompt = new HumanMessage(
+    //     `Using the following research data as context, write a well-structured, engaging blog post about "${query}". 
+    //     Make sure to include an attention-grabbing introduction, clear main points, and a conclusion.
+    //     The post should be informative yet conversational in tone.
         
-        Research Context:
-        ${researchContent}
+    //     Research Context:
+    //     ${researchContent}
         
-        Please format the blog post in markdown format.`
-        );
+    //     Please format the blog post in markdown format.`
+    //     );
 
-        const blogStream = await agentModel.stream([blogPrompt]);
+    //     const blogStream = await agentModel.stream([blogPrompt]);
 
-        // Handle the stream
-        (async () => {
-            try {
-                for await (const chunk of blogStream) {                    
-                    // Encode and write each chunk to the stream
-                    await writer.write(encoder.encode(chunk.content))
-                }
-            } catch (error) {
-                console.error('Streaming error:', error)
-            } finally {
-                await writer.close()
-            }
-        })()
+    //     // Handle the stream
+    //     (async () => {
+    //         try {
+    //             for await (const chunk of blogStream) {                    
+    //                 // Encode and write each chunk to the stream
+    //                 await writer.write(encoder.encode(chunk.content))
+    //             }
+    //         } catch (error) {
+    //             console.error('Streaming error:', error)
+    //         } finally {
+    //             await writer.close()
+    //         }
+    //     })()
 
-        // Return the stream response
-        return new NextResponse(stream.readable, {
-            headers: {
-                'Content-Type': 'text/event-stream',
-                'Cache-Control': 'no-cache',
-                'Connection': 'keep-alive'
-            }
-        })
+    //     // Return the stream response
+    //     return new NextResponse(stream.readable, {
+    //         headers: {
+    //             'Content-Type': 'text/event-stream',
+    //             'Cache-Control': 'no-cache',
+    //             'Connection': 'keep-alive'
+    //         }
+    //     })
 
-    } catch (error) {
-        console.error(error);        
-        return NextResponse.json({ error: error }, { status: 500 });        
-    }
+    // } catch (error) {
+    //     console.error(error);        
+    //     return NextResponse.json({ error: error }, { status: 500 });        
+    // }
         
 }
 
