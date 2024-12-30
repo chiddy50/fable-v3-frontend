@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator"
 import Link from 'next/link';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { Skeleton } from "@/components/ui/skeleton"
+import { UserInterface } from '@/interfaces/UserInterface';
 
 interface Props {
     params: {
@@ -18,7 +19,7 @@ const AuthorPage = ({ params: { id } }: Props) => {
 
     const decodedId = decodeURIComponent(id);
 
-    const [author, setAuthor] = useState(null);
+    const [author, setAuthor] = useState<UserInterface|null>(null);
     const [socialMedia, setSocialMedia] = useState(null);
     const [loading, setLoading] = useState(true);
 
