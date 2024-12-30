@@ -96,7 +96,12 @@ export default function ImageUploader({ articleId, setImageId, setImagePublicId,
   const uploadImage = async (file) => {
     try {
       const preset_key: string = process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_KEY ?? "" as string
-      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+      console.log({
+        preset_key,
+        cloudName
+      });
+      
       if (file && preset_key && cloudName) {
         const formData = new FormData();
         formData.append("file", file)
