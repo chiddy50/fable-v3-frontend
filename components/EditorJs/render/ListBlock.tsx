@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify';
+
 // List Block Component
 // const ListBlock = ({ data }) => {
 //     const isOrdered = data.style === 'ordered';

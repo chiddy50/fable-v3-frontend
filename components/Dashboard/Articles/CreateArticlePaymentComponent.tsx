@@ -12,11 +12,13 @@ import { ArticleInterface } from '@/interfaces/ArticleInterface';
 interface Props {
     article: ArticleInterface;
     refetch: () => void;
+    openPublishModal: () => void;
 }
 
 const CreateArticlePaymentComponent: React.FC<Props>  = ({
     article,
-    refetch
+    refetch,
+    openPublishModal
 }) => {
     const [mounted, setMounted] = useState<boolean>(false);
 
@@ -75,6 +77,7 @@ const CreateArticlePaymentComponent: React.FC<Props>  = ({
 
                             if (response) {
                                 refetch();
+                                openPublishModal();
                             }
                         }
                     }

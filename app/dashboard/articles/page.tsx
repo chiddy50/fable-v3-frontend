@@ -116,9 +116,7 @@ const ArticlesDashboardPage = () => {
             showPageLoader()
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/users/auth`;
 
-            const response = await axiosInterceptorInstance.get(url, {
-                params: null,
-            });
+            const response = await axiosInterceptorInstance.get(url);
             
             const authUser = response?.data?.user;
             if (!authUser) {

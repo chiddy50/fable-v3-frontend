@@ -125,7 +125,7 @@ export default function ArticleComponent({ slug }: { slug: string }) {
     return (
         <section className='pb-24 pt-32 sm:pt-40'>
             <div className='container max-w-3xl'>
-                <h1 className='font-serif text-3xl font-bold'>{article?.title}</h1>
+                <h1 className='text-4xl font-bold'>{article?.title}</h1>
                 <p className='mt-3 text-muted-foreground'>{article?.excerpt}</p>
 
                 {/* Author */}

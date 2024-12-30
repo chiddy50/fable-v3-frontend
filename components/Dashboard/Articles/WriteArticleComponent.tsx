@@ -67,6 +67,7 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
     const [isFree, setIsFree] = useState<boolean>(true);
     const [price, setPrice] = useState<number>(0);
     const [openAddAddressModal, setOpenAddAddressModal] = useState<boolean>(false);
+    const [openPaymentModal, setOpenPaymentModal] = useState<boolean>(false);
     const [depositAddress, setDepositAddress]= useState<string>('');    
     const [tipLink, setTipLink]= useState<string>('');    
     const [body, setBody]= useState<object|null>(null);      
@@ -169,14 +170,24 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
             toast.error('Invalid article price');
             return;
         }
+        
+        await updateArticle();
+
+        if (!isFree && !articleData?.paidAt) {
+            setOpenPaymentModal(true);
+            return;
+        }
           
         setOpenAddAddressModal(true);  
+
     }
 
-    const updateArticle = async (publish: boolean) => {
+    const updateArticle = async () => {
         try {
-            let publishedAt = publish === true ? new Date() : null;
-            const payload = { ...body, publishedAt, depositAddress, tipLink };
+            // let publishedAt = publish === true ? new Date() : null;
+            const payload = { ...body, 
+                // publishedAt, 
+                depositAddress, tipLink };
             console.log({payload});
             // return;
 
@@ -201,7 +212,26 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
             setOpenAddAddressModal(false);
 
         } catch (error) {
-            toast.error('Failed to create article')
+            toast.error('Failed to update article')
+        }finally{
+            hidePageLoader();
+        }
+    }
+
+    const publishOrUnpublishArticle = async (publish: boolean) => {
+        try {            
+            let url = `${process.env.NEXT_PUBLIC_BASE_URL}/articles/${articleId}`;
+            let publishedAt = publish === true ? new Date() : null;
+            
+            showPageLoader();
+            const response = await axiosInterceptorInstance.put(url, {
+                publishedAt
+            });
+            setOpenAddAddressModal(false);
+
+
+        } catch (error) {
+            toast.error('Failed to update article')
         }finally{
             hidePageLoader();
         }
@@ -233,6 +263,15 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
             }
         });
         setTags(data);
+    }
+
+    const saveUnpaidArticle = () => {
+        setOpenPaymentModal(true);
+    }
+
+    const openPublishModal = () => {
+        setOpenPaymentModal(false)
+        setOpenAddAddressModal(true);
     }
      
     return (
@@ -385,13 +424,20 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
                     }
 
                         
-                    {   !isFree && !articleData?.paidAt && 
-                        <div className="flex justify-center">
-                            <CreateArticlePaymentComponent article={articleData} refetch={refetch} />
-                        </div>
-                    }
+                    {/* {   !isFree && !articleData?.paidAt && 
+                        <Button
+                        onClick={saveUnpaidArticle}
+                        className='w-full sm:w-1/2'
+                        >
+                            Proceed
+                        </Button>
+                        // <div className="flex justify-center">
+                        //     <CreateArticlePaymentComponent article={articleData} refetch={refetch} />
+                        // </div>
+                    } */}
 
-                    {   articleData?.paidAt && !isFree &&
+                    {   
+                    // articleData?.paidAt && !isFree &&
                         <div>
                             <Button
                             type='submit'
@@ -410,7 +456,7 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
                         </div>
                     }
 
-                    {   isFree &&
+                    {/* {   isFree &&
                         <div>
                             <Button
                             type='submit'
@@ -427,7 +473,7 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
                             )}
                             </Button>
                         </div>
-                    }
+                    } */}
                 </div>
             }
 
@@ -482,13 +528,28 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
                         }
 
                         <div className="flex items-center justify-between gap-5">
-                            <Button onClick={() => updateArticle(false)} className='text-gray-50 w-full'>Draft</Button>
-                            <Button onClick={() => updateArticle(true)} className='text-gray-50 w-full bg-[#46aa41]'>Publish</Button>
+                            <Button onClick={() => publishOrUnpublishArticle(false)} className='text-gray-50 w-full'>Draft</Button>
+                            <Button onClick={() => publishOrUnpublishArticle(true)} className='text-gray-50 w-full bg-[#46aa41]'>Publish</Button>
                         </div>
 
                     </div>
                 </DialogContent>
             </Dialog>
+
+            <Dialog open={openPaymentModal} onOpenChange={setOpenPaymentModal}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className=''>Make Payment</DialogTitle>
+                        <DialogDescription></DialogDescription>
+                    </DialogHeader>
+
+                        <div className="flex justify-center">
+                            <CreateArticlePaymentComponent article={articleData} refetch={refetch} openPublishModal={openPublishModal} />
+                        </div>
+                    </DialogContent>
+            </Dialog>
+
+            
         </form>
     )
 }
