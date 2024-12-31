@@ -8,6 +8,7 @@ import { formatDate, trimWords } from '@/lib/helper'
 import MakePaymentComponent from './MakePaymentComponent';
 import { toast } from 'sonner';
 import StoryBannerComponent from './StoryBannerComponent';
+import Link from 'next/link';
 
 // const inter = Dosis({ subsets: ['latin'] });
 const inter = Inter({ subsets: ['latin'] });
@@ -96,7 +97,10 @@ const ReadChapterComponent = ({
 
             <div className='mt-5 mb-10'>
                 <p className="text-xs flex gap-2 mt-2 pt-2 border-t items-center justify-center">
-                    <span className='text-gray-600 italic'>Published by </span><span className='font-semibold capitalize'> {story?.user?.name}</span>
+                    <span className='text-gray-600 italic'>Published by </span>
+                    <Link href={`/author/${story?.user?.id}`}>                    
+                        <span className='font-semibold capitalize'> {story?.user?.name}</span>
+                    </Link>
                 </p>
                 <p className="text-xs text-center text-gray-400 pb-2 border-b flex gap-5 mt-1 items-center justify-center">
                     <span>5 min read</span>

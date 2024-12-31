@@ -34,14 +34,17 @@ import { AppContext } from '@/context/MainContext';
 import { getUserAuthParams } from '@/services/AuthenticationService';
 import dynamic from 'next/dynamic';
 import { createSlugFromName } from '@/lib/utils';
+import { AlertDialogComponent } from '../General/AlertDialogComponent';
 
 const DashboardStoriesComponent = () => {
     const router = useRouter();
 
     const [openNewProjectModal, setOpenNewProjectModal] = useState<boolean>(false);
+    const [openConfirmDeleteModal, setOpenConfirmDeleteModal] = useState<boolean>(false);
     const [projectTitle, setProjectTitle]= useState<string>('');    
     const [slug, setSlug]= useState<string>('');    
     const [creatorName, setCreatorName]= useState<string>('');    
+    const [storyId, setStoryId]= useState<string>('');    
     
     const [storyData, setStoryData]= useState([]);   
     const [isFetching, setIsFetching] = useState<boolean>(false);
@@ -197,7 +200,7 @@ const DashboardStoriesComponent = () => {
         }        
     };
 
-    const deleteStory = async (storyId: string) => {
+    const deleteStory = async () => {
         try {
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/delete/${storyId}`;
             showPageLoader();
@@ -205,14 +208,19 @@ const DashboardStoriesComponent = () => {
             getData();
         } catch (error) {
             console.error(error);            
-            console.error(error?.response?.data?.message);            
             let errorMsg = error?.response?.data?.message;
             if (errorMsg) {
                 toast.error(errorMsg)
             }
         }finally{
             hidePageLoader();
+            setOpenConfirmDeleteModal(false);
         }
+    }
+
+    const triggerDeleteStory = (id: string) => {
+        setStoryId(id);
+        setOpenConfirmDeleteModal(true)
     }
 
     return (
@@ -271,12 +279,11 @@ const DashboardStoriesComponent = () => {
                                             <p className="text-xs font-semibold">{story?.publishedAt ? formatDate(story?.publishedAt) : ""}</p>
                                             {/* <p className="font-bold text-[10px]">5 min read</p> */}
                                             <p className='text-sm font-bold capitalize'>{story?.status}</p>
-
                                         </div>
                                         <h1 className="font-bold text-xl capitalize mb-3">{story?.projectTitle}</h1>
                     
                                         {story?.publishedAt && <div className="font-semibold mt-2 text-[10px]">
-                                            {story?.genres?.length > 0 ? story?.genres?.map(genre => genre.value ?? genre)?.join(" | ") : ""}
+                                            {story?.genres?.length > 0 ? story?.genres?.map(genre => genre?.value ?? genre)?.join(" | ") : ""}
                                         </div>}
                             
                                         <div className="mt-4">
@@ -291,7 +298,7 @@ const DashboardStoriesComponent = () => {
 
                                         <div className="mt-5">
                                         {/* <div className=" flex xs:flex-col sm:flex-col md:flex-col lg:flex-col xl:flex-row xs:gap-4 mt-3 justify-between items-center"> */}
-                                            <div className="flex items-center justify-between mb-3">
+                                            <div className="flex flex-wrap gap-5 mb-3">
                                                 <Link href={`/dashboard/refine-story?story-id=${story.id}`}>                                            
                                                     <Button size="sm" variant="outline" className='text-gray-900'>Chapters</Button>
                                                 </Link>
@@ -300,10 +307,16 @@ const DashboardStoriesComponent = () => {
                                                         { story?.status === "draft" ? "Publish" : "Unpublish" }
                                                     </Button>
                                                 </Link>
+                                                {  
+                                                    story?.status === "draft" &&
+                                                    <Button onClick={() => triggerDeleteStory(story?.id)} size="sm" variant="destructive" className=' text-xs'>
+                                                        Delete
+                                                        <Trash2 className="h-3 w-3 ml-2"/>
+                                                    </Button>    
+                                                }
                                             </div>
-                                            {story.publishedAt && 
                                             <div className="flex items-center justify-between">
-                                                {   story?.status === "published" &&
+                                                {   story?.status === "published" && story.publishedAt &&
                                                     <div className='flex items-center gap-5'>
                                                         <div onClick={() => shareStory(story)} className="flex gap-1 items-center cursor-pointer px-3 py-2 border border-gray-200 rounded-2xl">
                                                             <span className="text-xs">Post on </span>
@@ -317,13 +330,8 @@ const DashboardStoriesComponent = () => {
 
                                                 }
 
-                                                {   story?.status === "draft" &&
-                                                    <Button onClick={() => deleteStory(story?.id)} size="sm" variant="destructive" className=' text-xs'>
-                                                        Delete
-                                                        <Trash2 className="h-3 w-3 ml-2"/>
-                                                    </Button>    
-                                                }
-                                            </div>}
+                                                
+                                            </div>
                                             
                                         </div>                           
                     
@@ -422,6 +430,13 @@ const DashboardStoriesComponent = () => {
                     </div>
                 </DialogContent>
             </Dialog>
+            
+            <AlertDialogComponent 
+                open={openConfirmDeleteModal} 
+                setOpen={setOpenConfirmDeleteModal} 
+                cautionMessage="This action cannot be undone. This will permanently delete your story project and remove your data from our servers."
+                onContinue={deleteStory}
+            />
 
         </div>
     )

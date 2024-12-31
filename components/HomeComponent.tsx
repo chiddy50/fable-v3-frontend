@@ -160,15 +160,21 @@ const HomeComponent = () => {
 
     const fetchArticles = async (tag = null, rating = null) => {
         try {
-            let url = `${process.env.NEXT_PUBLIC_BASE_URL}/articles`;
-            if (tag) {
-                url += `?tag=${tag}`;
-            }
-            if (rating) {
-                url += `?rating=${rating}`;
-            }
-            // let url = tag === "" ? `${process.env.NEXT_PUBLIC_BASE_URL}/articles` : `${process.env.NEXT_PUBLIC_BASE_URL}/articles?tag=${tag}`;
-
+            // let url = `${process.env.NEXT_PUBLIC_BASE_URL}/articles`;
+            // if (tag) {
+            //     url += `?tag=${tag}`;
+            // }
+            // if (rating) {
+            //     url += `?rating=${rating}`;
+            // }
+            const params = new URLSearchParams();
+    
+            if (tag) params.append('tag', tag);
+            if (rating) params.append('rating', rating?.toString());
+            
+            // Construct URL with query parameters
+            const url = `${process.env.NEXT_PUBLIC_BASE_URL}/articles${params.toString() ? `?${params.toString()}` : ''}`;
+            
             setLoading(true)
             const res = await fetch(url, {
                 method: 'GET',

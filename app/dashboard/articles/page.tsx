@@ -182,7 +182,7 @@ const ArticlesDashboardPage = () => {
 
                     <ul>
                         {articles.map(article => (
-                            <CreatorArticleItem key={article.id} article={article} showAvatar={false} />
+                            <CreatorArticleItem key={article.id} article={article} showAvatar={false} getArticles={getArticles} />
                         ))}
                     </ul>
                 </div>
