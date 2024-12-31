@@ -211,11 +211,12 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
             // if (!postSlug) throw new Error('Failed to create post')
     
             // router.push(`/posts/${postSlug}`)
-            toast.success('Article saved!');
+            toast.success('Article updated!');
             setOpenAddAddressModal(false);
 
         } catch (error) {
-            toast.error('Failed to update article')
+            console.log(error);            
+            toast.error('Failed to update article');
         }finally{
             hidePageLoader();
         }
