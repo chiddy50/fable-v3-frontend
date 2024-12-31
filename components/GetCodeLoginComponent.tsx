@@ -9,10 +9,15 @@ import axios from 'axios';
 interface Props {
     redirectUrl?: string;
     storyId?: string;
+    cancelUrl?: string;
+    storageKey: string;
 }
+
 const GetCodeLoginComponent: React.FC<Props> = ({ 
     redirectUrl,
-    storyId
+    storyId,
+    cancelUrl,
+    storageKey
 }) => {
     const [isMounted, setIsMounted] = useState<boolean>(false);
     // GET CODE LOGIN START
@@ -41,7 +46,7 @@ const GetCodeLoginComponent: React.FC<Props> = ({
                     },
                     confirmParams: {
                         success: { url: `${process.env.NEXT_PUBLIC_URL}/${redirectUrl}/{{INTENT_ID}}` }, 
-                        cancel: { url: `${process.env.NEXT_PUBLIC_URL}/read-story/${storyId}`, },
+                        cancel: { url: `${process.env.NEXT_PUBLIC_URL}/${cancelUrl}/${storyId}`, },
                     },
                 });
                 
@@ -52,8 +57,8 @@ const GetCodeLoginComponent: React.FC<Props> = ({
                         // Get a payment intent clientSecret value from server.js
                         const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/create-intent`);
                         console.log(res);
-                        sessionStorage.setItem("storyId", storyId);
-                        localStorage.setItem("storyId", storyId);                        
+                        sessionStorage.setItem(`${storageKey}`, storyId);
+                        localStorage.setItem(`${storageKey}`, storyId);                        
                         
                         const clientSecret = res?.data?.clientSecret;
                         button.update({ clientSecret });                
