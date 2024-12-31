@@ -135,6 +135,8 @@ const ArticlesDashboardPage = () => {
         }        
     }
 
+
+
     return (
         <div>
             <Breadcrumb>
@@ -165,13 +167,25 @@ const ArticlesDashboardPage = () => {
                 </div>
             }
 
+
+
             {
                 !isFetching &&
-                <ul>
-                    {articles.map(article => (
-                        <CreatorArticleItem key={article.id} article={article} showAvatar={false} />
-                    ))}
-                </ul>
+                <div>
+                    {
+                        articles?.length < 1 &&
+                        <div className='flex flex-col items-center'>
+                            <img src="/no-results.svg" alt="no-data-image" className="w-[200px] h-[200px]" />
+                            <p className="font-semibold">No Articles</p>
+                        </div>
+                    }
+
+                    <ul>
+                        {articles.map(article => (
+                            <CreatorArticleItem key={article.id} article={article} showAvatar={false} />
+                        ))}
+                    </ul>
+                </div>
             }
 
             <Dialog open={openNewArticleModal} onOpenChange={setOpenNewArticleModal}>

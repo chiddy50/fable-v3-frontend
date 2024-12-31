@@ -256,11 +256,9 @@ const DashboardStoriesComponent = () => {
 
                     {
                         storyData?.length < 1 &&
-                        <div className='flex justify-center'>
-                            <div className='px-10 py-7 rounded-2xl mt-20 flex flex-col items-center gap-2 justify-center text-gray-700 bg-gray-50'>
-                                <PowerOff className='w-20 h-20'/>
-                                <p className="text-lg font-bold">No Stories</p>
-                            </div>
+                        <div className='flex flex-col items-center'>
+                            <img src="/no-results.svg" alt="no-data-image" className="w-[200px] h-[200px]" />
+                            <p className="font-semibold">No Stories</p>
                         </div>
                     }
 

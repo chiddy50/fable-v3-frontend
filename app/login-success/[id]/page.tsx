@@ -98,9 +98,12 @@ const LoginSuccessPage = ({params: {id}}: Props) => {
                         />
                         <h1 className='mt-3 font-semibold text-lg text-center'>Successfully logged in</h1>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5">
+                        <div className="grid grid-cols-1 gap-3 mt-5">
                             <Link href="/dashboard/stories">
-                                <Button size="sm" className='text-xs w-full'>Go dashboard</Button>
+                                <Button size="sm" className='text-xs w-full'>Start story</Button>
+                            </Link>
+                            <Link href="/dashboard/articles">
+                                <Button size="sm" className='text-xs w-full'>Start article</Button>
                             </Link>
                             <Link href="/">
                                 <Button size="sm" className='text-xs w-full' variant="outline">Explore</Button>
