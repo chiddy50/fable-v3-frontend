@@ -77,7 +77,7 @@ const AuthorPage = ({ params: { id } }: Props) => {
             <div className='mt-7 mb-10'>
 
                 <div className="grid grid-cols-5 gap-7">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHOyweUERP_PkAHflHnp-jMxGTx_D-DD638A&s" alt="user-profile-image" className="w-full col-span-1 rounded-xl object-cover border-gray-100" />
+                    <img src="/male_avatar.png" alt="user-profile-image" className="w-full col-span-1 rounded-xl object-cover border-gray-100" />
                     <div className='col-span-2'>
                         <h1 className="text-2xl font-semibold mb-2">{author?.name}</h1>
 

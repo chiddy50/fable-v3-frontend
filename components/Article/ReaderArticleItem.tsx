@@ -29,10 +29,10 @@ export default function ReaderArticleItem({ article }: { article: ArticleInterfa
           <div className='mt-4 w-full sm:mt-0 sm:w-3/4'>
             <div className='space-y-1'>
               <h3 className='text-xl font-bold'>{article.title}</h3>
-              <p className='text-sm text-muted-foreground'>{article.excerpt}</p>
+              <p className='text-sm text-gray-400'>{article.excerpt}</p>
             </div>
 
-            <div className='mt-7 mb-3 flex items-center justify-between text-xs text-muted-foreground'>
+            <div className='mt-7 mb-3 flex items-center justify-between text-xs text-gray-400'>
               <div className='flex items-center gap-4'>
                 {/* <Sparkle className='h-4 w-4 fill-yellow-500 text-yellow-500' /> */}
                 {/* <span>{formatDate(article.createdAt)}</span> */}
