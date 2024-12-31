@@ -22,6 +22,7 @@ import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { ArticleInterface } from '@/interfaces/ArticleInterface';
 import BlockRenderer from '../EditorJs/BlockRenderer';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 export default function ArticleComponent({ slug }: { slug: string }) {
 
@@ -130,15 +131,19 @@ export default function ArticleComponent({ slug }: { slug: string }) {
 
                 {/* Author */}
                 <div className='mt-6 inline-flex items-center gap-3'>
-                    <Avatar>
-                        <AvatarImage
-                        src={article?.user?.imageUrl}
-                        alt={combineName(article?.user)}
-                        />
-                        <AvatarFallback>{article?.user?.name?.charAt(0)}</AvatarFallback>
-                    </Avatar>
+                    <Link href={`/author/${article.userId}`}>                    
+                        <Avatar>
+                            <AvatarImage
+                            src={article?.user?.imageUrl}
+                            alt={combineName(article?.user)}
+                            />
+                            <AvatarFallback>{article?.user?.name?.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                    </Link>
                     <div>
-                        <h2 className=''>{combineName(article?.user)}</h2>
+                        <Link href={`/author/${article.userId}`}>
+                            <h2 className=''>{combineName(article?.user)}</h2>
+                        </Link>
                         <p className='text-sm font-light text-muted-foreground'>
                         {formatDate(article.createdAt)}
                         </p>
