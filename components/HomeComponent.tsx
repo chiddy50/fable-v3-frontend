@@ -27,6 +27,16 @@ import PublishedArticleComponent from "./Home/PublishedArticleComponent";
 import { ArticleInterface } from "@/interfaces/ArticleInterface";
 import ReaderArticleItem from "./Article/ReaderArticleItem";
 
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import StarRatingComponent from "./Rating/StarRatingComponent";
+
 const HomeComponent = () => {
     const [publishedStories, setPublishedStories]   = useState<StoryInterface[]>([]);
     const [publishedArticles, setPublishedArticles] = useState<ArticleInterface[]>([]);
@@ -427,9 +437,11 @@ const HomeComponent = () => {
                                             }
                                         </TabsContent>
                                         <TabsContent value="articles">  
+
+                                            <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-5 mb-7 mt-10 ">
                                             {
                                                 tagList.length > 0 &&
-                                                <div className="mb-7 mt-10 md:w-full lg:w-1/2 flex gap-4 items-center">
+                                                <div className="md:w-full lg:w-full flex gap-4 items-center">
                                                     <ReusableCombobox
                                                         options={tagList}
                                                         placeholder="Select tag..."
@@ -443,6 +455,33 @@ const HomeComponent = () => {
                                                     </Button>
                                                 </div>
                                             }
+
+                                                <div>
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger className="bg-slate-700 text-gray-50 p-3 rounded-xl text-xs tracking-wider">Filter by rating</DropdownMenuTrigger>
+                                                        <DropdownMenuContent>
+                                                            <DropdownMenuLabel>Choose a rating</DropdownMenuLabel>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuItem>
+                                                                <StarRatingComponent rating={1} />                                                                
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem>
+                                                                <StarRatingComponent rating={2} />                                                                
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem>
+                                                                <StarRatingComponent rating={3} />                                                                
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem>
+                                                                <StarRatingComponent rating={4} />                                                                
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem>
+                                                                <StarRatingComponent rating={5} />                                                                
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </div>
+                                            </div>
+
 
                                             {
                                                 (publishedArticles?.length < 1 || !publishedArticles) &&
