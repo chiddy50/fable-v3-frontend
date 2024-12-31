@@ -51,8 +51,7 @@ export default function ReaderArticleItem({ article }: { article: ArticleInterfa
 
             <StarRatingComponent rating={article?.averageRating} />
 
-            <Link href={`/articles/${article.id}`} >
-
+            <Link href={`/read-article/${article.id}`}>
               <Button variant="outline" size="sm" className='text-gray-800 mt-4'>
                 Read for { article.isFree ? 'Free' : `$${article.price}` }
                 <BookOpen />
