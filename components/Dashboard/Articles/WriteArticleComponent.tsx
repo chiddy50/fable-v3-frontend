@@ -171,7 +171,7 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
             return;
         }
         
-        await updateArticle();
+        await updateArticle(fullPayload);
 
         if (!isFree && !articleData?.paidAt) {
             setOpenPaymentModal(true);
@@ -182,12 +182,15 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
 
     }
 
-    const updateArticle = async () => {
+    const updateArticle = async (fullPayload) => {
         try {
             // let publishedAt = publish === true ? new Date() : null;
-            const payload = { ...body, 
+
+            // const payload = { ...body, 
+            const payload = { ...fullPayload, 
                 // publishedAt, 
-                depositAddress, tipLink };
+                depositAddress, tipLink 
+            };
             console.log({payload});
             // return;
 
@@ -225,7 +228,8 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
             
             showPageLoader();
             const response = await axiosInterceptorInstance.put(url, {
-                publishedAt
+                publishedAt,
+                depositAddress, tipLink
             });
             setOpenAddAddressModal(false);
 
