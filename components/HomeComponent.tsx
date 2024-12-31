@@ -28,14 +28,18 @@ import { ArticleInterface } from "@/interfaces/ArticleInterface";
 import ReaderArticleItem from "./Article/ReaderArticleItem";
 
 const HomeComponent = () => {
-    const [publishedStories, setPublishedStories] = useState<StoryInterface[]>([]);
+    const [publishedStories, setPublishedStories]   = useState<StoryInterface[]>([]);
     const [publishedArticles, setPublishedArticles] = useState<ArticleInterface[]>([]);
-    const [continueStories, setContinueStories]   = useState<[]>([]);
-    const [loading, setLoading]                   = useState<boolean>(true);
-    const [isMounted, setIsMounted]               = useState<boolean>(false);
-    const [initialFetchDone, setInitialFetchDone] = useState(false);
-    const [genre, setGenre]                       = useState<{ value:string,label:string,description:string }|null>(null);
-    const [genreList, setGenreList]               = useState<[]>([]);
+    const [continueStories, setContinueStories]     = useState<[]>([]);
+    const [loading, setLoading]                     = useState<boolean>(true);
+    const [isMounted, setIsMounted]                 = useState<boolean>(false);
+    const [initialFetchDone, setInitialFetchDone]   = useState(false);
+    const [genre, setGenre]                         = useState<{ value:string,label:string,description:string }|null>(null);
+    const [tag, setTag]                             = useState<{ value:string,label:string,description:string }|null>(null);
+    const [genreList, setGenreList]                 = useState<[]>([]);
+    const [tagList, setTagList]                     = useState<[]>([]);
+    const [tags, setTags]                           = useState<[]>([]);
+    const [defaultTabValue, setDefaultTabValue]     = useState<string>("stories");
 
     const { 
         loggedIn, setLoggedIn,
@@ -144,9 +148,11 @@ const HomeComponent = () => {
         }
     }
 
-    const fetchArticles = async () => {
+    const fetchArticles = async (tag = "") => {
         try {
-            let url = `${process.env.NEXT_PUBLIC_BASE_URL}/articles`;
+            let url = tag === "" ? `${process.env.NEXT_PUBLIC_BASE_URL}/articles` : `${process.env.NEXT_PUBLIC_BASE_URL}/articles?tag=${tag}`;
+
+            // let url = `${process.env.NEXT_PUBLIC_BASE_URL}/articles`;
             setLoading(true)
             const res = await fetch(url, {
                 method: 'GET',
@@ -157,7 +163,17 @@ const HomeComponent = () => {
         
             const json = await res.json();
             let data = json?.articles;
-            if (data) setPublishedArticles(data);            
+            if (data) setPublishedArticles(data);  
+            setTags(json?.tags);
+
+            const listOTags = json?.tags.map((tag: { id: string, title: string }) => {
+                return {
+                    id: tag.id,
+                    label: tag.title,
+                    value: tag.title,
+                }
+            });
+            setTagList(listOTags ?? []);          
 
             // if (isLoggedIn) {            
             //     const allContinueStories = await getStartedStories();
@@ -173,6 +189,11 @@ const HomeComponent = () => {
     const reset = async () => {
         await fetchStories()
         setGenre(null);
+    }
+
+    const resetArticleFilter = async () => {
+        await fetchArticles()
+        setTag(null);
     }
     const getStartedStories = async () => {
         const token = sessionStorage.getItem('token'); 
@@ -268,9 +289,23 @@ const HomeComponent = () => {
                 description: `${genreResult?.description}`,
             });
         }
-    }   
-
-
+    }  
+    
+    const updateTag = async (value) => {    
+        console.log({value, tags});
+            
+        let tagResult = tags.find(tag => tag.title === value);
+        setTag(tagResult);
+        
+        let selectedTag = tagList.find(tag => tag.value === value)
+        console.log({tagResult, value, tagList, selectedTag});
+        if (value && value !== '') {            
+            await fetchArticles(selectedTag.id);
+            toast.message(`${value}`, {
+                description: `${tagResult?.description}`,
+            });
+        }
+    }  
 
     return (
       <main className="flex-1 " >         
@@ -351,7 +386,7 @@ const HomeComponent = () => {
                         <div id="published-content">
                             {
                                 <div>
-                                    <Tabs defaultValue="stories" className="w-full">
+                                    <Tabs defaultValue={defaultTabValue} value={defaultTabValue} className="w-full" onValueChange={(e) => setDefaultTabValue(e)} >
                                         <TabsList>
                                             <TabsTrigger value="stories">Stories</TabsTrigger>
                                             <TabsTrigger value="articles">Articles</TabsTrigger>
@@ -392,6 +427,22 @@ const HomeComponent = () => {
                                             }
                                         </TabsContent>
                                         <TabsContent value="articles">  
+                                            {
+                                                tagList.length > 0 &&
+                                                <div className="mb-7 mt-10 md:w-full lg:w-1/2 flex gap-4 items-center">
+                                                    <ReusableCombobox
+                                                        options={tagList}
+                                                        placeholder="Select tag..."
+                                                        defaultValue={tag}
+                                                        onSelect={(value) => updateTag(value)}
+                                                        className="my-custom-class w-full text-xs"
+                                                        emptyMessage="No tag found."
+                                                    />
+                                                    <Button onClick={resetArticleFilter} size="icon" className="">
+                                                        <RotateCcw className="w-5 h-5"/>     
+                                                    </Button>
+                                                </div>
+                                            }
 
                                             {
                                                 (publishedArticles?.length < 1 || !publishedArticles) &&
