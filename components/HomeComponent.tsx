@@ -5,7 +5,7 @@ import Link from "next/link";
 import logo from "@/images/logo.png"
 import { Button } from "@/components/ui/button";
 import StoryWriter from "@/components/StoryWriter";
-import { BookOpen, RotateCcw } from "lucide-react";
+import { BookOpen, Filter, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
 import { StoryInterface } from "@/interfaces/StoryInterface";
@@ -158,11 +158,17 @@ const HomeComponent = () => {
         }
     }
 
-    const fetchArticles = async (tag = "") => {
+    const fetchArticles = async (tag = null, rating = null) => {
         try {
-            let url = tag === "" ? `${process.env.NEXT_PUBLIC_BASE_URL}/articles` : `${process.env.NEXT_PUBLIC_BASE_URL}/articles?tag=${tag}`;
+            let url = `${process.env.NEXT_PUBLIC_BASE_URL}/articles`;
+            if (tag) {
+                url += `?tag=${tag}`;
+            }
+            if (rating) {
+                url += `?rating=${rating}`;
+            }
+            // let url = tag === "" ? `${process.env.NEXT_PUBLIC_BASE_URL}/articles` : `${process.env.NEXT_PUBLIC_BASE_URL}/articles?tag=${tag}`;
 
-            // let url = `${process.env.NEXT_PUBLIC_BASE_URL}/articles`;
             setLoading(true)
             const res = await fetch(url, {
                 method: 'GET',
@@ -456,25 +462,27 @@ const HomeComponent = () => {
                                                 </div>
                                             }
 
-                                                <div>
+                                                <div className="flex md:justify-start lg:justify-end">
                                                     <DropdownMenu>
-                                                        <DropdownMenuTrigger className="bg-slate-700 text-gray-50 p-3 rounded-xl text-xs tracking-wider">Filter by rating</DropdownMenuTrigger>
+                                                        <DropdownMenuTrigger className="bg-slate-700 text-gray-50 p-3 rounded-xl text-xs tracking-wider flex items-center">
+                                                            <Filter className="w-4 h-4 mr-2" /> Filter by rating 
+                                                        </DropdownMenuTrigger>
                                                         <DropdownMenuContent>
                                                             <DropdownMenuLabel>Choose a rating</DropdownMenuLabel>
                                                             <DropdownMenuSeparator />
-                                                            <DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => fetchArticles(null, 1)}>
                                                                 <StarRatingComponent rating={1} />                                                                
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => fetchArticles(null, 2)}>
                                                                 <StarRatingComponent rating={2} />                                                                
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => fetchArticles(null, 3)}>
                                                                 <StarRatingComponent rating={3} />                                                                
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => fetchArticles(null, 4)}>
                                                                 <StarRatingComponent rating={4} />                                                                
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => fetchArticles(null, 5)}>
                                                                 <StarRatingComponent rating={5} />                                                                
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
