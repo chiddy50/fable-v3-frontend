@@ -377,13 +377,30 @@ const HomeComponent = () => {
                                                     </Button>
                                                 </div>
                                             }
+                                            
+                                            {
+                                                (publishedStories?.length < 1 || !publishedStories) &&
+                                                <div className='flex flex-col items-center'>
+                                                    <img src="/no-results.svg" alt="no-data-image" className="w-[200px] h-[200px]" />
+                                                    <p className="font-semibold">No Stories yet</p>
+                                                </div>
+                                            }
 
                                             {
                                                 publishedStories?.length > 0 &&
                                                 <PublishedStoryComponent publishedStories={publishedStories} />
                                             }
                                         </TabsContent>
-                                        <TabsContent value="articles">                                            
+                                        <TabsContent value="articles">  
+
+                                            {
+                                                (publishedArticles?.length < 1 || !publishedArticles) &&
+                                                <div className='flex flex-col items-center'>
+                                                    <img src="/no-results.svg" alt="no-data-image" className="w-[200px] h-[200px]" />
+                                                    <p className="font-semibold">No Articles yet</p>
+                                                </div>
+                                            }                                          
+
                                             <ul className="mt-10">
                                                 {publishedArticles.map(article => (
                                                     <ReaderArticleItem key={article.id} article={article} />
