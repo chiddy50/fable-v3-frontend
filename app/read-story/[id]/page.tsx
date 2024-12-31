@@ -185,7 +185,7 @@ const ReadStoryPage = ({id}: {id:string}) => {
             <p className='text-sm'>Don’t have the Code App yet? 
               <br/><a href="https://getcode.com/download" target='_blank' className="underline">Download It Now</a></p>
           </div>
-          <GetCodeLoginComponent redirectUrl="read-story/login-success" storyId={id} />
+          <GetCodeLoginComponent redirectUrl="read-story/login-success" storyId={id} cancelUrl="read-story" storageKey="storyId" />
         </div>
       </div>
     )

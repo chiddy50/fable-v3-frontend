@@ -16,6 +16,14 @@ import {
   Star,
   ThumbsUp
 } from 'lucide-react';
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { notFound } from 'next/navigation';
 import { formatDate, hidePageLoader, showPageLoader } from '@/lib/helper';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
@@ -23,6 +31,7 @@ import { ArticleInterface } from '@/interfaces/ArticleInterface';
 import BlockRenderer from '../EditorJs/BlockRenderer';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import GetCodeLoginComponent from '../GetCodeLoginComponent';
 
 export default function ArticleComponent({ slug }: { slug: string }) {
 
@@ -32,7 +41,16 @@ export default function ArticleComponent({ slug }: { slug: string }) {
     const [accessRecord, setAccessRecord]= useState(null);   
     const [userArticleRating, setUserArticleRating]= useState(null);   
     const [userLike, setUserLike]= useState(null);   
+    const [token, setToken] = useState<string | null>(null);
     
+    useEffect(() => {
+        // Access sessionStorage only on the client side
+        const token = sessionStorage.getItem('token') ?? localStorage.getItem('token')
+        setToken(token);
+        if (token) {
+          sessionStorage.removeItem("articleId");      
+        }
+    }, []);
 
     useEffect(() => {
         getArticle();
@@ -111,9 +129,8 @@ export default function ArticleComponent({ slug }: { slug: string }) {
             hidePageLoader();
         }
     };
-    
 
-    if (!article) {
+    if (!article && isFetching) {
         return (
             <section className='pb-24 pt-32 sm:pt-40'>
                 <div className='container flex max-w-3xl items-center justify-center'>
@@ -123,9 +140,39 @@ export default function ArticleComponent({ slug }: { slug: string }) {
         )
     }
 
+    if (!token && !isFetching) {
+        return (
+          <div className='pb-10'>
+            <div className="top-[100px] relative mb-20 flex flex-col h-[60vh] items-center justify-center xs:mx-7 sm:mx-7 md:mx-20 lg:mx-40">
+              <div className='text-center mb-3'>
+                <h1 className='mb-7 text-2xl font-bold'>To read this article, login with your Code App</h1>
+                <p className='text-sm'>Don’t have the Code App yet? 
+                  <br/><a href="https://getcode.com/download" target='_blank' className="underline">Download It Now</a></p>
+              </div>
+              <GetCodeLoginComponent redirectUrl="read-article/login-success" storyId={slug} cancelUrl="read-article" storageKey="articleId" />
+            </div>
+          </div>
+        )
+    }
+      
+
     return (
         <section className='pb-24 pt-32 sm:pt-40'>
+            
+
             <div className='container max-w-3xl'>
+                <Breadcrumb className='mb-10 bg-gray-100 rounded-2xl p-5'>
+                    <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Article</BreadcrumbPage>
+                    </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
+
                 <h1 className='text-4xl font-bold'>{article?.title}</h1>
                 <p className='mt-3 text-muted-foreground'>{article?.excerpt}</p>
 
