@@ -326,33 +326,35 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
         
                     {/* Title and slug */}
                     <div className='flex flex-col justify-between gap-4 sm:flex-row'>
-                        <div className='flex-1'>
-                        <Input
-                            type='text'
-                            placeholder='Article title'
-                            {...register('title')}
-                        />
-                        {errors.title?.message && (
-                            <p className='mt-1 px-2 text-xs text-red-400'>
-                            {errors.title.message}
-                            </p>
-                        )}
+                        <div className='flex-1 p-5 mb-4 border rounded-2xl bg-gray-50'>
+                            <label className='block mb-1 text-sm font-semibold '>Title</label>
+                            <Input
+                                type='text'
+                                placeholder='Article title'
+                                {...register('title')}
+                            />
+                            {errors.title?.message && (
+                                <p className='mt-1 px-2 text-xs text-red-400'>
+                                {errors.title.message}
+                                </p>
+                            )}
                         </div>
-                        <div className='flex-1'>
+                        {/* <div className='flex-1'>
                         <Input type='text' placeholder='Article slug' {...register('slug')} />
                         {errors.slug?.message && (
                             <p className='mt-1 px-2 text-xs text-red-400'>
                             {errors.slug.message}
                             </p>
                         )}
-                        </div>
+                        </div> */}
                     </div>
             
                     {/* Excerpt */}
-                    <div>
+                    <div className='p-5 mb-4 border rounded-2xl bg-gray-50'> 
+                        <label className='block mb-1 font-semibold text-sm'>Description</label>
                         <Input
                         type='text'
-                        placeholder='Article excerpt'
+                        placeholder='Description or Excerpt'
                         {...register('excerpt')}
                         />
                         {errors.excerpt?.message && (
@@ -363,7 +365,7 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
                     </div>
 
                     {/* Tags */}
-                    <div className='p-5 mb-4 border rounded-2xl bg-gray-50'> 
+                    <div className='p-5 mb-5 border rounded-2xl bg-gray-50'> 
                         <p className="font-semibold mb-2 text-sm">Category</p>       
                         <MultipleSelector
                             creatable
