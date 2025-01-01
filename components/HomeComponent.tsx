@@ -383,10 +383,10 @@ const HomeComponent = () => {
                     <div ref={el} />
                     {
                         !isLoggedIn &&
-                        <div className="flex flex-col items-center justify-center bg-black py-3 px-5 rounded-xl">
-                            <div className='text-center mb-3 font-semibold text-gray-50'>
-                                <p className='text-xs'>Don’t have the Code App yet? 
-                                <br/><a href="https://getcode.com/download" target='_blank' className="underline text-xs">Download It Now</a></p>
+                        <div className="flex flex-col items-center justify-center bg-black py-5 px-5 rounded-xl">
+                            <div className='text-center text-gray-50 tracking-wide'>
+                                <p className='text-[0.65rem]'>Don’t have the Code App yet? 
+                                <br/><a href="https://getcode.com/download" target='_blank' className="underline text-[0.65rem]">Download It Now</a></p>
                             </div>
                         </div>
                     }
