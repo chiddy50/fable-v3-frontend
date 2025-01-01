@@ -8,8 +8,8 @@ export const newArticleSchema = z.object({
 
 export const updateArticleSchema = z.object({
     title: z.string().min(1, 'Please enter a title.'),
-    slug: z.string().min(1, 'Slug is required.'),
-    excerpt: z.string().min(1, 'Please enter an excerpt.'),
+    // slug: z.string().min(1, 'Slug is required.'),
+    excerpt: z.string().min(1, 'Please enter a description or excerpt.'),
     coverImageId: z.string().optional(),
     // content: z.custom<JSONContent>(),
     // isFree: z.boolean()
