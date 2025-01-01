@@ -222,15 +222,17 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
         }
     }
 
-    const publishOrUnpublishArticle = async (publish: boolean) => {
+    const publishOrUnpublishArticle = async (publish: string) => {
         try {            
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/articles/${articleId}`;
-            let publishedAt = publish === true ? new Date() : null;
+            let publishedAt = publish === "publish" ? new Date() : null;
             
             showPageLoader();
             const response = await axiosInterceptorInstance.put(url, {
+                depositAddress, 
+                tipLink,
                 publishedAt,
-                depositAddress, tipLink
+                publishStatus: publish,
             });
             setOpenAddAddressModal(false);
 
@@ -533,8 +535,8 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
                         }
 
                         <div className="flex items-center justify-between gap-5">
-                            <Button onClick={() => publishOrUnpublishArticle(false)} className='text-gray-50 w-full'>Draft</Button>
-                            <Button onClick={() => publishOrUnpublishArticle(true)} className='text-gray-50 w-full bg-[#46aa41]'>Publish</Button>
+                            <Button onClick={() => publishOrUnpublishArticle("draft")} className='text-gray-50 w-full'>Draft</Button>
+                            <Button onClick={() => publishOrUnpublishArticle('publish')} className='text-gray-50 w-full bg-[#46aa41]'>Publish</Button>
                         </div>
 
                     </div>
