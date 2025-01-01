@@ -210,7 +210,7 @@ const ArticlesDashboardPage = () => {
                                 )}
                             </div>     
 
-                            <div className="mb-3">
+                            {/* <div className="mb-3">
                                 <p className="mb-1 text-xs font-semibold">Slug <span className='text-red-500 text-md font-bold'>*</span></p>
                                 <Input 
                                 type='text'
@@ -223,7 +223,7 @@ const ArticlesDashboardPage = () => {
                                     {errors.slug.message}
                                     </p>
                                 )}
-                            </div>      
+                            </div>       */}
 
                             {authUser && !authUser?.name &&                        
                                 <div className="mb-4">
