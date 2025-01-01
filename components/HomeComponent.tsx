@@ -49,7 +49,7 @@ const HomeComponent = () => {
     const [genreList, setGenreList]                 = useState<[]>([]);
     const [tagList, setTagList]                     = useState<[]>([]);
     const [tags, setTags]                           = useState<[]>([]);
-    const [defaultTabValue, setDefaultTabValue]     = useState<string>("stories");
+    const [defaultTabValue, setDefaultTabValue]     = useState<string>("articles");
 
     const { 
         loggedIn, setLoggedIn,
@@ -58,8 +58,12 @@ const HomeComponent = () => {
 
     const { push, refresh } = useRouter();
   
-    const moveToDashboard = () => {  
+    const moveToStory = () => {  
       push("/dashboard/stories")
+    }
+
+    const moveToArticle = () => {  
+        push("/dashboard/articles")
     }
 
     // GET CODE LOGIN START
@@ -355,9 +359,15 @@ const HomeComponent = () => {
                 {isLoggedIn && 
                     <div className="flex flex-col gap-6">
                         <Button
-                        onClick={moveToDashboard} 
+                        onClick={moveToArticle} 
+                        variant="outline"
+                        className=" tracking-wider text-md" size="lg">
+                        Start writing article
+                        </Button>
+                        <Button
+                        onClick={moveToStory} 
                         className="bg-custom_green text-white tracking-wider text-md" size="lg">
-                        Start writing for free
+                        Start writing story
                         </Button>
                         <Button onClick={handleScroll} className="text-md" size="lg">
                             Explore
@@ -410,8 +420,8 @@ const HomeComponent = () => {
                                 <div>
                                     <Tabs defaultValue={defaultTabValue} value={defaultTabValue} className="w-full" onValueChange={(e) => setDefaultTabValue(e)} >
                                         <TabsList>
-                                            <TabsTrigger value="stories">Stories</TabsTrigger>
                                             <TabsTrigger value="articles">Articles</TabsTrigger>
+                                            <TabsTrigger value="stories">Stories</TabsTrigger>
                                         </TabsList>
                                         <TabsContent value="stories">
                                             {/* <h1 className="mb-5 mt-10 text-gray-600 xs:text-3xl sm:text-3xl text-4xl font-bold">
