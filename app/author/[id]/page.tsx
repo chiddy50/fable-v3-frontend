@@ -76,9 +76,9 @@ const AuthorPage = ({ params: { id } }: Props) => {
 
             <div className='mt-7 mb-10'>
 
-                <div className="grid grid-cols-5 gap-7">
-                    <img src="/male_avatar.png" alt="user-profile-image" className="w-full col-span-1 rounded-xl object-cover border-gray-100" />
-                    <div className='col-span-2'>
+                <div className="grid md:grid-cols-1 lg:grid-cols-5 gap-7">
+                    <img src="/male_avatar.png" alt="user-profile-image" className=" col-span-1 rounded-xl object-cover border-gray-100 md:w-[200px] lg:w-full" />
+                    <div className='md:col-span-1 lg:col-span-2'>
                         <h1 className="text-2xl font-semibold mb-2">{author?.name}</h1>
 
                         <StarRatingComponent rating={author?.averageRating ?? 0} />

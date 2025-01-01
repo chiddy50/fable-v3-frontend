@@ -35,6 +35,7 @@ import { Slider } from "@/components/ui/slider"
 import CreateArticlePaymentComponent from './CreateArticlePaymentComponent'
 import EditorJs from '@/components/EditorJs/EditorJs'
 import MultipleSelector, { Option } from '@/components/ui/multiple-selector'
+import { Separator } from '@/components/ui/separator'
 
 
 type Inputs = z.infer<typeof updateArticleSchema>
@@ -552,7 +553,11 @@ const WriteArticleComponent = ({ articleId }: { articleId: string }) => {
                         <DialogDescription></DialogDescription>
                     </DialogHeader>
 
-                        <div className="flex justify-center">
+                        <Separator />
+                        <div className="flex flex-col items-center gap-5 mt-3">
+                            <p className="text-xs">
+                                Kindly make a one time payment of <span className="font-semibold text-custom_green">$0.5</span> to monetize this content
+                            </p>
                             <CreateArticlePaymentComponent article={articleData} refetch={refetch} openPublishModal={openPublishModal} />
                         </div>
                     </DialogContent>

@@ -378,8 +378,19 @@ const HomeComponent = () => {
               {/* {!loggedIn && <Button
               onClick={login} 
               className="bg-custom_green text-white tracking-wider text-md" size="lg">Start writing for free</Button>} */}
-                <div ref={el} />
-
+                
+                <div className="flex flex-col items-center gap-2">
+                    <div ref={el} />
+                    {
+                        !isLoggedIn &&
+                        <div className="flex flex-col items-center justify-center bg-black py-5 px-5 rounded-xl">
+                            <div className='text-center text-gray-50 tracking-wide'>
+                                <p className='text-[0.65rem]'>Don’t have the Code App yet? 
+                                <br/><a href="https://getcode.com/download" target='_blank' className="underline text-[0.65rem]">Download It Now</a></p>
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
           </div>
 
