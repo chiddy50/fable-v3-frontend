@@ -36,14 +36,15 @@ const BlockRenderer = ({ blocks, article, accessRecord, isFree, action, getArtic
 				if (block.type === 'paywall' && accessRecord.hasAccess === false) {
 					foundPaywall = true;
 					return (
-						<div key={uniqueKey} className="flex justify-center my-5">
+						<div key={uniqueKey} className="flex flex-col items-center gap-3 my-10">
 							<GetCodeBlock 
 								amount={(article?.price)} 
 								article={article}
 								accessRecord={accessRecord}
 								depositAddress={article?.user?.depositAddress}
 								getArticle={getArticle}
-							/>						
+							/>		
+							<p className='text-xs'>Kindly make a payment of ${`${article?.price} to continue`}</p>				
 						</div>
 					);
 				}
