@@ -8,6 +8,16 @@ import Link from 'next/link';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { Skeleton } from "@/components/ui/skeleton"
 import { UserInterface } from '@/interfaces/UserInterface';
+import { Coins } from 'lucide-react';
+import { ArticleInterface } from '@/interfaces/ArticleInterface';
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+} from "@/components/ui/carousel"
+import Image from 'next/image';
 
 interface Props {
     params: {
@@ -22,10 +32,25 @@ const AuthorPage = ({ params: { id } }: Props) => {
     const [author, setAuthor] = useState<UserInterface|null>(null);
     const [socialMedia, setSocialMedia] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [loadingArticles, setLoadingArticles] = useState(true);
+    const [articles, setArticles]= useState<ArticleInterface[]>([]);   
 
     useEffect(() => {
         getAuthor();
+        getArticles();
     }, []);
+
+    const getArticles = async () => {
+        try {
+            setLoadingArticles(true);
+            const response = await axiosInterceptorInstance.get(`${process.env.NEXT_PUBLIC_BASE_URL}/articles/user`)
+            setArticles(response?.data?.articles)
+        } catch (error) {
+            console.error(error);            
+        }finally{
+            setLoadingArticles(false)
+        }
+    }
 
     const getAuthor = async () => {
         try {
@@ -103,6 +128,10 @@ const AuthorPage = ({ params: { id } }: Props) => {
                                 </p>
                             </div>
                         </div>
+
+                        <div className='mt-5'>
+                            <Button size="sm">Tip me <Coins /> </Button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -164,6 +193,55 @@ const AuthorPage = ({ params: { id } }: Props) => {
                         <p className='text-gray-500 tracking-wider'>SOCIAL LINKS</p>
                     </div>
                 </div>
+            </div>
+
+
+
+            <div className='mb-36 px-7'>
+                <Carousel
+                    opts={{
+                        align: "start",
+                    }}
+                    className="w-full"
+                >
+                    <CarouselContent>      
+                        {
+                            articles.map(article => (
+
+                                <CarouselItem key={article.id} className="md:basis-1/2 lg:basis-1/3">
+
+                                    <div className="responsive h-full " >            
+                                        <div className='flex relative h-full flex-col shadow-xl overflow-y-clip rounded-xl bg-white'>
+                                        <div className='relative overflow-hidden h-[300px]'>                    
+                                            <Image
+                                            fill={true}
+                                            src={article?.coverImage ?? '/no-image.png'}
+                                            alt={article?.title ?? 'character description'}                        
+                                            className='w-full rounded-t-xl h-full object-cover object-center'                     
+                                            loading="lazy"
+                                            sizes="(max-width: 768px) 100%, (max-width: 1200px) 100%, 100%"
+                                            />
+                                        </div>
+                                        <div className="h-1/2 p-4 flex flex-col  bg-gray-900 justify-between">
+                                            <h2 className='font-semibold text-lg tracking-wider text-gray-50 text-center mb-2'>{article?.title}</h2>
+                                            
+                                            {/* <ChapterProgressBarComponent chapter={Number(item?.currentChapter)}/> */}
+                                                                            
+                                            <Button variant="outline" onClick={() => {}} className='w-full mt-2'>Continue Reading</Button>
+                                    
+                                        </div>
+
+                                        </div>
+                                    </div>
+
+                                </CarouselItem>
+                            ) )
+                        }          
+
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                </Carousel>
             </div>
         </main>
     )

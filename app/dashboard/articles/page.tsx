@@ -31,6 +31,7 @@ import { useForm, SubmitHandler } from 'react-hook-form'
 import { z } from 'zod'
 import { Skeleton } from '@/components/ui/skeleton';
 import CreatorArticleItem from '@/components/Article/CreatorArticleItem';
+import { ArticleInterface } from '@/interfaces/ArticleInterface';
 
 type Inputs = z.infer<typeof newArticleSchema>
 
@@ -40,7 +41,7 @@ const ArticlesDashboardPage = () => {
     const [creatorName, setCreatorName]= useState<string>('');    
     const [authUser, setAuthUser]= useState(null);   
     const [isFetching, setIsFetching] = useState<boolean>(false);
-    const [articles, setArticles]= useState([]);   
+    const [articles, setArticles]= useState<ArticleInterface[]>([]);   
 
     const router = useRouter();
 

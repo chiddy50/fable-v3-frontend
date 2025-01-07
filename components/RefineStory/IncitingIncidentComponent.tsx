@@ -251,7 +251,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
     
             let chapter = ``;
             for await (const chunk of response) {
-                scrollToBottom()
+                // scrollToBottom()
                 chapter += chunk;   
                 setIncitingIncident(chapter);         
             }
