@@ -312,7 +312,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                 genreList: storyGenres.map(genre => genre.value).join(", ")
             }, parser);
 
-            if (!response) {
+            if (!response?.genre) {
                 toast.error("Try again please");
                 return;
             }         

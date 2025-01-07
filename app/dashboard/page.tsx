@@ -78,7 +78,13 @@ const DashboardPage = () => {
     const [createdStoryTotalAmount, setCreatedStoryTotalAmount] = useState<number>(0)
     const [createdStoryCount, setCreatedStoryCount] = useState<number>(0)
     const [readStoryCount, setReadStoryCount] = useState<number>(0)
-    const [amountEarned, setAmountEarned] = useState<number>(0);
+    const [amountEarnedFromStories, setAmountEarnedFromStories] = useState<number>(0);
+
+    const [readArticleTotalAmount, setReadArticleTotalAmount] = useState<number>(0)
+    const [createdArticleTotalAmount, setCreatedArticleTotalAmount] = useState<number>(0)
+    const [createdArticleCount, setCreatedArticleCount] = useState<number>(0)
+    const [readArticleCount, setReadArticleCount] = useState<number>(0)
+    const [amountEarnedFromArticles, setAmountEarnedFromArticles] = useState<number>(0);
 
     const [currentPage, setCurrentPage] = useState(1)
     const [limit, setLimit] = useState(3);
@@ -132,7 +138,7 @@ const DashboardPage = () => {
             type: type
         }
 
-        let url = `${process.env.NEXT_PUBLIC_BASE_URL}/transactions/user`;
+        let url = `${process.env.NEXT_PUBLIC_BASE_URL}/transactions/user/all`;
     
         // const response = await makeRequest({
         //     url: url,
@@ -163,11 +169,19 @@ const DashboardPage = () => {
             setCreatedStoryTotalAmount(response?.data?.createdStoryTotalAmount)
             setCreatedStoryCount(response?.data?.createdStoryCompletedTransactionsCount ?? 0)
             setReadStoryCount(response?.data?.readStoryCompletedTransactionsCount ?? 0)
+
+            setReadArticleTotalAmount(response?.data?.readArticlesTotalAmount)
+            setCreatedArticleTotalAmount(response?.data?.createdArticlesTotalAmount)
+            setCreatedArticleCount(response?.data?.createdArticlesCompletedTransactionsCount)
+            setReadArticleCount(response?.data?.readArticlesCompletedTransactionsCount)
+
+
             setHasNextPage(response?.data?.hasNextPage)
             setHasPrevPage(response?.data?.hasPrevPage)
             setTotalPages(response?.data?.totalPages)    
             
-            setAmountEarned(Number(response?.data?.amountEarned) ?? 0)
+            setAmountEarnedFromStories(Number(response?.data?.amountEarnedFromStories) ?? 0)
+            setAmountEarnedFromArticles(Number(response?.data?.amountEarnedFromArticles) ?? 0)
         }
     }
  
@@ -217,14 +231,50 @@ const DashboardPage = () => {
                 </div>
 
                 <div className='flex gap-5 bg-gray-50 p-5 rounded-2xl'>
+                    <div className='flex items-center justify-center w-10 h-10 bg-red-600 text-gray-50 rounded-full'>
+                        <BookCheckIcon />
+                    </div>
+                    <div className="flex flex-col justify-between">
+                        <p className="font-bold text-md">
+                        ${createdArticleTotalAmount ? Number(createdArticleTotalAmount?.toFixed(2)) : 0}
+                        </p>
+                        <p className='text-xs font-light'>Created Articles</p>
+                    </div>
+                </div>
+
+                <div className='flex gap-5 bg-gray-50 p-5 rounded-2xl'>
+                    <div className='flex items-center justify-center w-10 h-10 bg-custom_green text-gray-50 rounded-full'>
+                        <BookOpenText />
+                    </div>
+                    <div className="flex flex-col justify-between">
+                        <p className="font-bold text-md">
+                            ${readArticleTotalAmount ? Number(readArticleTotalAmount?.toFixed(2)) : 0}
+                        </p>
+                        <p className='text-xs font-light'>Read Articles</p>
+                    </div>
+                </div>
+
+                <div className='flex gap-5 bg-gray-50 p-5 rounded-2xl'>
                     <div className='flex items-center justify-center w-10 h-10 bg-blue-600 text-gray-50 rounded-full'>
                         <Wallet />
                     </div>
                     <div className="flex flex-col justify-between">
                         <p className="font-bold text-md">
-                            ${amountEarned ? Number(amountEarned) : 0}
+                            ${amountEarnedFromStories ? Number(amountEarnedFromStories) : 0}
                         </p>
-                        <p className='text-xs font-light'>Earned</p>
+                        <p className='text-xs font-light'>Story Profit</p>
+                    </div>
+                </div>
+
+                <div className='flex gap-5 bg-gray-50 p-5 rounded-2xl'>
+                    <div className='flex items-center justify-center w-10 h-10 bg-blue-600 text-gray-50 rounded-full'>
+                        <Wallet />
+                    </div>
+                    <div className="flex flex-col justify-between">
+                        <p className="font-bold text-md">
+                            ${amountEarnedFromArticles ? Number(amountEarnedFromArticles) : 0}
+                        </p>
+                        <p className='text-xs font-light'>Article Profit</p>
                     </div>
                 </div>
             </div>
@@ -243,12 +293,12 @@ const DashboardPage = () => {
                             <div className={
                                 cn(
                                     "flex items-center self-center justify-center w-7 h-7 text-gray-50 rounded-full",
-                                    transaction?.type === 'create-story' ? "bg-red-600" : "bg-custom_green"
+                                    (transaction?.type === 'create-story' || transaction?.type === 'create-article') ? "bg-red-600" : "bg-custom_green"
                                 )
                             }>
                                 
-                                { transaction?.type === 'create-story' && <BookCheckIcon className='w-4 h-4 text-white'/> }
-                                { transaction?.type === 'read-story' && <BookOpenText className='w-4 h-4 text-white'/> }
+                                { (transaction?.type === 'create-story' || transaction?.type === 'create-article')  && <BookCheckIcon className='w-4 h-4 text-white'/> }
+                                { (transaction?.type === 'read-story' || transaction?.type === 'read-article') && <BookOpenText className='w-4 h-4 text-white'/> }
                             </div>
                             <div className='flex flex-[80%] flex-col'>
                                 <div className='flex xs:flex-col sm:flex-row xs:gap-2 sm:gap-2 justify-between'>
