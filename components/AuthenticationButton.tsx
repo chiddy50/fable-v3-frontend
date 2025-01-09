@@ -100,31 +100,31 @@ const AuthenticationButton = () => {
                     <Menu />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className=' z-[100]'>
-                    <DropdownMenuItem className='text-xs cursor-pointer tracking-wider'>
-                        <Link href="/">
-                        Home
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className='text-xs cursor-pointer tracking-wider'>
-                        <Link href="/dashboard/">
-                        Dashboard
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className='text-xs cursor-pointer tracking-wider'>
-                        <Link href="/dashboard/articles">
+                    <Link href="/" className='transition-colors focus:bg-accent '>
+                        <DropdownMenuItem className='text-xs cursor-pointer tracking-wider'>
+                            Home
+                        </DropdownMenuItem>
+                    </Link>
+                    <Link href="/dashboard/" className='transition-colors focus:bg-accent '>
+                        <DropdownMenuItem className='text-xs cursor-pointer tracking-wider'>
+                            Dashboard
+                        </DropdownMenuItem>
+                    </Link>
+                    <Link href="/dashboard/articles" className='transition-colors focus:bg-accent '>
+                        <DropdownMenuItem className='text-xs cursor-pointer tracking-wider'>
                         Write Article
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className='text-xs cursor-pointer tracking-wider'>
-                        <Link href="/dashboard/stories">
-                        Write Story
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className='text-xs cursor-pointer tracking-wider'>
-                        <Link href="/dashboard/profile">
-                        Profile
-                        </Link>
-                    </DropdownMenuItem>
+                        </DropdownMenuItem>
+                    </Link>
+                    <Link href="/dashboard/stories" className='transition-colors focus:bg-accent '>
+                        <DropdownMenuItem className='text-xs cursor-pointer tracking-wider'>
+                            Write Story
+                        </DropdownMenuItem>
+                    </Link>
+                    <Link href="/dashboard/profile" className='transition-colors focus:bg-accent '>
+                        <DropdownMenuItem className='text-xs cursor-pointer tracking-wider'>
+                            Profile
+                        </DropdownMenuItem>
+                    </Link>
                 </DropdownMenuContent>
             </DropdownMenu>
 
