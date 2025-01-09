@@ -2,7 +2,7 @@
 
 import React, { useContext, useEffect, useState } from 'react'
 import { Button } from './ui/button';
-import { LogIn, LogOut } from 'lucide-react';
+import { LogIn, LogOut, Menu } from 'lucide-react';
 
 import { CHAIN_NAMESPACES, IProvider, WEB3AUTH_NETWORK } from "@web3auth/base";
 
@@ -20,6 +20,15 @@ import {
 import { AppContext } from '@/context/MainContext';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+  } from "@/components/ui/dropdown-menu"
+import Link from 'next/link';
 
 const AuthenticationButton = () => {
     // const { user, setShowAuthFlow, handleLogOut } = useDynamicContext()
@@ -85,6 +94,40 @@ const AuthenticationButton = () => {
 
     const loggedInView = (
         <div className='flex items-center gap-4'>
+            <DropdownMenu>
+                <DropdownMenuTrigger className='bg-black text-gray-50 px-4 py-2 rounded-md h-10 text-sm border tracking-wider flex items-center gap-2'>
+                    Menu
+                    <Menu />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className=' z-[100]'>
+                    <DropdownMenuItem className='text-xs cursor-pointer tracking-wider'>
+                        <Link href="/">
+                        Home
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className='text-xs cursor-pointer tracking-wider'>
+                        <Link href="/dashboard/">
+                        Dashboard
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className='text-xs cursor-pointer tracking-wider'>
+                        <Link href="/dashboard/articles">
+                        Write Article
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className='text-xs cursor-pointer tracking-wider'>
+                        <Link href="/dashboard/stories">
+                        Write Story
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className='text-xs cursor-pointer tracking-wider'>
+                        <Link href="/dashboard/profile">
+                        Profile
+                        </Link>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+
             {/* <div className="flex items-center bg-white py-2 px-3 border gap-2 rounded-3xl">
                 <div 
                 onClick={copyToClipboard}
