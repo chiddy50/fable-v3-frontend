@@ -22,6 +22,14 @@ import {
 import AuthorArticlesComponent from '@/components/Author/AuthorArticlesComponent';
 import axios from 'axios';
 import AuthorStoriesComponent from '@/components/Author/AuthorStoriesComponent';
+import TipComponent from '@/components/Author/TipComponent';
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion"
+import { Label } from '@/components/ui/label';
 
 interface Props {
     params: {
@@ -36,6 +44,7 @@ const AuthorPage = ({ params: { id } }: Props) => {
     const [author, setAuthor] = useState<UserInterface|null>(null);
     const [socialMedia, setSocialMedia] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [tip, setTip] = useState<number>(0);
 
     const [currentPage, setCurrentPage] = useState(1)
 
@@ -106,7 +115,7 @@ const AuthorPage = ({ params: { id } }: Props) => {
 
                 <div className="grid md:grid-cols-1 lg:grid-cols-5 gap-7">
                     <img src="/male_avatar.png" alt="user-profile-image" className=" col-span-1 rounded-xl object-cover border-gray-100 md:w-[200px] lg:w-full" />
-                    <div className='md:col-span-1 lg:col-span-2'>
+                    <div className='md:col-span-1 lg:col-span-3'>
                         <h1 className="text-2xl font-semibold mb-2">{author?.name}</h1>
 
                         <StarRatingComponent rating={author?.averageRating ?? 0} />
@@ -132,10 +141,44 @@ const AuthorPage = ({ params: { id } }: Props) => {
                             </div>
                         </div>
 
-                        {/* <div className='mt-5'>
-                            <Button size="sm">Tip me <Coins /> </Button>
-                        </div> */}
+                        
+                        
                     </div>
+
+                    <div className='md:col-span-1 lg:col-span-1'>
+                            <Accordion type="single" collapsible className='bg-gray-300  px-3 py-3 rounded-lg'>
+                                <AccordionItem value="item-1" className='border-none'>
+                                    <AccordionTrigger className='bg-gray-50 px-4 rounded-lg hover:no-underline'>
+                                        <span className='flex items-center gap-2 text-xs'>
+
+                                        TIP ME <Coins className='w-3 h-3' />                         
+                                        </span>
+                                    </AccordionTrigger>
+                                    <AccordionContent className='pt-5 pb-0'>
+                                        <div className="mb-3">
+                                            <Label htmlFor="article-free" className='text-xs text-gray-800'>Tip me ${tip}</Label>     
+                                    
+                                            <div className="mt-2">                            
+                                                <input
+                                                    type="range"
+                                                    className="w-full"
+                                                    min={0}
+                                                    max={1}
+                                                    step={0.1}
+                                                    value={tip}
+                                                    onChange={e => setTip(parseFloat(e.target.value))}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-center">
+                                            { tip > 0 && author?.depositAddress && <TipComponent id={decodedId} amount={tip} destination={author?.depositAddress} /> }
+                                        </div>
+
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>   
+                        </div>
                 </div>
             </div>
             <Separator />
