@@ -95,7 +95,7 @@ const AuthenticationButton = () => {
     const loggedInView = (
         <div className='flex items-center gap-4'>
             <DropdownMenu>
-                <DropdownMenuTrigger className='bg-black text-gray-50 px-4 py-2 rounded-md h-10 text-sm border tracking-wider flex items-center gap-2'>
+                <DropdownMenuTrigger className='bg-black text-gray-50 px-4 py-2 rounded-md h-10 text-xs border tracking-wider flex items-center gap-2'>
                     Menu
                     <Menu />
                 </DropdownMenuTrigger>
@@ -146,7 +146,7 @@ const AuthenticationButton = () => {
             <Button
             onClick={logout} 
             variant="outline" 
-            className='flex items-center gap-1 border-green-400 text-green-500 hover:text-green-400'>
+            className='flex items-center gap-1 border-green-400 text-xs text-green-500 hover:text-green-400'>
                 <span>Logout</span>
                 <LogIn className='w-4 h-4'></LogIn>
             </Button>

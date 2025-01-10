@@ -8,16 +8,20 @@ import Link from 'next/link';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { Skeleton } from "@/components/ui/skeleton"
 import { UserInterface } from '@/interfaces/UserInterface';
-import { Coins } from 'lucide-react';
+import { Coins, MessageSquare, ThumbsUp } from 'lucide-react';
 import { ArticleInterface } from '@/interfaces/ArticleInterface';
+
 import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
-} from "@/components/ui/carousel"
-import Image from 'next/image';
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import AuthorArticlesComponent from '@/components/Author/AuthorArticlesComponent';
+import axios from 'axios';
+import AuthorStoriesComponent from '@/components/Author/AuthorStoriesComponent';
 
 interface Props {
     params: {
@@ -32,30 +36,17 @@ const AuthorPage = ({ params: { id } }: Props) => {
     const [author, setAuthor] = useState<UserInterface|null>(null);
     const [socialMedia, setSocialMedia] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [loadingArticles, setLoadingArticles] = useState(true);
-    const [articles, setArticles]= useState<ArticleInterface[]>([]);   
+
+    const [currentPage, setCurrentPage] = useState(1)
 
     useEffect(() => {
         getAuthor();
-        getArticles();
     }, []);
-
-    const getArticles = async () => {
-        try {
-            setLoadingArticles(true);
-            const response = await axiosInterceptorInstance.get(`${process.env.NEXT_PUBLIC_BASE_URL}/articles/user`)
-            setArticles(response?.data?.articles)
-        } catch (error) {
-            console.error(error);            
-        }finally{
-            setLoadingArticles(false)
-        }
-    }
 
     const getAuthor = async () => {
         try {
             setLoading(true);
-            const response = await axiosInterceptorInstance.get(`${process.env.NEXT_PUBLIC_BASE_URL}/users/${decodedId}`)
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/users/${decodedId}`)
             console.log(response);
             setAuthor(response?.data?.user)
             setSocialMedia(response?.data?.user?.socialMedia)
@@ -93,13 +84,25 @@ const AuthorPage = ({ params: { id } }: Props) => {
 
     return (
         <main className="flex-1 flex flex-col flex-grow h-svh top-[80px] relative mx-auto w-[80%]" >         
-       
-            <div className="flex justify-between items-center mt-10">
-                <h1 className="text-md font-semibold text-gray-600">PROFILE</h1>
+
+            <Breadcrumb className='mt-10'>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Profile</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
+
+            <div className="flex justify-between items-center mt-20">
+                <h1 className="text-md font-semibold text-gray-600">BIO</h1>
             </div>
             
 
-            <div className='mt-7 mb-10'>
+            <div className='mt-7 mb-20'>
 
                 <div className="grid md:grid-cols-1 lg:grid-cols-5 gap-7">
                     <img src="/male_avatar.png" alt="user-profile-image" className=" col-span-1 rounded-xl object-cover border-gray-100 md:w-[200px] lg:w-full" />
@@ -129,15 +132,15 @@ const AuthorPage = ({ params: { id } }: Props) => {
                             </div>
                         </div>
 
-                        <div className='mt-5'>
+                        {/* <div className='mt-5'>
                             <Button size="sm">Tip me <Coins /> </Button>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>
             <Separator />
 
-            <div className="mt-10 mb-10">
+            <div className="mt-20 mb-20">
                 <h1 className="text-md font-semibold text-gray-600">INFORMATION</h1>
                 
                 <div className="mt-7 grid grid-cols-2 gap-5">
@@ -194,55 +197,24 @@ const AuthorPage = ({ params: { id } }: Props) => {
                     </div>
                 </div>
             </div>
+            <Separator />
 
 
+            <div className='mt-20 mb-10 px-7'>
+                <h2 className="text-lg mb-5 font-semibold text-gray-600">ARTICLES</h2>
 
-            <div className='mb-36 px-7'>
-                <Carousel
-                    opts={{
-                        align: "start",
-                    }}
-                    className="w-full"
-                >
-                    <CarouselContent>      
-                        {
-                            articles.map(article => (
-
-                                <CarouselItem key={article.id} className="md:basis-1/2 lg:basis-1/3">
-
-                                    <div className="responsive h-full " >            
-                                        <div className='flex relative h-full flex-col shadow-xl overflow-y-clip rounded-xl bg-white'>
-                                        <div className='relative overflow-hidden h-[300px]'>                    
-                                            <Image
-                                            fill={true}
-                                            src={article?.coverImage ?? '/no-image.png'}
-                                            alt={article?.title ?? 'character description'}                        
-                                            className='w-full rounded-t-xl h-full object-cover object-center'                     
-                                            loading="lazy"
-                                            sizes="(max-width: 768px) 100%, (max-width: 1200px) 100%, 100%"
-                                            />
-                                        </div>
-                                        <div className="h-1/2 p-4 flex flex-col  bg-gray-900 justify-between">
-                                            <h2 className='font-semibold text-lg tracking-wider text-gray-50 text-center mb-2'>{article?.title}</h2>
-                                            
-                                            {/* <ChapterProgressBarComponent chapter={Number(item?.currentChapter)}/> */}
-                                                                            
-                                            <Button variant="outline" onClick={() => {}} className='w-full mt-2'>Continue Reading</Button>
-                                    
-                                        </div>
-
-                                        </div>
-                                    </div>
-
-                                </CarouselItem>
-                            ) )
-                        }          
-
-                    </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                </Carousel>
+                <AuthorArticlesComponent userId={decodedId} />                
             </div>
+
+            <Separator />
+
+            <div className='mt-10 mb-10 px-7'>
+                <h2 className="text-lg mb-5 font-semibold text-gray-600">STORIES</h2>
+
+                <AuthorStoriesComponent userId={decodedId} />
+            </div>
+
+
         </main>
     )
 }
