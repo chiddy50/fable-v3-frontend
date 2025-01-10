@@ -55,6 +55,7 @@ export default function RootLayout({
         <div className="">
           {children}
         </div>
+        
 
         {/* Toaster */ }
         <Toaster duration={4000} position="top-right" richColors/>
