@@ -66,80 +66,92 @@ const AuthorStoriesComponent = ({ userId }: { userId: string }) => {
 
     return (
         <>
-            <Carousel
-                opts={{
-                    align: "start",
-                }}
-                className="w-full"
-            >
-                <CarouselContent>      
-                    {
-                        stories.map(story => (
+            {
+                stories?.length < 1 &&
+                <div className='flex flex-col items-center'>
+                    <img src="/no-results.svg" alt="no-data-image" className="w-[200px] h-[200px]" />
+                    <p className="font-semibold">No Stories</p>
+                </div>
+            }
+            {
+                stories?.length > 0 &&
+                <>
+                    <Carousel
+                        opts={{
+                            align: "start",
+                        }}
+                        className="w-full"
+                    >
+                        <CarouselContent>      
+                            {
+                                stories.map(story => (
 
-                            <CarouselItem key={story.id} className="md:basis-1/2 lg:basis-1/3">
+                                    <CarouselItem key={story.id} className="md:basis-1/2 lg:basis-1/3">
 
-                                <div className="responsive h-full " >            
-                                    <div className='flex relative h-full flex-col shadow-xl overflow-y-clip rounded-xl bg-white'>
-                                    <div className='relative overflow-hidden h-[300px]'>                    
-                                        <Image
-                                        fill={true}
-                                        src={story?.coverImage ?? '/no-image.png'}
-                                        alt={story?.title ?? 'character description'}                        
-                                        className='w-full rounded-t-xl h-full object-cover object-center'                     
-                                        loading="lazy"
-                                        sizes="(max-width: 768px) 100%, (max-width: 1200px) 100%, 100%"
-                                        />
-                                    </div>
-                                    <div className="h-1/2 p-4 flex flex-col bg-gray-900 justify-between">
-                                        <div className='flex flex-col items-center'>
-                                            <h2 className='font-semibold text-md tracking-wider capitalize text-gray-50 text-center mb-2'>{trimWords(story?.projectTitle, 3)}</h2>
-                                            <div className='mt-7 mb-3 flex items-center justify-between text-xs text-gray-400'>
-                                                <div className='flex items-center gap-4'>
-                                                    {/* <Sparkle className='h-4 w-4 fill-yellow-500 text-yellow-500' /> */}
-                                                    {/* <span>{formatDate(story.createdAt)}</span> */}
-                                                    <span>{formatDate(story?.createdAt)}</span>
-                                                    <Separator orientation='vertical' className='h-4' />
-                                                    <div className='flex items-center gap-2'>
-                                                    <ThumbsUp className='h-4 w-4' />
-                                                    <span>{story?.likeCount ?? 0}</span>
+                                        <div className="responsive h-full " >            
+                                            <div className='flex relative h-full flex-col shadow-xl overflow-y-clip rounded-xl bg-white'>
+                                            <div className='relative overflow-hidden h-[300px]'>                    
+                                                <Image
+                                                fill={true}
+                                                src={story?.coverImage ?? '/no-image.png'}
+                                                alt={story?.title ?? 'character description'}                        
+                                                className='w-full rounded-t-xl h-full object-cover object-center'                     
+                                                loading="lazy"
+                                                sizes="(max-width: 768px) 100%, (max-width: 1200px) 100%, 100%"
+                                                />
+                                            </div>
+                                            <div className="h-1/2 p-4 flex flex-col bg-gray-900 justify-between">
+                                                <div className='flex flex-col items-center'>
+                                                    <h2 className='font-semibold text-md tracking-wider capitalize text-gray-50 text-center mb-2'>{trimWords(story?.projectTitle, 3)}</h2>
+                                                    <div className='mt-7 mb-3 flex items-center justify-between text-xs text-gray-400'>
+                                                        <div className='flex items-center gap-4'>
+                                                            {/* <Sparkle className='h-4 w-4 fill-yellow-500 text-yellow-500' /> */}
+                                                            {/* <span>{formatDate(story.createdAt)}</span> */}
+                                                            <span>{formatDate(story?.createdAt)}</span>
+                                                            <Separator orientation='vertical' className='h-4' />
+                                                            <div className='flex items-center gap-2'>
+                                                            <ThumbsUp className='h-4 w-4' />
+                                                            <span>{story?.likeCount ?? 0}</span>
+                                                            </div>
+                                                            <div className='flex items-center gap-2'>
+                                                            <MessageSquare className='h-4 w-4' />
+                                                            <span>0</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div className='flex items-center gap-2'>
-                                                    <MessageSquare className='h-4 w-4' />
-                                                    <span>0</span>
-                                                    </div>
+
+                                                    <StarRatingComponent rating={story?.averageRating} />
                                                 </div>
+
+                                                <Link href={`/read-story/${story.id}`}>                                                                        
+                                                    <Button variant="outline" onClick={() => {}} className='w-full mt-2'>Read for {story.isFree ? `free` : `$${story?.price}`}</Button>
+                                                </Link>
                                             </div>
 
-                                            <StarRatingComponent rating={story?.averageRating} />
+                                            </div>
                                         </div>
 
-                                        <Link href={`/read-story/${story.id}`}>                                                                        
-                                            <Button variant="outline" onClick={() => {}} className='w-full mt-2'>Read for {story.isFree ? `free` : `$${story?.price}`}</Button>
-                                        </Link>
-                                    </div>
+                                    </CarouselItem>
+                                ) )
+                            }          
 
-                                    </div>
-                                </div>
+                        </CarouselContent>
+                        <CarouselPrevious />
+                        <CarouselNext />
+                    </Carousel>
 
-                            </CarouselItem>
-                        ) )
-                    }          
-
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-            </Carousel>
-
-            <PaginationComponent
-                hasPrevPage={hasPrevPage} 
-                hasNextPage={hasNextPage} 
-                triggerPagination={paginateChallenges} 
-                currentPage={currentPage} 
-                totalPages={totalPages}
-                textColor="text-black"
-                bgColor="bg-white"
-                descColor="text-white"
-            />
+                    <PaginationComponent
+                        hasPrevPage={hasPrevPage} 
+                        hasNextPage={hasNextPage} 
+                        triggerPagination={paginateChallenges} 
+                        currentPage={currentPage} 
+                        totalPages={totalPages}
+                        textColor="text-black"
+                        bgColor="bg-white"
+                        descColor="text-white"
+                    />
+                </>   
+            }
         </>
     )
 }
