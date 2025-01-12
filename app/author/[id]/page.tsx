@@ -8,7 +8,7 @@ import Link from 'next/link';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { Skeleton } from "@/components/ui/skeleton"
 import { UserInterface } from '@/interfaces/UserInterface';
-import { Coins, MessageSquare, ThumbsUp } from 'lucide-react';
+import { Coins, Copy, MessageSquare, ThumbsUp } from 'lucide-react';
 import { ArticleInterface } from '@/interfaces/ArticleInterface';
 
 import {
@@ -30,6 +30,7 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 
 interface Props {
     params: {
@@ -65,6 +66,11 @@ const AuthorPage = ({ params: { id } }: Props) => {
             setLoading(false);
         }
     }
+
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(`https://usefable.xyz/author/${author?.id}`);
+        toast.success("User profile copied!");    
+    };
 
     if (loading) {
         return (
@@ -117,6 +123,11 @@ const AuthorPage = ({ params: { id } }: Props) => {
                     <img src="/male_avatar.png" alt="user-profile-image" className=" col-span-1 rounded-xl object-cover border-gray-100 md:w-[200px] lg:w-full" />
                     <div className='md:col-span-1 lg:col-span-3'>
                         <h1 className="text-2xl font-semibold mb-2">{author?.name}</h1>
+
+                        <p onClick={copyToClipboard}
+                        className='text-[10px] flex items-center gap-2 mb-4 mt-1 border rounded-xl py-1 px-3 cursor-pointer w-fit hover:bg-gray-800 hover:text-gray-50'>
+                            Profile link <Copy className='w-3 h-3' />
+                        </p>
 
                         <StarRatingComponent rating={author?.averageRating ?? 0} />
 

@@ -104,7 +104,7 @@ export default function ArticleComponent({ slug }: { slug: string }) {
     }
 
     const shareArticle = async () => {
-        const url = `https://usefable.xyz/articles/${article?.id}`;        
+        const url = `https://usefable.xyz/read-article/${article?.id}`;        
         const message = `Read my latest article on Fable!  `;
         const twitterUrl = `https://twitter.com/intent/tweet?text=${message} ${encodeURIComponent(` \n\n ${url} \n\n #fable @meta_fable @getcode`)}`;
         window.open(twitterUrl, '_blank');
