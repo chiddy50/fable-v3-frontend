@@ -60,12 +60,12 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ArrowDown, ArrowUp, BookCheckIcon, BookOpenText, Wallet } from 'lucide-react';
+import { ArrowDown, ArrowUp, BookCheckIcon, BookOpenText, Coins, Wallet } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 // import { getAuthToken, useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { cn } from '@/lib/utils';
-import { trimWords, truncateString } from '@/lib/helper';
+import { formatDate, trimWords, truncateString } from '@/lib/helper';
 import { TransactionInterface } from '@/interfaces/TransactionInterface';
 import PaginationComponent from '@/components/pagination-component';
 import { makeRequest } from '@/services/request';
@@ -76,6 +76,8 @@ const DashboardPage = () => {
     const [transactions, setTransactions] = useState<[]>([])
     const [readStoryTotalAmount, setReadStoryTotalAmount] = useState<number>(0)
     const [createdStoryTotalAmount, setCreatedStoryTotalAmount] = useState<number>(0)
+    const [tipsTotalAmount, setTipsTotalAmount] = useState<number>(0)
+    
     const [createdStoryCount, setCreatedStoryCount] = useState<number>(0)
     const [readStoryCount, setReadStoryCount] = useState<number>(0)
     const [amountEarnedFromStories, setAmountEarnedFromStories] = useState<number>(0);
@@ -167,6 +169,7 @@ const DashboardPage = () => {
             setTransactions(response?.data?.transactions);
             setReadStoryTotalAmount(response?.data?.readStoryTotalAmount)
             setCreatedStoryTotalAmount(response?.data?.createdStoryTotalAmount)
+            setTipsTotalAmount(response?.data?.tipsTotalAmount)
             setCreatedStoryCount(response?.data?.createdStoryCompletedTransactionsCount ?? 0)
             setReadStoryCount(response?.data?.readStoryCompletedTransactionsCount ?? 0)
 
@@ -199,11 +202,9 @@ const DashboardPage = () => {
                 </BreadcrumbList>
             </Breadcrumb>
 
-            <h1 className="text-3xl text-gray-700 font-semibold mt-10 text-center ">
-                <span className='capitalize text-xl'>Welcome Back 
-                    {/* {user?.username} */}
-                    </span>
-            </h1>
+            {/* <h1 className="text-3xl text-gray-700 font-semibold mt-10 text-center ">
+                <span className='capitalize text-xl'>Welcome Back</span>
+            </h1> */}
             
             <div className='grid gap-5 mt-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
                 <div className='flex gap-5 bg-gray-50 p-5 rounded-2xl'>
@@ -277,6 +278,20 @@ const DashboardPage = () => {
                         <p className='text-xs font-light'>Article Profit</p>
                     </div>
                 </div>
+
+                <div className='flex gap-5 bg-gray-50 p-5 rounded-2xl'>
+                    <div className='flex items-center justify-center w-10 h-10 bg-purple-600 text-gray-50 rounded-full'>
+                        <Coins />
+                    </div>
+                    <div className="flex flex-col justify-between">
+                        <p className="font-bold text-md">
+                            ${tipsTotalAmount ? Number(tipsTotalAmount) : 0}
+                        </p>
+                        <p className='text-xs font-light'>Tips </p>
+                    </div>
+                </div>
+
+                
             </div>
 
             <div className="my-10 bg-white p-7 rounded-2xl">
@@ -293,12 +308,14 @@ const DashboardPage = () => {
                             <div className={
                                 cn(
                                     "flex items-center self-center justify-center w-7 h-7 text-gray-50 rounded-full",
-                                    (transaction?.type === 'create-story' || transaction?.type === 'create-article') ? "bg-red-600" : "bg-custom_green"
+                                    (transaction?.type === 'create-story' || transaction?.type === 'create-article') ? "bg-red-600" : "bg-custom_green",
+                                    (transaction?.type === 'tip') ? "bg-purple-600" : "",
                                 )
                             }>
                                 
                                 { (transaction?.type === 'create-story' || transaction?.type === 'create-article')  && <BookCheckIcon className='w-4 h-4 text-white'/> }
                                 { (transaction?.type === 'read-story' || transaction?.type === 'read-article') && <BookOpenText className='w-4 h-4 text-white'/> }
+                                { (transaction?.type === 'tip') && <Coins className='w-4 h-4 text-white'/> }
                             </div>
                             <div className='flex flex-[80%] flex-col'>
                                 <div className='flex xs:flex-col sm:flex-row xs:gap-2 sm:gap-2 justify-between'>
@@ -312,7 +329,7 @@ const DashboardPage = () => {
                                 </div>
                                 <div className='flex xs:flex-col sm:flex-row xs:gap-2 sm:gap-2 justify-between'>
                                     <p className="text-[10px] text-gray-500">${transaction?.amount}</p>
-                                    {/* <p className="text-[10px] text-gray-500">July 12th 2025</p> */}
+                                    <p className="text-[10px] text-gray-500">{formatDate(transaction?.confirmedAt)}</p>
                                     <p className="text-[10px]">{truncateString(transaction?.deposit_address)}</p>
                                 </div>
                             </div>
