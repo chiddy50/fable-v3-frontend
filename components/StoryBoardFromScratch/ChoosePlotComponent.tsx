@@ -40,7 +40,7 @@ function ChoosePlotComponent({
     // const { user, setShowAuthFlow } = useDynamicContext();
 
     const llm = new ChatGroq({
-        apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
+        apiKey: "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", //process.env.NEXT_PUBLIC_GROQ_API_KEY,
         model: "llama3-70b-8192"           
     });
 
@@ -71,7 +71,7 @@ function ChoosePlotComponent({
         setCharacterSuggestions([]);
 
         const llm = new ChatGroq({
-            apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
+            apiKey: "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", p//rocess.env.NEXT_PUBLIC_GROQ_API_KEY,
             model: "llama3-70b-8192",            
             // model: "llama3.1-8b-instant",            
         });

@@ -333,7 +333,7 @@ const ProjectSummaryPage = () => {
             story idea: {storyIdea}`;
     
             const llm = new ChatGroq({
-                apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
+                apiKey: "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", //process.env.NEXT_PUBLIC_GROQ_API_KEY,
                 // model: "llama-3.1-70b-versatile",
                 model: "llama3-70b-8192",
                 // model: "3.1-8b-instant",  // "llama3-70b-8192",

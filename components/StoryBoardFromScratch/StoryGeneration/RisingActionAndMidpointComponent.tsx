@@ -33,6 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { ChatGroq } from '@langchain/groq';
 
 interface RisingActionAndMidpointComponentProps {
   initialStory: StoryInterface;
@@ -265,7 +266,7 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
     const getStreamResponse = async (prompt: string, payload: object) => {
       try {      
          const llm = new ChatGroq({
-            apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
+            apiKey: "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", //process.env.NEXT_PUBLIC_GROQ_API_KEY,
             // model: "llama3-70b-8192",
             model: "llama-3.1-70b-versatile"           
          });
