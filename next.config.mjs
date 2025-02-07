@@ -32,7 +32,13 @@ const nextConfig = {
             protocol: 'https',
             hostname: 'cdn2.stablediffusionapi.com',
             pathname: '/**',
-          },                  
+          },      
+          {
+            protocol: 'https',
+            // hostname: 'cdn2.stablediffusionapi.com',
+            hostname: "modelslab-bom.s3.amazonaws.com",            
+            pathname: '/**',
+          },      
         ],
     },
     async rewrites() {
