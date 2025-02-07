@@ -26,7 +26,7 @@ export const modelInstance = () => {
 export const queryLLM = async (prompt: string, payload: object, parser = null) => {
    try {      
       const llm = new ChatGroq({
-         apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
+         apiKey: "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", //process.env.NEXT_PUBLIC_GROQ_API_KEY,
          // model: "llama3-70b-8192",
          model: "llama-3.1-70b-versatile"           
       });
@@ -54,7 +54,7 @@ export const queryLLM = async (prompt: string, payload: object, parser = null) =
 export const queryStructuredLLM = async (prompt: string, payload: object, parser: JsonOutputParser) => {
    try {      
       const llm = new ChatGroq({
-         apiKey: process.env.NEXT_PUBLIC_GROQ_JSONOUTPUT_API_KEY,
+         apiKey: "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", //process.env.NEXT_PUBLIC_GROQ_JSONOUTPUT_API_KEY,
          // apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
          model: "llama3-70b-8192",
          // model: "llama-3.1-70b-versatile"           
@@ -82,7 +82,7 @@ export const queryStructuredLLM = async (prompt: string, payload: object, parser
 export const streamLLMResponse = async (prompt: string, payload: object) => {
    try {      
       const llm = new ChatGroq({
-         apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
+         apiKey: "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", //process.env.NEXT_PUBLIC_GROQ_API_KEY,
          model: "llama3-70b-8192",
          // model: "llama-3.1-70b-versatile"           
       });
