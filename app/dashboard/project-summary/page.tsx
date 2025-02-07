@@ -249,7 +249,8 @@ const ProjectSummaryPage = () => {
             
             showPageLoader();
             let res = await axios.post(
-                `https://modelslab.com/api/v6/images/text2img`, 
+                // `https://modelslab.com/api/v6/images/text2img`, 
+                `https://modelslab.com/api/v6/realtime/text2img`,
                 {
                     "key": process.env.NEXT_PUBLIC_STABLE_FUSION_API_KEY,
                     "model_id": process.env.NEXT_PUBLIC_IMAGE_MODEL ?? "flux",
@@ -511,9 +512,11 @@ const ProjectSummaryPage = () => {
     }
 
     const fetchPendingImage = async () => {
-        let response = await axios.post("https://modelslab.com/api/v6/images/fetch", {
+        
+        // let response = await axios.post("https://modelslab.com/api/v6/images/fetch", {
+        let response = await axios.post("https://modelslab.com/api/v3/fetch/D9Rv3euth4rpObwPtkuChkO4Jf1elG0eKNlMGoZWOasXAOZuGyJxk9eLpjsE", {
             "key": process.env.NEXT_PUBLIC_STABLE_FUSION_API_KEY,
-            "request_id": 119074274
+            // "request_id": "D9Rv3euth4rpObwPtkuChkO4Jf1elG0eKNlMGoZWOasXAOZuGyJxk9eLpjsE"
         });
         console.log(response);        
         if (response.data.status !== "success") {
@@ -652,7 +655,7 @@ const ProjectSummaryPage = () => {
                         </div> */}
                             
                         {
-                            !storyData?.introductionImage && storyData?.imageStatus === null &&
+                            !storyData?.introductionImage && (storyData?.imageStatus === null || storyData?.imageStatus === "error") &&
                             <Button onClick={generateBanner} size="sm">Generate Banner</Button>
                         }
 
