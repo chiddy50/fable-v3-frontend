@@ -34,7 +34,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { ChatGroq } from '@langchain/groq';
-import { ChatPromptTemplate } from "@langchain/core/prompts";c
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { StringOutputParser } from "@langchain/core/output_parsers";
 
 interface RisingActionAndMidpointComponentProps {
   initialStory: StoryInterface;
