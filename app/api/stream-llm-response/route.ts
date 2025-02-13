@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ChatGroq } from "@langchain/groq";
-import { ChatPromptTemplate } from "@langchain/core/prompts";c
+import { ChatPromptTemplate } from "@langchain/core/prompts"
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
 export async function POST(request: NextRequest) {
@@ -44,6 +44,6 @@ export async function POST(request: NextRequest) {
    
     } catch (error) {
         console.error("Error streaming LLM response:", error);
-        return new NextResponse(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });s
+        return new NextResponse(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
     }
 }
