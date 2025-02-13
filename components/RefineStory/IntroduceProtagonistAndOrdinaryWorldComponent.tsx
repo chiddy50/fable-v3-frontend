@@ -97,6 +97,8 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
     const [protagonists, setProtagonists] = useState<ProtagonistPayload[]>([]);
     const [introductionExtraDetails, setIntroductionExtraDetails] = useState<string>("");
 
+    const [streamData, setStreamData] = useState('');
+    
     useEffect(() => {
         fetchGenres();
     }, []);
@@ -154,7 +156,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
 
     // const dynamicJwtToken = getAuthToken();
 
-    const generateIntroduceProtagonistAndOrdinaryWorld = async () => {
+    const generateIntroduceProtagonistAndOrdinaryWorld2 = async () => {
         try {
             const prompt = `
             You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
@@ -198,6 +200,123 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             setGenerating(false);
         }
     }
+
+    const generateIntroduceProtagonistAndOrdinaryWorld = async () => {
+        try {
+            const prompt = `
+            You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
+            **OUTPUT**
+            You will use the provided story idea to generate a cohesive story introduction that introduces the characters and also their ordinary world. And also follow the three-act structure.
+            Capture the emotional journey of the protagonist by introducing the protagonist(s).
+            Do not write about the end of the story just focus on the introduction and description of the character.
+             
+            Note: Do not include a title or subtitles while generating the story, we are only focused on the story. Do not add any title, subtitle or anything describing an act.
+            **INPUT**
+            story idea {storyIdea}
+            `;
+            
+            // setGenerating(true);
+            // const response = await streamLLMResponse(prompt, {
+            //     storyIdea: projectDescription,
+            // });
+
+            // if (!response) {
+            //     setGenerating(false);   
+            //     toast.error("Try again please");
+            //     return;
+            // }
+    
+            // scrollToBottom();
+            // let text = ``;
+            // for await (const chunk of response) {
+            //     scrollToBottom();
+            //     text += chunk;   
+            //     setIntroduceProtagonistAndOrdinaryWorld(text);         
+            // }
+            // scrollToBottom();
+
+            // await saveGeneration(text)
+            // // await analyzeStory(text)
+            // console.log({text, introduceProtagonistAndOrdinaryWorld});
+
+
+            setGenerating(true);
+
+            const response = await fetch('/api/stream-llm-response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    payload: {
+                        storyIdea: projectDescription
+                    },
+                }),
+            });
+
+            if (!response.body) {
+                setGenerating(false);   
+                console.error("No stream found");
+                toast.error("Try again please");
+                return;
+            }
+            
+            let text = ``;
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let done = false;
+    
+            while (!done) {
+                const { value, done: doneReading } = await reader.read();
+                done = doneReading;
+                const chunk = decoder.decode(value);
+                console.log({chunk})
+                text += chunk;   
+                setIntroduceProtagonistAndOrdinaryWorld(text);
+            }
+            scrollToBottom();
+
+            await saveGeneration(text)
+            
+            console.log({text})
+            
+        } catch (error) {
+            console.error(error);            
+        }finally{
+            setGenerating(false);
+        }
+    }
+
+    const fetchStream = async () => {
+        try {
+          const response = await fetch('/api/stream-llm-response', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              prompt: "Your prompt here",
+              payload: { /* your payload object here */ },
+            }),
+          });
+  
+          if (!response.body) {
+            console.error("No stream found");
+            return;
+          }
+  
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder("utf-8");
+          let done = false;
+  
+          while (!done) {
+            const { value, done: doneReading } = await reader.read();
+            done = doneReading;
+            const chunk = decoder.decode(value);
+            setStreamData((prev) => prev + chunk);
+          }
+        } catch (error) {
+          console.error("Error fetching stream:", error);
+        }
+    };
 
     const regenerateIntroduceProtagonistAndOrdinaryWorld = async () => {
         let { genrePrompt, protagonistSuggestionsPrompt, tonePrompt, settingPrompt } = extractTemplatePrompts(initialStory);
@@ -493,9 +612,10 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
         <div className="my-10 bg-gray-50 p-5 rounded-2xl">
             <div className='mb-5'>
                 <div className="flex justify-between items-center mb-3">
-                    <Button size="icon" onClick={() => moveToNext(1)} disabled={true}>
+                    {/* <Button size="icon" onClick={() => moveToNext(1)} disabled={true}>
                         <ArrowLeft />
-                    </Button>
+                    </Button> */}
+                    <div></div>
                     <p className='font-bold text-center text-2xl'>
                         Chapter 1
                     </p>
@@ -527,10 +647,10 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             />
 
      
-            <div className="flex justify-between items-center mb-3">
-                <Button size="icon" onClick={() => moveToNext(1)} disabled={true}>
+            <div className="flex justify-end items-center mb-3">
+                {/* <Button size="icon" onClick={() => moveToNext(1)} disabled={true}>
                     <ArrowLeft />
-                </Button>
+                </Button> */}
 
                 {/* {genres?.length > 0 && <Button className='bg-custom_green'>Characters</Button>} */}
            
