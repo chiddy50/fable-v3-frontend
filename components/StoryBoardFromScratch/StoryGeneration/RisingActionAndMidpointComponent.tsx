@@ -34,6 +34,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { ChatGroq } from '@langchain/groq';
+import { ChatPromptTemplate } from "@langchain/core/prompts";c
 
 interface RisingActionAndMidpointComponentProps {
   initialStory: StoryInterface;
@@ -267,8 +268,8 @@ const RisingActionAndMidpointComponent: React.FC<RisingActionAndMidpointComponen
       try {      
          const llm = new ChatGroq({
             apiKey: "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", //process.env.NEXT_PUBLIC_GROQ_API_KEY,
-            // model: "llama3-70b-8192",
-            model: "llama-3.1-70b-versatile"           
+            model: "llama3-70b-8192",
+            // model: "llama-3.1-70b-versatile"           
          });
      
           const startingPrompt = ChatPromptTemplate.fromMessages([
