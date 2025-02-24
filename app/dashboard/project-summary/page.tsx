@@ -253,7 +253,8 @@ const ProjectSummaryPage = () => {
                 `https://modelslab.com/api/v6/realtime/text2img`,
                 {
                     "key": process.env.NEXT_PUBLIC_STABLE_FUSION_API_KEY,
-                    "model_id": process.env.NEXT_PUBLIC_IMAGE_MODEL ?? "flux",
+                    "model_id": "flux",
+                    // "model_id": process.env.NEXT_PUBLIC_IMAGE_MODEL ?? "flux",
                     "prompt": `ultra realistic photograph ${prompt}`,
                     "negative_prompt": "bad quality, painting, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, deformed, ugly, blurry, bad anatomy, bad proportions, extra limbs, cloned face, skinny, glitchy, double torso, extra arms, extra hands, mangled fingers, missing lips, ugly face, distorted face, extra legs, anime",
                     "width": "1288",
@@ -725,7 +726,7 @@ const ProjectSummaryPage = () => {
                         </div> */}
                             
                         {
-                            !storyData?.introductionImage && (storyData?.imageStatus === null || storyData?.imageStatus === "error") &&
+                            // !storyData?.introductionImage && (storyData?.imageStatus === null || storyData?.imageStatus === "error") &&
                             <Button onClick={generateBanner} size="sm">Generate Banner</Button>
                         }
 
