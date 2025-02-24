@@ -581,10 +581,11 @@ const ProjectSummaryPage = () => {
 
     const fetchPendingImage = async () => {
         
+        // let response = await axios.post(`https://modelslab.com/api/v6/realtime/fetch/128701514`, {
         // let response = await axios.post("https://modelslab.com/api/v6/images/fetch", {
-        let response = await axios.post("https://modelslab.com/api/v3/fetch/D9Rv3euth4rpObwPtkuChkO4Jf1elG0eKNlMGoZWOasXAOZuGyJxk9eLpjsE", {
+        let response = await axios.post("https://modelslab.com/api/v3/fetch/128701514", {
             "key": process.env.NEXT_PUBLIC_STABLE_FUSION_API_KEY,
-            // "request_id": "D9Rv3euth4rpObwPtkuChkO4Jf1elG0eKNlMGoZWOasXAOZuGyJxk9eLpjsE"
+            // "request_id": "128701514"
         });
         console.log(response);        
         if (response.data.status !== "success") {

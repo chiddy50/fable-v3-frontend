@@ -823,8 +823,9 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                 className='flex items-center gap-2'
                 disabled={generating || !introduceProtagonistAndOrdinaryWorld}
                 onClick={() => {
+                    console.log({introductionSummary});
                     
-                    if (!introductionSummary) {
+                    if (introductionSummary) {
                         setModifyModalOpen(true);
                     }else{
                         analyzeStory()
