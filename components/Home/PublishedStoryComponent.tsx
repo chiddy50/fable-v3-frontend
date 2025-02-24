@@ -36,7 +36,7 @@ const PublishedStoryComponent = ({
             {
                 publishedStories?.length > 0 &&
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5">
-                    {publishedStories?.filter(story => story.publishedAt).map((story, index) => (
+                    {publishedStories?.filter(story => story?.publishedAt).map((story, index) => (
 
                         <div key={index} className="p-5 flex flex-col justify-between w-full bg-gray-800 text-gray-50 rounded-lg border">
                             <div className="flex justify-between items-center mb-1">
@@ -49,7 +49,7 @@ const PublishedStoryComponent = ({
                             <AuthorAvatarComponent user={story?.user} />
 
                             <div className="font-semibold mt-2 mb-2 text-[10px]">
-                                {story?.genres.length > 0 ? story?.genres?.map(genre => genre.value ?? genre)?.join(" | ") : ""}
+                                {story?.genres.length > 0 ? story?.genres?.map(genre => genre?.value ?? genre)?.join(" | ") : ""}
                             </div>
 
                             <StarRatingComponent rating={story?.averageRating} />
@@ -68,7 +68,7 @@ const PublishedStoryComponent = ({
 
                             <div className="mt-4 flex justify-between items-center">
                                 <Button onClick={() => moveToReadStory(story?.id)} size="sm" className="text-gray-700" variant="outline">
-                                    Read for { story.isFree ? 'Free' : `$${story.price}` }
+                                    Read for { story.isFree ? 'Free' : `$${story?.price}` }
                                     <BookOpen className="w-4 h-4 ml-2"/>
                                 </Button>                            
                             </div>
