@@ -1,10 +1,12 @@
 "use client";
 
+// CHAPTER 5
+
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import React, { useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button';
 import { ArrowLeft, ArrowRight, Cog, Lock } from 'lucide-react';
-import { extractTemplatePrompts, getFirstPlotPointSummary, getIncitingIncidentSummary, getIntroductionSummary, getPinchPointsAndSecondPlotPointAnalysis, getRisingActionAndMidpointSummary, modelInstance, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
+import { extractTemplatePrompts, getFirstPlotPointSummary, getIncitingIncidentSummary, getIntroductionSummary, getPinchPointsAndSecondPlotPointAnalysis, getRisingActionAndMidpointSummary, makeChapterAnalysisRequest, modelInstance, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
 import { toast } from 'sonner';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
 import {
@@ -24,6 +26,7 @@ import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { JsonOutputParser } from "@langchain/core/output_parsers";
 import { RunnableSequence, RunnablePassthrough } from "@langchain/core/runnables";
 import { PinchPointsAndSecondPlotPointChapterAnalysis } from '@/interfaces/CreateStoryInterface';
+import axios from 'axios';
 
 interface Props {
     initialStory: StoryInterface;
@@ -126,36 +129,82 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<Props> = ({
             `;
             
             setGenerating(true);
-            const response = await streamLLMResponse(prompt, {
-                storyIdea: projectDescription,
-                genre: genrePrompt,
-                tones: tonePrompt,
-                setting: settingPrompt,
-                protagonists: protagonistSuggestionsPrompt,
-                introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
-                incitingIncident: initialStory?.storyStructure?.incitingIncident,                
-                firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,     
-                risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,     
+
+            const response = await fetch('/api/stream-llm-response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    payload: {
+                        storyIdea: projectDescription,
+                        genre: genrePrompt,
+                        tones: tonePrompt,
+                        setting: settingPrompt,
+                        protagonists: protagonistSuggestionsPrompt,
+                        introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+                        incitingIncident: initialStory?.storyStructure?.incitingIncident,                
+                        firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,     
+                        risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint, 
+                    },
+                }),
             });
 
-            if (!response) {
+            if (!response?.body) {
                 setGenerating(false);   
                 toast.error("Try again please");
                 return;
             }
-            scrollToBottom()
-    
-            let chapter = ``;
-            for await (const chunk of response) {
-                // scrollToBottom()
-                chapter += chunk;   
-                setPinchPointsAndSecondPlotPoint(chapter);         
-            }
             
+            let chapter = ``;
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let done = false;
+    
+            setPinchPointsAndSecondPlotPoint("");
+
+            while (!done) {
+                const { value, done: doneReading } = await reader.read();
+                done = doneReading;
+                const chunk = decoder.decode(value);
+                chapter += chunk;   
+                setPinchPointsAndSecondPlotPoint(chapter);
+            }
+
             scrollToBottom();
 
-            await saveGeneration(chapter)
-            // await analyzeStory(chapter)
+            await saveGeneration(chapter);
+
+            // const response = await streamLLMResponse(prompt, {
+            //     storyIdea: projectDescription,
+            //     genre: genrePrompt,
+            //     tones: tonePrompt,
+            //     setting: settingPrompt,
+            //     protagonists: protagonistSuggestionsPrompt,
+            //     introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+            //     incitingIncident: initialStory?.storyStructure?.incitingIncident,                
+            //     firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,     
+            //     risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,     
+            // });
+
+            // if (!response) {
+            //     setGenerating(false);   
+            //     toast.error("Try again please");
+            //     return;
+            // }
+            // scrollToBottom()
+    
+            // let chapter = ``;
+            // for await (const chunk of response) {
+            //     // scrollToBottom()
+            //     chapter += chunk;   
+            //     setPinchPointsAndSecondPlotPoint(chapter);         
+            // }
+            
+            // scrollToBottom();
+
+            // await saveGeneration(chapter)
+            // // await analyzeStory(chapter)
         } catch (error) {
             console.error(error);            
         }finally{
@@ -201,38 +250,85 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<Props> = ({
             
             setGenerating(true);
             setModifyModalOpen(false);
-            const response = await streamLLMResponse(prompt, {
-                storyIdea: projectDescription,
-                introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
-                incitingIncident: initialStory?.storyStructure?.incitingIncident,
-                firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,
-                risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,
-                pinchPointsAndSecondPlotPoint,
-                newObstacles,
-                discoveryChanges,
-                howStakesEscalate,
-                setting: pinchPointsAndSecondPlotPointSetting.join(", "),
-                tone: pinchPointsAndSecondPlotPointTone.join(", "),
-                extraDetails: pinchPointsAndSecondPlotPointExtraDetails,
-                genre: genrePrompt, 
-                protagonist: protagonistSuggestionsPrompt
+
+            const response = await fetch('/api/stream-llm-response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    payload: {
+                        storyIdea: projectDescription,
+                        introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+                        incitingIncident: initialStory?.storyStructure?.incitingIncident,
+                        firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,
+                        risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,
+                        pinchPointsAndSecondPlotPoint,
+                        newObstacles,
+                        discoveryChanges,
+                        howStakesEscalate,
+                        setting: pinchPointsAndSecondPlotPointSetting.join(", "),
+                        tone: pinchPointsAndSecondPlotPointTone.join(", "),
+                        extraDetails: pinchPointsAndSecondPlotPointExtraDetails,
+                        genre: genrePrompt, 
+                        protagonist: protagonistSuggestionsPrompt
+                    },
+                }),
             });
 
-            if (!response) {
-                setGenerating(false);
+            if (!response?.body) {
+                setGenerating(false);   
                 toast.error("Try again please");
                 return;
             }
     
-            scrollToBottom();
             let text = ``;
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let done = false;
+    
             setPinchPointsAndSecondPlotPoint('')
-            for await (const chunk of response) {
+            while (!done) {
+                const { value, done: doneReading } = await reader.read();
+                done = doneReading;
+                const chunk = decoder.decode(value);
                 text += chunk;   
-                setPinchPointsAndSecondPlotPoint(text);    
-                // scrollToBottom();
+                setPinchPointsAndSecondPlotPoint(text);
             }
             scrollToBottom();
+
+            // const response = await streamLLMResponse(prompt, {
+            //     storyIdea: projectDescription,
+            //     introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+            //     incitingIncident: initialStory?.storyStructure?.incitingIncident,
+            //     firstPlotPoint: initialStory?.storyStructure?.firstPlotPoint,
+            //     risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpoint,
+            //     pinchPointsAndSecondPlotPoint,
+            //     newObstacles,
+            //     discoveryChanges,
+            //     howStakesEscalate,
+            //     setting: pinchPointsAndSecondPlotPointSetting.join(", "),
+            //     tone: pinchPointsAndSecondPlotPointTone.join(", "),
+            //     extraDetails: pinchPointsAndSecondPlotPointExtraDetails,
+            //     genre: genrePrompt, 
+            //     protagonist: protagonistSuggestionsPrompt
+            // });
+
+            // if (!response) {
+            //     setGenerating(false);
+            //     toast.error("Try again please");
+            //     return;
+            // }
+    
+            // scrollToBottom();
+            // let text = ``;
+            // setPinchPointsAndSecondPlotPoint('')
+            // for await (const chunk of response) {
+            //     text += chunk;   
+            //     setPinchPointsAndSecondPlotPoint(text);    
+            //     // scrollToBottom();
+            // }
+            // scrollToBottom();
 
         } catch (error) {
             console.error(error);    
@@ -244,7 +340,8 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<Props> = ({
     
     const saveGeneration = async (data: string) => {
         if (data) {                
-            const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+            // const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+            const updated = await axiosInterceptorInstance.put(`/chapters/chapter-five/${initialStory?.id}`, 
                 {
                     storyId: initialStory?.id,
                     pinchPointsAndSecondPlotPoint: data,
@@ -284,10 +381,11 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<Props> = ({
             summary(string, this is a summary of the events in the Pinch Points & Second Plot Point section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),
             newObstacles(string, this refers to the answer to the question, What new obstacles challenge the protagonist?),            
             discoveryChanges(string, this refers to the answer to the question, What discovery changes what the protagonist does next?),            
-            howStakesEscalate(string, this refers to the answer to the question, How does the protagonist's world, stakes, or understanding of the conflict escalate or change?),            
+            howStakesEscalate(string, this  refers to the answer to the question, How does the protagonist's world, stakes, or understanding of the conflict escalate or change?),            
+            charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the pinch point and second plot point),
             tone(array of strings),
             setting(array of strings).                        
-            Please ensure the only keys in the object are summary, newObstacles, discoveryChanges, howStakesEscalate, tone and setting keys only.
+            Please ensure the only keys in the object are summary, newObstacles, discoveryChanges, howStakesEscalate, tone, charactersInvolved and setting keys only.
             Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
 
             Ensure the summary contains all the events step by step as they occurred and the summary must also contain the characters and the impacts they have had on each other.
@@ -299,17 +397,26 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<Props> = ({
             // charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the inciting incident),            
 
             showPageLoader();
-            const parser = new JsonOutputParser<PinchPointsAndSecondPlotPointChapterAnalysis>();
 
-            const response = await queryStructuredLLM(prompt, {
-                // introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary,
-                // incitingIncident: initialStory?.storyStructure?.incitingIncidentSummary,
-                // firstPlotPoint: initialStory?.storyStructure?.firstPlotPointSummary,
-                // risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpointSummary,
+            const payload = {
                 pinchPointsAndSecondPlotPoint: data,
                 storyIdea: projectDescription,
                 protagonists: protagonistSuggestionsPrompt
-            }, parser);
+            }
+            let res = await makeChapterAnalysisRequest(5, prompt, payload);            
+            let response = res?.data;
+            
+            // const parser = new JsonOutputParser<PinchPointsAndSecondPlotPointChapterAnalysis>();
+
+            // const response = await queryStructuredLLM(prompt, {
+            //     // introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary,
+            //     // incitingIncident: initialStory?.storyStructure?.incitingIncidentSummary,
+            //     // firstPlotPoint: initialStory?.storyStructure?.firstPlotPointSummary,
+            //     // risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpointSummary,
+            //     pinchPointsAndSecondPlotPoint: data,
+            //     storyIdea: projectDescription,
+            //     protagonists: protagonistSuggestionsPrompt
+            // }, parser);
 
             if (!response) {
                 toast.error("Try again please");
@@ -422,11 +529,13 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<Props> = ({
         howStakesEscalate: string,
         summary: string,
         setting: string[],
+        charactersInvolved?: any[],
         tone: string[],
     }) => {
         if (payload) {                
             // save data
-            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+            // const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+            const updated = await axiosInterceptorInstance.put(`/chapters/chapter-five/${initialStory?.id}`, 
                 {
                     storyId: initialStory?.id,
                     newObstacles: payload?.newObstacles,
@@ -435,6 +544,8 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<Props> = ({
                     pinchPointsAndSecondPlotPointSetting: payload?.setting,
                     pinchPointsAndSecondPlotPointTone: payload?.tone,
                     pinchPointsAndSecondPlotPointSummary: payload?.summary,
+                    pinchPointsAndSecondPlotPointCharacters: payload?.charactersInvolved,                                                   
+                    suggestedCharacters: payload?.charactersInvolved,                                                   
                     pinchPointsAndSecondPlotPoint,
                     // pinchPointsAndSecondPlotPointCharacters: payload?.charactersInvolved,
                 }
@@ -450,7 +561,8 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<Props> = ({
     const lockChapter = async () => {
         try {           
             showPageLoader();
-            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+            // const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+            const updated = await axiosInterceptorInstance.put(`/chapters/chapter-five/${initialStory?.id}`, 
                 {
                     storyId: initialStory?.id,
                     newObstacles,
@@ -554,7 +666,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<Props> = ({
                     if (pinchPointsAndSecondPlotPointSummary) {
                         setModifyModalOpen(true);
                     }else{
-                        analyzeStory()
+                        analyzeStory2()
                     }
                 }}
                 >
@@ -661,7 +773,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<Props> = ({
                                 <Cog className='ml-2'/>
                             </Button>
                             <Button disabled={generating} 
-                            onClick={() => analyzeStory(false)}
+                            onClick={() => analyzeStory2(false)}
                             size="lg" className='border w-full '>
                                 Reanalyze
                                 <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4 ml-2' viewBox="0 0 96 96">

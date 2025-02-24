@@ -65,6 +65,7 @@ export interface PinchPointsAndSecondPlotPointChapterAnalysis {
     newObstacles: string;
     discoveryChanges: string;
     howStakesEscalate: string;
+    charactersInvolved?: SuggestedCharacterInterface[];
     tone: string[];
     setting: string[];
 }

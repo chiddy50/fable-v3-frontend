@@ -10,7 +10,7 @@ import {
     SheetTitle,
 } from "@/components/ui/sheet";
 import { StoryInterface } from '@/interfaces/StoryInterface';
-import { extractTemplatePrompts, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
+import { extractTemplatePrompts, makeChapterAnalysisRequest, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
 import { toast } from 'sonner';
 import {
     Carousel,
@@ -214,31 +214,6 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             **INPUT**
             story idea {storyIdea}
             `;
-            
-            // setGenerating(true);
-            // const response = await streamLLMResponse(prompt, {
-            //     storyIdea: projectDescription,
-            // });
-
-            // if (!response) {
-            //     setGenerating(false);   
-            //     toast.error("Try again please");
-            //     return;
-            // }
-    
-            // scrollToBottom();
-            // let text = ``;
-            // for await (const chunk of response) {
-            //     scrollToBottom();
-            //     text += chunk;   
-            //     setIntroduceProtagonistAndOrdinaryWorld(text);         
-            // }
-            // scrollToBottom();
-
-            // await saveGeneration(text)
-            // // await analyzeStory(text)
-            // console.log({text, introduceProtagonistAndOrdinaryWorld});
-
 
             setGenerating(true);
 
@@ -253,7 +228,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                 }),
             });
 
-            if (!response.body) {
+            if (!response?.body) {
                 setGenerating(false);   
                 console.error("No stream found");
                 toast.error("Try again please");
@@ -318,7 +293,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
         }
     };
 
-    const regenerateIntroduceProtagonistAndOrdinaryWorld = async () => {
+    const regenerateIntroduceProtagonistAndOrdinaryWorld2 = async () => {
         let { genrePrompt, protagonistSuggestionsPrompt, tonePrompt, settingPrompt } = extractTemplatePrompts(initialStory);
 
         try {
@@ -386,7 +361,92 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
         
     }
 
-    const analyzeStory = async (showModal = true) => {
+    const regenerateIntroduceProtagonistAndOrdinaryWorld = async () => {
+        let { genrePrompt, protagonistSuggestionsPrompt, tonePrompt, settingPrompt } = extractTemplatePrompts(initialStory);
+
+        try {
+            const prompt = `
+                You are a skilled storyteller, author, and narrative designer renowned for creating immersive narratives, deep characters, and vivid worlds. Your writing is creative, engaging, and detail-oriented.
+
+                **OUTPUT**
+                You will be provided with an existing story introduction that presents the protagonist and their ordinary world. Your task is to rewrite this introduction with the following updates:
+
+                - Story Introduction: {introduceProtagonistAndOrdinaryWorld}
+                - Genre: {genres}
+                - Tone: {tones}
+                - Setting: {setting}
+                - Protagonist Details: {protagonists}
+
+                **Instructions:**
+                1. **Compare & Update**: If any aspect of the protagonist (name, motivations, role, backstory, character traits) has changed, ensure consistency by incorporating those updates in the rewrite. This includes changes for a single protagonist or multiple protagonists.
+                2. **Maintain Consistency**: Align the genre, tone, and setting with the story’s intended direction, ensuring a cohesive narrative.
+                3. **Incorporate Additional Details**: If any extra modifications or details are provided ({introductionExtraDetails}), smoothly integrate them into the new introduction.
+                4. **Focus on the Protagonist**: Capture the emotional journey and description of the protagonist(s) without revealing or hinting at the story's ending. Rewrite to remove any ending spoilers if they exist.
+
+                **Note**: Recheck protagonist details, genre, tone, and setting for consistency. Completely regenerate the introduction as needed.
+                **Note**: Focus solely on the story. Do not include titles, subtitles, or act labels.
+
+                Just write the story do not add any thing like saying you have added any changes, just focus on writing the story. 
+
+                **INPUT**
+                Story Idea: {storyIdea}
+                Additional Details: {introductionExtraDetails}
+            `;
+
+            setGenerating(true);
+            setModifyModalOpen(false);
+
+            const response = await fetch('/api/stream-llm-response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    payload: {
+                        storyIdea: projectDescription,
+                        genres: genrePrompt,
+                        tones: tonePrompt,
+                        setting: settingPrompt,
+                        protagonists: protagonistSuggestionsPrompt,
+                        introductionExtraDetails,
+                        introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld
+                    },
+                }),
+            });
+
+            if (!response?.body) {
+                setGenerating(false);   
+                toast.error("Try again please");
+                return;
+            }
+    
+            let text = ``;
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let done = false;
+    
+            while (!done) {
+                const { value, done: doneReading } = await reader.read();
+                done = doneReading;
+                const chunk = decoder.decode(value);
+                console.log({chunk})
+                text += chunk;   
+                setIntroduceProtagonistAndOrdinaryWorld(text);
+            }
+            scrollToBottom();
+
+            // await saveGeneration(text)
+
+        } catch (error) {
+            console.error(error);    
+            setGenerating(false);
+        }finally{
+            setGenerating(false);
+        }
+        
+    }
+
+    const analyzeStory2 = async (showModal = true) => {
         const data = introduceProtagonistAndOrdinaryWorld;
         
         if (!data) {
@@ -454,6 +514,80 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
         }
     }
 
+    const analyzeStory = async (showModal = true) => {
+        const data = introduceProtagonistAndOrdinaryWorld;
+        
+        if (!data) {
+            toast.error('Generate some content first')
+            return;
+        }
+        
+        try {
+            const prompt = `
+            You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
+            We have currently generated the Introduction of the Protagonist & Ordinary World section of the story. 
+            I need you analyze the generated content and give an analysis of the characters involved in the story, tone, genre, thematic element, suspense technique, plot twist, setting.
+         
+            Return your response in a json or javascript object format like: 
+            protagonists(array of objects with keys like name(string), age(string), role(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), weight(string), clothDescription(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToOtherProtagonist(string, this should only be provided if there is more than one protagonist))
+            otherCharacters(array of objects with keys like name(string), age(string), backstory(string), role(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), clothDescription(string), weight(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToProtagonists(array of object with keys like protagonistName(string) & relationship(string)) )
+            tone(array of string),
+            genre(array of string),
+            summary(string, this is a summary of the events in the Introduction of the Protagonist & Ordinary World section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),
+            moodAndAtmosphere(array of string)
+            hooks(array of string, the hook raises questions or sparks curiosity, making the reader want to continue reading). 
+            setting(array of string, generate at least 3 setting suggestions).                        
+            thematicElement(array of string),
+            Please ensure the only keys in the object are protagonists, otherCharacters, tone, genre, thematicElement, suspenseTechnique, plotTwist and setting keys only.
+            Do not add any text extra line or text with the json response, just a json object, no acknowledgement or do not return any title, just return json response. Do not go beyond this instruction.                               
+
+            When suggesting the genre ensure your choice comes from the predefined list of genres here: {genreList}.
+            Ensuring you generate 1 to 3 protagonists is a safe range for most stories. If you go beyond 3, ensure each protagonist is well-developed and essential to the plot.
+            Ensure you suggest at least one character for the otherCharacters array.
+            For protagonists and otherCharacters ensure to provide suggestions for every facial feature and every option because they are all required, do not leave any one empty.
+            Ensure the summary contains all the events step by step as they occurred and the summary must also contain the characters and the impacts they have had on each other.
+
+            **INPUT**
+            Story Introduction {introduceProtagonistAndOrdinaryWorld}
+            Predefined List of genres: {genreList}
+            `;
+
+            showPageLoader();
+
+            const payload = {
+                introduceProtagonistAndOrdinaryWorld: data,
+                genreList: storyGenres.map(genre => genre.value).join(", ")
+            }
+            let res = await makeChapterAnalysisRequest(1, prompt, payload);
+            
+            console.log({res});            
+            let response = res?.data;
+
+            if (!response) {
+                toast.error("Try again please");
+                return;
+            }                
+
+            setGenres(response?.genre ? response?.genre?.map(genre => ( { label: genre, value: genre } )) : []);
+            setTones(response?.tone ? response?.tone?.map(tone => ( { label: tone, value: tone } )) : []);
+            setIntroductionSetting(response?.setting ? response?.setting?.map(setting => ( { label: setting, value: setting } )) : []);
+            setIntroductionSettingSuggestions(response?.setting ? response?.setting?.map(setting => ( { label: setting, value: setting } )) : []);
+            setProtagonists(response?.protagonists ?? []);
+
+            setStoryAnalysis(response);  
+            let saved = await saveAnalysis(response);
+            
+            if (showModal) setModifyModalOpen(true);
+            
+        } catch (error) {
+            console.error(error);               
+        }finally{
+            hidePageLoader()
+        }
+
+        
+    }
+
     const saveAnalysis = async (payload: StoryAnalysisPayload) => {
         if (payload) {                
             // save data
@@ -472,7 +606,8 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
 
             console.log({ genreList, chosenGenres: chosenGenres() });
             
-            const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`, 
+            const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/chapters/chapter-one/${initialStory?.id}`, 
+            // const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`, 
                 {
                     storyId: initialStory?.id,
                     genres: chosenGenres(),                    
@@ -496,11 +631,12 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
     const saveGeneration = async (data: string) => {
         if (data) {                
             // save data
-            const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/stories/structure/${initialStory?.id}`, 
+            const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/chapters/chapter-one/${initialStory?.id}`, 
                 {
                     storyId: initialStory?.id,
                     introduceProtagonistAndOrdinaryWorld: data,
-                    introductionLocked: true     
+                    introductionLocked: true,
+                    chapter: 1     
                 }
             );
         }
@@ -577,9 +713,16 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
     }
 
     const lockChapter = async () => {
-        try {           
+        try {          
+            console.log({
+                genres,
+                genres2: genres.map(genre => genre.value),                    
+            })
+            return;
+            
             showPageLoader();
-            const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`, 
+            const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/chapters/chapter-one/${initialStory?.id}`, 
+            // const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/stories/build-from-scratch/${initialStory?.id}`, 
                 {
                     storyId: initialStory?.id,
                     genres: genres.map(genre => genre.value),                    
@@ -680,9 +823,8 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                 className='flex items-center gap-2'
                 disabled={generating || !introduceProtagonistAndOrdinaryWorld}
                 onClick={() => {
-                    console.log({genres: genres?.length > 0});
                     
-                    if (introductionSummary) {
+                    if (!introductionSummary) {
                         setModifyModalOpen(true);
                     }else{
                         analyzeStory()

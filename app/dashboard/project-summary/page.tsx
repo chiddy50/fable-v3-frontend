@@ -255,7 +255,7 @@ const ProjectSummaryPage = () => {
                     "key": process.env.NEXT_PUBLIC_STABLE_FUSION_API_KEY,
                     "model_id": process.env.NEXT_PUBLIC_IMAGE_MODEL ?? "flux",
                     "prompt": `ultra realistic photograph ${prompt}`,
-                    "negative_prompt": "painting, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, deformed, ugly, blurry, bad anatomy, bad proportions, extra limbs, cloned face, skinny, glitchy, double torso, extra arms, extra hands, mangled fingers, missing lips, ugly face, distorted face, extra legs, anime",
+                    "negative_prompt": "bad quality, painting, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, deformed, ugly, blurry, bad anatomy, bad proportions, extra limbs, cloned face, skinny, glitchy, double torso, extra arms, extra hands, mangled fingers, missing lips, ugly face, distorted face, extra legs, anime",
                     "width": "1288",
                     "height": "768",
                     "samples": "1",
@@ -332,21 +332,33 @@ const ProjectSummaryPage = () => {
             **INPUT**
             story idea: {storyIdea}`;
     
-            const llm = new ChatGroq({
-                apiKey: "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", //process.env.NEXT_PUBLIC_GROQ_API_KEY,
-                // model: "llama-3.1-70b-versatile",
-                model: "llama3-70b-8192",
-                // model: "3.1-8b-instant",  // "llama3-70b-8192",
-            });
+            // const llm = new ChatGroq({
+            //     apiKey: "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", //process.env.NEXT_PUBLIC_GROQ_API_KEY,
+            //     // model: "llama-3.1-70b-versatile",
+            //     model: "llama3-70b-8192",
+            //     // model: "3.1-8b-instant",  // "llama3-70b-8192",
+            // });
             
-            const startingPrompt = ChatPromptTemplate.fromMessages([
-                ["system", "You are a professional storyteller, author and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also an expert at answering any question directly even if its not related to storytelling. And you always follow instruction"],
-                ["human", prompt],
-            ]);
+            // const startingPrompt = ChatPromptTemplate.fromMessages([
+            //     ["system", "You are a professional storyteller, author and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also an expert at answering any question directly even if its not related to storytelling. And you always follow instruction"],
+            //     ["human", prompt],
+            // ]);
             
-            const chain = startingPrompt.pipe(llm).pipe(new StringOutputParser());
+            // const chain = startingPrompt.pipe(llm).pipe(new StringOutputParser());
             
-            const response = await chain.invoke({
+            // const response = await chain.invoke({
+            //     storyIdea: story?.projectDescription,
+            //     introduceProtagonistAndOrdinaryWorld: story?.storyStructure?.introductionSummary,
+            //     incitingIncident: story?.storyStructure?.incitingIncidentSummary,
+            //     firstPlotPoint: story?.storyStructure?.firstPlotPointSummary,
+            //     risingActionAndMidpoint: story?.storyStructure?.risingActionAndMidpointSummary,
+            //     pinchPointsAndSecondPlotPoint: story?.storyStructure?.pinchPointsAndSecondPlotPointSummary,
+            //     climaxAndFallingAction: story?.storyStructure?.climaxAndFallingActionSummary,    
+            //     resolution: story?.storyStructure?.resolutionSummary,    
+            //     protagonistFeatures                             
+            // });
+
+            const payload = {
                 storyIdea: story?.projectDescription,
                 introduceProtagonistAndOrdinaryWorld: story?.storyStructure?.introductionSummary,
                 incitingIncident: story?.storyStructure?.incitingIncidentSummary,
@@ -355,8 +367,21 @@ const ProjectSummaryPage = () => {
                 pinchPointsAndSecondPlotPoint: story?.storyStructure?.pinchPointsAndSecondPlotPointSummary,
                 climaxAndFallingAction: story?.storyStructure?.climaxAndFallingActionSummary,    
                 resolution: story?.storyStructure?.resolutionSummary,    
-                protagonistFeatures                             
-            });
+                protagonistFeatures 
+            }
+            let res = await axios.post(`/api/string-llm-response`,
+                {
+                    prompt,
+                    payload
+                },
+                {                    
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },                
+                }
+             );           
+            let response = res?.data;    
+
             return response;
         } catch (error) {
             console.error(error);  
@@ -463,47 +488,89 @@ const ProjectSummaryPage = () => {
         try {
             
             const prompt = `
-            Based on the following chapters, generate a concise synopsis of the story:
-            - Introduction (Chapter 1): {introduceProtagonistAndOrdinaryWorld}
-            - Inciting Incident (Chapter 2): {incitingIncident}
-            - First Plot Point (Chapter 3): {firstPlotPoint}
-            - Rising Action & Midpoint (Chapter 4): {risingActionAndMidpoint}
-            - Pinch Points & Second Plot Point (Chapter 5): {pinchPointsAndSecondPlotPoint}
-            - Climax and Falling Action (Chapter 6): {climaxAndFallingAction}
-            - Resolution & Epilogue (Chapter 7): {resolution}
+                Based on the following chapters, generate a concise synopsis of the story:
+                - Introduction (Chapter 1): {introduceProtagonistAndOrdinaryWorld}
+                - Inciting Incident (Chapter 2): {incitingIncident}
+                - First Plot Point (Chapter 3): {firstPlotPoint}
+                - Rising Action & Midpoint (Chapter 4): {risingActionAndMidpoint}
+                - Pinch Points & Second Plot Point (Chapter 5): {pinchPointsAndSecondPlotPoint}
+                - Climax and Falling Action (Chapter 6): {climaxAndFallingAction}
+                - Resolution & Epilogue (Chapter 7): {resolution}
 
-            Summarize the story in a brief and engaging way. Not more than 50 to 100 words.
-            Note: Do not add any headers or descriptions, just generate the short synopsis.
+                Summarize the story in a brief and engaging way and ensure the synopsis does not reveal the outcome of the story and characters, add some teasers and suspense.. Not more than 50 to 100 words.
+                Note: Do not add any headers or descriptions, just generate the short synopsis.                
 
-            **INPUT**
-            Story idea: {storyIdea}
-        `;
+                **INPUT**
+                Story idea: {storyIdea}
+            `;
 
-            setGenerating(true);   
+            setGenerating(true);  
             
-            const response = await streamLLMResponse(prompt, {
-                storyIdea: story?.projectDescription,
-                introduceProtagonistAndOrdinaryWorld: story?.storyStructure?.introductionSummary,
-                incitingIncident: story?.storyStructure?.incitingIncidentSummary,
-                firstPlotPoint: story?.storyStructure?.firstPlotPointSummary,
-                risingActionAndMidpoint: story?.storyStructure?.risingActionAndMidpointSummary,
-                pinchPointsAndSecondPlotPoint: story?.storyStructure?.pinchPointsAndSecondPlotPointSummary,
-                climaxAndFallingAction: story?.storyStructure?.climaxAndFallingActionSummary,    
-                resolution: story?.storyStructure?.resolutionSummary,                     
+            const response = await fetch('/api/stream-llm-response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    payload: {
+                        storyIdea: story?.projectDescription,
+                        introduceProtagonistAndOrdinaryWorld: story?.storyStructure?.introductionSummary,
+                        incitingIncident: story?.storyStructure?.incitingIncidentSummary,
+                        firstPlotPoint: story?.storyStructure?.firstPlotPointSummary,
+                        risingActionAndMidpoint: story?.storyStructure?.risingActionAndMidpointSummary,
+                        pinchPointsAndSecondPlotPoint: story?.storyStructure?.pinchPointsAndSecondPlotPointSummary,
+                        climaxAndFallingAction: story?.storyStructure?.climaxAndFallingActionSummary,    
+                        resolution: story?.storyStructure?.resolutionSummary,    
+                    },
+                }),
             });
-    
-            if (!response) {
+            
+            if (!response?.body) {
                 setGenerating(false);   
                 toast.error("Try again please");
                 return;
             }
-            let overview:string = ``;
-            for await (const chunk of response) {
-                overview += chunk;   
-                setStoryOverview(overview);                     
-            }
+            
+            let overview: string = ``;
 
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let done = false;
+    
+            while (!done) {
+                const { value, done: doneReading } = await reader.read();
+                done = doneReading;
+                const chunk = decoder.decode(value);
+                overview += chunk;   
+                setStoryOverview(overview);
+            }
             await updateStory(overview);
+
+
+            
+            
+            // const response = await streamLLMResponse(prompt, {
+            //     storyIdea: story?.projectDescription,
+            //     introduceProtagonistAndOrdinaryWorld: story?.storyStructure?.introductionSummary,
+            //     incitingIncident: story?.storyStructure?.incitingIncidentSummary,
+            //     firstPlotPoint: story?.storyStructure?.firstPlotPointSummary,
+            //     risingActionAndMidpoint: story?.storyStructure?.risingActionAndMidpointSummary,
+            //     pinchPointsAndSecondPlotPoint: story?.storyStructure?.pinchPointsAndSecondPlotPointSummary,
+            //     climaxAndFallingAction: story?.storyStructure?.climaxAndFallingActionSummary,    
+            //     resolution: story?.storyStructure?.resolutionSummary,                     
+            // });
+    
+            // if (!response) {
+            //     setGenerating(false);   
+            //     toast.error("Try again please");
+            //     return;
+            // }
+            // let overview:string = ``;
+            // for await (const chunk of response) {
+            //     overview += chunk;   
+            //     setStoryOverview(overview);                     
+            // }
+
+            // await updateStory(overview);
         } catch (error) {
             console.error(error);            
         }finally{
@@ -539,13 +606,16 @@ const ProjectSummaryPage = () => {
             return;
         }
         
+        console.log({overview});
         let payload = storyOverview !== "" && storyOverview ? storyOverview : overview;
+        console.log({payload});
 
         try {
             showPageLoader();
-            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${storyId}`, 
+            
+            const updated = await axiosInterceptorInstance.put(`/stories/update-overview/${storyId}`, 
                 {
-                    overview: payload,
+                    overview: overview,
                     isFree, 
                     price
                 }
