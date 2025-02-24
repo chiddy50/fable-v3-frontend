@@ -590,7 +590,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<Props> = ({
     const moveToChapter6 = async () => {
         
         if (!pinchPointsAndSecondPlotPointSummary) {            
-            await analyzeStory(false)
+            await analyzeStory2(false)
         }
         moveToNext(6)
     }

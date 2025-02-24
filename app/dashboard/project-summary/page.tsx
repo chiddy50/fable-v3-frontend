@@ -663,6 +663,42 @@ const ProjectSummaryPage = () => {
         // }
     }
 
+    const getCharacters = async () => {
+        try {
+            let apiKey = "luma-47f9b666-42ee-42fe-9cdc-55d08f84e454-a6e65ec6-deb8-444d-a746-86d5dfe11da6"
+
+            const response = await fetch(`https://api.lumalabs.ai/dream-machine/v1/generations/03c48c13-5f40-4044-89c7-429049d01328`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                }
+            });
+            
+            // const response = await fetch("https://api.lumalabs.ai/dream-machine/v1/generations", {                
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'Authorization': `Bearer ${apiKey}`,
+            //     },
+            //     body: JSON.stringify({
+            //         generation_type: 'video',
+            //         prompt: 'A serene lake surrounded by mountains at sunset',
+            //         aspect_ratio: '16:9',
+            //         model: 'ray-2'
+            //     })
+            // });
+            console.log(response);    
+            
+            const json = await response.json();
+            console.log(json);
+            
+            
+        } catch (error) {
+            console.log(error);            
+        }
+    }
+
     return (
         <div>
             
@@ -682,7 +718,7 @@ const ProjectSummaryPage = () => {
                 <Link href={`/dashboard/refine-story?story-id=${storyId}`}>
                     <Button size='sm' variant="outline">Return</Button>
                 </Link>
-                {/* <Button size='sm'>View Chapters</Button> */}
+                {/* <Button size='sm' onClick={getCharacters}>View Chapters</Button> */}
                 
             </div>
 
@@ -726,7 +762,7 @@ const ProjectSummaryPage = () => {
                         </div> */}
                             
                         {
-                            // !storyData?.introductionImage && (storyData?.imageStatus === null || storyData?.imageStatus === "error") &&
+                            !storyData?.introductionImage && (storyData?.imageStatus === null || storyData?.imageStatus === "error") &&
                             <Button onClick={generateBanner} size="sm">Generate Banner</Button>
                         }
 
