@@ -4,7 +4,7 @@ import { StoryInterface } from '@/interfaces/StoryInterface';
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button';
 import { ArrowLeft, ArrowRight, Cog, Lock } from 'lucide-react';
-import { extractTemplatePrompts, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
+import { extractTemplatePrompts, makeChapterAnalysisRequest, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
 import { toast } from 'sonner';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
 import {
@@ -233,33 +233,75 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
             `;
             
             setGenerating(true);
-            const response = await streamLLMResponse(prompt, {
-                storyIdea: projectDescription,
-                genre: genrePrompt,
-                tones: tonePrompt,
-                setting: settingPrompt,
-                protagonists: protagonistSuggestionsPrompt,
-                introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary
+
+            const response = await fetch('/api/stream-llm-response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    payload: {
+                        storyIdea: projectDescription,
+                        genre: genrePrompt,
+                        tones: tonePrompt,
+                        setting: settingPrompt,
+                        protagonists: protagonistSuggestionsPrompt,
+                        introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary
+                    },
+                }),
             });
 
-            if (!response) {
+            if (!response?.body) {
                 setGenerating(false);   
+                console.error("No stream found");
                 toast.error("Try again please");
                 return;
             }
-            scrollToBottom()
-    
-            let chapter = ``;
-            for await (const chunk of response) {
-                // scrollToBottom()
-                chapter += chunk;   
-                setIncitingIncident(chapter);         
-            }
             
+            let chapter = ``;
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let done = false;
+    
+            while (!done) {
+                const { value, done: doneReading } = await reader.read();
+                done = doneReading;
+                const chunk = decoder.decode(value);
+                chapter += chunk;   
+                setIncitingIncident(chapter);
+            }
             scrollToBottom();
 
             await saveGeneration(chapter)
-            // await analyzeStory(chapter)
+                        
+                  
+            // const response = await streamLLMResponse(prompt, {
+            //     storyIdea: projectDescription,
+            //     genre: genrePrompt,
+            //     tones: tonePrompt,
+            //     setting: settingPrompt,
+            //     protagonists: protagonistSuggestionsPrompt,
+            //     introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary
+            // });
+
+            // if (!response) {
+            //     setGenerating(false);   
+            //     toast.error("Try again please");
+            //     return;
+            // }
+            // scrollToBottom()
+    
+            // let chapter = ``;
+            // for await (const chunk of response) {
+            //     // scrollToBottom()
+            //     chapter += chunk;   
+            //     setIncitingIncident(chapter);         
+            // }
+            
+            // scrollToBottom();
+
+            // await saveGeneration(chapter)
+            // // await analyzeChapter(chapter)
 
         } catch (error) {
             console.error(error);            
@@ -302,35 +344,79 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
             
             setGenerating(true);
             setModifyModalOpen(false);
-            const response = await streamLLMResponse(prompt, {
-                storyIdea: projectDescription,
-                introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
-                typeOfEvent,
-                causeOfTheEvent,
-                stakesAndConsequences,
-                incitingIncidentSetting: incitingIncidentSetting.join(", "),
-                incitingIncidentTone: incitingIncidentTone.join(", "),
-                incitingIncidentExtraDetails,
-                genre: genrePrompt, 
-                incitingIncident,
-                protagonist: protagonistSuggestionsPrompt
+
+            const response = await fetch('/api/stream-llm-response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    payload: {
+                        storyIdea: projectDescription,
+                        introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+                        typeOfEvent,
+                        causeOfTheEvent,
+                        stakesAndConsequences,
+                        incitingIncidentSetting: incitingIncidentSetting.join(", "),
+                        incitingIncidentTone: incitingIncidentTone.join(", "),
+                        incitingIncidentExtraDetails,
+                        genre: genrePrompt, 
+                        incitingIncident,
+                        protagonist: protagonistSuggestionsPrompt
+                    },
+                }),
             });
 
-            if (!response) {
-                setGenerating(false);
+            if (!response?.body) {
+                setGenerating(false);   
                 toast.error("Try again please");
                 return;
             }
     
-            scrollToBottom();
             let text = ``;
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let done = false;
+    
             setIncitingIncident('')
-            for await (const chunk of response) {
+            while (!done) {
+                const { value, done: doneReading } = await reader.read();
+                done = doneReading;
+                const chunk = decoder.decode(value);
                 text += chunk;   
-                setIncitingIncident(text);    
-                scrollToBottom();
+                setIncitingIncident(text);
             }
             scrollToBottom();
+
+            // const response = await streamLLMResponse(prompt, {
+            //     storyIdea: projectDescription,
+            //     introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+            //     typeOfEvent,
+            //     causeOfTheEvent,
+            //     stakesAndConsequences,
+            //     incitingIncidentSetting: incitingIncidentSetting.join(", "),
+            //     incitingIncidentTone: incitingIncidentTone.join(", "),
+            //     incitingIncidentExtraDetails,
+            //     genre: genrePrompt, 
+            //     incitingIncident,
+            //     protagonist: protagonistSuggestionsPrompt
+            // });
+
+            // if (!response) {
+            //     setGenerating(false);
+            //     toast.error("Try again please");
+            //     return;
+            // }
+    
+            // scrollToBottom();
+            // let text = ``;
+            // setIncitingIncident('')
+            // for await (const chunk of response) {
+            //     text += chunk;   
+            //     setIncitingIncident(text);    
+            //     scrollToBottom();
+            // }
+            // scrollToBottom();
 
         } catch (error) {
             console.error(error);    
@@ -340,7 +426,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
         }
     }
     
-    const analyzeStory = async (showModal = true) => {
+    const analyzeChapter = async (showModal = true) => {
         try {
             const data = incitingIncident
             if (!data) {
@@ -383,13 +469,22 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
 
             showPageLoader();
 
-            const parser = new JsonOutputParser<ChapterAnalysis>();
-
-            const response = await queryStructuredLLM(prompt, {
+            const payload = {
                 introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
                 incitingIncident: incitingIncident,
                 storyIdea: projectDescription,
-            }, parser);
+            }
+            let res = await makeChapterAnalysisRequest(2, prompt, payload);
+            
+            let response = res?.data;
+
+            // const parser = new JsonOutputParser<ChapterAnalysis>();
+
+            // const response = await queryStructuredLLM(prompt, {
+            //     introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+            //     incitingIncident: incitingIncident,
+            //     storyIdea: projectDescription,
+            // }, parser);
 
             if (!response) {
                 toast.error("Try again please");
@@ -417,11 +512,12 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
     const saveAnalysis = async (payload) => {
         if (payload) {                
             const suggestedCharacters = setSupportingCharacters();
-            console.log({suggestedCharacters});
+            console.log({suggestedCharacters, payload});
             // return;
 
             // save data
-            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+            // const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+            const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/chapters/chapter-two/${initialStory?.id}`, 
                 {
                     storyId: initialStory?.id,
                     typeOfEvent: payload?.typeOfEvent,                    
@@ -431,7 +527,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
                     incitingIncidentTone: payload?.tone,
                     incitingIncidentSummary: payload?.summary,
                     incitingIncident,
-                    suggestedCharacters  
+                    suggestedCharacters: payload?.charactersInvolved  
                 }
             );
 
@@ -444,8 +540,10 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
 
     const saveGeneration = async (data: string) => {
         if (data) {                
-            const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+            // const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+            const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/chapters/chapter-two/${initialStory?.id}`, 
                 {
+                    chapter: 2,
                     storyId: initialStory?.id,
                     incitingIncident: data,
                     incitingIncidentLocked: true  
@@ -458,7 +556,8 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
         try {           
             showPageLoader();
 
-            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+            // const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+            const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/chapters/chapter-two/${initialStory?.id}`, 
                 {
                     storyId: initialStory?.id,
                     typeOfEvent,
@@ -487,7 +586,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
             return;
         }
         if (!typeOfEvent) {
-            await analyzeStory(false)
+            await analyzeChapter(false)
         }
         moveToNext(3);
     }
@@ -622,7 +721,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
                             if (incitingIncidentSummary) {
                                 setModifyModalOpen(true);
                             }else{
-                                analyzeStory()
+                                analyzeChapter()
                             }
                         }}
                         >
@@ -743,7 +842,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
                                 <Cog className='ml-2'/>
                             </Button>
                             <Button disabled={generating} 
-                            onClick={() => analyzeStory(false)}
+                            onClick={() => analyzeChapter(false)}
                             size="lg" className='border w-full '>
                                 Reanalyze
                                 <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4 ml-2' viewBox="0 0 96 96">

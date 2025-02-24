@@ -4,7 +4,7 @@ import { StoryInterface } from '@/interfaces/StoryInterface';
 import React, { useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button';
 import { ArrowLeft, ArrowRight, Cog, Lock, NotebookText } from 'lucide-react';
-import { extractTemplatePrompts, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
+import { extractTemplatePrompts, makeChapterAnalysisRequest, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
 import { toast } from 'sonner';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
 import {
@@ -131,43 +131,90 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
           **INPUT**
           story idea {storyIdea}
           Protagonists: {protagonists}
-          Tone: {tones}
-          Setting: {setting}
-          Genre: {genre}            
           `;
+          // Tone: {tones}
+          // Genre: {genre}            
+          // Setting: {setting}
           
           setGenerating(true);
-          const response = await streamLLMResponse(prompt, {
-            storyIdea: projectDescription,
-            genre: genrePrompt,
-            tones: tonePrompt,
-            setting: settingPrompt,
-            protagonists: protagonistSuggestionsPrompt,
-            introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary,
-            incitingIncident: initialStory?.storyStructure?.incitingIncidentSummary,                
-            firstPlotPoint: initialStory?.storyStructure?.firstPlotPointSummary,     
-            risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpointSummary,   
-            pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPointSummary,          
-            climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingActionSummary,                                     
+          const response = await fetch('/api/stream-llm-response', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prompt: prompt,
+                payload: {
+                  storyIdea: projectDescription,
+                  // genre: genrePrompt,
+                  // tones: tonePrompt,
+                  // setting: settingPrompt,
+                  protagonists: protagonistSuggestionsPrompt,
+                  introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary,
+                  incitingIncident: initialStory?.storyStructure?.incitingIncidentSummary,                
+                  firstPlotPoint: initialStory?.storyStructure?.firstPlotPointSummary,     
+                  risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpointSummary,   
+                  pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPointSummary,          
+                  climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingActionSummary,    
+                },
+            }),
           });
 
-          if (!response) {
-              setGenerating(false);   
-              toast.error("Try again please");
-              return;
-          }
-          scrollToBottom()
-  
-          let chapter = ``;
-          for await (const chunk of response) {
-              scrollToBottom()
-              chapter += chunk;   
-              setResolution(chapter);         
+          if (!response?.body) {
+            setGenerating(false);   
+            toast.error("Try again please");
+            return;
           }
           
-          scrollToBottom()
-          await saveGeneration(chapter)
+          let chapter = ``;
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder("utf-8");
+          let done = false;
+  
+          setResolution("");
+          while (!done) {
+            const { value, done: doneReading } = await reader.read();
+            done = doneReading;
+            const chunk = decoder.decode(value);
+            chapter += chunk;   
+            setResolution(chapter);
+          }
+
+          scrollToBottom();
+
+          await saveGeneration(chapter);
           await analyzeStory(chapter)
+
+          // const response = await streamLLMResponse(prompt, {
+          //   storyIdea: projectDescription,
+          //   genre: genrePrompt,
+          //   tones: tonePrompt,
+          //   setting: settingPrompt,
+          //   protagonists: protagonistSuggestionsPrompt,
+          //   introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary,
+          //   incitingIncident: initialStory?.storyStructure?.incitingIncidentSummary,                
+          //   firstPlotPoint: initialStory?.storyStructure?.firstPlotPointSummary,     
+          //   risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpointSummary,   
+          //   pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPointSummary,          
+          //   climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingActionSummary,                                     
+          // });
+
+          // if (!response) {
+          //     setGenerating(false);   
+          //     toast.error("Try again please");
+          //     return;
+          // }
+          // scrollToBottom()
+  
+          // let chapter = ``;
+          // for await (const chunk of response) {
+          //     scrollToBottom()
+          //     chapter += chunk;   
+          //     setResolution(chapter);         
+          // }
+          
+          // scrollToBottom()
+          // await saveGeneration(chapter)
+          // await analyzeStory(chapter)
 
       } catch (error) {
           console.error(error);            
@@ -216,40 +263,89 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
             
             setGenerating(true);
             setModifyModalOpen(false);
-            const response = await streamLLMResponse(prompt, {
-              storyIdea: projectDescription,
-              introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary,
-              incitingIncident: initialStory?.storyStructure?.incitingIncidentSummary,
-              firstPlotPoint: initialStory?.storyStructure?.firstPlotPointSummary,
-              risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpointSummary,
-              pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPointSummary,
-              climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingActionSummary,
-              resolution,
-              climaxConsequences,
-              howCharactersEvolve,
-              resolutionOfConflict,
-              setting: resolutionSetting.join(", "),
-              tone: resolutionTone.join(", "),
-              extraDetails: resolutionExtraDetails,
-              genre: genrePrompt, 
-              protagonist: protagonistSuggestionsPrompt
+
+            const response = await fetch('/api/stream-llm-response', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                prompt: prompt,
+                payload: {
+                  storyIdea: projectDescription,
+                  introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary,
+                  incitingIncident: initialStory?.storyStructure?.incitingIncidentSummary,
+                  firstPlotPoint: initialStory?.storyStructure?.firstPlotPointSummary,
+                  risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpointSummary,
+                  pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPointSummary,
+                  climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingActionSummary,
+                  resolution,
+                  climaxConsequences,
+                  howCharactersEvolve,
+                  resolutionOfConflict,
+                  setting: resolutionSetting.join(", "),
+                  tone: resolutionTone.join(", "),
+                  extraDetails: resolutionExtraDetails,
+                  genre: genrePrompt, 
+                  protagonist: protagonistSuggestionsPrompt
+                },
+              }),
             });
 
-            if (!response) {
-              setGenerating(false);
-              toast.error("Try again please");
-              return;
+            if (!response?.body) {
+                setGenerating(false);   
+                toast.error("Try again please");
+                return;
             }
-    
-            scrollToBottom();
+  
             let text = ``;
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let done = false;
+    
             setResolution('')
-            for await (const chunk of response) {
-              text += chunk;   
-              setResolution(text);    
-              scrollToBottom();
+            while (!done) {
+                const { value, done: doneReading } = await reader.read();
+                done = doneReading;
+                const chunk = decoder.decode(value);
+                text += chunk;   
+                setResolution(text);
             }
             scrollToBottom();
+
+            // const response = await streamLLMResponse(prompt, {
+            //   storyIdea: projectDescription,
+            //   introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary,
+            //   incitingIncident: initialStory?.storyStructure?.incitingIncidentSummary,
+            //   firstPlotPoint: initialStory?.storyStructure?.firstPlotPointSummary,
+            //   risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpointSummary,
+            //   pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPointSummary,
+            //   climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingActionSummary,
+            //   resolution,
+            //   climaxConsequences,
+            //   howCharactersEvolve,
+            //   resolutionOfConflict,
+            //   setting: resolutionSetting.join(", "),
+            //   tone: resolutionTone.join(", "),
+            //   extraDetails: resolutionExtraDetails,
+            //   genre: genrePrompt, 
+            //   protagonist: protagonistSuggestionsPrompt
+            // });
+
+            // if (!response) {
+            //   setGenerating(false);
+            //   toast.error("Try again please");
+            //   return;
+            // }
+    
+            // scrollToBottom();
+            // let text = ``;
+            // setResolution('')
+            // for await (const chunk of response) {
+            //   text += chunk;   
+            //   setResolution(text);    
+            //   scrollToBottom();
+            // }
+            // scrollToBottom();
 
         } catch (error) {
           console.error(error);    
@@ -265,7 +361,6 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
         return;
       }
       try {
-
 
         const prompt = `
         You are a professional storyteller, author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic.                                
@@ -294,8 +389,9 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
         howCharactersEvolve(string, this refers to the answer to the question, How do the characters evolve or change?),            
         resolutionOfConflict(string, this refers to the answer to the question, What is the new status quo or resolution of the conflict?),            
         tone(array of strings),
+        charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the resolution),            
         setting(array of strings).                        
-        Please ensure the only keys in the object are summary, climaxConsequences, howCharactersEvolve, resolutionOfConflict, tone and setting keys only.
+        Please ensure the only keys in the object are summary, climaxConsequences, howCharactersEvolve, charactersInvolved, resolutionOfConflict, tone and setting keys only.
         Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
 
         Ensure the summary contains all the events step by step as they occurred and the summary must also contain the characters and the impacts they have had on each other.
@@ -304,13 +400,23 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
         Resolution & Epilogue: {resolution}.
         story idea {storyIdea}
         `;
-        // charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the inciting incident),            
 
         showPageLoader();
 
-        const parser = new JsonOutputParser<ResolutionChapterAnalysis>();
+        // const parser = new JsonOutputParser<ResolutionChapterAnalysis>();
 
-        const response = await queryStructuredLLM(prompt, {
+        // const response = await queryStructuredLLM(prompt, {
+        //   introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary,
+        //   incitingIncident: initialStory?.storyStructure?.incitingIncidentSummary,
+        //   firstPlotPoint: initialStory?.storyStructure?.firstPlotPointSummary,
+        //   risingActionAndMidpoint: initialStory?.storyStructure?.risingActionAndMidpointSummary,
+        //   pinchPointsAndSecondPlotPoint: initialStory?.storyStructure?.pinchPointsAndSecondPlotPointSummary,
+        //   climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingActionSummary,
+        //   resolution: chapter ?? resolution,
+        //   storyIdea: projectDescription,
+        // }, parser);
+
+        const payload = {
           introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introductionSummary,
           incitingIncident: initialStory?.storyStructure?.incitingIncidentSummary,
           firstPlotPoint: initialStory?.storyStructure?.firstPlotPointSummary,
@@ -319,7 +425,10 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
           climaxAndFallingAction: initialStory?.storyStructure?.climaxAndFallingActionSummary,
           resolution: chapter ?? resolution,
           storyIdea: projectDescription,
-        }, parser);
+        }
+
+        let res = await makeChapterAnalysisRequest(7, prompt, payload);            
+        let response = res?.data;
 
         if (!response) {
             toast.error("Try again please");
@@ -344,11 +453,20 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
       }
     }
 
-    const saveAnalysis = async (payload) => {
+    const saveAnalysis = async (payload: {
+      climaxConsequences: string,
+      howCharactersEvolve: string,
+      resolutionOfConflict: string,
+      setting: string[],
+      charactersInvolved: any[],
+      tone: string[],
+      summary: string,
+  }) => {
       if (payload) {                
           // save data
 
-        const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+        // const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+        const updated = await axiosInterceptorInstance.put(`/chapters/chapter-seven/${initialStory?.id}`, 
           {
             storyId: initialStory?.id,
             climaxConsequences: payload?.climaxConsequences,
@@ -358,7 +476,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
             resolutionTone: payload?.tone,
             resolutionSummary: payload?.summary,
             resolution,
-            // resolutionCharacters: payload?.charactersInvolved,
+            resolutionCharacters: payload?.charactersInvolved,
           }
         );
 
@@ -372,7 +490,8 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
     const lockChapter = async () => {
         try {           
             showPageLoader();
-            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+            // const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+            const updated = await axiosInterceptorInstance.put(`/chapters/chapter-seven/${initialStory?.id}`, 
               {
                 storyId: initialStory?.id,
                 climaxConsequences,
@@ -399,7 +518,8 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
 
     const saveGeneration = async (data: string) => {
       if (data) {                
-          const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+          // const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+          const updated = await axiosInterceptorInstance.put(`/chapters/chapter-seven/${initialStory?.id}`, 
             {
               storyId: initialStory?.id,
               resolution: data,

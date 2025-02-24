@@ -1,10 +1,11 @@
 "use client";
 
+// CHAPTER 3
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button';
 import { ArrowLeft, ArrowRight, Cog, Lock } from 'lucide-react';
-import { extractTemplatePrompts, getFirstPlotPointAnalysis, getFirstPlotPointSummaryChain, getIncitingIncidentSummary, getIntroductionSummary, modelInstance, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
+import { extractTemplatePrompts, getFirstPlotPointAnalysis, getFirstPlotPointSummaryChain, getIncitingIncidentSummary, getIntroductionSummary, makeChapterAnalysisRequest, modelInstance, queryLLM, queryStructuredLLM, streamLLMResponse } from '@/services/LlmQueryHelper';
 import { toast } from 'sonner';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
 import {
@@ -133,34 +134,76 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
             `;
             
             setGenerating(true);
-            const response = await streamLLMResponse(prompt, {
-                storyIdea: projectDescription,
-                genre: genrePrompt,
-                tones: tonePrompt,
-                setting: settingPrompt,
-                protagonists: protagonistSuggestionsPrompt,
-                introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
-                incitingIncident: initialStory?.storyStructure?.incitingIncident,                
+
+            const response = await fetch('/api/stream-llm-response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    payload: {
+                        storyIdea: projectDescription,
+                        genre: genrePrompt,
+                        tones: tonePrompt,
+                        setting: settingPrompt,
+                        protagonists: protagonistSuggestionsPrompt,
+                        introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+                        incitingIncident: initialStory?.storyStructure?.incitingIncident, 
+                    },
+                }),
             });
 
-            if (!response) {
+            if (!response?.body) {
                 setGenerating(false);   
+                console.error("No stream found");
                 toast.error("Try again please");
                 return;
             }
-            scrollToBottom()
-    
-            let chapter = ``;
-            for await (const chunk of response) {
-                scrollToBottom()
-                chapter += chunk;   
-                setFirstPlotPoint(chapter);         
-            }
             
+            let chapter = ``;
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let done = false;
+    
+            while (!done) {
+                const { value, done: doneReading } = await reader.read();
+                done = doneReading;
+                const chunk = decoder.decode(value);
+                chapter += chunk;   
+                setFirstPlotPoint(chapter);
+            }
             scrollToBottom();
 
             await saveGeneration(chapter)
-            // await analyzeStory(chapter)
+                                    
+            // const response = await streamLLMResponse(prompt, {
+            //     storyIdea: projectDescription,
+            //     genre: genrePrompt,
+            //     tones: tonePrompt,
+            //     setting: settingPrompt,
+            //     protagonists: protagonistSuggestionsPrompt,
+            //     introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+            //     incitingIncident: initialStory?.storyStructure?.incitingIncident,                
+            // });
+
+            // if (!response) {
+            //     setGenerating(false);   
+            //     toast.error("Try again please");
+            //     return;
+            // }
+            // scrollToBottom()
+    
+            // let chapter = ``;
+            // for await (const chunk of response) {
+            //     scrollToBottom()
+            //     chapter += chunk;   
+            //     setFirstPlotPoint(chapter);         
+            // }
+            
+            // scrollToBottom();
+
+            // await saveGeneration(chapter)
+            // // await analyzeStory(chapter)
 
         } catch (error) {
             console.error(error);            
@@ -205,36 +248,81 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
             
             setGenerating(true);
             setModifyModalOpen(false);
-            const response = await streamLLMResponse(prompt, {
-                storyIdea: projectDescription,
-                introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
-                incitingIncident: initialStory?.storyStructure?.incitingIncident,
-                protagonistGoal,
-                protagonistTriggerToAction,
-                obstaclesProtagonistWillFace,
-                firstPlotPointSetting: firstPlotPointSetting.join(", "),
-                firstPlotPointTone: firstPlotPointTone.join(", "),
-                firstPlotPointExtraDetails,
-                genre: genrePrompt, 
-                firstPlotPoint,
-                protagonist: protagonistSuggestionsPrompt
+            
+            const response = await fetch('/api/stream-llm-response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    payload: {
+                        storyIdea: projectDescription,
+                        introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+                        incitingIncident: initialStory?.storyStructure?.incitingIncident,
+                        protagonistGoal,
+                        protagonistTriggerToAction,
+                        obstaclesProtagonistWillFace,
+                        firstPlotPointSetting: firstPlotPointSetting.join(", "),
+                        firstPlotPointTone: firstPlotPointTone.join(", "),
+                        firstPlotPointExtraDetails,
+                        genre: genrePrompt, 
+                        firstPlotPoint,
+                        protagonist: protagonistSuggestionsPrompt
+                    },
+                }),
             });
 
-            if (!response) {
-                setGenerating(false);
+            if (!response?.body) {
+                setGenerating(false);   
                 toast.error("Try again please");
                 return;
             }
     
-            scrollToBottom();
             let text = ``;
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let done = false;
+    
             setFirstPlotPoint('')
-            for await (const chunk of response) {
+            while (!done) {
+                const { value, done: doneReading } = await reader.read();
+                done = doneReading;
+                const chunk = decoder.decode(value);
                 text += chunk;   
-                setFirstPlotPoint(text);    
-                scrollToBottom();
+                setFirstPlotPoint(text);
             }
             scrollToBottom();
+
+            // const response = await streamLLMResponse(prompt, {
+            //     storyIdea: projectDescription,
+            //     introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+            //     incitingIncident: initialStory?.storyStructure?.incitingIncident,
+            //     protagonistGoal,
+            //     protagonistTriggerToAction,
+            //     obstaclesProtagonistWillFace,
+            //     firstPlotPointSetting: firstPlotPointSetting.join(", "),
+            //     firstPlotPointTone: firstPlotPointTone.join(", "),
+            //     firstPlotPointExtraDetails,
+            //     genre: genrePrompt, 
+            //     firstPlotPoint,
+            //     protagonist: protagonistSuggestionsPrompt
+            // });
+
+            // if (!response) {
+            //     setGenerating(false);
+            //     toast.error("Try again please");
+            //     return;
+            // }
+    
+            // scrollToBottom();
+            // let text = ``;
+            // setFirstPlotPoint('')
+            // for await (const chunk of response) {
+            //     text += chunk;   
+            //     setFirstPlotPoint(text);    
+            //     scrollToBottom();
+            // }
+            // scrollToBottom();
 
         } catch (error) {
             console.error(error);    
@@ -289,14 +377,24 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
 
             showPageLoader();
 
-            const parser = new JsonOutputParser<FirstPlotPointChapterAnalysis>();
-
-            const response = await queryStructuredLLM(prompt, {
+            const payload = {
                 introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
                 incitingIncident: initialStory?.storyStructure?.incitingIncident,
                 firstPlotPoint: firstPlotPoint,
                 storyIdea: projectDescription,
-            }, parser);
+            }
+            let res = await makeChapterAnalysisRequest(3, prompt, payload);
+            
+            let response = res?.data;
+            
+            // const parser = new JsonOutputParser<FirstPlotPointChapterAnalysis>();
+
+            // const response = await queryStructuredLLM(prompt, {
+            //     introduceProtagonistAndOrdinaryWorld: initialStory?.storyStructure?.introduceProtagonistAndOrdinaryWorld,
+            //     incitingIncident: initialStory?.storyStructure?.incitingIncident,
+            //     firstPlotPoint: firstPlotPoint,
+            //     storyIdea: projectDescription,
+            // }, parser);
 
             if (!response) {
                 toast.error("Try again please");
@@ -312,7 +410,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
 
             let saved = await saveAnalysis(response);
             
-            if (showModal)  setModifyModalOpen(true);
+            if (showModal) setModifyModalOpen(true);
 
         } catch (error) {
             console.error(error);            
@@ -387,7 +485,8 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
 
     const saveGeneration = async (data: string) => {
         if (data) {                
-            const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+            // const updated = await axiosInterceptorInstance.put(`/stories/structure/${initialStory?.id}`, 
+            const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/chapters/chapter-three/${initialStory?.id}`, 
                 {
                     storyId: initialStory?.id,
                     firstPlotPoint: data,
@@ -404,7 +503,8 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
             // return;
 
             // save data
-            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+            // const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+            const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/chapters/chapter-three/${initialStory?.id}`, 
                 {
                     storyId: initialStory?.id,
                     protagonistGoal: payload?.protagonistGoal,                    
@@ -416,8 +516,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                     firstPlotPointSummary: payload?.summary,
                     firstPlotPoint,
                     firstPlotPointLocked: true,
-                    suggestedCharacters  
-
+                    suggestedCharacters: payload?.charactersInvolved  
                 }
             );
 
@@ -431,7 +530,8 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
     const lockChapter = async () => {
         try {           
             showPageLoader();
-            const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+            // const updated = await axiosInterceptorInstance.put(`/stories/build-from-scratch/${initialStory?.id}`, 
+            const updated = await axiosInterceptorInstance.put(`${process.env.NEXT_PUBLIC_BASE_URL}/chapters/chapter-three/${initialStory?.id}`, 
                 {
                     storyId: initialStory?.id,
                     protagonistGoal,                    
@@ -520,7 +620,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                     <ArrowLeft />
                 </Button>
                 
-                <Button size="icon" onClick={moveToChapter4} disabled={generating}>
+                <Button size="icon" onClick={moveToChapter4} disabled={generating || !firstPlotPoint}>
                     <ArrowRight />
                 </Button>
             </div>
@@ -533,12 +633,14 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                     disabled={generating}                            
                     size="sm" onClick={generateFirstPlotPoint}>
                         Generate
-                        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96" preserveAspectRatio="xMidYMid meet">
+                        {!generating && <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" className='w-4 h-4' viewBox="0 0 96 96" preserveAspectRatio="xMidYMid meet">
                             <g transform="translate(0,96) scale(0.1,-0.1)" fill="#FFFFFF" stroke="none">
                                 <path d="M693 883 c-29 -86 -40 -99 -97 -123 -75 -30 -74 -54 3 -82 50 -19 55 -24 79 -80 33 -76 56 -76 84 1 19 50 24 55 80 79 76 33 76 56 -1 84 -50 19 -55 24 -79 79 -26 61 -56 79 -69 42z m45 -108 c7 -14 23 -30 37 -37 14 -6 25 -14 25 -18 0 -4 -11 -12 -25 -18 -14 -7 -30 -23 -37 -37 -14 -31 -22 -31 -36 0 -7 14 -23 30 -37 37 -14 6 -25 14 -25 18 0 4 11 12 25 18 14 7 30 23 37 37 6 14 14 25 18 25 4 0 12 -11 18 -25z"/>
                                 <path d="M243 740 c-82 -9 -126 -31 -155 -78 -46 -75 -47 -444 -2 -522 42 -70 128 -90 394 -90 267 0 352 20 394 91 23 39 43 253 32 342 -7 52 -10 58 -29 55 -21 -3 -22 -8 -27 -178 -7 -261 9 -250 -370 -250 -385 0 -370 -12 -370 290 0 154 3 199 16 225 23 49 65 65 172 65 103 0 122 5 122 30 0 31 -32 35 -177 20z"/>
                             </g>
-                        </svg>
+                        </svg>}
+                        {generating && <i className='bx bx-loader-alt bx-spin text-white text-lg' ></i>}
+
                     </Button>
                 }
                 

@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { JsonOutputParser } from "@langchain/core/output_parsers";
 import { RunnableSequence, RunnablePassthrough } from "@langchain/core/runnables"
 import { ClimaxAndFallingActionChapterAnalysis, FirstPlotPointChapterAnalysis, PinchPointsAndSecondPlotPointChapterAnalysis, ResolutionChapterAnalysis, RisingActionChapterAnalysis } from "@/interfaces/CreateStoryInterface";
+import axios from "axios";
 
 const llm = new ChatGroq({
    apiKey: process.env.NEXT_PUBLIC_GROQ_JSONOUTPUT_API_KEY,
@@ -61,8 +62,8 @@ export const queryStructuredLLM = async (prompt: string, payload: object, parser
       });
   
       const startingPrompt = ChatPromptTemplate.fromMessages([
-          ["system", "You are a professional storyteller, author and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also an expert at answering any question directly even if its not related to storytelling. And you always follow instruction"],
-          ["human", prompt],
+         ["system", "You are a professional storyteller, author and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also an expert at answering any question directly even if its not related to storytelling. And you always follow instruction"],
+         ["human", prompt],
       ]);
   
       let chain = startingPrompt.pipe(llm).pipe(parser);               
@@ -103,6 +104,22 @@ export const streamLLMResponse = async (prompt: string, payload: object) => {
    }
 }
 
+export const makeChapterAnalysisRequest = async (chapter: number, prompt: string, payload) => {
+   let res = await axios.post(`/api/analyze-chapter`,
+      { 
+         chapter,
+         prompt, 
+         payload
+      }, 
+      {                    
+         headers: {
+            'Content-Type': 'application/json'
+         },                
+      }
+   );
+   return res;
+}
+ 
 export const extractTemplatePrompts = (story: StoryInterface) => {
    const tonePrompt                     = story?.introductionTone?.map(tone => tone?.value)?.join(', ');
    const settingPrompt                     = story?.introductionSetting?.map(setting => setting?.value)?.join(', ');
