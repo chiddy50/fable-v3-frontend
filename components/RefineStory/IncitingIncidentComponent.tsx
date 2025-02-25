@@ -443,6 +443,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
             Here is the Story Introduction {introduceProtagonistAndOrdinaryWorld}. Here is the Inciting Incident {incitingIncident}.
 
             Return your response in a json or javascript object format like: 
+            scenes(array of objects with keys like title(string), setting(string), description(string, make this very descriptive for a scene), order(number, this is the order in which the scene occurs) charactersInvolved(array of objects with keys like name(string), roleInScene(string), relationshipToProtagonist(string))),
             summary(string, this is a summary of the events in the inciting incident section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),
             charactersInvolved(array of objects with keys like name(string), age(string), backstory(string), role(string), clothDescription(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), weight(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToProtagonists(array of object with keys like protagonistName(string) & relationship(string)) )
             tone(array of strings),
@@ -455,7 +456,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
             suspenseTechnique(array of string),
             moodAndAtmosphere(array of string),
             setting(array of strings).                        
-            Please ensure the only keys in the object are summary, charactersInvolved, tone, genre, typeOfEvent, causeOfTheEvent, stakesAndConsequences, suspenseTechnique, mysteryOrSurprise, thematicElement, moodAndAtmosphere, plotTwist and setting keys only.
+            Please ensure the only keys in the object are summary, scenes, charactersInvolved, tone, genre, typeOfEvent, causeOfTheEvent, stakesAndConsequences, suspenseTechnique, mysteryOrSurprise, thematicElement, moodAndAtmosphere, plotTwist and setting keys only.
             Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
 
             charactersInvolved are the characters involved in this chapter except the protagonist.
@@ -526,6 +527,7 @@ const IncitingIncidentComponent: React.FC<IncitingIncidentComponentProps> = ({
                     incitingIncidentSetting: payload?.setting,                    
                     incitingIncidentTone: payload?.tone,
                     incitingIncidentSummary: payload?.summary,
+                    scenes: payload?.scenes,
                     incitingIncident,
                     suggestedCharacters: payload?.charactersInvolved  
                 }

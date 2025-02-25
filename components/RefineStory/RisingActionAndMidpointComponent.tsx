@@ -358,7 +358,8 @@ const RisingActionAndMidpointComponent: React.FC<Props> = ({
 
             Return your response in a json or javascript object format like: 
             summary(string, this is a summary of the events in the Rising Action & Midpoint section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),
-            charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the rising action & midpoint),
+            scenes(array of objects with keys like title(string), description(string: make this very descriptive &detailed for whats happening a scene), order(number, this is the order in which the scene occurs) charactersInvolved(array of objects with keys like name(string), roleInScene(string), relationshipToProtagonist(string))),
+            charactersInvolved(array of objects with keys name(string), backstory(string), setting(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the rising action & midpoint),
             challengesProtagonistFaces(string, this refers to the answer to the question, What challenges does the protagonist face on their journey?),            
             protagonistPerspectiveChange(string, this refers to the answer to the question, How does the protagonist's perspective change through these challenges?),            
             majorEventPropellingClimax(string, this refers to the answer to the question, What major event pushes the protagonist towards the climax?),            
@@ -503,6 +504,7 @@ const RisingActionAndMidpointComponent: React.FC<Props> = ({
         summary: string,
         charactersInvolved: any[],
         setting: string[],
+        scenes: [],
         tone: string[],
     }) => {
         if (payload) {                
@@ -518,6 +520,7 @@ const RisingActionAndMidpointComponent: React.FC<Props> = ({
                     risingActionAndMidpointSetting: payload?.setting,                    
                     risingActionAndMidpointTone: payload?.tone,
                     risingActionAndMidpointSummary: payload?.summary,
+                    scenes: payload?.scenes,
                     risingActionAndMidpoint,
                 }
             );

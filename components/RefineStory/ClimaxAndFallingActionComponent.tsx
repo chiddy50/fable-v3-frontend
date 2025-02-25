@@ -548,13 +548,14 @@ const ClimaxAndFallingActionComponent: React.FC<Props> = ({
 
             Return your response in a json or javascript object format like: 
             summary(string, this is a summary of the events in the Climax and Falling Action section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),
+            scenes(array of objects with keys like title(string), setting(string), description(string: make this very descriptive &detailed for whats happening a scene), order(number, this is the order in which the scene occurs) charactersInvolved(array of objects with keys like name(string), roleInScene(string), relationshipToProtagonist(string))),
             finalChallenge(string, this refers to the answer to the question, What is the final confrontation or challenge that the protagonist must face?),            
             challengeOutcome(string, this refers to the answer to the question, How does the protagonist overcome or succumb to the challenge?),            
             charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the rising action & midpoint),
             storyResolution(string, this refers to the answer to the question, How do the events of the climax resolve the story's conflicts and provide closure for the characters?),            
             tone(array of strings),
             setting(array of strings).                        
-            Please ensure the only keys in the object are summary, finalChallenge, challengeOutcome, storyResolution, tone and setting keys only.
+            Please ensure the only keys in the object are summary, scenes, finalChallenge, challengeOutcome, storyResolution, tone and setting keys only.
             Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
 
             Ensure the summary contains all the events step by step as they occurred and the summary must also contain the characters and the impacts they have had on each other.
@@ -693,6 +694,7 @@ const ClimaxAndFallingActionComponent: React.FC<Props> = ({
         storyResolution: string,
         setting: string[],
         charactersInvolved: any[],
+        scenes: any[],
         tone: string[],
         summary: string,
     }) => {
@@ -708,6 +710,7 @@ const ClimaxAndFallingActionComponent: React.FC<Props> = ({
                     climaxAndFallingActionSetting: payload?.setting,
                     climaxAndFallingActionTone: payload?.tone,
                     climaxAndFallingActionSummary: payload?.summary,
+                    scenes: payload?.scenes,
                     climaxAndFallingAction,
                     climaxAndFallingActionCharacters: payload?.charactersInvolved,    
                 }

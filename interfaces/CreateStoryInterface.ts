@@ -1,4 +1,5 @@
 import { SuggestedCharacterInterface } from "./CharacterInterface";
+import { SceneInterface } from "./SceneInterface";
 
 export interface GenericCharacterInterface {
     name: string;
@@ -41,6 +42,7 @@ export interface SuggestedOtherCharacterInterface extends GenericCharacterInterf
 }
 
 export interface FirstPlotPointChapterAnalysis {
+    scenes: SceneInterface[];
     summary: string;
     charactersInvolved: SuggestedOtherCharacterInterface[];
     protagonistGoal: string;
@@ -51,6 +53,7 @@ export interface FirstPlotPointChapterAnalysis {
 }
 
 export interface RisingActionChapterAnalysis {
+    scenes: SceneInterface[];
     summary: string;
     charactersInvolved: SuggestedCharacterInterface[];
     challengesProtagonistFaces: string;
@@ -61,6 +64,7 @@ export interface RisingActionChapterAnalysis {
 }
 
 export interface PinchPointsAndSecondPlotPointChapterAnalysis {
+    scenes: SceneInterface[];
     summary: string;
     newObstacles: string;
     discoveryChanges: string;
@@ -71,6 +75,7 @@ export interface PinchPointsAndSecondPlotPointChapterAnalysis {
 }
 
 export interface ClimaxAndFallingActionChapterAnalysis {
+    scenes: SceneInterface[];
     summary: string;
     finalChallenge: string;
     challengeOutcome: string;
@@ -80,6 +85,7 @@ export interface ClimaxAndFallingActionChapterAnalysis {
 }
 
 export interface ResolutionChapterAnalysis {
+    scenes: SceneInterface[];
     summary: string;
     climaxConsequences: string;
     howCharactersEvolve: string;

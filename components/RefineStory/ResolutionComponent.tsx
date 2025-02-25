@@ -385,6 +385,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
 
         Return your response in a json or javascript object format like: 
         summary(string, this is a summary of the events in the Resolution & Epilogue section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),
+        scenes(array of objects with keys like title(string), setting(string), description(string: make this very descriptive &detailed for whats happening a scene), order(number, this is the order in which the scene occurs) charactersInvolved(array of objects with keys like name(string), roleInScene(string), relationshipToProtagonist(string))),
         climaxConsequences(string, this refers to the answer to the question, What are the consequences of the climax?),            
         howCharactersEvolve(string, this refers to the answer to the question, How do the characters evolve or change?),            
         resolutionOfConflict(string, this refers to the answer to the question, What is the new status quo or resolution of the conflict?),            
@@ -459,6 +460,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
       resolutionOfConflict: string,
       setting: string[],
       charactersInvolved: any[],
+      scenes: [],
       tone: string[],
       summary: string,
   }) => {
@@ -475,6 +477,7 @@ const ResolutionComponent: React.FC<ResolutionComponentProps> = ({
             resolutionSetting: payload?.setting,
             resolutionTone: payload?.tone,
             resolutionSummary: payload?.summary,
+            scenes: payload?.scenes,
             resolution,
             resolutionCharacters: payload?.charactersInvolved,
           }

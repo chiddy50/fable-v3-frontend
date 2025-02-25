@@ -378,6 +378,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<Props> = ({
 
             **OUTPUT**
             Return your response in a json or javascript object format like: 
+            scenes(array of objects with keys like title(string), setting(string), description(string: make this very descriptive &detailed for whats happening a scene), order(number, this is the order in which the scene occurs) charactersInvolved(array of objects with keys like name(string), roleInScene(string), relationshipToProtagonist(string))),
             summary(string, this is a summary of the events in the Pinch Points & Second Plot Point section of the story, ensure the summary contains all the events sequentially including the last events leading to the next chapter),
             newObstacles(string, this refers to the answer to the question, What new obstacles challenge the protagonist?),            
             discoveryChanges(string, this refers to the answer to the question, What discovery changes what the protagonist does next?),            
@@ -385,7 +386,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<Props> = ({
             charactersInvolved(array of objects with keys name(string), backstory(string), role(string) & relationshipToProtagonist(string). These are the characters involved in the pinch point and second plot point),
             tone(array of strings),
             setting(array of strings).                        
-            Please ensure the only keys in the object are summary, newObstacles, discoveryChanges, howStakesEscalate, tone, charactersInvolved and setting keys only.
+            Please ensure the only keys in the object are summary, scenes, newObstacles, discoveryChanges, howStakesEscalate, tone, charactersInvolved and setting keys only.
             Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
 
             Ensure the summary contains all the events step by step as they occurred and the summary must also contain the characters and the impacts they have had on each other.
@@ -529,6 +530,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<Props> = ({
         howStakesEscalate: string,
         summary: string,
         setting: string[],
+        scenes: [],
         charactersInvolved?: any[],
         tone: string[],
     }) => {
@@ -544,6 +546,7 @@ const PinchPointsAndSecondPlotPointComponent: React.FC<Props> = ({
                     pinchPointsAndSecondPlotPointSetting: payload?.setting,
                     pinchPointsAndSecondPlotPointTone: payload?.tone,
                     pinchPointsAndSecondPlotPointSummary: payload?.summary,
+                    scenes: payload?.scenes,                    
                     pinchPointsAndSecondPlotPointCharacters: payload?.charactersInvolved,                                                   
                     suggestedCharacters: payload?.charactersInvolved,                                                   
                     pinchPointsAndSecondPlotPoint,

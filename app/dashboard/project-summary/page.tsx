@@ -774,7 +774,7 @@ const ProjectSummaryPage = () => {
                             
                         {
                             // !storyData?.introductionImage && (storyData?.imageStatus === null || storyData?.imageStatus === "error") &&
-                            !storyData?.introductionImage || (storyData?.imageStatus === null || storyData?.imageStatus !== "success") &&
+                            (!storyData?.introductionImage || storyData?.imageStatus !== "success") &&
                             <Button onClick={generateBanner} size="sm">Generate Banner</Button>
                         }
 
