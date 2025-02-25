@@ -246,6 +246,7 @@ const ProjectSummaryPage = () => {
             if (!prompt) {
                 return;
             }
+            console.log({prompt});
             
             showPageLoader();
             let res = await axios.post(
@@ -255,17 +256,23 @@ const ProjectSummaryPage = () => {
                     "key": process.env.NEXT_PUBLIC_STABLE_FUSION_API_KEY,
                     "model_id": "flux",
                     // "model_id": process.env.NEXT_PUBLIC_IMAGE_MODEL ?? "flux",
-                    "prompt": `ultra realistic photograph ${prompt}`,
-                    "negative_prompt": "bad quality, painting, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, deformed, ugly, blurry, bad anatomy, bad proportions, extra limbs, cloned face, skinny, glitchy, double torso, extra arms, extra hands, mangled fingers, missing lips, ugly face, distorted face, extra legs, anime",
+                    "prompt": `ultra realistic photograph 4k image, ${prompt}`,
+                    // "negative_prompt": "bad quality",
+                    "negative_prompt": "painting, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, deformed, ugly, blurry, bad anatomy, bad proportions, extra limbs, cloned face, skinny, glitchy, double torso, extra arms, extra hands, mangled fingers, missing lips, ugly face, distorted face, extra legs, anime",
                     "width": "1288",
                     "height": "768",
-                    "samples": "1",
+                    "samples": "3",
                     "num_inference_steps": "30",
                     "seed": null,
                     "guidance_scale": 7.5,
-                    "scheduler": "UniPCMultistepScheduler",
+                    // "scheduler": "UniPCMultistepScheduler",
                     "webhook": null,
-                    "track_id": null
+                    "track_id": null,
+
+                    // "width": "512",
+                    // "height": "512",
+                    "safety_checker": false,
+                    "base64":false,
                 }, 
                 {                    
                     headers: {
@@ -276,7 +283,7 @@ const ProjectSummaryPage = () => {
             console.log(res);
             console.log(res?.data?.output?.[0]);
 
-            if (res.data.status !== "success") {
+            if (res?.data?.status !== "success") {
                 // Handle failure
                 saveChapterBanner({
                     imageId: res?.data?.id?.toString(),
@@ -292,11 +299,10 @@ const ProjectSummaryPage = () => {
                 return;
             }
 
-
             await saveChapterBanner({
                 imgUrl,
                 imageStatus: res?.data?.status,
-                imageId: storyData?.imageId
+                imageId: res?.data?.id?.toString()
             });
             
         } catch (error) {
@@ -328,6 +334,7 @@ const ProjectSummaryPage = () => {
             Use the physical details to represent the character(s).
 
             Analyze the chapters one after the order and come up with a fitting movie or story banner that describes the story.
+            Ensure the description you return is summarized and short because it will be used as a prompt.
             Return a simple description that includes dynamic elements and character activity, avoiding titles, subtitles, or any unwanted symbols—just a detailed image description.
 
             **INPUT**
@@ -580,10 +587,13 @@ const ProjectSummaryPage = () => {
     }
 
     const fetchPendingImage = async () => {
+        console.log(story);
+        if (!story?.imageId) return;
+        // return
         
-        // let response = await axios.post(`https://modelslab.com/api/v6/realtime/fetch/128701514`, {
+        let response = await axios.post(`https://modelslab.com/api/v6/realtime/fetch/${story?.imageId}`, {
         // let response = await axios.post("https://modelslab.com/api/v6/images/fetch", {
-        let response = await axios.post("https://modelslab.com/api/v3/fetch/128701514", {
+        // let response = await axios.post("https://modelslab.com/api/v3/fetch/128701514", {
             "key": process.env.NEXT_PUBLIC_STABLE_FUSION_API_KEY,
             // "request_id": "128701514"
         });
@@ -763,13 +773,17 @@ const ProjectSummaryPage = () => {
                         </div> */}
                             
                         {
-                            !storyData?.introductionImage && (storyData?.imageStatus === null || storyData?.imageStatus === "error") &&
+                            // !storyData?.introductionImage && (storyData?.imageStatus === null || storyData?.imageStatus === "error") &&
+                            !storyData?.introductionImage || (storyData?.imageStatus === null || storyData?.imageStatus !== "success") &&
                             <Button onClick={generateBanner} size="sm">Generate Banner</Button>
                         }
 
                         {
                             storyData?.imageStatus === "processing" &&
-                            <Button onClick={fetchPendingImage} size="sm">Fetch Banner</Button>
+                            <div>
+                                <p className='text-[10px] text-red-600 mb-2'>Image is still being processed in the background</p>
+                                <Button onClick={fetchPendingImage} size="sm">Check if image generation ready?</Button>
+                            </div>
                         }
 
                     </div>
