@@ -49,6 +49,7 @@ interface StoryAnalysisPayload {
     tone: [];
     genre: [];
     setting: [];
+    scenes: [];
     summary?: string|null;
 }
 
@@ -412,6 +413,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                     },
                 }),
             });
+            console.log(response);            
 
             if (!response?.body) {
                 setGenerating(false);   
@@ -529,6 +531,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             I need you analyze the generated content and give an analysis of the characters involved in the story, tone, genre, thematic element, suspense technique, plot twist, setting.
          
             Return your response in a json or javascript object format like: 
+            scenes(array of objects with keys like title(string), setting(string), description(string: make this very descriptive &detailed for whats happening a scene), order(number, this is the order in which the scene occurs) charactersInvolved(array of objects with keys like name(string), roleInScene(string), relationshipToProtagonist(string))),
             protagonists(array of objects with keys like name(string), age(string), role(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), weight(string), clothDescription(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToOtherProtagonist(string, this should only be provided if there is more than one protagonist))
             otherCharacters(array of objects with keys like name(string), age(string), backstory(string), role(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), clothDescription(string), weight(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToProtagonists(array of object with keys like protagonistName(string) & relationship(string)) )
             tone(array of string),
@@ -538,7 +541,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
             hooks(array of string, the hook raises questions or sparks curiosity, making the reader want to continue reading). 
             setting(array of string, generate at least 3 setting suggestions).                        
             thematicElement(array of string),
-            Please ensure the only keys in the object are protagonists, otherCharacters, tone, genre, thematicElement, suspenseTechnique, plotTwist and setting keys only.
+            Please ensure the only keys in the object are scenes, protagonists, otherCharacters, tone, genre, thematicElement, suspenseTechnique, plotTwist and setting keys only.
             Do not add any text extra line or text with the json response, just a json object, no acknowledgement or do not return any title, just return json response. Do not go beyond this instruction.                               
 
             When suggesting the genre ensure your choice comes from the predefined list of genres here: {genreList}.
@@ -614,6 +617,7 @@ const IntroduceProtagonistAndOrdinaryWorldComponent: React.FC<IntroduceProtagoni
                     introductionSetting: payload?.setting,                    
                     introductionTone: payload?.tone,                    
                     introductionSummary: payload?.summary,                    
+                    scenes: payload?.scenes,                    
                     protagonistSuggestions: updatedProtagonists,     
                     suggestedCharacters: updatedOtherCharacters,
                     introduceProtagonistAndOrdinaryWorld,

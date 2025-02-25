@@ -356,14 +356,15 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
             - Inciting Incident: {incitingIncident}
 
             Return your response in a json or javascript object format like: 
-            summary(string, a summary of the story soo far),            
+            summary(string, a summary of the story soo far),       
+            scenes(array of objects with keys like title(string), setting(string), description(string: make this very descriptive &detailed for whats happening a scene), order(number, this is the order in which the scene occurs) charactersInvolved(array of objects with keys like name(string), roleInScene(string), relationshipToProtagonist(string))),
             charactersInvolved(array of objects with keys like name(string), age(string), backstory(string), role(string), clothDescription(string), habits(string), innerConflict(string), antagonistForce(string), gender(string), relevanceToAudience(string), motivations(array), skinTone(string), height(string), weight(string), hairTexture(string), hairLength(string), hairQuirk(string), facialHair(string), facialFeatures(string), motivations(array), characterTraits(array), angst(string), backstory(string), weaknesses(array), strengths(array), coreValues(array), skills(array), speechPattern(string) & relationshipToProtagonists(array of object with keys like protagonistName(string) & relationship(string)) )
             protagonistGoal(string, this refers to the answer to the question, What is the protagonist's new goal or desire?),            
             protagonistTriggerToAction(string, this refers to the answer to the question, What triggers the protagonist to take action?),            
             obstaclesProtagonistWillFace(string, this refers to the answer to the question, What obstacles or challenges will the protagonist face?),            
             tone(array of strings),
             setting(array of strings).                        
-            Please ensure the only keys in the object are summary, charactersInvolved, protagonistGoal, protagonistTriggerToAction, obstaclesProtagonistWillFace, tone and setting keys only.
+            Please ensure the only keys in the object are summary, scenes, charactersInvolved, protagonistGoal, protagonistTriggerToAction, obstaclesProtagonistWillFace, tone and setting keys only.
             Do not add any text extra line or text with the json response, just a json or javascript object no acknowledgement or saying anything just json. Do not go beyond this instruction.                               
 
             charactersInvolved refers to the characters involved in the inciting incident.
@@ -514,6 +515,7 @@ const FirstPlotPointComponent: React.FC<FirstPlotPointComponentProps> = ({
                     firstPlotPointSetting: payload?.setting,                    
                     firstPlotPointTone: payload?.tone,
                     firstPlotPointSummary: payload?.summary,
+                    scenes: payload?.scenes,
                     firstPlotPoint,
                     firstPlotPointLocked: true,
                     suggestedCharacters: payload?.charactersInvolved  

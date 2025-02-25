@@ -13,10 +13,11 @@ import {
 } from "@/interfaces/CreateStoryInterface";
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import { RisingActionChapterAnalysis } from '@/interfaces/CreateStoryInterface';
-
+import { SceneInterface } from "@/interfaces/SceneInterface";
 
 
 interface ChapterOneAnalysis {
+    scenes: SceneInterface[]
     protagonists: SuggestedProtagonistInterface[];
     otherCharacters: SuggestedOtherCharacterInterface[];
     tone: string[];
@@ -29,6 +30,7 @@ interface ChapterOneAnalysis {
 }
 
 interface ChapterTwoAnalysis {
+    scenes: SceneInterface[]
     summary: string;
     charactersInvolved: SuggestedOtherCharacterInterface[];
     tone: string[];
