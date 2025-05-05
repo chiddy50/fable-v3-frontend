@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import StepperComponent from '@/components/dashboard/StepperComponent';
 import GetStartedComponent from '@/components/story/original/GetStartedComponent';
 import StartWritingComponent from '@/components/story/original/StartWritingComponent';
@@ -10,7 +10,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { StoryInterface } from '@/interfaces/StoryInterface';
-
 
 const steps = [
     {
@@ -30,10 +29,12 @@ const steps = [
     }
 ];
 
-const WriteOriginalStoryPage = () => {    
-    const step = useSearchParams().get('current-step');
-    const storyId = useSearchParams().get('story-id');
-    const chapterId = useSearchParams().get('chapter-id');
+// Create a client component that uses useSearchParams
+function PageContent() {
+    const searchParams = useSearchParams();
+    const step = searchParams.get('current-step');
+    const storyId = searchParams.get('story-id');
+    const chapterId = searchParams.get('chapter-id');
 
     const [story, setStory] = useState<StoryInterface | null>(null);
     const [currentStep, setCurrentStep] = useState(1);
@@ -43,7 +44,6 @@ const WriteOriginalStoryPage = () => {
         setCurrentStep(story?.currentStep)
     }, [story])
     
-
     const { data: storyData, isFetching, isError, refetch } = useQuery({
         queryKey: ['storyFromScratchFormData', storyId],
         queryFn: async () => {
@@ -59,17 +59,10 @@ const WriteOriginalStoryPage = () => {
         enabled: !!storyId && !story  
     });
 
-
     // Function to handle moving to the next step
     const nextStep = async (value: number) => {
         let stepLength = 3;
         if (currentStep < stepLength) {
-            // let nextStep = story?.currentStep + 1 // currentStep - 1;
-            // console.log({
-            //     nextStep,
-            //     currentStep: story?.currentStep
-            // });
-            
             setCurrentStep(value);
             await updateCurrentStep(value);
         }
@@ -80,9 +73,8 @@ const WriteOriginalStoryPage = () => {
         console.log(value);
         
         if (currentStep > 1) {
-            // let nextStep =  story?.currentStep - 1 // currentStep - 1;
             console.log({
-                nextStep,
+                nextStep: value,
                 currentStep: story?.currentStep
             });
             
@@ -124,7 +116,16 @@ const WriteOriginalStoryPage = () => {
                 <StepperComponent setCurrentStep={setCurrentStep} currentStep={currentStep} steps={steps} />
             </div>
         </div>
-    )
+    );
 }
 
-export default WriteOriginalStoryPage
+// Main page component with Suspense boundary
+const WriteOriginalStoryPage = () => {    
+    return (
+        <Suspense fallback={<div className="px-5 py-10">Loading story editor...</div>}>
+            <PageContent />
+        </Suspense>
+    );
+}
+
+export default WriteOriginalStoryPage;
