@@ -41,7 +41,7 @@ function PageContent() {
 
     useEffect(() => {
         let current_step = story?.currentStep ?? Number(step) ?? 1
-        setCurrentStep(story?.currentStep)
+        setCurrentStep(story?.currentStep ?? 1)
     }, [story])
     
     const { data: storyData, isFetching, isError, refetch } = useQuery({
