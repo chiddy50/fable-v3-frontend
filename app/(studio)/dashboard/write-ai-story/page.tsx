@@ -1,7 +1,7 @@
 "use client"
 
 import { Check, ChevronUp, Mic, X } from 'lucide-react';
-import React, { useState } from 'react'
+import React, { useState, Suspense } from 'react'
 import { storyGenres } from "@/data/genres";
 import Image from 'next/image';
 import StepperComponent from '@/components/dashboard/StepperComponent';
@@ -14,7 +14,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import TestCarousel from '@/components/story/TestCarousel';
 import ModalBoxComponent from '@/components/shared/ModalBoxComponent';
 import ChooseStructureComponent from '@/components/story/ai/ChooseStructureComponent';
 import SaveStoryTitleComponent from '@/components/story/ai/SaveStoryTitleComponent';
@@ -46,9 +45,11 @@ const steps = [
 	}
 ];
 
-const WriteAiStoryPage = () => {
-	const step = useSearchParams().get('current-step');
-	const storyId = useSearchParams().get('story-id');
+// Client component that uses useSearchParams
+function AIStoryContent() {
+	const searchParams = useSearchParams();
+	const step = searchParams.get('current-step');
+	const storyId = searchParams.get('story-id');
 
 	const [currentStep, setCurrentStep] = useState(step ? Number(step) : 1);
 	
@@ -59,10 +60,8 @@ const WriteAiStoryPage = () => {
 	const [openProjectTitleModal, setOpenProjectTitleModal] = useState<boolean>(false);
 	const [story, setStory] = useState<StoryInterface | null>(null);
 	
-
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(storyId ? false : true);
 	const [modalSize, setModalSize] = useState<string>('md');
-
 
 	const { data: storyData, isFetching, isError, refetch } = useQuery({
         queryKey: ['storyFromScratchFormData', storyId],
@@ -82,8 +81,6 @@ const WriteAiStoryPage = () => {
 	const openModal = (size: string) => {
 		setModalSize(size);
 		setIsModalOpen(true);
-
-		
 	};
 
 	const decideStructureForUser = () => {
@@ -94,12 +91,10 @@ const WriteAiStoryPage = () => {
 		setOpenProjectTitleModal(true);
     }
 
-
 	const returnToStoryStructureModal = () => {
 		setOpenProjectTitleModal(false);
 		setIsModalOpen(true)
     }
-
 
 	return (
 		<div className='px-5 grid grid-cols-12'>
@@ -115,10 +110,6 @@ const WriteAiStoryPage = () => {
 				<StepperComponent setCurrentStep={setCurrentStep} currentStep={currentStep} steps={steps} />
 			</div>
 
-
-
-
-
 			<ChooseStructureComponent 
 				isModalOpen={isModalOpen} 
 				setIsModalOpen={setIsModalOpen}
@@ -132,7 +123,6 @@ const WriteAiStoryPage = () => {
 			<ModalBoxComponent
                 isOpen={openProjectTitleModal}
                 onClose={returnToStoryStructureModal}
-                // title="Project Title"
                 width="w-[30%]"
                 useDefaultHeader={false}
 				closeOnOutsideClick={false}
@@ -144,9 +134,16 @@ const WriteAiStoryPage = () => {
 					selectedStoryStructure={selectedStoryStructure}
 				/>
             </ModalBoxComponent>
-
-
 		</div>
+	)
+}
+
+// Main page component with Suspense boundary
+const WriteAiStoryPage = () => {
+	return (
+		<Suspense fallback={<div className="px-5 py-10">Loading AI story editor...</div>}>
+			<AIStoryContent />
+		</Suspense>
 	)
 }
 
