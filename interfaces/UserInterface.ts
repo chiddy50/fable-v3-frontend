@@ -14,7 +14,16 @@ export interface UserInterface {
     averageRating: number;
     totalRatings: number;
     imageUrl: string | null;
+    dateOfBirth: string | null;
     updatedAt: string;
     createdAt: string;
+    credits: string| null;
+    userType: string;
+    info: {
+        favoriteGenre: [];
+        favoriteVibe: [];
+        typeOfCreator: [];
+
+    }
 }
 

@@ -1,11 +1,10 @@
 "use client";
 import axios from 'axios';
-import React, { useEffect, useState } from 'react'
-import Lottie from 'react-lottie';
-import * as animationData from "@/public/animations/animation.json"
-import * as legoAnimationData from "@/public/animations/lottie_lego.json"
+import React, { useContext, useEffect, useState, use } from 'react'
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import Image from 'next/image';
+import { AppContext } from '@/context/MainContext';
 
 
 interface Props {
@@ -14,24 +13,31 @@ interface Props {
     };
 }
 
-const LoginSuccessPage = ({params: {id}}: Props) => {
+const LoginSuccessPage = ({ params }: { params: Promise<{ id: string }> }) => {
+    const { id } = use(params); 
     const decodedId = decodeURIComponent(id);
 
     const [authenticated, setAuthenticated] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
+    const [userType, setUserType] = useState<string>("");
+    
+        const { 
+            firstTimeLogin, setFirstTimeLogin,
+            setUser      
+        } = useContext(AppContext);
         
     useEffect(() => {
         authenticate();
     }, []);
 
-    const defaultOptions = {
-        loop: true,
-        autoplay: true, 
-        animationData: animationData,
-        rendererSettings: {
-            preserveAspectRatio: 'xMidYMid slice'
-        }
-    };
+    // const defaultOptions = {
+    //     loop: true,
+    //     autoplay: true, 
+    //     animationData: animationData,
+    //     rendererSettings: {
+    //         preserveAspectRatio: 'xMidYMid slice'
+    //     }
+    // };
 
 
     const authenticate = async () => {
@@ -47,14 +53,32 @@ const LoginSuccessPage = ({params: {id}}: Props) => {
             }
             setAuthenticated(true);
             sessionStorage.setItem("token", token);    
-            sessionStorage.setItem("user", JSON.stringify(user));    
+            sessionStorage.setItem("user", JSON.stringify(user));  
+            localStorage.setItem("token", token);    
+            localStorage.setItem("user", JSON.stringify(user));  
             
+            const firstTimeLoginForUser = user?.firstTimeLogin
+            setFirstTimeLogin(firstTimeLoginForUser)
+            setUser(user)
+            setUserType(user?.userType);
+
         } catch (error) {
             console.error(error);            
         }finally{
             setLoading(false);
         }
     }
+
+    const start = () => {
+        if (firstTimeLogin) {            
+            window.location.href = '/on-boarding';
+        }
+        if (!firstTimeLogin) {              
+            // window.location.href = userType === "reader" ? "/stories" : "/dashboard";
+            window.location.href = '/';
+        }
+    }
+
 
     if (loading) {
         return (
@@ -91,23 +115,17 @@ const LoginSuccessPage = ({params: {id}}: Props) => {
             >
                 {
                     authenticated &&
-                    <div className='w-[85%] sm:w-[60%] md:w-[40%] lg:w-[30%] border p-5 rounded-2xl shadow-xl'>                    
-                        <Lottie options={defaultOptions}
-                            isStopped={false}
-                            isPaused={false}
-                        />
+                    <div className='w-[85%] sm:w-[50%] md:w-[30%] lg:w-[30%] border border-gray-200 p-7 rounded-2xl shadow-xl'>                    
+                        <div className="flex items-center justify-center">
+                            <Image src="/icon/check.svg" alt="check icon" className=" " width={90} height={90} />
+                        </div>
+                       
                         <h1 className='mt-3 font-semibold text-lg text-center'>Successfully logged in</h1>
-
-                        <div className="grid grid-cols-1 gap-3 mt-5">
-                            <Link href="/dashboard/stories">
-                                <Button size="sm" className='text-xs w-full'>Start story</Button>
-                            </Link>
-                            <Link href="/dashboard/articles">
-                                <Button size="sm" className='text-xs w-full'>Start article</Button>
-                            </Link>
-                            <Link href="/">
-                                <Button size="sm" className='text-xs w-full' variant="outline">Explore</Button>
-                            </Link>
+                        <p className="py-5 text-xs font-light text-center">Start using Fable</p>
+                        <div className="grid grid-cols-1 gap-3 ">    
+                            {/* <Link href="/on-boarding"> */}
+                                <Button onClick={start} size="lg" className='text-sm w-full bg-[#33164C] cursor-pointer text-gray-50 py-3'>Start</Button>
+                            {/* </Link>   */}
                         </div>
                     </div>
                 }
@@ -122,10 +140,10 @@ const LoginSuccessPage = ({params: {id}}: Props) => {
                         <h1 className='mt-3 font-semibold text-lg text-center'>Unable to login</h1>
 
                         <div className="grid grid-cols-1  gap-3 mt-5">
-                            
+
                             <Link href="/">
-                                <Button size="sm" className='text-xs w-full' variant="outline">Return</Button>
-                            </Link>
+                                <Button size="lg" className='text-sm w-full bg-[#33164C] cursor-pointer text-gray-50 py-3'>Return</Button>
+                            </Link> 
                         </div>
                     </div>
                 }

@@ -1,5 +1,7 @@
 export interface GenreInterface {
-    value:string, 
-    label:string, 
-    description:string, 
+    id?: number| string;
+    value?: number| string;
+    label?: string;
+    name: string;
+    description?: string;
 }

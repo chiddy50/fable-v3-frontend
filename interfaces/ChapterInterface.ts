@@ -50,12 +50,17 @@ export interface SceneInterface {
     id: string;
     storyId: string;
     chapterId: string;
+    videoId: string;
+    imageId: string;
     imageUrl: string | null;
     title: string;
     setting: string | null;
     externalVideoUrl: string | null;
     videoUrl: string | null;
+    prompt: string;
     charactersInvolved: SceneCharacter[];
+    videoStatus: string;
+    imageStatus: string;
     content: string;
     order: number;
     createdAt: string;
@@ -74,11 +79,19 @@ export interface ChapterInterface {
     isFree: boolean;
     content: string;
     image: string | null;
+    coverImage: string | null;
+    videoUrl: string | null;
     paywall: boolean;
     status: string | null;
     publishedAt: string | null;
     releaseDate: string | null;
     updatedAt: string;
+    price: string | number;
     createdAt: string;
+    actPosition: string;
+    questions: [];
+    summary: string;
     scenes: SceneInterface[];
 }
+
+
