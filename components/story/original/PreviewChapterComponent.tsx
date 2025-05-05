@@ -175,7 +175,7 @@ const PreviewChapterComponent: React.FC<Props> = ({
 
 
 
-                        <h1 className='my-7 font-bold text-3xl'>Rising Dawn</h1>
+                        <h1 className='my-7 font-bold text-3xl'>{story?.projectTitle}</h1>
                         <div className="my-3 text-sm leading-6 text-[#626262]">
                             
                             <textarea name="" id="" value={chapterInPreview?.content} disabled className='w-full resize-none outline-none text-gray-700 placeholder:italic placeholder-gray-400 min-h-[500px]'/>
