@@ -1,28 +1,23 @@
 import type { Metadata } from "next";
-import { Inter, Montserrat } from "next/font/google";
+import { Nunito_Sans } from "next/font/google";
 import "./globals.css";
-// import './prosemirror.css'
-
-import "./css/style.css";
-import Header from "@/components/Header";
-import { Toaster } from "@/components/ui/sonner";
-import FullPageLoader from "@/components/FullPageLoader";
+// import {WalletComponent} from '@/components/wallet/WalletComponent';
 import CustomContext from "@/context/CustomContext";
-import 'intro.js/introjs.css';
-import { cn } from "@/lib/utils";
-import AuthenticationButton from "@/components/AuthenticationButton";
-import Image from "next/image";
-import Link from "next/link";
-import { Menu } from "lucide-react";
+import "./css/style.css";
+import "./css/loader.css";
+import NextTopLoader from "nextjs-toploader";
+import FullPageLoader from "@/components/shared/FullPageLoader";
+import { Toaster } from "@/components/ui/sonner"
 
-const inter = Inter({ subsets: ["latin"] });
-const montserrat = Montserrat({ 
-  subsets: ["latin"], 
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"]
+const nunitoSans = Nunito_Sans({
+  variable: "--font-nunito-sans",
+  subsets: ["latin"],
 });
+
+
 export const metadata: Metadata = {
   title: "Fable",
-  description: "An AI powered app that accelerates creativity for writers and brands",
+  description: "Creating better stories faster",
 };
 
 export default function RootLayout({
@@ -31,39 +26,38 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className='scroll-smooth' suppressHydrationWarning>
+    <html lang="en">
       <head>
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet' />
-        <link rel="icon" href="/images/fable_black.png" sizes="any" />
+        <link rel="icon" href="/logo/fable_black.png" sizes="any" />
       </head>
-      <body className={cn(
-        "flex flex-col min-h-screen",
-        montserrat.className
-        )}>
-      <CustomContext>        
+      <body
+        className={`${nunitoSans.variable} antialiased bg-[#FBFBFB]`}
+      >
+        {/* <WalletComponent> */}
+          <CustomContext>   
+            <NextTopLoader 
+            color="#33164C"
+            initialPosition={0.08}
+            crawlSpeed={200}
+            height={3}
+            crawl={true}
+            showSpinner={true}
+            easing="ease"
+            speed={200}
+            shadow="0 0 10px #2299DD,0 0 5px #2299DD"
+            template='<div class="bar" role="bar"><div class="peg"></div></div> 
+            <div class="spinner" role="spinner"><div class="spinner-icon"></div></div>'
+            zIndex={1600}
+            showAtBottom={false}
+            />     
+            {children}
 
-        <div  style={{
-          zIndex: "100",
-        }} className="flex justify-between items-center p-5 h-[80px] overflow-hidden bg-[#F2F8F2] fixed top-0 w-full ">
-          <Link href="/" className="cursor-pointer"> 
-            <Image src="/fable_logo.svg" alt="Fable logo" className=" " width={100} height={100} />
-          </Link>
-          {/* <Menu /> */}
-          <AuthenticationButton />
-        </div>   
-
-        <div className="">
-          {children}
-        </div>
+            <FullPageLoader />
+            <Toaster />
+          </CustomContext>        
+        {/* </WalletComponent> */}
         
-
-        {/* Toaster */ }
-        <Toaster duration={4000} position="top-right" richColors/>
-
-
-        <FullPageLoader />
-      </CustomContext>        
-
       </body>
     </html>
   );

@@ -1,7 +1,7 @@
+import { ChapterInterface } from "./ChapterInterface";
 import { CharacterInterface, SuggestedCharacterInterface } from "./CharacterInterface";
 import { GenreInterface } from "./GenreInterface";
-import { ThreeActStructureInterface } from "./PlotInterface";
-import { SuspenseTechniqueInterface } from "./SuspenseTechniqueInterface";
+import { UserInterface } from "./UserInterface";
 
 
 export interface SuggestionItem {
@@ -101,7 +101,8 @@ export interface StoryInterface {
   userId: string;
   title: string;
   genre: string;
-  genres: GenreInterface[];
+  genres: string[];
+  // genres: GenreInterface[];
   imageUrl: string;
   type: string;
   slug: string;
@@ -109,8 +110,19 @@ export interface StoryInterface {
   currentStepUrl: string;
   isPaid: boolean;
   paidAt: Date;
+  isFree: boolean;
+  price: number | null;
+  autoDetectStructure: boolean;
+  structure: string;
+  storyType: string;
+  applyFeeToAllChapters: boolean;
+  generalChapterFee: number | string;
+  currentChapterId: string;
 
+  bannerImageUrl: string;
+  coverImageUrl: string;
 
+  chapters: ChapterInterface[];
 
   introductionTone: GenreInterface[];
   introductionSetting:GenreInterface[];
@@ -190,17 +202,53 @@ export interface StoryInterface {
 
   thematicElements: [];
   thematicOptions: [];
-  suspenseTechnique: SuspenseTechniqueInterface;
+//   suspenseTechnique: SuspenseTechniqueInterface;
   suspenseTechniqueDescription: string;
   overview?: string;
   publicId?: string | null;  // Optional unique string
   metaData?: any | null;  // Optional JSON field
   createdAt: string;
   publishedAt: string;
-  plotSuggestions: any,
+  plotSuggestions: any;
 
-  plotElement: ThreeActStructureInterface,
+  // plotElement: ThreeActStructureInterface,
 
-  storyStructure: StoryStructureInterface,
-  setting: string
+  storyStructure: StoryStructureInterface;
+  setting: string;
+
+  storyAudiences: TargetAudienceInterface[];  
+  storyGenres: StoryGenreInterface[];
+  user: UserInterface;
+  comments: CommentInterface[];
+}
+
+export interface TargetAudienceInterface {
+  id: string;
+  storyId: string;
+  targetAudienceId: string;
+  publicId: string | null;
+  updatedAt: string;
+  createdAt: string;
+} 
+
+export interface StoryGenreInterface {
+  id: string;
+  storyId: string;
+  storyGenreId: number;
+  updatedAt: string;
+  createdAt: string;
+} 
+
+export interface CommentInterface {
+  id: string;
+  content: string;
+  storyId: string;
+  userId: string;
+  parentId: string;
+  likeCount: number;
+  dislikeCount: number;
+  isEdited: boolean;
+  replyCount: number;
+  createdAt: string;
+  updatedAt: string;
 }

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { deleteCookie } from 'cookies-next';
+// import { deleteCookie } from 'cookies-next';
 // import Router from 'next/router';
 
 
@@ -57,6 +57,8 @@ axiosInterceptorInstance.interceptors.response.use(
         console.log(`Logout now: ${message}`);
         sessionStorage.removeItem("token") 
         sessionStorage.removeItem("user") 
+        localStorage.removeItem("token") 
+        localStorage.removeItem("user") 
         
         // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHRnZGFhenAwMDAwNWV6eXg5ZDU2d24xIiwibmFtZSI6ImhlbnJ1IiwiaWF0IjoxNzEwMjg0MjM1LCJleHAiOjE3MTAyODc4MzV9.iXn4sTg-PX0bP8htey9W6K4UVf-
         // window.location.reload();
