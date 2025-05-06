@@ -126,7 +126,7 @@ export default function Home() {
 											width={25} 
 											height={25} 
 											borderRadius='rounded-lg'            
-											imageUrl={user?.imageUrl ?? "/avatar/male_avatar1.svg"}
+											imageUrl={user?.imageUrl ?? "/avatar/default-avatar.png"}
 											border="border border-white"
 										/>
 										<p className="text-white font-semibold">Dashboard</p>

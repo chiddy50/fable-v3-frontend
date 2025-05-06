@@ -50,14 +50,14 @@ const AuthorComponent: React.FC<Props> =  ({ count, name, publishedAt, imageUrl,
                 <>
                     <div className="flex -space-x-2 mr-3">
                         <Image 
-                            src="/avatar/male_avatar1.svg" 
+                            src="/avatar/default-avatar.png" 
                             alt="Cole Palmer"
                             width={36}
                             height={36}
                             className="rounded-full border-2 border-white"
                         />
                         <Image 
-                            src="/avatar/male_avatar2.svg" 
+                            src="/avatar/default-avatar.png" 
                             alt="John Kwame"
                             width={36}
                             height={36}
@@ -77,7 +77,7 @@ const AuthorComponent: React.FC<Props> =  ({ count, name, publishedAt, imageUrl,
                         width={36} 
                         height={36} 
                         borderRadius={borderRadius}            
-                        imageUrl={user?.imageUrl ?? imageUrl ?? "/avatar/male_avatar1.svg"}
+                        imageUrl={user?.imageUrl ?? imageUrl ?? "/avatar/default-avatar.png"}
                         imageMargin='mr-3'
                     />
                     <div className='text-[10px] relative'>

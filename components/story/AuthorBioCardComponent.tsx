@@ -57,7 +57,7 @@ const AuthorBioCardComponent: React.FC<AuthorBioCardProps> = ({
         >
             <div className="flex items-center justify-between">
                 <Image 
-                    src="/avatar/male_avatar1.svg" 
+                    src="/avatar/default-avatar.png" 
                     alt="Cole Palmer"
                     width={45}
                     height={45}

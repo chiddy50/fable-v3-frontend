@@ -70,7 +70,7 @@ const StoryCommentsComponent: React.FC<Props> = ({
                             <div className="flex items-center justify-between">
                                 {/* <div className="flex items-center gap-2">
                                     <Image 
-                                        src="/avatar/male_avatar1.svg" 
+                                        src="/avatar/default-avatar.png" 
                                         alt="Cole Palmer"
                                         width={40}
                                         height={40}

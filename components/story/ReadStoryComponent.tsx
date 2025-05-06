@@ -67,7 +67,7 @@ const ReadStoryComponent: React.FC<Props> = ({
                                     width={40}
                                     height={40}
                                     borderRadius='rounded-lg'
-                                    imageUrl={story?.user?.imageUrl ?? "/avatar/male_avatar1.svg"}
+                                    imageUrl={story?.user?.imageUrl ?? "/avatar/default-avatar.png"}
                                 // border="border border-white"
                                 />
                                 <p className="text-sm text-center text-shadow-dark font-semibold">@{story?.user?.name}</p>
@@ -220,7 +220,7 @@ export default ReadStoryComponent
             borderRadius='rounded-full' 
             isDouble={false} 
             imageMargin='mr-3' 
-            imageUrl="/avatar/male_avatar2.svg"
+            imageUrl="/avatar/default-avatar.png"
         /> 
         <div className='text-[10px]'>
             <span className="text-gray-600">By </span>

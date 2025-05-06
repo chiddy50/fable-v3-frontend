@@ -76,7 +76,7 @@ export default function DashboardLayout({
                             <p className='text-xs'>Write</p>
                         </Link>
     
-                        <Image src="/avatar/male_avatar2.svg" alt="default avatar" className=" " width={40} height={40} /> */}
+                        <Image src="/avatar/default-avatar.png" alt="default avatar" className=" " width={40} height={40} /> */}
 
                         <div className="bg-white text-[#626262] p-2 rounded-lg transition-all hover:text-white hover:bg-[#626262]">
                             <div className='relative cursor-pointer'>
@@ -153,7 +153,7 @@ export default function DashboardLayout({
                                         width={36} 
                                         height={36} 
                                         borderRadius='rounded-xl'            
-                                        imageUrl={ user?.imageUrl ?? "/avatar/male_avatar2.svg" }                                   
+                                        imageUrl={ user?.imageUrl ?? "/avatar/default-avatar.png" }                                   
                                     />
                                     <div>
                                         <p className="font-bold text-xs">@{user?.name}</p>
