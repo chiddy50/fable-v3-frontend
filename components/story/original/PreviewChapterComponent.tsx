@@ -88,7 +88,7 @@ const PreviewChapterComponent: React.FC<Props> = ({
                 <div className="relative w-full bg-white shadow-lg rounded-3xl overflow-hidden">
                     <div className="relative flex items-center justify-center h-60 rounded-3xl"
                      style={{
-                        backgroundImage: `url('${chapterInPreview?.image ?? "/img/placeholder5.jpg"}')`,
+                        backgroundImage: `url('${chapterInPreview?.image ?? "/img/placeholder6.jpg"}')`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center'
                     }}

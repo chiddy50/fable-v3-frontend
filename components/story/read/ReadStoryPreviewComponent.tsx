@@ -63,7 +63,7 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                         <div
                             className="absolute inset-0"
                             style={{
-                                backgroundImage: `url('${story?.bannerImageUrl ?? "/img/placeholder5.jpg"}')`,
+                                backgroundImage: `url('${story?.bannerImageUrl ?? "/img/placeholder6.jpg"}')`,
                                 backgroundSize: 'cover',
                                 backgroundPosition: 'center'
                             }}

@@ -75,7 +75,7 @@ const PreviewStoryComponent: React.FC<Props> = ({
                         <div
                             className="absolute inset-0"
                             style={{
-                                backgroundImage: `url('${story?.bannerImageUrl ?? "/img/placeholder5.jpg"}')`,
+                                backgroundImage: `url('${story?.bannerImageUrl ?? "/img/placeholder6.jpg"}')`,
                                 backgroundSize: 'cover',
                                 backgroundPosition: 'center'
                             }}
@@ -119,7 +119,7 @@ const PreviewStoryComponent: React.FC<Props> = ({
                                     />
                                 </div>
                             </div>
-                            <h1 className="text-5xl font-bold text-gray-800 mt-3">{story?.projectTitle}</h1>
+                            <h1 className="text-5xl capitalize font-bold text-gray-800 mt-3">{story?.projectTitle}</h1>
                         </div>
 
                         {/* Author Info */}
