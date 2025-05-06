@@ -14,7 +14,7 @@ export default function Layout1({
     <>
     
 
-    <div style={{ display: 'flex', height: '100vh' }} className='min-h-screen bg-[#FBFBFB]'>
+        <div style={{ display: 'flex', height: '100vh' }} className='min-h-screen '>
             <div className="left-menu w-[120px] py-10 px-4 bg-white">
                 {/* Your left menu content here */}
 
@@ -30,7 +30,7 @@ export default function Layout1({
                     </Link>
                 </div>
             </div>
-            <div className="main-content flex flex-col flex-1 " >
+            <div className="main-content flex flex-col flex-1 bg-[#FBFBFB]" >
 
                 {children}                    
             </div>
