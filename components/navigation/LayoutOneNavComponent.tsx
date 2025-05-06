@@ -32,7 +32,7 @@ const LayoutOneNavComponent = () => {
                         height={40} 
                         borderRadius='rounded-xl' 
                         isDouble={false}             
-                        imageUrl={ user?.imageUrl ?? "/avatar/male_avatar2.svg" }
+                        imageUrl={ user?.imageUrl ?? "/avatar/default-avatar.png" }
                     /> 
                 </div>
             </div>

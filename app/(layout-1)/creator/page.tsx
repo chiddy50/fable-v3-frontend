@@ -43,7 +43,7 @@ const CreatorPage = () => {
                                 height={40} 
                                 borderRadius='rounded-xl' 
                                 isDouble={false}             
-                                imageUrl={ user?.imageUrl ?? "/avatar/male_avatar2.svg" }
+                                imageUrl={ user?.imageUrl ?? "/avatar/default-avatar.png" }
                             /> 
                         </div>
                     </div>
@@ -61,7 +61,7 @@ const CreatorPage = () => {
                             width={100} 
                             height={100} 
                             borderRadius='rounded-xl'            
-                            imageUrl="/avatar/male_avatar1.svg"
+                            imageUrl="/avatar/default-avatar.png"
                         />
 
                         <h1 className="font-bold mt-5 text-2xl">Cole Palmer</h1>

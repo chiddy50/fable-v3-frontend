@@ -110,7 +110,7 @@ const PreviewChapterComponent: React.FC<Props> = ({
                                     width={40}
                                     height={40}
                                     borderRadius='rounded-lg'
-                                    imageUrl={user?.imageUrl ?? "/avatar/male_avatar1.svg"}
+                                    imageUrl={user?.imageUrl ?? "/avatar/default-avatar.png"}
                                     border="border border-white"
                                 />
                                 <p className="text-sm text-center font-semibold">@{user?.name}</p>

@@ -13,14 +13,14 @@ const PopularStoryComponent = ({ image }: { image: string }) => {
             <div className=" mb-4">
                 {/* <div className="flex -space-x-2 mr-3">
                     <Image 
-                        src="/avatar/male_avatar1.svg" 
+                        src="/avatar/default-avatar.png" 
                         alt="Cole Palmer"
                         width={36}
                         height={36}
                         className="rounded-full border-2 border-white"
                     />
                     <Image 
-                        src="/avatar/male_avatar2.svg" 
+                        src="/avatar/default-avatar.png" 
                         alt="John Kwame"
                         width={36}
                         height={36}
@@ -33,7 +33,7 @@ const PopularStoryComponent = ({ image }: { image: string }) => {
                     borderRadius='rounded-full' 
                     isDouble={false} 
                     imageMargin='mr-3' 
-                    imageUrl="/avatar/male_avatar2.svg"
+                    imageUrl="/avatar/default-avatar.png"
                 /> 
                 <div className='text-[10px]'>
                     <span className="text-gray-600">By </span>

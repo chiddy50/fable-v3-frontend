@@ -27,14 +27,14 @@ export const UserAvatarComponent = ({
                 <>
                     <div className={`flex -space-x-2 ${imageMargin}`}>
                         <Image 
-                            src="/avatar/male_avatar1.svg" 
+                            src="/avatar/default-avatar.png" 
                             alt="User avatar"
                             width={width}
                             height={height}
                             className={`border-2 border-white ${borderRadius ?? 'rounded-xl'}`}
                         />
                         <Image 
-                            src="/avatar/male_avatar2.svg" 
+                            src="/avatar/default-avatar.png" 
                             alt="User avatar"
                             width={width}
                             height={height}
@@ -44,7 +44,7 @@ export const UserAvatarComponent = ({
                 </>
             }
             {!isDouble && <Image
-                src={imageUrl ?? `/avatar/male_avatar1.svg`} 
+                src={imageUrl ?? `/avatar/default-avatar.png`} 
                 alt="User avatar"
                 width={width}
                 height={height}
