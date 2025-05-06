@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { RotateCcw } from 'lucide-react';
 import { ReadersHeaderComponent } from '@/components/shared/ReadersHeaderComponent';
 import { generateRandomNumber } from '@/lib/helper';
+import RandomStoryComponent from '@/components/story/read/RandomStoryComponent';
 
 const StoriesPage = () => {
     const [showGridIcon, setShowGridIcon] = useState<boolean>(false)
@@ -25,6 +26,7 @@ const StoriesPage = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [publishedStories, setPublishedStories] = useState<StoryInterface[]>([]);
     const [genreList, setGenreList] = useState<[]>([]);
+    const [randomStory, setRandomStory] = useState<StoryInterface|null>(null);
 
     useEffect(() => {
         fetchStories();
@@ -50,8 +52,9 @@ const StoriesPage = () => {
 
             const max = data.length - 1;
             let randomNumber = generateRandomNumber(max);
-            console.log({randomNumber});
-            
+            const random_story = data[randomNumber]
+            setRandomStory(random_story);
+            console.log({randomNumber, random_story});
 
             const genres = json?.genres.map((genre: { id: number, name: string }) => {
                 return {
@@ -72,7 +75,14 @@ const StoriesPage = () => {
     return (
         <>
             <ReadersHeaderComponent returnTitle="Home" returnUrl="/"/>
+            
             <div className='overflow-y-auto'>
+
+                { randomStory && <RandomStoryComponent randomStory={randomStory} />}
+
+
+
+
 
                 <div className=' bg-[#FBFBFB]'>
                     {/* <div className="mt-[260px] px-20 grid p-5 grid-cols-6 gap-12"> */}
@@ -131,7 +141,11 @@ const StoriesPage = () => {
                                 }
 
                                 {
-                                    !loading && <StoryCardComponent stories={publishedStories ?? []} activeControl={activeControl} />                        
+                                    !loading && 
+                                    <>
+                                        
+                                        <StoryCardComponent stories={publishedStories ?? []} activeControl={activeControl} />                        
+                                    </>
                                 }
                             </div>
                         </div>

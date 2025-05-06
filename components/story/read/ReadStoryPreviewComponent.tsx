@@ -69,7 +69,18 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                                     backgroundSize: 'cover',
                                     backgroundPosition: 'center'
                                 }}
-                            />
+                            >
+                                {/* cove-image */}
+                                <div className="mr-4 flex-shrink-0 absolute -bottom-7 z-10 left-5">
+                                    <div className="w-32 h-32 rounded-2xl overflow-hidden shadow-md">
+                                        <img
+                                            src={`${story?.coverImageUrl ?? "/img/placeholder5.jpg"}`}
+                                            alt="Story cover image"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
 
                             {/* White Fade Overlay - Bottom */}
                             <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent" />
@@ -97,10 +108,10 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                         </div>
 
                         {/* Story Info Section */}
-                        <div className="px-6 pb-6">
+                        <div className="px-6 pb-6 mt-10">
                             {/* Logo and Title */}
                             <div className="">
-                                <div className="mr-4 flex-shrink-0">
+                                {/* <div className="mr-4 flex-shrink-0">
                                     <div className="w-32 h-32 rounded-2xl overflow-hidden shadow-md">
                                         <img
                                             src={`${story?.coverImageUrl ?? "/img/placeholder5.jpg"}`}
@@ -108,7 +119,7 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                                             className="w-full h-full object-cover"
                                         />
                                     </div>
-                                </div>
+                                </div> */}
                                 <h1 className="text-5xl font-bold capitalize text-gray-800 mt-3">{story?.projectTitle}</h1>
                             </div>
 
