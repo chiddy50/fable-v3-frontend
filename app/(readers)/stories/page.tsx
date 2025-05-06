@@ -78,7 +78,7 @@ const StoriesPage = () => {
             
             <div className='overflow-y-auto'>
 
-                { randomStory && <RandomStoryComponent randomStory={randomStory} />}
+                { randomStory && <RandomStoryComponent loading={loading} randomStory={randomStory} />}
 
 
 
