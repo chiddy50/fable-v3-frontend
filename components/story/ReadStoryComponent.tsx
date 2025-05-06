@@ -14,6 +14,7 @@ import Image from "next/image";
 import { UserAvatarComponent } from '../shared/UserAvatarComponent';
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import { ChapterInterface } from '@/interfaces/ChapterInterface';
+import { formatDate } from '@/lib/helper';
 
 
 
@@ -52,7 +53,7 @@ const ReadStoryComponent: React.FC<Props> = ({
                 <div className=" mb-10">
                     <div className="relative flex items-center justify-center h-80 rounded-3xl"
                         style={{
-                            backgroundImage: `url('${activeChapter?.image ?? story?.bannerImageUrl ?? "/img/placeholder5.jpg"}')`,
+                            backgroundImage: `url('${activeChapter?.image ?? story?.bannerImageUrl ?? "/img/placeholder6.jpg"}')`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center'
                         }}
@@ -69,10 +70,10 @@ const ReadStoryComponent: React.FC<Props> = ({
                                     imageUrl={story?.user?.imageUrl ?? "/avatar/male_avatar1.svg"}
                                 // border="border border-white"
                                 />
-                                <p className="text-sm text-center font-semibold">@{story?.user?.name}</p>
+                                <p className="text-sm text-center text-shadow-dark font-semibold">@{story?.user?.name}</p>
                             </div>
-                            <p className="font-light text-xs">20min ago</p>
-                            <h1 className="text-4xl font-bold capitalize">{story?.projectTitle}</h1>
+                            <p className="font-light text-shadow-dark text-xs">{formatDate(story?.publishedAt)}</p>
+                            <h1 className="text-4xl font-bold text-white text-shadow-dark capitalize">{story?.projectTitle}</h1>
 
                             <GenrePillsComponent genres={story?.genres} />
 
@@ -98,7 +99,7 @@ const ReadStoryComponent: React.FC<Props> = ({
                                 className="absolute left-0 top-10 bg-white shadow-lg rounded-lg z-10 overflow-hidden"
                             >
                                 <div className="p-2">
-                                    {story?.chapters?.map(chapter => (
+                                    {story?.chapters?.sort((a, b) => a.index - b.index)?.map(chapter => (
                                         <div
                                             key={chapter.id}
                                             className={`flex items-center p-3 rounded-md cursor-pointer ${chapter?.id === activeChapter?.id ? 'bg-gray-100' : 'hover:bg-gray-50'}`}

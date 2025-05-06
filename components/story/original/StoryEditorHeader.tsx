@@ -70,7 +70,7 @@ const StoryEditorHeader: React.FC<Props> = ({
                 </div>
             </div>
             <div className="mt-3 flex items-center justify-between">
-                <h1 className="text-3xl font-bold">{story?.projectTitle}</h1>
+                <h1 className="text-3xl capitalize font-bold">{story?.projectTitle}</h1>
                 {!story?.isFree &&
                     <div className="flex items-center gap-2">
                         <Image src="/icon/coins-red.svg" alt="coins icon" width={13} height={13} />
