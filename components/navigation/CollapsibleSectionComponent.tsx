@@ -60,7 +60,7 @@ const CollapsibleSectionComponent = () => {
                             <Image src="/icon/magic-pen.svg" alt="generate icon" width={17} height={17} />
                         </div>
                         <div>
-                            <p className="text-xs">With AI</p>
+                            <div className="text-xs flex items-center gap-3">With AI <p className='text-[9px] bg-gray-200 rounded-lg px-2 py-1'>Coming soon</p></div>
                             <p className="text-[9px] font-light text-gray-600">Leverage our AI tool.</p>
                         </div>
                     </Link>

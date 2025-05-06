@@ -1,6 +1,6 @@
 "use client"
 
-import { Feather, FileText, Info, XCircle } from 'lucide-react';
+import { Feather, FileText, Hourglass, Info, XCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react'
@@ -214,12 +214,16 @@ const ChooseStructureComponent: React.FC<Props> = ({
 
                     <div>                        
                         <button 
-                        onClick={decideStructureForUser}
+                        // onClick={decideStructureForUser}
                         className='flex items-center gap-2 py-1.5 pl-1.5 pr-3 bg-gradient-to-r from-[#AA4A41] to-[#33164C] rounded-xl cursor-pointer border transition-all '>
                             <div className='flex items-center border border-[#FFE2DF] justify-center p-2 rounded-lg bg-gradient-to-br from-[#AA4A41] to-[#33164C]'>
-                                <Image src="/icon/magic-pen.svg" alt="generate icon" width={17} height={17} />
+                                {/* <Image src="/icon/magic-pen.svg" alt="generate icon" width={17} height={17} /> */}
+                                <Hourglass size={16} className='text-[#AA4A41]' />
                             </div>
-                            <p className="text-sm font-medium text-[#FBFBFB]">Help me decide</p>
+                            <p className="text-sm font-medium text-[#FBFBFB]">
+                                {/* Help me decide */}
+                                Coming Soon
+                            </p>
                         </button>
                     </div>
                 </div>
@@ -287,13 +291,20 @@ const ChooseStructureComponent: React.FC<Props> = ({
                                     </div>
 
                                     <div className="mt-2 flex">
-                                        <button 
+                                        {/* <button 
                                         onClick={() => chooseStructure(structure)}
                                         className="flex items-center gap-2 bg-white cursor-pointer rounded-xl px-3 py-2 text-sm font-medium text-[#D45C51] hover:bg-[#D45C51] hover:text-white transition-colors" 
                                         aria-label={`Select ${structure.title}`}
                                         >
                                             <Image src="/icon/magic-pen.svg" alt="write icon" width={14} height={14} />
                                             <span>Choose</span>
+                                        </button> */}
+                                        <button 
+                                        className="flex items-center gap-2 bg-white cursor-pointer rounded-xl px-3 py-2 text-sm font-medium text-[#D45C51] hover:bg-[#D45C51] hover:text-white transition-colors" 
+                                        aria-label={`Select ${structure.title}`}
+                                        >
+                                            <span>Coming Soon</span>
+                                            <Hourglass size={16} />
                                         </button>
                                     </div>
                                 </div>
