@@ -15,6 +15,7 @@ import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { ChapterInterface } from '@/interfaces/ChapterInterface';
 import { useSearchParams } from 'next/navigation';
+import { Skeleton } from "@/components/ui/skeleton"
 
 
 interface ReadStoryProps {
@@ -105,9 +106,18 @@ const ReadStoryPage = ({ params }: ReadStoryProps) => {
                 </nav>
 
                 <div className='px-20 overflow-y-auto'>
+                    { isLoading && 
+                        <div>
+                            <Skeleton className="w-full h-80 rounded-3xl mb-5" />
 
-                    <ReadStoryComponent setChapter={setChapter} activeChapter={chapter} story={story}/>
-                    <StoryCommentsComponent story={story}/>
+                            <Skeleton className="w-full h-15 rounded-3xl mb-5" />
+
+                            <Skeleton className="w-full h-100 rounded-3xl mb-5" />
+
+                        </div>
+                    }
+                    { !isLoading && <ReadStoryComponent setChapter={setChapter} activeChapter={chapter} story={story}/> }
+                    { !isLoading && <StoryCommentsComponent story={story}/>}
                 </div>
             </div>
         </div>
