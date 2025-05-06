@@ -50,7 +50,7 @@ const RandomStoryComponent = ({ randomStory }: { randomStory: StoryInterface }) 
                 </div>
 
                 {/* White Fade Overlay - Bottom */}
-                <div className="absolute inset-x-0 bottom-0 h-80 bg-gradient-to-t from-white to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-60 bg-gradient-to-t from-white to-transparent" />
 
                 {/* White Fade Overlay - Left & Right */}
                 <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white to-transparent opacity-40" />
