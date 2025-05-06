@@ -17,7 +17,7 @@ const StoryGridViewComponent = ({ image, story }: { image: string, story: any })
 
     const [showPreview, setShowPreview] = useState<boolean>(false);
     return (
-        <div className="w-full mb-5 p-3 rounded-2xl bg-gray-50">
+        <div className="w-full mb-5 p-3 rounded-2xl  bg-gradient-to-b from-[#e1e1e1] to-[#fff]">
 
             <div className="relative w-full h-[230px] mb-3 rounded-2xl overflow-hidden"
                 style={{
@@ -42,7 +42,7 @@ const StoryGridViewComponent = ({ image, story }: { image: string, story: any })
                 <p className="absolute top-2 left-2 px-3 py-1 text-gray-50 bg-gray-800 rounded-full text-[10px]">
                      {story?.publishedAt ? formatDate(story?.publishedAt) : ""}
                 </p>
-                <div className='absolute bottom-2 right-2'>
+                <div className='absolute bottom-3 right-3 left-3'>
                     <GenrePillsComponent genres={story?.genres}/>
                 </div>
 

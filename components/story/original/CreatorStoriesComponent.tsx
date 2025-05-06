@@ -54,7 +54,7 @@ const CreatorStoriesComponent = ({ title, editUrl, type }: { title: string, edit
                     <div className='grid grid-cols-3 gap-5 overflow-y-auto'>
                         {
                             storyData.map(item => (
-                                <div key={item?.id} className="w-full mb-5 bg-gray-100 p-2 rounded-2xl">
+                                <div key={item?.id} className="w-full mb-5 bg-gradient-to-b from-[#d7d7d7] to-[#fff] p-1.5 rounded-2xl">
                                     <div className="relative w-full h-[230px] rounded-2xl border overflow-hidden">
                                         <img
                                             src={item.coverImageUrl ?? `/img/draft.png`}

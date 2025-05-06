@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from '@/components/ui/button';
 import { RotateCcw } from 'lucide-react';
 import { ReadersHeaderComponent } from '@/components/shared/ReadersHeaderComponent';
+import { generateRandomNumber } from '@/lib/helper';
 
 const StoriesPage = () => {
     const [showGridIcon, setShowGridIcon] = useState<boolean>(false)
@@ -46,6 +47,11 @@ const StoriesPage = () => {
             if (data) {
                 setPublishedStories(data);
             }
+
+            const max = data.length - 1;
+            let randomNumber = generateRandomNumber(max);
+            console.log({randomNumber});
+            
 
             const genres = json?.genres.map((genre: { id: number, name: string }) => {
                 return {

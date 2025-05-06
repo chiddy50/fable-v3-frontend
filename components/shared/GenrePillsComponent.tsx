@@ -4,10 +4,10 @@ import React from 'react'
 
 const GenrePillsComponent = ({ genres }: { genres: string[] }) => {
     return (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
             {
                 genres?.map(genre => (
-                    <span key={genre} className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-[10px]">{genre}</span>
+                    <span key={genre} className="px-2.5 py-[1.5px] bg-gray-100 text-gray-800 rounded-sm text-[10px]">{genre}</span>
                 ))
             }
         </div>  

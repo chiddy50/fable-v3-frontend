@@ -47,3 +47,17 @@ export const uploadToCloudinary = async (file: any) => {
     }
 }
 
+
+export const generateRandomNumber = (max: number) =>  {
+    // Check if max is a positive integer
+    if (typeof max !== 'number' || max < 0 || max % 1 !== 0) {
+        throw new Error('max must be a non-negative integer');
+    }
+
+    // Use crypto.getRandomValues to generate a cryptographically secure random number
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    const randomNumber = array[0] % (max + 1);
+
+    return randomNumber;
+}
