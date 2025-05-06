@@ -120,7 +120,7 @@ const PreviewChapterComponent: React.FC<Props> = ({
                             <div className="flex items-center justify-center gap-2">
                                 {
                                     story?.genres.map(genre => (
-                                        <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-[10px]">{genre}</span>
+                                        <span key={genre} className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-[10px]">{genre}</span>
                                     ))
                                 }
                             </div>
@@ -184,7 +184,7 @@ const PreviewChapterComponent: React.FC<Props> = ({
                         <div className="flex items-center gap-2 mt-4">
                             {
                                 story?.genres.map(genre => (
-                                    <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-lg text-[10px]">{genre}</span>
+                                    <span key={genre} className="px-3 py-1 bg-gray-100 text-gray-800 rounded-lg text-[10px]">{genre}</span>
                                 ))
                             }
                         </div>

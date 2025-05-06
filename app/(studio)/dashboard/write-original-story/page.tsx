@@ -40,9 +40,21 @@ function PageContent() {
     const [currentStep, setCurrentStep] = useState(1);
 
     useEffect(() => {
-        let current_step = story?.currentStep ?? Number(step) ?? 1
-        setCurrentStep(story?.currentStep ?? 1)
-    }, [story])
+        if (!storyId) {
+            console.log("No story id");
+            
+            setStory(null)
+            setCurrentStep(1)
+        }else{
+            console.log("yes to story id");
+
+            let current_step = story?.currentStep ?? Number(step) ?? 1
+            setCurrentStep(story?.currentStep ?? 1)
+        }
+    }, [
+        // story
+        storyId
+    ])
     
     const { data: storyData, isFetching, isError, refetch } = useQuery({
         queryKey: ['storyFromScratchFormData', storyId],

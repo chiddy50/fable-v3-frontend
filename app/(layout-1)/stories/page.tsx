@@ -11,6 +11,7 @@ import Link from 'next/link';
 import LayoutOneNavComponent from '@/components/navigation/LayoutOneNavComponent';
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import SearchBoxComponent from '@/components/navigation/SearchBoxComponent';
+import { Skeleton } from "@/components/ui/skeleton"
 
 const StoriesPage = () => {
     const [showGridIcon, setShowGridIcon] = useState<boolean>(false)
@@ -142,7 +143,19 @@ const StoriesPage = () => {
                     </div>
 
                     <div className="mt-10">
-                        <StoryCardComponent stories={publishedStories ?? []} activeControl={activeControl} />                        
+                        {loading && 
+                        <div className="grid grid-cols-4 gap-5">
+                            <Skeleton className="col-span-1 h-[390px] rounded-2xl" />
+                            <Skeleton className="col-span-1 h-[390px] rounded-2xl" />
+                            <Skeleton className="col-span-1 h-[390px] rounded-2xl" />
+                            <Skeleton className="col-span-1 h-[390px] rounded-2xl" />
+
+                        </div>
+                        }
+
+                        {
+                            !loading && <StoryCardComponent stories={publishedStories ?? []} activeControl={activeControl} />                        
+                        }
                     </div>
                 </div>
 
