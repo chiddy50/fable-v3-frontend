@@ -30,7 +30,7 @@ export default function Layout1({
                     </Link>
                 </div>
             </div>
-            <div className="main-content flex flex-col flex-1 bg-[#FBFBFB]" >
+            <div className="main-content relative flex flex-col flex-1 bg-[#FBFBFB]" >
 
                 {children}                    
             </div>

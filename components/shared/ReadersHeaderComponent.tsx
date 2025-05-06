@@ -9,7 +9,7 @@ import Link from "next/link";
 export const ReadersHeaderComponent = ({ returnUrl, returnTitle }: { returnUrl: string, returnTitle: string }) => {
     return (
         // <nav className="fixed bg-transparent top-0 p-4 backdrop-blur-xl" style={{ position: 'sticky'}}>        
-        <nav className="bg-none p-4 backdrop-blur-md backdrop-filter sticky top-0 z-10 border-b border-gray-100/30">
+        <nav className="absolute h-[80px] top-0 left-0 w-full bg-white/30 backdrop-blur-md z-50 px-6 py-4 border-b border-white/10" >
             <div className="flex items-center justify-between">
                 <div className='flex items-center gap-3'>
                     <Link href={returnUrl} className='text-black bg-white border cursor-pointer flex items-center justify-center py-2 px-2 rounded-lg transition-all hover:bg-gray-100'>
