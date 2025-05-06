@@ -16,6 +16,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ChapterInterface } from '@/interfaces/ChapterInterface';
 import { useSearchParams } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton"
+import { ReadersHeaderComponent } from '@/components/shared/ReadersHeaderComponent';
 
 
 interface ReadStoryProps {
@@ -35,8 +36,7 @@ const ReadStoryPage = ({ params }: ReadStoryProps) => {
     const decodedId = decodeURIComponent(id);
     const storyId = decodedId;
 
-    const chapterIndex = useSearchParams().get('chapter');
-    
+    const chapterIndex = useSearchParams().get('chapter') ?? 1;    
 
     const [story, setStory] = useState<StoryInterface|null>(null);
     const [chapter, setChapter] = useState<ChapterInterface|null>(null);
@@ -67,45 +67,10 @@ const ReadStoryPage = ({ params }: ReadStoryProps) => {
 
 
     return (
-        <div style={{ display: 'flex', height: '100vh' }} className='bg-[#FBFBFB]'>
-            <div className="left-menu w-[120px] p-5 bg-white">
-                {/* Your left menu content here */}
-
-                <div className="w-full flex justify-center mb-10">
-                    <Link href="/" className=''>
-                        <Image src="/logo/fable_black.png" alt="Fable logo" className="rounded-xl" width={60} height={60} />
-                    </Link>
-                </div>
-
-                <div className="w-full flex justify-center">
-                    <Link href="/dashboard" className='flex cursor-pointer items-center gap-3 bg-[#f6f6f6] rounded-xl p-5 hover:bg-gray-200'>
-                        <Image src="/icon/feather.svg" alt="feather icon" className=" " width={20} height={20} />
-                    </Link>
-                </div>
-            </div>
-            <div className="main-content flex flex-col flex-1 " >
-
-                <nav className="fixed bg-transparent top-0 p-4 backdrop-blur-xl" style={{ position: 'sticky'}}>
-                    <div className="flex items-center justify-between">
-                        <div className='flex items-center gap-3'>
-                            <Link href="/stories" className='text-black bg-white border cursor-pointer flex items-center justify-center py-2 px-2 rounded-lg transition-all'>
-                                <ArrowLeft size={16} />
-                            </Link>
-                            <h2 className="text-gray-500 text-2xl font-bold">Stories</h2>
-                        </div>
-
-                        <div className="flex ">
-                            <div className="bg-[#D8D1DE3D] cursor-pointer border  flex items-center px-2 py-1 gap-2 rounded-md border-gray-50 hover:bg-gray-200">
-                                <div className="stories-btn text-xs text-gray-500">
-                                    Total publications
-                                </div>
-                                <div className=" bg-white text-lg rounded-sm px-2 py-1 font-semibold">200</div>
-                            </div>
-                        </div>
-                    </div>
-                </nav>
-
-                <div className='px-20 overflow-y-auto'>
+        <>
+            <ReadersHeaderComponent returnTitle="Stories" returnUrl="/stories"/>
+            <div className='overflow-y-auto'>
+                <div className="px-40">
                     { isLoading && 
                         <div>
                             <Skeleton className="w-full h-80 rounded-3xl mb-5" />
@@ -120,7 +85,7 @@ const ReadStoryPage = ({ params }: ReadStoryProps) => {
                     { !isLoading && <StoryCommentsComponent story={story}/>}
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 
