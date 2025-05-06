@@ -107,7 +107,7 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                                     />
                                 </div>
                             </div>
-                            <h1 className="text-5xl font-bold text-gray-800 mt-3">{story?.projectTitle}</h1>
+                            <h1 className="text-5xl font-bold capitalize text-gray-800 mt-3">{story?.projectTitle}</h1>
                         </div>
 
                         {/* Author Info */}
