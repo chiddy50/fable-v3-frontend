@@ -39,7 +39,7 @@ const PublishOriginalComponent: React.FC<Props> = ({
             isFree={isFree} 
             prevLabel="Write It"
             story={story} 
-        
+            hideDraftBtn={true}
             />
 
             <StoryImagesComponent story={story} refetch={refetch}/>

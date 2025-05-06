@@ -16,6 +16,7 @@ interface Props {
     hideAddChapterBtn: boolean;
     confirmAddNewChapter?: () => void;
     saveChaptersProgress: () => any;
+    hideDraftBtn?: boolean;
 }
 
 const StoryEditorHeader: React.FC<Props> = ({
@@ -24,7 +25,8 @@ const StoryEditorHeader: React.FC<Props> = ({
     story,
     hideAddChapterBtn = true,
     confirmAddNewChapter,
-    saveChaptersProgress
+    saveChaptersProgress,
+    hideDraftBtn = false
 }) => {
     const [showPreview, setShowPreview] = useState<boolean>(false);
     const [chapterInPreview, setChapterInPreview] = useState<ChapterInterface|null>(null);
@@ -43,9 +45,9 @@ const StoryEditorHeader: React.FC<Props> = ({
     return (
         <div className="bg-white p-4 rounded-xl mb-10">
             <div className="flex items-center justify-between mb-2">
-                <div onClick={moveBack} className="flex items-center gap-1 cursor-pointer bg-[#F9F9F9] hover:bg-gray-100 py-2 px-2 rounded-xl">
-                    <i className='bx bx-chevron-left text-xl text-gray-500'></i>
-                    <span className="text-xs font-semibold text-[#33164C]">{prevLabel}</span>
+                <div onClick={moveBack} className="flex items-center gap-1 cursor-pointer bg-[#33164C] py-2 px-2 rounded-xl">
+                    <i className='bx bx-chevron-left text-xl text-gray-50'></i>
+                    <span className="text-sm font-semibold text-white">{prevLabel}</span>
                 </div>
 
                 <div className="flex items-center gap-5">
@@ -55,12 +57,16 @@ const StoryEditorHeader: React.FC<Props> = ({
                         <Eye size={16} />
                         <span className="text-xs">Preview</span>
                     </div>
-                    <div 
-                    onClick={saveChaptersProgress}                    
-                    className="flex items-center gap-2 cursor-pointer bg-[#F9F9F9] hover:bg-gray-100 py-2 px-3 rounded-lg">
-                        <Save size={15} />
-                        <span className="text-xs">Save Draft</span>
-                    </div>
+
+                    {!hideDraftBtn &&
+                        <div 
+                        onClick={saveChaptersProgress}                    
+                        className="flex items-center gap-2 cursor-pointer bg-[#F9F9F9] hover:bg-gray-100 py-2 px-3 rounded-lg">
+                            <Save size={15} />
+                            <span className="text-xs">Save Draft</span>
+                        </div>
+                    }
+
                     {hideAddChapterBtn === false &&
                         <div onClick={confirmAddNewChapter} className="flex items-center gap-2 cursor-pointer bg-black text-white py-2 px-3 rounded-lg">
                             <Image src="/icon/book-edit.svg" alt="book-edit icon" width={13} height={13} />

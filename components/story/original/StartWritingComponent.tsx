@@ -8,6 +8,7 @@ import StartWritingFooterComponent from './StartWritingFooterComponent';
 import ModalBoxComponent from '@/components/shared/ModalBoxComponent';
 import { toast } from 'sonner';
 import ChapterImagesComponent from './ChapterImagesComponent';
+import { hidePageLoader, showPageLoader } from '@/lib/helper';
 
 interface Props {    
     story: StoryInterface | null;    
@@ -133,7 +134,8 @@ const StartWritingComponent: React.FC<Props> = ({
         }
     }
 
-    const saveChaptersProgress = async () => {        
+    const saveChaptersProgress = async () => {       
+        showPageLoader() 
         try {            
             const updated = await axiosInterceptorInstance.put(`/v2/chapters/update-many/${story?.id}`, { 
                 chapters
@@ -144,6 +146,8 @@ const StartWritingComponent: React.FC<Props> = ({
         } catch (error) {
             console.log(error);  
             return false;          
+        }finally{
+            hidePageLoader()
         }
     }
 
