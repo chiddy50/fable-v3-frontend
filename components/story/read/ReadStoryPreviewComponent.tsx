@@ -55,7 +55,7 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
             {
                 story &&
                 <div 
-                    className="w-full max-w-4xl max-h-screen overflow-y-auto my-4 pb-4"
+                    className="w-full max-w-4xl max-h-screen overflow-y-auto my-10 pb-4"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="relative w-full bg-white shadow-lg rounded-3xl overflow-hidden">
@@ -135,11 +135,14 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                                             border="border border-white"
                                         />
                                     </div>
-                                    <span className="text-gray-600 text-sm font-medium">@{user?.name ?? "Anonymous"}</span>
+                                    <span className="text-gray-600 text-sm font-medium">@{story?.user?.name ?? "Anonymous"}</span>
                                 </div>
 
                                 {story?.publishedAt && <div className="flex items-center text-gray-600">
-                                    <span className="mx-2 text-xs"><span className='font-bold'>5min read</span> • {story?.publishedAt ? formatDate(story?.publishedAt) : ""}</span>
+                                    <span className="mx-2 text-xs">
+                                        {/* <span className='font-bold'>5min read</span> •  */}
+                                        {story?.publishedAt ? formatDate(story?.publishedAt) : ""}
+                                    </span>
                                 </div>}
                                 {!story?.publishedAt && 
                                 <span className="inline-block bg-[#3A3A3A] capitalize text-gray-50 font-medium text-xs px-4 py-2 rounded-lg">
