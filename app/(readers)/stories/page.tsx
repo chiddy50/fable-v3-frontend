@@ -87,7 +87,7 @@ const StoriesPage = () => {
                 <div className=' bg-[#FBFBFB]'>
                     {/* <div className="mt-[260px] px-20 grid p-5 grid-cols-6 gap-12"> */}
                     <div className=" grid p-5 grid-cols-6 gap-12">
-                        <div className="left-container bg-white rounded-2xl p-5 col-span-6 ">
+                        <div className="left-container bg-white rounded-2xl p-5 col-span-6 mb-10">
                             <div className="flex gap-9 items-center mb-3">                
                                 <div className='bg-[#F5F5F5] rounded-xl p-2 cursor-pointer'>
                                     <Image src="/icon/add-circle-half-dot.svg" alt="add-circle-half-dot icon" className=" " width={16} height={16} />
@@ -129,7 +129,7 @@ const StoriesPage = () => {
 
                             </div>
 
-                            <div className="mt-10">
+                            <div className="mt-10 mb-10">
                                 {loading && 
                                 <div className="grid grid-cols-4 gap-5">
                                     <Skeleton className="col-span-1 h-[390px] rounded-2xl" />
