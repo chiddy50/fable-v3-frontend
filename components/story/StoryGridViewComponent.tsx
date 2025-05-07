@@ -52,7 +52,7 @@ const StoryGridViewComponent = ({ image, story }: { image: string, story: any })
                 count={1} 
                 name={story?.user?.name} 
                 user={story?.user} 
-                borderRadius="rounded-full" 
+                borderRadius="rounded-xl" 
             />
 
             <h1 className='mt-3 font-bold text-lg capitalize'>

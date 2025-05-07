@@ -117,7 +117,7 @@ const RandomStoryComponent = ({ randomStory, loading }: { randomStory: StoryInte
                                 {/* Overview */}
                                 <div className="text-sm text-gray-600">
                                     <h2 className="text-lg font-bold">Overview</h2>
-                                    <p className="py-2 text-xs font-light w-3/5">{randomStory?.projectDescription}</p>
+                                    <p className="py-2 text-xs font-light w-3/5 capitalize">{randomStory?.projectDescription}</p>
                                 </div>
                         </div>
                     }
