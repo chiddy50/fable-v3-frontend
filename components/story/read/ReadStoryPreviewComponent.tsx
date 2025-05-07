@@ -48,7 +48,7 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
 
     return (
         <div 
-            className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-30 flex items-start justify-center ${showPreview ? '' : 'hidden'}`}
+            className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center ${showPreview ? '' : 'hidden'}`}
             onClick={handleBackdropClick}
         >
             {/* Modal Container - This is the key scrollable element */}
@@ -135,7 +135,7 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                                             border="border border-white"
                                         />
                                     </div>
-                                    <span className="text-gray-600 text-sm font-medium">@{user?.name}</span>
+                                    <span className="text-gray-600 text-sm font-medium">@{user?.name ?? "Anonymous"}</span>
                                 </div>
 
                                 {story?.publishedAt && <div className="flex items-center text-gray-600">
