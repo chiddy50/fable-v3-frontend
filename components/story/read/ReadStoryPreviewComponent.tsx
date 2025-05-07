@@ -139,7 +139,10 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                                 </div>
 
                                 {story?.publishedAt && <div className="flex items-center text-gray-600">
-                                    <span className="mx-2 text-xs"><span className='font-bold'>5min read</span> • {story?.publishedAt ? formatDate(story?.publishedAt) : ""}</span>
+                                    <span className="mx-2 text-xs">
+                                        {/* <span className='font-bold'>5min read</span> •  */}
+                                        {story?.publishedAt ? formatDate(story?.publishedAt) : ""}
+                                    </span>
                                 </div>}
                                 {!story?.publishedAt && 
                                 <span className="inline-block bg-[#3A3A3A] capitalize text-gray-50 font-medium text-xs px-4 py-2 rounded-lg">
