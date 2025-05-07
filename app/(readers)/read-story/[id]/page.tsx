@@ -70,7 +70,7 @@ const ReadStoryPage = ({ params }: ReadStoryProps) => {
         <>
             <ReadersHeaderComponent returnTitle="Stories" returnUrl="/stories"/>
             <div className='overflow-y-auto'>
-                <div className="px-40">
+                <div className="sm:px-5 md:px-12 lg:px-20 xl:px-40">
                     { isLoading && 
                         <div>
                             <Skeleton className="w-full h-80 rounded-3xl mb-5" />

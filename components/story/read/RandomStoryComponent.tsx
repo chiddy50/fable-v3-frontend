@@ -62,7 +62,7 @@ const RandomStoryComponent = ({ randomStory, loading }: { randomStory: StoryInte
                                     className="w-full h-full object-cover"
                                 />
                             </div>
-                            <h1 className="text-5xl font-bold capitalize text-gray-800 mt-3">{randomStory?.projectTitle}</h1>
+                            <h1 className=" font-bold capitalize text-gray-800 mt-3 text-4xl sm:text-4xl md:text-4xl lg:text-4xl xl:text-5xl">{randomStory?.projectTitle}</h1>
     
                         </div>
                     </div>
@@ -117,7 +117,7 @@ const RandomStoryComponent = ({ randomStory, loading }: { randomStory: StoryInte
                                 {/* Overview */}
                                 <div className="text-sm text-gray-600">
                                     <h2 className="text-lg font-bold">Overview</h2>
-                                    <p className="py-2 text-xs font-light w-3/5 capitalize">{randomStory?.projectDescription}</p>
+                                    <p className="py-2 text-xs font-light xs:w-full sm:w-full md:w-full lg:w-4/5 xl:w-3/5 capitalize">{randomStory?.projectDescription}</p>
                                 </div>
                         </div>
                     }
