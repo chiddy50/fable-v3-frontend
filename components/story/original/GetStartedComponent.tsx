@@ -155,13 +155,16 @@ const GetStartedComponent: React.FC<Props> = ({
         let redirectUrl = `/dashboard/write-original-story?story-id=${story?.id}&current-step=${currentStep + 1}`;
         setCurrentStep(currentStep + 1)
         router.push(redirectUrl);
+        
         return response;
     }
 
     const create = async (payload: any) => {
         let url = `${process.env.NEXT_PUBLIC_BASE_URL}/v2/stories/getting-started`;
         const response = await axiosInterceptorInstance.post(url, payload); 
-        let newStory = response?.data?.data?.newStory;
+        console.log(response);
+        
+        let newStory = response?.data?.story;
         setStory(newStory);
 
         let redirectUrl = `/dashboard/write-original-story?story-id=${newStory?.id}&current-step=${currentStep + 1}`;

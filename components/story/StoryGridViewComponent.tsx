@@ -21,7 +21,7 @@ const StoryGridViewComponent = ({ image, story }: { image: string, story: any })
 
             <div className="relative w-full h-[230px] mb-3 rounded-2xl overflow-hidden"
                 style={{
-                    backgroundImage: `url(${image ?? `/img/placeholder2.png`})`,
+                    backgroundImage: `url(${image ?? `/logo/fable_black.png`})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center'
                     // backgroundPosition: 'center top'
