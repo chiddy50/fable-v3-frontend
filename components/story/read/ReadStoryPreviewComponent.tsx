@@ -55,7 +55,7 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
             {
                 story &&
                 <div 
-                    className="w-full max-w-4xl max-h-screen overflow-y-auto my-4 pb-4"
+                    className="w-full max-w-4xl max-h-screen overflow-y-auto my-10 pb-4"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="relative w-full bg-white shadow-lg rounded-3xl overflow-hidden">
