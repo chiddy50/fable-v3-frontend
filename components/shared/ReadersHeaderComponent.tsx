@@ -15,7 +15,7 @@ export const ReadersHeaderComponent = ({ returnUrl, returnTitle }: { returnUrl: 
                     <Link href={returnUrl} className='text-black bg-white border cursor-pointer flex items-center justify-center py-2 px-2 rounded-lg transition-all hover:bg-gray-100'>
                         <ArrowLeft size={16} />
                     </Link>
-                    <h2 className="text-gray-700 text-2xl font-bold">{returnTitle}</h2>
+                    <h2 className="text-white text-shadow-dark text-2xl font-bold">{returnTitle}</h2>
                 </div>
 
                 <div className="flex">

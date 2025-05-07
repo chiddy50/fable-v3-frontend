@@ -135,7 +135,7 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                                             border="border border-white"
                                         />
                                     </div>
-                                    <span className="text-gray-600 text-sm font-medium">@{user?.name ?? "Anonymous"}</span>
+                                    <span className="text-gray-600 text-sm font-medium">@{story?.user?.name ?? "Anonymous"}</span>
                                 </div>
 
                                 {story?.publishedAt && <div className="flex items-center text-gray-600">
