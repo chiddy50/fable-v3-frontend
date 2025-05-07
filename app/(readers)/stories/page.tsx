@@ -129,7 +129,7 @@ const StoriesPage = () => {
 
                             </div>
 
-                            <div className="mt-10 mb-10">
+                            <div className="mt-10 mb-10 min-h-[800px]">
                                 {loading && 
                                 <div className="grid grid-cols-4 gap-5">
                                     <Skeleton className="col-span-1 h-[390px] rounded-2xl" />

@@ -100,6 +100,7 @@ const AuthorComponent: React.FC<Props> =  ({ count, name, publishedAt, imageUrl,
                 <AuthorBioCardComponent 
                     setShowBio={setShowBio} 
                     bioCardRef={bioCardRef}
+                    user={user}
                 />
             )}
         </div>
