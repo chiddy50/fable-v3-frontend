@@ -1,21 +1,32 @@
 "use client"
 
-import React from 'react'
-import { ArrowLeft } from "lucide-react";
+import React, { useContext } from 'react'
+import { ArrowLeft, Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { AppContext } from '@/context/MainContext';
 
 
 export const ReadersHeaderComponent = ({ returnUrl, returnTitle }: { returnUrl: string, returnTitle: string }) => {
+    const { user, mobileSideNavIsOpen, setMobileSideNavIsOpen } = useContext(AppContext)
+    
     return (
         // <nav className="fixed bg-transparent top-0 p-4 backdrop-blur-xl" style={{ position: 'sticky'}}>        
         <nav className="absolute h-[80px] top-0 left-0 w-full bg-white/30 backdrop-blur-md z-50 px-6 py-4 border-b border-white/10" >
             <div className="flex items-center justify-between">
-                <div className='flex items-center gap-3'>
-                    <Link href={returnUrl} className='text-black bg-white border cursor-pointer flex items-center justify-center py-2 px-2 rounded-lg transition-all hover:bg-gray-100'>
-                        <ArrowLeft size={16} />
-                    </Link>
-                    <h2 className="text-white text-shadow-dark text-2xl font-bold">{returnTitle}</h2>
+                <div className='flex items-center gap-7'>
+                    <div onClick={() => setMobileSideNavIsOpen(true)} className="block lg:hidden xl:hidden">
+                        <div className='text-black bg-white border cursor-pointer flex items-center justify-center py-2 px-2 rounded-lg transition-all hover:bg-gray-100'>
+                            <Menu size={16}/>
+                        </div>
+                    </div>
+
+                    <div className='flex items-center gap-3'>
+                        <Link href={returnUrl} className='text-black bg-white border cursor-pointer flex items-center justify-center py-2 px-2 rounded-lg transition-all hover:bg-gray-100'>
+                            <ArrowLeft size={16} />
+                        </Link>
+                        <h2 className="text-white text-shadow-dark text-2xl font-bold">{returnTitle}</h2>
+                    </div>
                 </div>
 
                 <div className="flex">

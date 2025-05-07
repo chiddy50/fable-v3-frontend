@@ -14,6 +14,7 @@ export function MainContext({ children }) {
     const [address, setAddress] = useState("");
     const [firstTimeLogin, setFirstTimeLogin] = useState(true);
     const [showTopUpCreditModal, setShowTopUpCreditModal] = useState(false);
+    const [mobileSideNavIsOpen, setMobileSideNavIsOpen] = useState(false);
 
     useEffect(() => {
         if (typeof window === 'object') {
@@ -30,7 +31,8 @@ export function MainContext({ children }) {
             address, setAddress,
             firstTimeLogin, setFirstTimeLogin,
             user, setUser,
-            showTopUpCreditModal, setShowTopUpCreditModal
+            showTopUpCreditModal, setShowTopUpCreditModal,
+            mobileSideNavIsOpen, setMobileSideNavIsOpen
         }}>
             {children}
         </AppContext.Provider>

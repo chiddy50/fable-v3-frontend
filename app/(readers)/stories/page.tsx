@@ -84,7 +84,7 @@ const StoriesPage = () => {
 
 
 
-                <div className=' bg-[#FBFBFB]'>
+                <div className='mt-10 bg-[#FBFBFB]'>
                     {/* <div className="mt-[260px] px-20 grid p-5 grid-cols-6 gap-12"> */}
                     <div className=" grid p-5 grid-cols-6 gap-12">
                         <div className="left-container bg-white rounded-2xl p-5 col-span-6 mb-10">
