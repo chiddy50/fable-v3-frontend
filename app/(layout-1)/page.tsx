@@ -82,7 +82,7 @@ export default function Home() {
 		<>
 			<div className="min-h-screen bg-[#f9f9f9]">
 				<nav className="bg-white h-28 rounded-[25%_25%_25%_25%_/_0%_0%_100%_100%] fixed top-0 left-0 w-full z-10">
-					<div className="px-[10rem] h-full flex items-center justify-between">
+					<div className="px-[10rem] h-full flex items-center justify-center sm:justify-between">
 						<div className="logo">
 							<Image src="/logo/fable_new_logo.svg" alt="Fable logo" className=" " width={90} height={90} />
 
@@ -90,7 +90,7 @@ export default function Home() {
 
 						{/* <WalletIndicator /> */}
 
-						<div className="bg-[#D8D1DE3D] flex items-center p-2 gap-2 rounded-xl">
+						<div className="bg-[#D8D1DE3D]  items-center p-2 gap-2 rounded-xl hidden sm:flex">
 							<div className="stories-btn text-xs">
 								Stories
 							</div>
@@ -99,22 +99,23 @@ export default function Home() {
 					</div>
 				</nav>
 
-				<section className="pt-[112px] grid grid-cols-2 px-[10rem] gap-5">
+				<section className="pt-[112px] grid md:grid-cols-1 lg:grid-cols-2 gap-5 px-[1rem] sm:px-[1rem] md:px-[4rem] lg:px-[4rem] xl:px-[10rem] ">
 					<section className="hero flex flex-col justify-center">
-						<div className="hero-left h-fit">
+						<div className="hero-left flex flex-col items-center h-fit mt-5 sm:mt-5 lg:mt-0">
 							{/* <h1 className="text-8xl font-bold">Reimagine Storytelling</h1> */}
 							<Typewriter.Container typingSpeed={50}>
 
-								<Typewriter.Paragraph  className="text-8xl font-bold">Reimagine Storytelling</Typewriter.Paragraph>
+								<Typewriter.Paragraph  className="text-5xl text-center sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold">Reimagine Storytelling</Typewriter.Paragraph>
 								{/* <p className="my-10"> */}
-									<Typewriter.Paragraph className="my-10">
-									Fable accelerates your storytelling journey with AI and blockchain.
-									Unlock creativity, trade assets, and earn seamlessly.
+									<Typewriter.Paragraph className="my-4 sm:my-4 lg:my-10">
+									{/* Fable accelerates your storytelling journey with AI and blockchain.
+									Unlock creativity, trade assets, and earn seamlessly. */}
+									Creating better stories faster...
 									</Typewriter.Paragraph>
 								{/* </p> */}
 							</Typewriter.Container>
 
-							<div className="flex gap-5 items-center">
+							<div className="flex gap-5 flex-col md:flex-col lg:flex-row items-center">
 								{/* <WalletIndicator />
 								<p>or</p> */}
 								{ !isLoggedIn && <LoginComponent /> }
@@ -149,13 +150,13 @@ export default function Home() {
 						</div>
 					</section>
 
-					<section className="relative">
+					<section className="relative hidden sm:hidden lg:block">
 						<StoryCarouselComponent movies={movies}/>					 
 					</section>
 
 				</section>
 
-				<section className="mt-38 px-20">
+				<section className="mt-20 px-5 md:block lg:hidden">
 					<StoryVerticalCarouselComponent movies={movies}/>
 				</section>
 			</div>

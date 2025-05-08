@@ -15,6 +15,7 @@ import { UserAvatarComponent } from '../shared/UserAvatarComponent';
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import { ChapterInterface } from '@/interfaces/ChapterInterface';
 import { formatDate } from '@/lib/helper';
+import GradientButtonComponent from '../shared/GradientButtonComponent';
 
 
 
@@ -168,8 +169,8 @@ const ReadStoryComponent: React.FC<Props> = ({
 
                             <div className="flex items-center gap-2">
                                 {
-                                    story?.storyAudiences?.map(item => (
-                                        <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-lg text-[10px]">{item?.targetAudience?.name}</span>
+                                    story?.storyAudiences?.map((item, index) => (
+                                        <span key={index} className="px-3 py-1 bg-gray-100 text-gray-800 rounded-lg text-[10px]">{item?.targetAudience?.name}</span>
                                     ))
                                 }
                             </div>
@@ -185,20 +186,37 @@ const ReadStoryComponent: React.FC<Props> = ({
 
 
 
-                        <div className="flex items-center justify-center mt-7">
-                            
-
+                        <div className="flex items-center justify-center mt-7">                        
                             <div className="flex items-center gap-3">
                                 <button disabled={disablePrevBtn} onClick={() => moveToPrevChapter(activeChapter)} className={`w-10 h-10 flex rounded-xl bg-gray-100 cursor-pointer border border-gray-300 justify-center items-center ${disablePrevBtn ? "opacity-40" : "opacity-100"}`}>
                                     <ArrowLeft className='text-gray-400' size={15} />
                                 </button>
+                                {/* <GradientButtonComponent 
+                                direction="left" 
+                                size="sm" 
+                                disabled={disablePrevBtn} 
+                                opacity={`${disablePrevBtn ? "opacity-40" : "opacity-100"}`}
+                                chapter={activeChapter}
+                                handleClick={moveToPrevChapter}
+                                /> */}
+
                                 <button disabled={disableNextBtn} onClick={() => moveToNextChapter(activeChapter)} className={`w-10 h-10 flex rounded-xl bg-gray-100 cursor-pointer border border-gray-300 justify-center items-center ${disableNextBtn ? "opacity-40" : "opacity-100"}`}>
                                     <ArrowRight className='text-gray-400' size={15} />
                                 </button>
+                                {/* <GradientButtonComponent 
+                                direction="right" 
+                                size="sm" 
+                                disabled={disablePrevBtn} 
+                                opacity={`${disableNextBtn ? "opacity-40" : "opacity-100"}`}
+                                chapter={activeChapter}
+                                handleClick={moveToNextChapter}
+                                /> */}
                             </div>
-
-
                         </div>
+
+
+
+                        
 
 
                     </div>
