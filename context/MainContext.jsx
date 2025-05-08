@@ -23,6 +23,17 @@ export function MainContext({ children }) {
         }
     }, []);
 
+    const logout = () => {
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("storyId");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("storyId");
+        setIsLoggedIn(false);
+        window.location.href = "/"
+    };
+
     return (
         <AppContext.Provider value={{
             isLoggedIn, setIsLoggedIn,
@@ -32,7 +43,8 @@ export function MainContext({ children }) {
             firstTimeLogin, setFirstTimeLogin,
             user, setUser,
             showTopUpCreditModal, setShowTopUpCreditModal,
-            mobileSideNavIsOpen, setMobileSideNavIsOpen
+            mobileSideNavIsOpen, setMobileSideNavIsOpen,
+            logout
         }}>
             {children}
         </AppContext.Provider>

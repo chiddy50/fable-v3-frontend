@@ -1,6 +1,6 @@
 'use client';
 
-import React, { use, Suspense, useState } from 'react'
+import React, { use, Suspense, useState, useEffect } from 'react'
 import Image from "next/image";
 import TopRankingStoryComponent from '@/components/story/TopRankingStoryComponent';
 import PopularStoryComponent from '@/components/story/PopularStoryComponent';
@@ -41,6 +41,8 @@ const ReadStoryPage = ({ params }: ReadStoryProps) => {
     const [story, setStory] = useState<StoryInterface|null>(null);
     const [chapter, setChapter] = useState<ChapterInterface|null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [disableNextBtn, setDisableNextBtn] = useState<boolean>(false);
+    const [disablePrevBtn, setDisablePrevBtn] = useState<boolean>(false);
 
     const { data: storyData, isFetching, isLoading, isError, refetch } = useQuery({
         queryKey: ['storyFromScratchFormData', storyId],
@@ -65,6 +67,61 @@ const ReadStoryPage = ({ params }: ReadStoryProps) => {
         enabled: !!storyId && !story,
     });
 
+    useEffect(() => {
+        if (chapter) {            
+            const amountOfChapters = story?.chapters?.length ?? 0;
+    
+            if (chapter?.index >= amountOfChapters) {   
+                setDisableNextBtn(true);
+            }
+
+            if (chapter?.index === 1) {   
+                setDisablePrevBtn(true)
+            }else{
+                setDisablePrevBtn(false)
+            }
+        }
+    }, [chapter])
+
+    const moveToNextChapter = (chapter: ChapterInterface) => {
+        console.log(chapter);
+        let chapterIndex = chapter.index;
+        let chapterId = chapter.id;
+
+        let nextIndex = chapter.index + 1;
+        const amountOfChapters = story?.chapters?.length ?? 0;
+
+        
+        if (chapterIndex >= amountOfChapters) {
+            console.log(chapterIndex +" is the final chapter");    
+            setDisableNextBtn(true);
+            return;        
+        }
+        setDisableNextBtn(false);
+        const nextChapter = story?.chapters?.find(parsedChapter => parsedChapter.index === nextIndex);
+
+
+        if (amountOfChapters > chapterIndex) {
+            console.log("Moving to chapter "+nextIndex);            
+            console.log({nextChapter});  
+            setChapter(nextChapter)          
+        }
+    }
+
+    const moveToPrevChapter = (chapter: ChapterInterface) => {
+        console.log(chapter);
+        let chapterIndex = chapter.index;
+        let prevIndex = chapter.index - 1;
+        const amountOfChapters = story?.chapters?.length ?? 0;
+        setDisableNextBtn(false);
+        if (prevIndex === 1) {   
+            setDisablePrevBtn(true)
+        }
+
+        const prevChapter = story?.chapters?.find(parsedChapter => parsedChapter.index === prevIndex);
+        setChapter(prevChapter);    
+
+    }
 
     return (
         <>
@@ -81,7 +138,16 @@ const ReadStoryPage = ({ params }: ReadStoryProps) => {
 
                         </div>
                     }
-                    { !isLoading && <ReadStoryComponent setChapter={setChapter} activeChapter={chapter} story={story}/> }
+                    { !isLoading && <ReadStoryComponent 
+                    setChapter={setChapter} 
+                    activeChapter={chapter} 
+                    story={story} 
+                    moveToNextChapter={moveToNextChapter} 
+                    moveToPrevChapter={moveToPrevChapter}
+                    disableNextBtn={disableNextBtn}
+                    disablePrevBtn={disablePrevBtn}
+                    /> 
+                    }
                     { !isLoading && <StoryCommentsComponent story={story}/>}
                 </div>
             </div>

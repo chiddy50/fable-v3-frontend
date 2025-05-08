@@ -22,12 +22,20 @@ interface Props {
     setChapter: React.Dispatch<React.SetStateAction<ChapterInterface | null>>;
     activeChapter: ChapterInterface | null;
     story: StoryInterface | null;
+    moveToNextChapter: (chapter: ChapterInterface) => void;
+    moveToPrevChapter: (chapter: ChapterInterface) => void;
+    disableNextBtn: boolean;
+    disablePrevBtn: boolean;
 }
 
 const ReadStoryComponent: React.FC<Props> = ({
     story,
     activeChapter,
-    setChapter
+    setChapter,
+    moveToNextChapter,
+    moveToPrevChapter,
+    disableNextBtn,
+    disablePrevBtn,
 }) => {
     const [isChapterListOpen, setIsChapterListOpen] = useState<boolean>(false);
     const chapterListRef = useRef<HTMLDivElement>(null);
@@ -80,7 +88,7 @@ const ReadStoryComponent: React.FC<Props> = ({
 
                     </div>
 
-                    <div className="flex items-center justify-between relative my-10 p-4 bg-white rounded-xl">
+                    <div className="flex items-center mx-5 lg:mx-0 xl:mx-0 justify-between relative my-10 p-4 bg-white rounded-xl">
 
                         {/* CHAPTER LIST */}
                         <div
@@ -139,34 +147,32 @@ const ReadStoryComponent: React.FC<Props> = ({
                     </div>
 
 
-                    <div className="relative my-7 p-4 bg-white rounded-xl">
+                    <div className="relative my-7 p-6 bg-white rounded-xl">
                         <h1 className='font-bold text-3xl capitalize'>{story?.projectTitle}</h1>
-                        <div className="my-3 text-sm leading-6 text-[#626262]">
+                        <div className="my-3 text-md leading-6 text-[#626262]">
 
                             <textarea name="" id="" value={activeChapter?.content} disabled className='w-full resize-none outline-none text-gray-700 placeholder:italic placeholder-gray-400 min-h-[500px]' />
                         </div>
 
 
-                        <div className="flex items-center justify-between mt-7">
-                            <div className="flex items-center gap-4">
+                        <div className="flex flex-col md:flex-col lg:flex-row xl:flex-row items-center justify-between gap-4 mt-7">
 
-                                <div className="flex items-center gap-2 mt-4">
-                                    {
-                                        story?.genres.map(genre => (
-                                            <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-lg text-[10px]">{genre}</span>
-                                        ))
-                                    }
-                                </div>
+                            {/* <div className="flex items-center gap-2 ">
+                                {
+                                    story?.genres.map(genre => (
+                                        <span  className="px-3 py-1 bg-gray-100 text-gray-800 rounded-lg text-[10px]">{genre}</span>
+                                    ))
+                                }
+                            </div> */}
+                            <GenrePillsComponent genres={story?.genres} />
 
-                                <div className="flex items-center gap-2 mt-4">
-                                    {
-                                        story?.storyAudiences?.map(item => (
-                                            <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-lg text-[10px]">{item?.targetAudience?.name}</span>
-                                        ))
-                                    }
-                                </div>
+                            <div className="flex items-center gap-2">
+                                {
+                                    story?.storyAudiences?.map(item => (
+                                        <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-lg text-[10px]">{item?.targetAudience?.name}</span>
+                                    ))
+                                }
                             </div>
-
                             <div className="flex items-center flex-wrap gap-3">
                                 <BookmarkComponent />
                                 <CommentBtnComponent />
@@ -183,16 +189,18 @@ const ReadStoryComponent: React.FC<Props> = ({
                             
 
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 flex rounded-xl bg-gray-100 cursor-pointer border border-gray-300 justify-center items-center">
+                                <button disabled={disablePrevBtn} onClick={() => moveToPrevChapter(activeChapter)} className={`w-10 h-10 flex rounded-xl bg-gray-100 cursor-pointer border border-gray-300 justify-center items-center ${disablePrevBtn ? "opacity-40" : "opacity-100"}`}>
                                     <ArrowLeft className='text-gray-400' size={15} />
-                                </div>
-                                <div className="w-10 h-10 flex rounded-xl bg-gray-100 cursor-pointer border border-gray-300 justify-center items-center">
+                                </button>
+                                <button disabled={disableNextBtn} onClick={() => moveToNextChapter(activeChapter)} className={`w-10 h-10 flex rounded-xl bg-gray-100 cursor-pointer border border-gray-300 justify-center items-center ${disableNextBtn ? "opacity-40" : "opacity-100"}`}>
                                     <ArrowRight className='text-gray-400' size={15} />
-                                </div>
+                                </button>
                             </div>
 
 
                         </div>
+
+
                     </div>
 
                 </div>
