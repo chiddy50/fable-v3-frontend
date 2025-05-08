@@ -115,7 +115,7 @@ const StoryVerticalCarouselComponent = ({ movies }) => {
             <div className="card-info">
               <div>
                 <h3 className="card-title">{movie.title}</h3>
-                <p className="card-author">@chidix</p>
+                {/* <p className="card-author">@chidix</p> */}
               </div>
               {/* <div className="card-rating text-xs">★★★ {movie.rating}/5</div> */}
             </div>
@@ -138,7 +138,7 @@ const StoryVerticalCarouselComponent = ({ movies }) => {
             <div className="card-info">
               <div>
                 <h3 className="card-title">{movie.title}</h3>
-                <p className="card-author">@chidix</p>
+                {/* <p className="card-author">@chidix</p> */}
               </div>
               {/* <div className="card-rating text-xs">★★★ {movie.rating}/5</div> */}
             </div>
