@@ -108,9 +108,9 @@ export default function Home() {
 								<Typewriter.Paragraph  className="text-5xl text-center sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold">Reimagine Storytelling</Typewriter.Paragraph>
 								{/* <p className="my-10"> */}
 									<Typewriter.Paragraph className="my-4 sm:my-4 lg:my-10">
-									Fable accelerates your storytelling journey with AI and blockchain.
-									Unlock creativity, trade assets, and earn seamlessly.
-									{/* Creating better stories faster... */}
+									{/* Fable accelerates your storytelling journey with AI and blockchain.
+									Unlock creativity, trade assets, and earn seamlessly. */}
+									Creating better stories faster...
 									</Typewriter.Paragraph>
 								{/* </p> */}
 							</Typewriter.Container>
