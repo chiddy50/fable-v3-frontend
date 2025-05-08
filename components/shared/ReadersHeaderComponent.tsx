@@ -31,8 +31,8 @@ export const ReadersHeaderComponent = ({ returnUrl, returnTitle }: { returnUrl: 
 
                 <div className="flex">
                     <div className="bg-white/30 cursor-pointer border flex items-center px-2 py-1 gap-2 rounded-md border-gray-200/50 hover:bg-white/50 transition-all">
-                        <p className="stories-btn text-xs text-gray-600">
-                            Total publications
+                        <p className="stories-btn text-xs text-gray-600 ">
+                            Stories
                         </p>
                         <p className="bg-white text-lg rounded-sm px-2 py-1 font-semibold shadow-sm">200</p>
                     </div>

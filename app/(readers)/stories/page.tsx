@@ -80,10 +80,6 @@ const StoriesPage = () => {
 
                 { randomStory && <RandomStoryComponent loading={loading} randomStory={randomStory} />}
 
-
-
-
-
                 <div className='mt-10 bg-[#FBFBFB]'>
                     {/* <div className="mt-[260px] px-20 grid p-5 grid-cols-6 gap-12"> */}
                     <div className=" grid p-5 grid-cols-6 gap-12">
