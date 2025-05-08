@@ -101,11 +101,11 @@ export default function Home() {
 
 				<section className="pt-[112px] grid md:grid-cols-1 lg:grid-cols-2 gap-5 px-[1rem] sm:px-[1rem] md:px-[4rem] lg:px-[4rem] xl:px-[10rem] ">
 					<section className="hero flex flex-col justify-center">
-						<div className="hero-left flex flex-col items-center sm:items-start h-fit mt-5 sm:mt-5 lg:mt-0">
+						<div className="hero-left flex flex-col items-center md:items-center lg:items-start xl:items-start h-fit mt-5 sm:mt-5 lg:mt-0">
 							{/* <h1 className="text-8xl font-bold">Reimagine Storytelling</h1> */}
 							<Typewriter.Container typingSpeed={50}>
 
-								<Typewriter.Paragraph  className="text-5xl text-center sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold">Reimagine Storytelling</Typewriter.Paragraph>
+								<Typewriter.Paragraph  className="text-5xl text-center lg:text-justify sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold">Reimagine Storytelling</Typewriter.Paragraph>
 								{/* <p className="my-10"> */}
 									<Typewriter.Paragraph className="my-4 sm:my-4 lg:my-10">
 									{/* Fable accelerates your storytelling journey with AI and blockchain.

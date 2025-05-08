@@ -126,7 +126,7 @@ const StoriesPage = () => {
                             </div>
 
                             <div className="mt-10 mb-10 min-h-[800px]">
-                                {!loading && 
+                                {loading && 
                                 <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                                     <Skeleton className="col-span-1 h-[390px] rounded-2xl" />
                                     <Skeleton className="col-span-1 h-[390px] rounded-2xl" />
@@ -137,7 +137,7 @@ const StoriesPage = () => {
                                 }
 
                                 {
-                                    loading && 
+                                    !loading && 
                                     <>
                                         
                                         <StoryCardComponent stories={publishedStories ?? []} activeControl={activeControl} />                        

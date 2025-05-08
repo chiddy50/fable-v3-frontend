@@ -10,7 +10,7 @@ const FooterComponent = () => {
 					<p className="text-4xl font-bold">Get Creating!</p>
 				</div>
 				<div className="flex flex-col mt-3 gap-1 text-xs justify-center items-center">
-					<p>Fable accelerates your storytelling journey with AI and blockchain.</p>
+					{/* <p>Fable accelerates your storytelling journey with AI and blockchain.</p>s */}
 					<p>Unlock creativity, trade assets, and earn seamlessly.</p>
 				</div>
 			</div>
