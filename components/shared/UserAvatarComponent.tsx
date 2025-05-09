@@ -43,13 +43,21 @@ export const UserAvatarComponent = ({
                     </div>
                 </>
             }
-            {!isDouble && <Image
+            {!isDouble && 
+            <Image
                 src={imageUrl ?? `/avatar/default-avatar.png`} 
                 alt="User avatar"
                 width={width}
                 height={height}
                 className={`${borderRadius ?? 'rounded-xl'} object-cover ${imageMargin} ${border}`}
-            />}
+            />
+            // <img
+            //     src={imageUrl ?? `/avatar/default-avatar.png `} 
+            //     alt="User avatar"
+       
+            //     className={`${borderRadius ?? 'rounded-xl'} w-[35px] h-[35px] object-cover ${imageMargin} ${border}`}
+            // />
+            }
         </>
     )
 }
