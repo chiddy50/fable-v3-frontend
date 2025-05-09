@@ -74,14 +74,14 @@ const AuthorComponent: React.FC<Props> =  ({ count, name, publishedAt, imageUrl,
             ) : (
                 <>
                     <UserAvatarComponent
-                        width={36} 
-                        height={36} 
+                        width={32} 
+                        height={32} 
                         borderRadius={borderRadius}            
                         imageUrl={user?.imageUrl ?? imageUrl ?? "/avatar/default-avatar.png"}
                         imageMargin='mr-3'
                     />
                     <div className='text-[10px] relative'>
-                        <span className="text-gray-600">By </span>
+                        {/* <span className="text-gray-600">By </span> */}
                         <span 
                             ref={authorNameRef}
                             className="font-semibold hover:underline cursor-pointer" 

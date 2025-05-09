@@ -17,12 +17,14 @@ export default function Layout1({
 	children: React.ReactNode
 }) {
 
-	const { user, mobileSideNavIsOpen, setIsLoggedIn, setMobileSideNavIsOpen, logout } = useContext(AppContext)
+	const { user, isLoggedIn, logout } = useContext(AppContext)
 
 	const [showTopUpTooltip, setShowTopUpTooltip] = useState<boolean>(false)
 	const [showLogoutTooltip, setShowLogoutTooltip] = useState<boolean>(false)
 	const [showDashboardTooltip, setShowDashboardTooltip] = useState<boolean>(false)
 	const [showHomeTooltip, setShowHomeTooltip] = useState<boolean>(false)
+
+	
 
 	return (
 		<>
@@ -40,41 +42,62 @@ export default function Layout1({
 							</Link>
 							<TooltipComponent showTooltip={showHomeTooltip} text="Home" />
 						</div>
+						{isLoggedIn &&
+							<div 
+								onMouseEnter={() => setShowDashboardTooltip(true)}
+								onMouseLeave={() => setShowDashboardTooltip(false)}
+							className="w-full relative flex justify-center">
+								<Link href="/dashboard" className='flex cursor-pointer items-center justify-center gap-3 rounded-xl w-full px-3 py-4 hover:bg-gray-200'>
+									<Image src="/icon/feather.svg" alt="feather icon" className=" " width={17} height={17} />
+								</Link>
+								<TooltipComponent showTooltip={showDashboardTooltip} text="Dashboard" />
+							</div>
+						}
 
-						<div 
-							onMouseEnter={() => setShowDashboardTooltip(true)}
-							onMouseLeave={() => setShowDashboardTooltip(false)}
-						className="w-full relative flex justify-center">
-							<Link href="/dashboard" className='flex cursor-pointer items-center justify-center gap-3 rounded-xl w-full px-3 py-4 hover:bg-gray-200'>
-								<Image src="/icon/feather.svg" alt="feather icon" className=" " width={17} height={17} />
-							</Link>
-							<TooltipComponent showTooltip={showDashboardTooltip} text="Dashboard" />
-						</div>
 					</div>
 
 					<div className="flex flex-col items-center gap-5 mb-5">
 						
-						<UserAvatarWithTooltip 
-						user={user} 
-						size={40} 
-						tooltipDistance={12} 
-						/>
+						{
+							!isLoggedIn && 						
+							<UserAvatarWithTooltip 
+							user={user} 
+							size={40} 
+							tooltipDistance={12} 
+							/>
+						}
 
-						<div 
-						onMouseEnter={() => setShowTopUpTooltip(true)}
-						onMouseLeave={() => setShowTopUpTooltip(false)}
-						className='flex relative cursor-pointer items-center justify-center bg-black text-white gap-3 rounded-xl w-[40px] h-[40px] px-3 py-4'>
-							<Plus size={20}/>
-							<TooltipComponent showTooltip={showTopUpTooltip} text="TopUp credit" />
-						</div>
+						{
+							isLoggedIn && 
+							<Link href="/creator">
+								<UserAvatarWithTooltip 
+								user={user} 
+								size={40} 
+								tooltipDistance={12} 
+								/>
+							</Link>
+						}
 
-						<div 
-						onMouseEnter={() => setShowLogoutTooltip(true)}
-						onMouseLeave={() => setShowLogoutTooltip(false)}
-						onClick={logout} className='relative flex cursor-pointer items-center justify-center gap-3 rounded-xl w-[40px] h-[40px] px-3 py-4 hover:bg-gray-200'>
-							<LogOut size={20}/>
-							<TooltipComponent showTooltip={showLogoutTooltip} text="Logout" />							
-						</div>
+						{isLoggedIn &&
+
+							<>
+								<div 
+								onMouseEnter={() => setShowTopUpTooltip(true)}
+								onMouseLeave={() => setShowTopUpTooltip(false)}
+								className='flex relative cursor-pointer items-center justify-center bg-black text-white gap-3 rounded-xl w-[40px] h-[40px] px-3 py-4'>
+									<Plus size={20}/>
+									<TooltipComponent showTooltip={showTopUpTooltip} text="TopUp credit" />
+								</div>
+
+								<div 
+								onMouseEnter={() => setShowLogoutTooltip(true)}
+								onMouseLeave={() => setShowLogoutTooltip(false)}
+								onClick={logout} className='relative flex cursor-pointer items-center justify-center gap-3 rounded-xl w-[40px] h-[40px] px-3 py-4 hover:bg-gray-200'>
+									<LogOut size={20}/>
+									<TooltipComponent showTooltip={showLogoutTooltip} text="Logout" />							
+								</div>
+							</>
+						}
 
 					</div>
 				</div>

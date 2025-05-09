@@ -8,13 +8,10 @@ import { AppContext } from '@/context/MainContext';
 
 
 interface Props {
-    params: {
-        id: string;
-    };
+    params: Promise<{ id: string }>
 }
-
-const LoginSuccessPage = ({ params }: { params: Promise<{ id: string }> }) => {
-    const { id } = use(params); 
+const LoginSuccessPage = ({ params }: Props) => {
+    const { id } = use(params);
     const decodedId = decodeURIComponent(id);
 
     const [authenticated, setAuthenticated] = useState<boolean>(false);

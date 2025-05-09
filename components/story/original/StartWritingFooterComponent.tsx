@@ -315,7 +315,7 @@ const StartWritingFooterComponent: React.FC<Props> = ({
                             <BookOpenCheck size={50} />
                         </div>
                     </div>
-                    <h1 className="mb-7 mt-5 text-gray-600 text-center">You're about to publish Chapter {activeChapterData?.index}?</h1>
+                    <h1 className="mb-7 mt-5 text-gray-600 text-center">You're about to {activeChapterData?.readersHasAccess === true ? "unpublish" : "publish"} Chapter {activeChapterData?.index}?</h1>
                     <div className="grid grid-cols-2 gap-3 ">
                         <button 
                         onClick={() => setShowConfirmPublishModal(false)}

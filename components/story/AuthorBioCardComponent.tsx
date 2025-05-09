@@ -72,7 +72,7 @@ const AuthorBioCardComponent: React.FC<AuthorBioCardProps> = ({
             </div>
 
             <div className="flex items-center mt-3 justify-between">
-                <Link href="/creator">
+                <Link href={`/creator/${user?.id}`}>
                     <p className='text-sm font-bold cursor-pointer hover:underline'>{user?.name ?? "Anonymous"}</p>
                 </Link>
                 <p className='text-xs'>{ user?.name ? `@${user?.name}` : "Anonymous"}</p>

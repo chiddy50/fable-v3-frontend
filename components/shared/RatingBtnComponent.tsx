@@ -34,7 +34,7 @@ const RatingBtnComponent = () => {
         <>
             <div 
             ref={triggerBoxRef}
-            onClick={() => setShowRating(true)}  className='flex relative items-center gap-2 bg-[#F5F5F5] rounded-xl p-2 cursor-pointer border border-[#F5F5F5] transition-all hover:border-amber-400'>				
+            onClick={() => setShowRating(true)}  className='flex relative items-center gap-2 bg-[#F5F5F5] rounded-xl px-2 py-1 cursor-pointer border border-[#F5F5F5] transition-all hover:border-amber-400'>				
                 <i className='bx bxs-star text-amber-400 text-md'></i>
                 <span className="text-gray-600 text-[10px]">4/5</span>
                 

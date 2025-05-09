@@ -64,7 +64,10 @@ const TopUpCreditComponent = () => {
                 </div>
                 <div className="flex items-center gap-2 mt-2 text-gray-500">
                     <Info size={14} onClick={() => setShowInfo(!showInfo)} className='cursor-pointer hover:text-gray-400'/>
-                    <p className='text-[10px]'>Max amount is $5</p>
+                    <p className='text-[10px]'>
+                        More info
+                        {/* Max amount is $5 */}
+                    </p>
                 </div>
             </div>
 
@@ -81,16 +84,15 @@ const TopUpCreditComponent = () => {
             </div>
 
             <div className="mt-7">
-                <BuyCreditComponent amount={price} getAuthor={getAuthor}  />
+                {/* <BuyCreditComponent amount={price} getAuthor={getAuthor}  />
 
                 <div className="flex items-center justify-center my-2 text-gray-400">
                     or
-                    {/* <ArrowDownUp size={16} /> */}
-                </div>
+                </div> */}
                 <div className="flex items-center justify-center">
 
                     <button 
-                    className="py-3 px-4 w-[222px] font-bold flex items-center justify-center cursor-pointer text-white bg-black hover:bg-[#3f3f3f] rounded-md gap-3">
+                    className="py-4 px-4 w-[222px] font-bold flex items-center justify-center cursor-pointer text-white bg-black hover:bg-[#3f3f3f] rounded-md gap-3">
                         <span className='text-xs'>Connect Wallet</span>
                         <i className="bx bx-wallet text-2xl"></i>
                     </button>

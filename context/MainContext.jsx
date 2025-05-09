@@ -20,6 +20,10 @@ export function MainContext({ children }) {
         if (typeof window === 'object') {
             let userData = localStorage?.getItem("user");
             setUser(JSON?.parse(userData))
+            if (userData) {                
+                setIsLoggedIn(true);
+            }
+
         }
     }, []);
 
