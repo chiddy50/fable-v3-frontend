@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { toast } from 'sonner';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
-import { hidePageLoader, showPageLoader } from '@/lib/helper';
+import { convertNumberToWords, hidePageLoader, showPageLoader } from '@/lib/helper';
 import ModalBoxComponent from '@/components/shared/ModalBoxComponent';
  
 
@@ -281,8 +281,8 @@ const StartWritingFooterComponent: React.FC<Props> = ({
                     </div> */}
 
 
-                    <Button onClick={() => setShowConfirmPublishModal(true)} className='flex items-center cursor-pointer gap-2 text-white rounded-xl bg-gradient-to-r from-[#33164C] to-[#AA4A41] hover:bg-gradient-to-l transition-all'>
-                        <span className="text-xs ">{activeChapterData?.readersHasAccess ? "Unpublish": "Publish"}  Chapter {activeChapterData?.index}</span>
+                    <Button onClick={() => setShowConfirmPublishModal(true)} className='flex items-center capitalize cursor-pointer gap-2 text-white rounded-xl bg-gradient-to-r from-[#33164C] to-[#AA4A41] hover:bg-gradient-to-l transition-all'>
+                        <span className="text-xs ">{activeChapterData?.readersHasAccess ? "Unpublish": "Publish"}  Chapter {convertNumberToWords(activeChapterData?.index)}</span>
                         <CheckCircle size={15} />
                     </Button>
                     

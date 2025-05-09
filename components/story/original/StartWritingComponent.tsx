@@ -8,7 +8,7 @@ import StartWritingFooterComponent from './StartWritingFooterComponent';
 import ModalBoxComponent from '@/components/shared/ModalBoxComponent';
 import { toast } from 'sonner';
 import ChapterImagesComponent from './ChapterImagesComponent';
-import { hidePageLoader, showPageLoader } from '@/lib/helper';
+import { convertNumberToWords, hidePageLoader, showPageLoader } from '@/lib/helper';
 
 interface Props {    
     story: StoryInterface | null;    
@@ -174,7 +174,7 @@ const StartWritingComponent: React.FC<Props> = ({
                         className="flex items-center cursor-pointer mb-1"
                         onClick={toggleChapterList}
                     >
-                        <h1 className="text-xl font-bold text-gray-800">Chapter {activeChapterData?.index}</h1>
+                        <h1 className="text-xl font-bold text-gray-800 capitalize">Chapter {convertNumberToWords(activeChapterData?.index)}</h1>
                         <ChevronDown className={`ml-2 h-5 w-5 text-gray-600 transition-transform ${isChapterListOpen ? 'transform rotate-180' : ''}`} />
                     </div>
 

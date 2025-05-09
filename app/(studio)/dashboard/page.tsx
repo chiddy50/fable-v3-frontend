@@ -25,11 +25,11 @@ const DashboardPage = () => {
 
                 {/* TABS */}
                 <div className="bg-white p-3 rounded-lg mt-10">
-                    <p className='mb-3'>Categories</p>
+                    <p className='mb-3 text-gray-600'>Categories</p>
                     <div className="bg-[#F9F9F9] rounded-lg p-2 flex items-center gap-3 text-xs tracking-wide">
                         <span onClick={() => setTab('original')} className={`rounded-lg p-2 cursor-pointer transition-all ${tab === 'original' ? 'bg-[#5D4076] text-white' : 'text-gray-600'}`}>Original</span>
                         <span onClick={() => setTab('with-ai')} className={`rounded-lg p-2 cursor-pointer transition-all ${tab === 'with-ai' ? 'bg-[#5D4076] text-white' : 'text-gray-600'}`}>With AI</span>
-                        <span onClick={() => setTab('characters')} className={`rounded-lg p-2 cursor-pointer transition-all ${tab === 'characters' ? 'bg-[#5D4076] text-white' : 'text-gray-600'}`}>Characters</span>
+                        {/* <span onClick={() => setTab('characters')} className={`rounded-lg p-2 cursor-pointer transition-all ${tab === 'characters' ? 'bg-[#5D4076] text-white' : 'text-gray-600'}`}>Characters</span> */}
                         <span onClick={() => setTab('drafts')} className={`rounded-lg p-2 cursor-pointer transition-all ${tab === 'drafts' ? 'bg-[#5D4076] text-white' : 'text-gray-600'}`}>Drafts</span>
                     </div>
                 </div>
