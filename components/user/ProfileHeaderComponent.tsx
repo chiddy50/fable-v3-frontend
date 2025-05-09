@@ -42,8 +42,9 @@ const ProfileHeaderComponent: FC<ProfileHeaderProps> = ({ user }) => {
                         <Image
                             src={user?.imageUrl ?? "/avatar/default-avatar.png"}
                             alt={`${user?.name ?? "Anonymous"}'s avatar`}
-                            width={120}
-                            height={120}
+                            // width={120}
+                            // height={120}
+                            sizes="120px"
                             className="rounded-full object-cover"
                             priority
                         />
