@@ -13,6 +13,9 @@ interface ProfileHeaderProps {
 
 const ProfileHeaderComponent: FC<ProfileHeaderProps> = ({ user }) => {
 
+    const returnToLastPage = () => {
+        window?.history?.back();
+    }
     return (
         <div className="w-full bg-gray-50">
             {/* Banner Image */}
@@ -25,7 +28,7 @@ const ProfileHeaderComponent: FC<ProfileHeaderProps> = ({ user }) => {
                     priority
                 />
 
-                <div className="absolute bottom-4 left-4 cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg bg-white">
+                <div onClick={returnToLastPage} className="absolute bottom-4 left-4 cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg bg-white">
                     <ArrowLeft size={16} />
                 </div>
                 
@@ -34,7 +37,7 @@ const ProfileHeaderComponent: FC<ProfileHeaderProps> = ({ user }) => {
             {/* Profile Section */}
             <div className="flex flex-col items-center px-4 pb-6 -mt-16">
                 {/* Avatar */}
-                <div className="relative w-24 h-24 mb-3">
+                <div className="relative w-30 h-30 mb-3">
                     <div className="absolute inset-0 bg-white rounded-full p-1">
                         {/* <Image
                             src={user?.imageUrl ?? "/avatar/default-avatar.png"}
