@@ -100,7 +100,7 @@ const StoriesPage = () => {
                                 </div>
                             </div>
                                 
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-col gap-4 sm:gap-0 sm:flex-row items-center justify-between">
 
                                 <h2 className='text-gray-500 text-2xl font-bold'>For You</h2>
                                 
@@ -114,13 +114,9 @@ const StoriesPage = () => {
                                     </div>
                                 </div> */}
 
-                                <div>
-                                    <div className="flex items-center gap-7">
-                                        
-                                        <SearchBoxComponent />
-                                    </div>
-
+                                <div className="flex items-center">
                                     
+                                    <SearchBoxComponent />
                                 </div>
 
                             </div>
