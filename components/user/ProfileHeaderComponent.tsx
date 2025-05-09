@@ -34,7 +34,7 @@ const ProfileHeaderComponent: FC<ProfileHeaderProps> = ({ user }) => {
             {/* Profile Section */}
             <div className="flex flex-col items-center px-4 pb-6 -mt-16">
                 {/* Avatar */}
-                <div className="relative w-24 h-24 mb-2">
+                <div className="relative w-24 h-24 mb-3">
                     <div className="absolute inset-0 bg-white rounded-2xl p-1">
                         <Image
                             src={user?.imageUrl ?? "/avatar/default-avatar.png"}
@@ -48,7 +48,7 @@ const ProfileHeaderComponent: FC<ProfileHeaderProps> = ({ user }) => {
                 </div>
 
                 {/* Username */}
-                <h1 className="text-2xl font-bold text-gray-800 mt-3">@{user?.name ?? "Anonymous"}</h1>
+                <h1 className="text-2xl font-bold text-gray-800 mt-4">@{user?.name ?? "Anonymous"}</h1>
 
                 {/* Publications count */}
                 <div className="flex items-center text-xs mt-1">
