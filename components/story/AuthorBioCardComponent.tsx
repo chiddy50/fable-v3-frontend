@@ -64,7 +64,7 @@ const AuthorBioCardComponent: React.FC<AuthorBioCardProps> = ({
                     alt={user?.name ?? "user avatar"}
                     width={45}
                     height={45}
-                    className="rounded-xl"
+                    className="rounded-xl object-cover"
                 />
                 <div className="bg-gray-100 rounded-lg cursor-pointer p-2 flex items-center justify-center">
                     <i className='bx bx-link-alt text-2xl'></i>

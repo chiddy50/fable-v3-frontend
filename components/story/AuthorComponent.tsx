@@ -78,13 +78,13 @@ const AuthorComponent: React.FC<Props> =  ({ count, name, publishedAt, imageUrl,
                         height={32} 
                         borderRadius={borderRadius}            
                         imageUrl={user?.imageUrl ?? imageUrl ?? "/avatar/default-avatar.png"}
-                        imageMargin='mr-3'
+                        imageMargin='mr-2'
                     />
                     <div className='text-[10px] relative'>
                         {/* <span className="text-gray-600">By </span> */}
                         <span 
                             ref={authorNameRef}
-                            className="font-semibold hover:underline cursor-pointer" 
+                            className="font-semibold hover:underline cursor-pointer capitalize" 
                             onClick={() => setShowBio(!showBio)}
                             onMouseEnter={() => setShowBio(true)}
                         >
