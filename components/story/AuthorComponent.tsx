@@ -81,9 +81,8 @@ const AuthorComponent: React.FC<Props> =  ({ count, name, publishedAt, imageUrl,
                         imageMargin='mr-2'
                     /> */}
                     <img
-                        src={imageUrl ?? `/avatar/default-avatar.png `} 
-                        alt="User avatar"
-            
+                        src={user?.imageUrl ?? imageUrl ?? "/avatar/default-avatar.png"} 
+                        alt="User avatar"            
                         className={`${borderRadius ?? 'rounded-xl'} w-[35px] h-[35px] object-cover mr-2`}
                     />
                     <div className='text-[10px] relative'>
