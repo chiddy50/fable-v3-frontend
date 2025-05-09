@@ -10,6 +10,7 @@ import { AppContext } from '@/context/MainContext';
 import { formatDate } from '@/lib/helper';
 import { ChapterInterface } from '@/interfaces/ChapterInterface';
 import Link from 'next/link';
+import { LockKeyholeOpen } from 'lucide-react';
 
 interface Props {
     showPreview: boolean;
@@ -176,33 +177,67 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                             {/* Chapter list */}
                             <div className="space-y-3 mt-4">
                                 {story?.chapters?.sort((a, b) => a.index - b.index)?.map((chapter, index) => (
-                                    <Link href={`read-story/${story?.id}?chapter=${chapter?.index}`} key={index} className="p-3 border border-gray-100 cursor-pointer bg-[#FBFBFB] transition-all hover:bg-[#f2f2f2] rounded-lg flex justify-between items-center">
-                                        <div className="flex items-center">
-                                            {chapter?.readersHasAccess === true ? (
+                                    <>
+                                        {chapter.readersHasAccess === true && 
+                                        <Link href={`read-story/${story?.id}?chapter=${chapter?.index}`} key={index} className="p-3 border border-gray-100 cursor-pointer bg-[#FBFBFB] transition-all hover:bg-[#f2f2f2] rounded-lg flex justify-between items-center">
+                                            <div className="flex items-center">
+                                                {/* {chapter?.readersHasAccess === true ? (
+                                                    <div className="w-4 h-4 rounded-full bg-red-500 mr-3 flex items-center justify-center">
+                                                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                                                    </div>
+                                                ) : (
+                                                    <Image src="/icon/lock.svg" alt="lock icon" className='mr-3' width={13} height={13} />
+                                                )} */}
+
                                                 <div className="w-4 h-4 rounded-full bg-red-500 mr-3 flex items-center justify-center">
                                                     <div className="w-2 h-2 bg-white rounded-full"></div>
                                                 </div>
-                                            ) : (
+
+                                                <span className="text-gray-600">
+                                                    Chapter {chapter.index}
+                                                </span>
+                                            </div>
+                                            
+                                            {chapter?.isFree === true &&
+                                                <div className='px-2 py-1 rounded-md bg-[#D7F7CC] text-[#249000] text-xs flex items-center gap-2'>
+                                                    <Image src="/icon/coins-green.svg" alt="coins icon" width={13} height={13} />
+                                                    <span className="text-xs font-bold">Free</span>
+                                                </div>
+                                            }
+                                            {chapter?.isFree === false &&
+                                                <div className='flex items-center cursor-pointer gap-2 py-1 px-2 text-white rounded-md bg-gradient-to-r from-[#AA4A41] to-[#33164C] hover:bg-gradient-to-l transition-all'>
+                                                    <Image src="/icon/coins-white.svg" alt="coins icon" width={15} height={15} />
+                                                    <span className="text-xs font-bold">{chapter?.price ?? 0}</span>
+                                                </div>
+                                            }
+                                        </Link>}
+
+                                        {chapter.readersHasAccess === false && 
+                                        <div key={index} className="p-3 border border-gray-100 cursor-pointer bg-[#FBFBFB] transition-all hover:bg-[#f2f2f2] rounded-lg flex justify-between items-center">
+                                            <div className="flex items-center">
                                                 <Image src="/icon/lock.svg" alt="lock icon" className='mr-3' width={13} height={13} />
-                                            )}
-                                            <span className="text-gray-600">
-                                                Chapter {chapter.index}
-                                            </span>
+
+                                                <span className="text-gray-600">
+                                                    Chapter {chapter.index}
+                                                </span>
+                                            </div>
+                                            
+                                            {chapter?.isFree === true &&
+                                                <div className='px-2 py-1 rounded-md bg-[#D7F7CC] text-[#249000] text-xs flex items-center gap-2'>
+                                                    <Image src="/icon/coins-green.svg" alt="coins icon" width={13} height={13} />
+                                                    <span className="text-xs font-bold">Free</span>
+                                                </div>
+                                            }
+                                            {chapter?.isFree === false &&
+                                                <div className='flex items-center cursor-pointer gap-2 py-1 px-2 text-white rounded-md bg-gradient-to-r from-[#AA4A41] to-[#33164C] hover:bg-gradient-to-l transition-all'>
+                                                    <Image src="/icon/coins-white.svg" alt="coins icon" width={15} height={15} />
+                                                    <span className="text-xs font-bold">{chapter?.price ?? 0}</span>
+                                                </div>
+                                            }
                                         </div>
-                                        
-                                        {chapter?.isFree === true &&
-                                            <div className='px-2 py-1 rounded-md bg-[#D7F7CC] text-[#249000] text-xs flex items-center gap-2'>
-                                                <Image src="/icon/coins-green.svg" alt="coins icon" width={13} height={13} />
-                                                <span className="text-xs font-bold">Free</span>
-                                            </div>
                                         }
-                                        {chapter?.isFree === false &&
-                                            <div className='flex items-center cursor-pointer gap-2 py-1 px-2 text-white rounded-md bg-gradient-to-r from-[#AA4A41] to-[#33164C] hover:bg-gradient-to-l transition-all'>
-                                                <Image src="/icon/coins-white.svg" alt="coins icon" width={15} height={15} />
-                                                <span className="text-xs font-bold">{chapter?.price ?? 0}</span>
-                                            </div>
-                                        }
-                                    </Link>
+                                    </>
+                                    
                                 ))}
                             </div>
                         </div>

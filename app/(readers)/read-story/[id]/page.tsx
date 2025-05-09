@@ -56,7 +56,9 @@ const ReadStoryPage = ({ params }: ReadStoryProps) => {
 
                 let chapter = response?.data?.story?.chapters.find((chapter: ChapterInterface) => chapter.index.toString() === chapterIndex) 
                 
-                setChapter(chapter)
+                if (chapter.readersHasAccess === true) {                    
+                    setChapter(chapter)
+                }
                 // setAccessRecord(response?.data?.accessRecord)
                 // seDepositAddress(response?.data?.depositAddress)
             }
