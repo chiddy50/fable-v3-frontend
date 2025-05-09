@@ -180,7 +180,6 @@ export default function DashboardLayout({
             <ModalBoxComponent
                 isOpen={showTopUpCreditModal}
                 onClose={() => setShowTopUpCreditModal(false)}
-                title="Example Modal"
                 width="w-[30%]"
                 useDefaultHeader={false}
             >

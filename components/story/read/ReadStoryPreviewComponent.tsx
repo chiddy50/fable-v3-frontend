@@ -199,7 +199,7 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                                         {chapter?.isFree === false &&
                                             <div className='flex items-center cursor-pointer gap-2 py-1 px-2 text-white rounded-md bg-gradient-to-r from-[#AA4A41] to-[#33164C] hover:bg-gradient-to-l transition-all'>
                                                 <Image src="/icon/coins-white.svg" alt="coins icon" width={15} height={15} />
-                                                <span className="text-xs font-bold">{chapter?.price}</span>
+                                                <span className="text-xs font-bold">{chapter?.price ?? 0}</span>
                                             </div>
                                         }
                                     </Link>

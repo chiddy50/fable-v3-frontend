@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation'
 
 
 interface Props {
-    nextStep: () => void;
+    nextStep: (value: number) => void;
     story?: StoryInterface | null;
     setStory: React.Dispatch<React.SetStateAction<StoryInterface | null>>;   
     setCurrentStep: React.Dispatch<React.SetStateAction<number>>;        
