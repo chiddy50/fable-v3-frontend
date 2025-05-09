@@ -39,19 +39,19 @@ const ProfileHeaderComponent: FC<ProfileHeaderProps> = ({ user }) => {
                 {/* Avatar */}
                 <div className="relative w-30 h-30 mb-3">
                     <div className="absolute inset-0 bg-white rounded-full p-1">
-                        {/* <Image
+                        <Image
                             src={user?.imageUrl ?? "/avatar/default-avatar.png"}
                             alt={`${user?.name ?? "Anonymous"}'s avatar`}
-                            width={96}
-                            height={96}
-                            className="rounded-2xl"
+                            width={120}
+                            height={120}
+                            className="rounded-full object-cover"
                             priority
-                        /> */}
-                        <img
+                        />
+                        {/* <img
                             src={user?.imageUrl ?? "/avatar/default-avatar.png"}
                             alt={`${user?.name ?? "Anonymous"}'s avatar`}
                             className="rounded-full w-full h-full object-cover"
-                        />
+                        /> */}
                     </div>
                 </div>
 
