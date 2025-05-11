@@ -92,7 +92,7 @@ const UserTypeSelection: React.FC<Props> = ({
 
     return (
         <div className="max-w-2xl mx-auto pb-12 px-4">
-            <h1 className="text-5xl font-bold text-center text-gray-800 my-10">
+            <h1 className="text-4xl md:text-5xl font-bold text-center text-gray-800 my-10">
                 Are you a creator, reader or both?
             </h1>
 
@@ -155,7 +155,7 @@ const UserTypeSelection: React.FC<Props> = ({
             </div>
 
             {(selectedType === 'creator' || selectedType === 'both') && (
-                <div className="mt-6 w-1/2 mx-auto">
+                <div className="mt-6 w-4/5 md:w-1/2 mx-auto">
                     <button
                         className="flex items-center cursor-pointer justify-between w-full p-4 bg-[#F5F5F5] rounded-md"
                         onClick={toggleDropdown}

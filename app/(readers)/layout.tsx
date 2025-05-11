@@ -92,7 +92,7 @@ export default function Layout1({
 								<div 
 								onMouseEnter={() => setShowLogoutTooltip(true)}
 								onMouseLeave={() => setShowLogoutTooltip(false)}
-								onClick={logout} className='relative flex cursor-pointer items-center justify-center gap-3 rounded-xl w-[40px] h-[40px] px-3 py-4 hover:bg-gray-200'>
+								onClick={logout} className='relative flex cursor-pointer items-center justify-center gap-3 rounded-xl w-[40px] h-[40px] px-3 py-4 transition-all hover:text-white hover:bg-[#5D4076]'>
 									<LogOut size={20}/>
 									<TooltipComponent showTooltip={showLogoutTooltip} text="Logout" />							
 								</div>

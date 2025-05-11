@@ -23,7 +23,6 @@ export default function RegistrationForm() {
     const getAuthor = async () => {
         try {
             const response = await axiosInterceptorInstance.get(`${process.env.NEXT_PUBLIC_BASE_URL}/users/auth`)
-            console.log(response);
             setUser(response?.data?.user)
 			localStorage?.setItem("user", JSON.stringify(response?.data?.user));
 

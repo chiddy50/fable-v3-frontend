@@ -167,7 +167,7 @@ const SetupUserProfileComponent: React.FC<Props> = ({
         <div className="w-full max-w-6xl flex rounded-2xl overflow-hidden ">
 
             {/* Left side - Form */}
-            <div className="w-1/2 p-12 flex flex-col items-start">
+            <div className="w-full md:w-1/2 p-7 md:p-12 flex flex-col items-start">
                 {/* Profile picture upload */}
                 <div className="relative mb-10">
                     <div className="w-24 h-24 rounded-4xl overflow-hidden flex items-center justify-center">
@@ -288,7 +288,7 @@ const SetupUserProfileComponent: React.FC<Props> = ({
             </div>
 
             {/* Right side - Image */}
-            <div className="w-1/2  flex items-center justify-center p-6">
+            <div className="hidden md:flex md:w-1/2 items-center justify-center p-6">
                 <div className="rounded-3xl overflow-hidden w-full h-full relative">
                     <Image
                         src="/img/background-2.png"

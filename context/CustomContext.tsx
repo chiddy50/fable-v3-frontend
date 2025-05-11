@@ -19,7 +19,7 @@ export const queryClient = new QueryClient(
 );
 
 
-const CustomContext = ({ children }) => {
+const CustomContext = ({ children }: Readonly<{ children: React.ReactNode }>) => {
 
   return (
 

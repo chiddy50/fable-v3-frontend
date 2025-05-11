@@ -9,7 +9,7 @@ import { UserInterface } from '@/interfaces/UserInterface';
 
 interface Props {
     setCurrentOnboardingStep: React.Dispatch<React.SetStateAction<number>>;
-    user: UserInterface|null;
+    user: UserInterface | null;
     getAuthor: () => void;
 }
 
@@ -46,14 +46,14 @@ const VibeChoiceComponent: React.FC<Props> = ({
 
     const saveVibeChoices = async () => {
         if (selectedVibes.length < 1) {
-            setCurrentOnboardingStep(4);            
+            setCurrentOnboardingStep(4);
             return;
         }
-        
+
         try {
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/users`;
             showPageLoader()
-            const response = await axiosInterceptorInstance.put(url, 
+            const response = await axiosInterceptorInstance.put(url,
                 {
                     favoriteVibe: selectedVibes,
                 }
@@ -72,32 +72,32 @@ const VibeChoiceComponent: React.FC<Props> = ({
     }
 
     return (
-        <div className="w-full max-w-6xl py-12 grid grid-cols-12 gap-16 rounded-2xl overflow-hidden ">
+        <div className="w-full max-w-6xl py-12 px-10 sm:px-7 grid grid-cols-12 gap-6 lg:gap-16 rounded-2xl overflow-hidden">
 
             {/* Left side - Form */}
-            <div className="col-span-7 flex flex-col items-start ">
-                <div>
+            <div className="col-span-full lg:col-span-7 flex flex-col items-start">
+                <div className="w-full">
 
-                    <h1 className="font-bold text-5xl">What describes your creative vibes?</h1>
+                    <h1 className="font-bold text-3xl sm:text-4xl lg:text-5xl">What describes your creative vibes?</h1>
 
-                    <p className="font-light text-md mt-10">Select all that applies.</p>
+                    <p className="font-light text-md mt-6 sm:mt-10">Select all that applies.</p>
 
-                    <div className="mt-7 flex flex-wrap gap-3 overflow-y-auto max-h-[300px] ">
+                    <div className="mt-5 sm:mt-7 flex flex-wrap gap-2 sm:gap-3 overflow-y-auto max-h-[300px]">
 
                         {vibeOptions.map((vibe, index) => (
                             <div
                                 key={index}
-                                className={`inline-flex items-center px-4 py-2 bg-gray-100 rounded-full cursor-pointer ${selectedVibes.includes(vibe.value) ? 'border border-[#FF877B]' : ''
+                                className={`inline-flex items-center px-3 sm:px-4 py-2 bg-gray-100 rounded-full cursor-pointer ${selectedVibes.includes(vibe.value) ? 'border border-[#FF877B]' : ''
                                     }`}
                                 onClick={() => handleVibeChange(vibe.value)}
                             >
                                 <label
                                     htmlFor={`checkbox-${index}`}
-                                    className="mr-2 text-gray-600 text-xs font-medium cursor-pointer"
+                                    className="mr-2 text-gray-600 text-xs font-medium cursor-pointer whitespace-nowrap"
                                 >
                                     {vibe.label}
                                 </label>
-                                <div className="relative">
+                                <div className="relative flex-shrink-0">
                                     <input
                                         type="checkbox"
                                         id={`checkbox-${index}`}
@@ -121,12 +121,12 @@ const VibeChoiceComponent: React.FC<Props> = ({
                         ))}
                     </div>
 
-                    <div className="mt-40 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
+                    <div className="mt-20 sm:mt-40 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 w-full sm:w-auto">
 
                             <button
                                 onClick={() => setCurrentOnboardingStep(2)}
-                                className="flex items-center gap-3 py-3 px-5 cursor-pointer transition-all bg-gray-100 hover:bg-gray-200  text-xs rounded-2xl"
+                                className="flex items-center gap-3 py-3 px-5 cursor-pointer transition-all bg-gray-100 hover:bg-gray-200 text-xs rounded-2xl"
                             >
                                 <ArrowLeft size={16} />
                             </button>
@@ -141,11 +141,11 @@ const VibeChoiceComponent: React.FC<Props> = ({
                         </div>
 
                         {/* Progress indicators */}
-                        <div className="flex justify-center space-x-2 pt-4">
-                            <div className="w-8 h-1 bg-[#33164C] rounded"></div>
-                            <div className="w-8 h-1 bg-[#33164C] rounded"></div>
-                            <div className="w-8 h-1 bg-[#33164C] rounded"></div>
-                            <div className="w-8 h-1 bg-gray-200 rounded"></div>
+                        <div className="flex justify-center space-x-2 pt-2 sm:pt-4 w-full sm:w-auto">
+                            <div className="w-6 sm:w-8 h-1 bg-[#33164C] rounded"></div>
+                            <div className="w-6 sm:w-8 h-1 bg-[#33164C] rounded"></div>
+                            <div className="w-6 sm:w-8 h-1 bg-[#33164C] rounded"></div>
+                            <div className="w-6 sm:w-8 h-1 bg-gray-200 rounded"></div>
                         </div>
 
                     </div>
@@ -153,7 +153,7 @@ const VibeChoiceComponent: React.FC<Props> = ({
             </div>
 
             {/* Right side - Image */}
-            <div className="col-span-5 flex items-center justify-center">
+            <div className="hidden lg:block lg:col-span-5">
                 <div className="rounded-3xl overflow-hidden w-full h-full relative">
                     <Image
                         src="/img/dog.png"
