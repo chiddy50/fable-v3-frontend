@@ -23,7 +23,7 @@ const DashboardStatsComponent = () => {
     }
 
     return (
-        <div className="grid grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-1 xl:grid-cols-3 gap-5">
             <div className="col-span-1">
                 <p className='font-bold bg-white flex items-center text-sm p-3 rounded-xl mb-2 h-[30%]'>Credit Balance</p>
                 <div className='flex flex-col justify-between bg-white p-2 rounded-xl h-[70%]'>

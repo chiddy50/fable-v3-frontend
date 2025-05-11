@@ -137,6 +137,7 @@ const TopUpCreditComponent = () => {
                 <div className="flex items-center justify-center my-2 text-gray-400">
                     or
                 </div> */}
+                {connected && 
                 <div className="flex flex-col items-start gap-1 ">
                     <label className='font-bold text-xs mb-2 text-gray-600'>Choose token to pay with</label>
                     <TokenDropdown
@@ -145,18 +146,19 @@ const TopUpCreditComponent = () => {
                         placeholder="Choose a token" 
                     />
                 </div>
+                }
                 <div className="flex items-center justify-center mt-4">
-					<WalletIndicator />
-                    
-
+					<WalletIndicator />                    
                 </div>
 
+                {connected && 
                 <div onClick={handlePayment} className="flex justify-center mt-4">
                     <button className="py-3 px-3 w-[222px] font-bold flex items-center justify-center cursor-pointer text-white bg-black hover:bg-[#3f3f3f] rounded-md gap-3">
                         <span className='text-xs'>Make Payment</span>
                         <i className="bx bx-money text-2xl"></i>
                     </button>
                 </div>
+                }
 
                                 
             </div>

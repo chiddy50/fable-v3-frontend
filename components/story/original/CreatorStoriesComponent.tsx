@@ -51,7 +51,7 @@ const CreatorStoriesComponent = ({ title, editUrl, type }: { title: string, edit
                 <h1 className="text-gray-600 mb-5 text-2xl font-semibold">{title}</h1>
     
                 {storyData?.length > 0 && 
-                    <div className='grid grid-cols-3 gap-5 overflow-y-auto'>
+                    <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5 overflow-y-auto'>
                         {
                             storyData.map(item => (
                                 <div key={item?.id} className="w-full mb-5 bg-gradient-to-b from-[#d7d7d7] to-[#fff] p-1.5 rounded-2xl">
