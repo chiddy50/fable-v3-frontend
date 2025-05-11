@@ -96,6 +96,7 @@ export default function DashboardLayout({
 
             {/* Main Content Area - adjusted to account for navigation height */}
             <div className="flex w-full mt-[80px] bg-[#F9F9F9]">
+                
                 {/* Fixed Sidebar - fixed position with scrolling */}
                 <div className="fixed left-0 top-[80px] bottom-0 hidden lg:block lg:w-64 overflow-y-auto mx-5">
 
