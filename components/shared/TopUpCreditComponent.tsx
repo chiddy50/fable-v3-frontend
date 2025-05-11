@@ -6,6 +6,11 @@ import { ArrowDownUp, ArrowRight, DollarSign, Info, ShieldCheck } from 'lucide-r
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { UserInterface } from '@/interfaces/UserInterface';
 import BuyCreditComponent from '../credit/BuyCreditComponent';
+import WalletIndicator from '../wallet/WalletIndicator';
+import { useWallet } from "@solana/wallet-adapter-react";
+import { getTokensInUsersWallet } from '@/lib/solana';
+import TokenDropdown from '../credit/TokenDropdown';
+import { toast } from 'sonner';
 
 const TopUpCreditComponent = () => {
     const [price, setPrice] = useState<number>(1);
@@ -13,6 +18,36 @@ const TopUpCreditComponent = () => {
     const [showInfo, setShowInfo] = useState<boolean>(false);
     const [user, setUser] = useState<UserInterface|null>(null);
 
+    const [tokens, setTokens] = useState([]);
+    const [tokenSelected, setTokenSelected] = useState({
+        name: null,
+        price: null,
+        mint: null,
+    })
+    const { publicKey, connected, sendTransaction, signTransaction } = useWallet();
+    const network =  "https://mainnet.helius-rpc.com/?api-key=" 
+    // const network = process.env.NEXT_PUBLIC_VITE_ENV == "dev" ? "https://devnet.helius-rpc.com/?api-key=" : "https://mainnet.helius-rpc.com/?api-key="
+    const API_KEY = process.env.NEXT_PUBLIC_HELIUS_API_KEY 
+
+
+    useEffect(() => {
+        const fetchTokensList = async () => {
+          if (!connected || !publicKey || !API_KEY) return
+          // Please connect your Helius RPC 
+          const userTokens = await getTokensInUsersWallet(publicKey, network, API_KEY);
+          console.log(userTokens);
+          
+          setTokens(userTokens)
+          if (userTokens?.length <= 0) return;
+
+        //   const price = (totalPrice * userTokens[0].balance) / userTokens[0].usdc_price;
+        //   setTokenSelected({ name: userTokens[0].name, price, mint: userTokens[0].mint })
+        }
+    
+        fetchTokensList();
+    }, [connected, publicKey, 
+        // totalPrice
+    ])
 
     useEffect(() => {
         getAuthor();
@@ -34,6 +69,19 @@ const TopUpCreditComponent = () => {
         setTokenPrice(tokenValue);
     }
 
+    const handleTokenSelect = (token) => {
+        console.log('Selected token:', token);
+        // Do something with the selected token
+        let amount = token?.usdc_price ? Number(token?.usdc_price) : 0;
+        convertTokenValue(amount)
+    };
+
+    const handlePayment = async () => {
+        if (!publicKey) {
+          toast.error("Please connect your wallet");
+          return;
+        }
+    }
 
     return (
         <div className="p-5 relative">
@@ -58,7 +106,7 @@ const TopUpCreditComponent = () => {
                     <DollarSign size={19} />
                     <input type="number" 
                     onChange={(e) => convertTokenValue(e.target.value)} 
-                    // value={price}                                                 
+                    value={price}                                                 
                     className='w-full h-full py-3 px-1 border-none bg-white outline-0 text-sm' 
                     placeholder="0.00" />
                 </div>
@@ -89,14 +137,27 @@ const TopUpCreditComponent = () => {
                 <div className="flex items-center justify-center my-2 text-gray-400">
                     or
                 </div> */}
-                <div className="flex items-center justify-center">
+                <div className="flex flex-col items-start gap-1 ">
+                    <label className='font-bold text-xs mb-2 text-gray-600'>Choose token to pay with</label>
+                    <TokenDropdown
+                        tokens={tokens.length > 0 ? tokens : []} 
+                        onSelect={handleTokenSelect} 
+                        placeholder="Choose a token" 
+                    />
+                </div>
+                <div className="flex items-center justify-center mt-4">
+					<WalletIndicator />
+                    
 
-                    <button 
-                    className="py-4 px-4 w-[222px] font-bold flex items-center justify-center cursor-pointer text-white bg-black hover:bg-[#3f3f3f] rounded-md gap-3">
-                        <span className='text-xs'>Connect Wallet</span>
-                        <i className="bx bx-wallet text-2xl"></i>
+                </div>
+
+                <div onClick={handlePayment} className="flex justify-center mt-4">
+                    <button className="py-3 px-3 w-[222px] font-bold flex items-center justify-center cursor-pointer text-white bg-black hover:bg-[#3f3f3f] rounded-md gap-3">
+                        <span className='text-xs'>Make Payment</span>
+                        <i className="bx bx-money text-2xl"></i>
                     </button>
                 </div>
+
                                 
             </div>
 

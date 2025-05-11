@@ -180,7 +180,7 @@ export default function DashboardLayout({
             <ModalBoxComponent
                 isOpen={showTopUpCreditModal}
                 onClose={() => setShowTopUpCreditModal(false)}
-                width="w-[30%]"
+                width="w-[95%] xs:w-[95%] sm:w-[90%] md:w-[80%] lg:w-[50%] xl:w-[30%] "
                 useDefaultHeader={false}
             >
                 <TopUpCreditComponent />

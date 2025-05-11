@@ -115,7 +115,7 @@ export default function Home() {
 								{/* </p> */}
 							</Typewriter.Container>
 
-							<div className="flex gap-5 flex-col md:flex-col lg:flex-row items-center">
+							<div className="flex gap-5 flex-col mt-10 md:mt-0 md:flex-col lg:flex-row items-center">
 								{/* <WalletIndicator />
 								<p>or</p> */}
 								{ !isLoggedIn && <LoginComponent /> }
