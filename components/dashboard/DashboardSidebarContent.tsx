@@ -81,7 +81,7 @@ const DashboardSidebarContent = () => {
                 </div>
 
                 <div className="mt-5">
-                    <div className="flex items-center gap-3">
+                    <Link href="/dashboard/user" className="flex items-center cursor-pointer gap-3">
                         <UserAvatarComponent
                             width={36}
                             height={36}
@@ -90,9 +90,9 @@ const DashboardSidebarContent = () => {
                         />
                         <div>
                             <p className="font-bold text-xs">@{user?.name}</p>
-                            <p className="text-[10px] font-light capitalize text-gray-500">{user?.userType}</p>
+                            <p className="text-[10px] font-light capitalize text-gray-500">{user?.userType === "both" ?  "Reader & Creator" : user?.userType}</p>
                         </div>
-                    </div>
+                    </Link>
                 </div>
 
                 <button onClick={logout} className="cursor-pointer transition-all text-[#33164C] hover:bg-[#33164C] py-2 px-3 rounded-xl flex items-center gap-3 hover:text-white mt-3 w-full">

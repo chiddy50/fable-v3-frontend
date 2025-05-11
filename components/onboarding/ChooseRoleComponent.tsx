@@ -22,8 +22,8 @@ const UserTypeSelection: React.FC<Props> = ({
     getAuthor
 }) => {
     const [selectedType, setSelectedType] = useState<string>(user?.userType ?? '');
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [selectedCreatorTypes, setSelectedCreatorTypes] = useState(user?.info?.typeOfCreator ?? []);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     const router = useRouter();
     
@@ -35,7 +35,7 @@ const UserTypeSelection: React.FC<Props> = ({
         { id: 'journalist', label: 'Journalist' },
     ];
 
-    const handleTypeSelect = (type: strings) => {
+    const handleTypeSelect = (type: string) => {
         setSelectedType(type);
         if (type !== 'creator') {
             setIsDropdownOpen(false);
