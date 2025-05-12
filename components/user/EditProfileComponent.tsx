@@ -3,7 +3,7 @@
 // EditProfileComponent.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { ChevronUp, ChevronDown, Check, Calendar, Mail, User, Pencil, Edit, Save } from 'lucide-react';
+import { ChevronUp, ChevronDown, Check, Calendar, Mail, User, Pencil, Edit, Save, X, UploadCloud } from 'lucide-react';
 import { UserAvatarComponent } from '../shared/UserAvatarComponent';
 import { Button } from '../ui/button';
 import {
@@ -17,9 +17,10 @@ import { toast } from 'sonner';
 import { UserInterface } from '@/interfaces/UserInterface';
 import DatePickerComponent from '../shared/DatePickerComponent';
 import GradientButton from '../shared/GradientButton';
-import { hidePageLoader, showPageLoader } from '@/lib/helper';
+import { hidePageLoader, showPageLoader, uploadToCloudinary } from '@/lib/helper';
 import { convertToISODate } from '@/lib/date';
 import { Skeleton } from '../ui/skeleton';
+import SafeImage from '../shared/SafeImage';
 
 
 
@@ -35,6 +36,15 @@ const creatorTypes = [
     { id: 'educator', label: 'Educator' },
     { id: 'journalist', label: 'Journalist' },
 ];
+
+interface ImageData {
+    signature: string;
+    publicId: string;
+    imageUrl: string;
+    metaData: any;
+    description: string;
+}
+
 
 interface EditProfileComponentProps {
     //   initialUsername?: string;
@@ -59,6 +69,10 @@ const EditProfileComponent: React.FC<EditProfileComponentProps> = ({
     const [bannerImagePreview, setBannerImagePreview] = useState<string | null>(null);
     const [profileImage, setProfileImage] = useState<File | null>(null);
     const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
+
+    const [uploadingProfileImage, setUploadingProfileImage] = useState<boolean>(false);
+    const [uploadingBannerImage, setUploadingBannerImage] = useState<boolean>(false);
+    
     const [authUser, setAuthUser] = useState<UserInterface | null>(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
@@ -69,6 +83,8 @@ const EditProfileComponent: React.FC<EditProfileComponentProps> = ({
 
     const [selectedType, setSelectedType] = useState<string>(authUser?.userType ?? '');
     const [selectedCreatorTypes, setSelectedCreatorTypes] = useState(authUser?.info?.typeOfCreator ?? []);
+    const [isUploading, setIsUploading] = useState<'banner' | 'profile' | null>(null);
+
 
     const bannerInputRef = useRef(null);
 
@@ -94,7 +110,9 @@ const EditProfileComponent: React.FC<EditProfileComponentProps> = ({
             }
             setSelectedType(user?.userType ?? '')
             setSelectedCreatorTypes(user?.info?.typeOfCreator ?? [])
-            // setDateOfBirth()
+            setBannerImagePreview(user?.backgroundImage ?? null);
+            setProfileImagePreview(user?.profileImage ?? null);
+
             
             setUsername(user?.name ?? '')
             setEmail(user?.email ?? '')
@@ -192,6 +210,71 @@ const EditProfileComponent: React.FC<EditProfileComponentProps> = ({
         return true;
     }
 
+    const uploadBanner = () => handleImageUpload(bannerImage, 'banner');
+    const uploadProfileImage = () => handleImageUpload(profileImage, 'profile');
+
+    const handleImageUpload = async (imageFile: File | null, type: 'banner' | 'profile') => {
+        if (!imageFile) return false;
+
+        setIsUploading(type);
+
+        try {
+            if(type === 'profile') setUploadingProfileImage(true);
+            if(type === 'banner') setUploadingBannerImage(true);
+
+            const res = await uploadToCloudinary(imageFile);
+            if (!res?.data) {
+                toast("Unable to upload image")
+                return false;
+            };
+
+            showPageLoader()
+
+            await saveUserImageToDB({
+                signature: res.data.signature,
+                publicId: res.data.public_id,
+                imageUrl: res.data.secure_url,
+                metaData: res.data,
+                description: `${type}-image`,
+            });
+
+            // Update preview with new image URL
+            if (type === 'banner') {
+                setBannerImagePreview(res.data.secure_url);
+            } else {
+                setProfileImagePreview(res.data.secure_url);
+            }
+
+            // refetch();
+
+            return true;
+        } catch (error) {
+            console.error(`Failed to upload ${type} image:`, error);
+            return false;
+        } finally {
+            setIsUploading(null);
+            hidePageLoader()
+            if(type === 'profile') setUploadingProfileImage(false);
+            if(type === 'banner') setUploadingBannerImage(false);
+        }
+    };
+
+    const saveUserImageToDB = async (payload: ImageData) => {
+        try {
+            const body = {
+                ...payload,
+                ownerType: "User",
+                ownerId: authUser?.id,
+                source: "uploaded"
+            };
+
+            await axiosInterceptorInstance.post('/images', body);
+            return true;
+        } catch (error) {
+            console.error('Failed to save image to DB:', error);
+            throw error;
+        }
+    };
 
     if (loading) {
         return (
@@ -225,19 +308,51 @@ const EditProfileComponent: React.FC<EditProfileComponentProps> = ({
     
                 {/* UPLOAD USER IMAGE */}
                 <div
-                    className={`relative border-2 h-[150px] mb-5 border-dashed rounded-lg overflow-hidden ${authUser?.bannerImage ? 'border-transparent' : 'border-gray-300'}`}
+                    className={`relative border-2 h-[150px] border-dashed rounded-lg overflow-hidden ${authUser?.backgroundImage ? 'border-transparent' : 'border-gray-300'}`}
                 // style={{ aspectRatio: '16/9' }}
                 >
-                    <div
-                        className="flex flex-col items-center justify-center w-full h-full cursor-pointer"
-                        onClick={triggerBannerUpload}
-                    >
-                        <button
-                            className="bg-[#D8D1DE29] text-xs hover:bg-gray-50 cursor-pointer font-medium py-2 px-4 rounded-md transition-all duration-200"
+
+                    {bannerImagePreview ? (
+                        <div className="relative w-full h-full">
+                            {/* <Image
+                                src={bannerImagePreview}
+                                alt="Banner Preview"
+                                fill
+                                style={{ objectFit: 'cover' }}
+                                className="rounded-lg"
+                            /> */}
+                            <SafeImage 
+                                src={bannerImagePreview} 
+                                alt={`${authUser?.name ?? "Anonymous"}'s banner`} 
+                                fill 
+                                className="rounded-lg" 
+                                priority 
+                            />
+                            <button
+                                onClick={triggerBannerUpload}
+                                className="absolute inset-0 m-auto w-30 h-8 text-xs bg-white/80 cursor-pointer backdrop-blur-sm hover:bg-white font-medium rounded-md transition-all duration-200 flex items-center justify-center"
+                            >
+                                Change Image
+                            </button>
+                            <button
+                                onClick={() => setBannerImagePreview(null)}
+                                className="absolute top-2 right-2 flex items-center justify-center text-[#33164C] cursor-pointer w-5 h-5 bg-white/80 backdrop-blur-sm hover:bg-white text-xs font-medium rounded-full transition-all duration-200 "
+                            >
+                                <X size={12}/>
+                            </button>
+                        </div>
+                    ) : (
+                        <div
+                            className="flex flex-col items-center justify-center w-full h-full cursor-pointer"
+                            onClick={triggerBannerUpload}
                         >
-                            Upload Banner Image
-                        </button>
-                    </div>
+                            <button
+                                className="bg-[#D8D1DE29] text-xs hover:bg-gray-50 cursor-pointer font-medium py-2 px-4 rounded-md transition-all duration-200"
+                            >
+                                Upload Image
+                            </button>
+                        </div>
+                    )}
 
                     <input
                         type="file"
@@ -246,7 +361,17 @@ const EditProfileComponent: React.FC<EditProfileComponentProps> = ({
                         accept="image/jpeg,image/png,image/gif"
                         className="hidden"
                     />
+
+
+
                 </div>
+                <div className="mb-5 mt-1">                    
+                    <button onClick={uploadBanner} disabled={!bannerImage || !bannerImagePreview || uploadingBannerImage}  className={`flex items-center gap-2 bg-black text-white py-2 px-3 rounded-lg ${bannerImage || bannerImagePreview || uploadingBannerImage ? 'opacity-100 cursor-pointer' : 'opacity-20 cursor-not-allowed'}`}>
+                        <span className="text-xs">{ uploadingBannerImage ? "Uploading..." : "Upload"}</span>
+                        { !uploadingBannerImage && <UploadCloud size={16}/> }
+                        { uploadingBannerImage && <i className='bx bx-loader-circle bx-spin bx-flip-horizontal text-lg'></i> }
+                    </button>
+                </div>   
 
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -288,7 +413,7 @@ const EditProfileComponent: React.FC<EditProfileComponentProps> = ({
                                     <div className="flex flex-wrap items-center gap-2">
                                         {
                                             selectedCreatorTypes?.map(type => (
-                                                <p className="flex items-center justify-center capitalize font-semibold text-[#626262] bg-[#FFE2DF3D] px-3 py-2 rounded-lg text-xs">{type}</p>
+                                                <p key={type} className="flex items-center justify-center capitalize font-semibold text-[#626262] bg-[#FFE2DF3D] px-3 py-2 rounded-lg text-xs">{type}</p>
                                             ))
                                         }
                                     </div>

@@ -105,7 +105,7 @@ const LoaderComponent = () => {
             <div className="flex flex-col items-center px-4 pb-6 -mt-16">
                 {/* Avatar */}
                 <div className="relative w-24 h-24 mb-2">
-                    <div className="absolute inset-0 bg-white rounded-2xl p-1"></div>
+                    <div className="absolute inset-0 bg-white rounded-full p-1"></div>
                 </div>
             </div>
 

@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import React from 'react'
+import SafeImage from './SafeImage'
 
 
 export const UserAvatarComponent = ({
@@ -51,6 +52,15 @@ export const UserAvatarComponent = ({
                 height={height}
                 className={`${borderRadius ?? 'rounded-xl'} object-cover ${imageMargin} ${border}`}
             />
+            
+            // <SafeImage 
+            // src={imageUrl ?? `/avatar/default-avatar.png`} 
+            // alt={"User avatar"} 
+            // width={width} 
+            // height={height} 
+            // className={`${borderRadius ?? 'rounded-xl'} object-cover ${imageMargin} ${border}`}
+            // />
+
             // <img
             //     src={imageUrl ?? `/avatar/default-avatar.png `} 
             //     alt="User avatar"

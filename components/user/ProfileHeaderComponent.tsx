@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import RatingBtnComponent from '../shared/RatingBtnComponent';
 import { UserInterface } from '@/interfaces/UserInterface';
+import SafeImage from '../shared/SafeImage';
 
 interface ProfileHeaderProps {
     user: UserInterface | null;
@@ -20,12 +21,19 @@ const ProfileHeaderComponent: FC<ProfileHeaderProps> = ({ user }) => {
         <div className="w-full bg-gray-50">
             {/* Banner Image */}
             <div className="relative w-full h-[200px] rounded-b-3xl">
-                <Image
-                    src={`/img/placeholder6.jpg`}
+                {/* <Image
+                    src={user?.backgroundImage ?? `/img/placeholder6.jpg`}
                     alt={`${user?.name ?? "Anonymous"}'s banner`}
                     fill
                     className="object-cover rounded-b-3xl"
                     priority
+                /> */}
+                <SafeImage 
+                src={user?.backgroundImage} 
+                alt={`${user?.name ?? "Anonymous"}'s banner`} 
+                fill 
+                className="rounded-b-3xl" 
+                priority 
                 />
 
                 <div onClick={returnToLastPage} className="absolute bottom-4 left-4 cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg bg-white">
@@ -51,6 +59,9 @@ const ProfileHeaderComponent: FC<ProfileHeaderProps> = ({ user }) => {
                             src={user?.imageUrl ?? "/avatar/default-avatar.png"}
                             alt={`${user?.name ?? "Anonymous"}'s avatar`}
                             className="rounded-full w-full h-full object-cover"
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).src = user?.imageUrl ?? "/avatar/default-avatar.png";
+                            }}
                         />
                     </div>
                 </div>
