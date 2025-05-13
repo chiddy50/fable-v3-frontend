@@ -35,6 +35,10 @@ export default function Layout1({
         window.location.href = '/';
     }
 
+	if (!ready) {
+		return <div>Loading...</div>;
+	}
+	
 	return (
 		<>
 			<div style={{ display: 'flex', height: '100vh' }} className='min-h-screen '>

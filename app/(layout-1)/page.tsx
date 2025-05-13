@@ -19,8 +19,6 @@ import { useRouter } from 'next/navigation'
 
 
 
-
-
 interface PrivyLoginInterface{
 	id: string;
 	google: {
