@@ -7,11 +7,15 @@ import Image from 'next/image';
 import CollapsibleSectionComponent from '@/components/navigation/CollapsibleSectionComponent';
 import { UserAvatarComponent } from '@/components/shared/UserAvatarComponent';
 import { AppContext } from '@/context/MainContext';
+import { usePrivy } from '@privy-io/react-auth';
+import { useRouter } from 'next/navigation';
 
 
 const DashboardSidebarContent = () => {
 
-    const { user, setUser, setShowTopUpCreditModal, logout } = useContext(AppContext)
+    const { user, setUser, setShowTopUpCreditModal } = useContext(AppContext)
+	const { ready, authenticated, logout } = usePrivy();
+    const router = useRouter();
 
     useEffect(() => {
         setUserProfile()
@@ -25,6 +29,12 @@ const DashboardSidebarContent = () => {
         } catch (error) {
             console.error('Error fetching data from localStorage:', error);
         }
+    }
+
+    const logoutUser = async () => {
+        await logout();
+        // router.push("/")
+        window.location.href = '/';
     }
 
     return (
@@ -95,7 +105,7 @@ const DashboardSidebarContent = () => {
                     </Link>
                 </div>
 
-                <button onClick={logout} className="cursor-pointer transition-all text-[#33164C] hover:bg-[#33164C] py-2 px-3 rounded-xl flex items-center gap-3 hover:text-white mt-3 w-full">
+                <button onClick={logoutUser} className="cursor-pointer transition-all text-[#33164C] hover:bg-[#33164C] py-2 px-3 rounded-xl flex items-center gap-3 hover:text-white mt-3 w-full">
                     <i className='bx bx-log-out text-2xl'></i>
                     <p className="text-xs">Logout</p>
                 </button>
