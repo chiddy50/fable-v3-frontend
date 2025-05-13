@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Nunito_Sans } from "next/font/google";
+import { Nunito_Sans, Sora } from "next/font/google";
 import "./globals.css";
 import { WalletComponent } from '@/components/wallet/WalletComponent';
 import CustomContext from "@/context/CustomContext";

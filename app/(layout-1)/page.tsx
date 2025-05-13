@@ -15,6 +15,7 @@ import FooterComponent from "@/components/FooterComponent";
 import { usePrivy, useLoginWithOAuth, useLogin } from '@privy-io/react-auth';
 import { Button } from "@/components/ui/button";
 import axios from "axios"
+import { useRouter } from 'next/navigation'
 
 
 
@@ -38,23 +39,29 @@ export default function Home() {
 	const { login } = useLogin();
 	const { state, loading, initOAuth } = useLoginWithOAuth({
         onComplete: ({ user, isNewUser }) => {
-            console.log('User logged in successfully', user, {isNewUser});
-			authenticateUser(user, "login")
-			// redirect to dashboard
-
-            if (isNewUser) {
-				authenticateUser(user, "register")
+			console.log('User logged in successfully', user, {isNewUser});
+			
+			if (isNewUser) {
+				authenticateUser(user, "register", isNewUser)
                 // Perform actions for new users
 				console.log("A new user has to be created")
-
+				
 				// redirect to on-boarding screen
 				
-            }
+            }else{
+				authenticateUser(user, "login", isNewUser)
+				// redirect to dashboard
+				return
+
+			}
         },
         onError: (error) => {
             console.error('Login failed', error);
         },
     });
+
+	const router = useRouter();
+	
 
 	const disableLogout = !ready || (ready && !authenticated);
 	const disableLogin = !ready || (ready && authenticated);
@@ -121,7 +128,7 @@ export default function Home() {
 		user      
     } = useContext(AppContext);
 
-	const authenticateUser = async (user: PrivyLoginInterface, route: string) => {
+	const authenticateUser = async (user: PrivyLoginInterface, route: string, isNewUser: boolean) => {
 		try{
 			const authToken = await getAccessToken();
 
@@ -130,6 +137,7 @@ export default function Home() {
 				name: user?.google?.name,
 				email: user?.google?.email,
 			}
+
 			const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/v2/auth/${route}`, 
 				payload,
 				{
@@ -139,14 +147,14 @@ export default function Home() {
 				}
 			);
 
-			let userStored = localStorage.getItem("user");
-			if(!userStored){
-				console.log("Store the user")
-				localStorage.setItem("user", JSON.stringify(user));  
-			}
-			 
-
 			console.log(res)
+			let userResponse = res?.data?.user;
+			let userStored = localStorage.getItem("user");
+			console.log("Store the user")
+			localStorage.setItem("user", JSON.stringify(userResponse)); 
+
+			const redirectUrl = isNewUser ? "/on-boarding" : "/";
+			router.push(redirectUrl);
 
 		}catch(e){
 			console.error(e)
@@ -216,9 +224,13 @@ export default function Home() {
 								{/* <WalletIndicator />
 								<p>or</p> */}
 								{/* { !isLoggedIn && <LoginComponent /> } */}
-								<Button onClick={handleLogin} disabled={loading}>
-									{loading ? 'Logging in...' : 'Log in with Google'}
-								</Button>
+								{!authenticated && 
+									<button className="flex items-center py-4 px-4 cursor-pointer gap-2 border rounded-xl bg-black text-white" onClick={handleLogin} disabled={loading}>
+										{loading ? 'Logging in...' : 'Log in with Google'}
+										<i className="bx bxl-google text-3xl"></i>
+										
+									</button>
+								}
 
 								{/* <Button disabled={disableLogin} onClick={login}>
 									Log in
@@ -229,8 +241,8 @@ export default function Home() {
 								</Button> */}
 
 								{
-									isLoggedIn && 
-									<Link href="/dashboard" className='flex items-center py-4 cursor-pointer px-5 gap-3 rounded-xl bg-gradient-to-r from-[#AA4A41] to-[#33164C] hover:to-[#AA4A41] hover:from-[#33164C] transition-all duration-500'>
+									authenticated && 
+									<Link href="/dashboard" className='flex items-center py-4 px-4 cursor-pointer  gap-3 rounded-xl bg-gradient-to-r from-[#AA4A41] to-[#33164C] hover:to-[#AA4A41] hover:from-[#33164C] transition-all duration-500'>
 										<UserAvatarComponent
 											width={25} 
 											height={25} 
