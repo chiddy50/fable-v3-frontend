@@ -9,7 +9,19 @@ import { ArrowLeft, LogIn, LogOut, Menu, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useContext, useState } from "react";
-import { usePrivy } from '@privy-io/react-auth';
+import { usePrivy, useLoginWithOAuth, useLogin } from '@privy-io/react-auth';
+import { useRouter } from 'next/navigation'
+import axios from "axios"
+import { usePathname } from 'next/navigation'
+
+interface PrivyLoginInterface{
+	id: string;
+	google: {
+		name: string;
+		email: string;
+		subject: string;
+	}
+}
 
 
 const ReaderSideBarContent = () => {
@@ -22,13 +34,86 @@ const ReaderSideBarContent = () => {
     const [showDashboardTooltip, setShowDashboardTooltip] = useState<boolean>(false)
     const [showHomeTooltip, setShowHomeTooltip] = useState<boolean>(false)
 
-    const { ready, authenticated, logout } = usePrivy();
+	const { getAccessToken, ready, authenticated, logout } = usePrivy();
 
-    const logoutUser = () => {
-        logout();
-        // router.push("/")
-        window.location.href = '/';
+    const { state, loading, initOAuth } = useLoginWithOAuth({
+        onComplete: ({ user, isNewUser }) => {
+			console.log('User logged in successfully', user, {isNewUser});
+			
+			if (isNewUser) {
+				authenticateUser(user, "register", isNewUser)
+                // Perform actions for new users
+				console.log("A new user has to be created")
+				
+				// redirect to on-boarding screen
+				
+            }else{
+				authenticateUser(user, "login", isNewUser)
+				// redirect to dashboard
+				return
+
+			}
+        },
+        onError: (error) => {
+            console.error('Login failed', error);
+        },
+    });
+
+    const router = useRouter();
+    const pathname = usePathname()
+
+    console.log({pathname})
+    
+
+    const logoutUser = async () => {
+        await logout();
+        window.location.href = pathname;
     }
+
+    const authenticateUser = async (user: PrivyLoginInterface, route: string, isNewUser: boolean) => {
+		try{
+			const authToken = await getAccessToken();
+
+			let payload = {
+				privyId: user?.id,
+				name: user?.google?.name,
+				email: user?.google?.email,
+			}
+
+			const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/v2/auth/${route}`, 
+				payload,
+				{
+					headers: {
+						Authorization: `Bearer ${authToken}`
+					}
+				}
+			);
+
+			console.log(res)
+			let userResponse = res?.data?.user;
+			let userStored = localStorage.getItem("user");
+			console.log("Store the user")
+			localStorage.setItem("user", JSON.stringify(userResponse)); 
+
+			const redirectUrl = isNewUser ? "/on-boarding" : "/";
+			router.push(pathname);
+
+		}catch(e){
+			console.error(e)
+		}
+	}
+
+    const handleLogin = async () => {
+		try {
+			// The user will be redirected to OAuth provider's login page
+			await initOAuth({ provider: 'google' });
+		} catch (err) {
+			// Handle errors (network issues, validation errors, etc.)
+			console.error(err);
+		}
+	};
+
+
     return (
         <div className="flex flex-col justify-between bg-white w-full h-full">
             {/* Your left menu content here */}
@@ -101,10 +186,11 @@ const ReaderSideBarContent = () => {
                 }
 
                 {
+                    !authenticated &&
                     <div
                         onMouseEnter={() => setShowLoginTooltip(true)}
                         onMouseLeave={() => setShowLoginTooltip(false)}
-                        onClick={logoutUser} className='relative flex cursor-pointer items-center justify-center gap-3 text-white rounded-xl w-[40px] h-[40px] px-3 py-4 transition-all bg-[#5D4076] hover:text-white hover:bg-[#412e52]'>
+                        onClick={handleLogin} className='relative flex cursor-pointer items-center justify-center gap-3 text-white rounded-xl w-[40px] h-[40px] px-3 py-4 transition-all bg-[#5D4076] hover:text-white hover:bg-[#412e52]'>
                         <LogIn size={20} />
                         <TooltipComponent showTooltip={showLoginTooltip} text="Login" />
                     </div>
