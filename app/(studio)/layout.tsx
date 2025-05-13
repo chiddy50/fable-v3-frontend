@@ -16,6 +16,7 @@ import ModalBoxComponent from '@/components/shared/ModalBoxComponent';
 import TopUpCreditComponent from '@/components/shared/TopUpCreditComponent';
 import DashboardMobileSidebar from '@/components/dashboard/DashboardMobileSidebar';
 import DashboardSidebarContent from '@/components/dashboard/DashboardSidebarContent';
+import { usePrivy } from '@privy-io/react-auth';
 
 
 export default function DashboardLayout({
@@ -28,6 +29,9 @@ export default function DashboardLayout({
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
 
     const currentPath = usePathname();
+	const { ready, authenticated } = usePrivy();
+
+	const router = useRouter();
 
     const { 
         isLoggedIn, setIsLoggedIn, user, setUser, 
@@ -35,6 +39,9 @@ export default function DashboardLayout({
     } = useContext(AppContext)
 
     useEffect(() => {
+        if (ready && !authenticated) {
+            router.push("/")
+        }
         setUserProfile()
     }, []);
 
@@ -47,17 +54,6 @@ export default function DashboardLayout({
             console.error('Error fetching data from localStorage:', error);
         }
     }
-
-    const logout = () => {
-        sessionStorage.removeItem("token");
-        sessionStorage.removeItem("user");
-        sessionStorage.removeItem("storyId");
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        localStorage.removeItem("storyId");
-        setIsLoggedIn(false);
-        window.location.href = "/"
-    };
 
     return (
         <div className="flex h-screen">

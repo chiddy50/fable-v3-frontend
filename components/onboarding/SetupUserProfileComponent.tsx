@@ -42,7 +42,8 @@ const SetupUserProfileComponent: React.FC<Props> = ({
     
 
     useEffect(() => {
-        setImagePreview(user?.imageUrl ?? null)        
+        setImagePreview(user?.imageUrl ?? null)   
+        setEmail(user?.email ?? "");     
     }, []);
 
 
@@ -241,7 +242,7 @@ const SetupUserProfileComponent: React.FC<Props> = ({
                     />
                     
                     <div className="space-y-2">
-                        <label className="block text-sm text-gray-600">Email <span className="text-[10px]">(Optional)</span></label>
+                        <label className="block text-sm text-gray-600">Email </label>
                         <div className="flex items-center p-3 rounded-lg bg-gray-100">
                             <Image
                                 src="/icon/email.svg"
@@ -256,8 +257,9 @@ const SetupUserProfileComponent: React.FC<Props> = ({
                                 placeholder="example@gmail.com"
                                 className="w-full bg-transparent focus:outline-none text-sm text-gray-500"
                                 value={email}
+                                disabled
                                 // onChange={handleInputChange}
-                                onChange={(e) => setEmail(e.target.value) }
+                                // onChange={(e) => setEmail(e.target.value) }
                             />
                         </div>
                     </div>
