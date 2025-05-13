@@ -19,8 +19,8 @@ const axiosInterceptorInstance = axios.create({
 axiosInterceptorInstance.interceptors.request.use(
   function (config) {
     // Do something before the request is sent
-    const sessionStorageToken = sessionStorage.getItem('token'); 
-    const localStorageToken = localStorage.getItem('token'); 
+    const sessionStorageToken = sessionStorage.getItem('privy:token'); 
+    const localStorageToken = localStorage.getItem('privy:token'); 
     const token = sessionStorageToken ?? localStorageToken;
     // console.log({token});
     if (token) {

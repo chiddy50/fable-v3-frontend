@@ -12,8 +12,53 @@ import { AppContext } from "@/context/MainContext";
 import StoryVerticalCarouselComponent from "@/components/StoryVerticalCarouselComponent";
 import { UserAvatarComponent } from "@/components/shared/UserAvatarComponent";
 import FooterComponent from "@/components/FooterComponent";
+import { usePrivy, useLoginWithOAuth, useLogin } from '@privy-io/react-auth';
+import { Button } from "@/components/ui/button";
+import axios from "axios"
+
+
+
+
+
+interface PrivyLoginInterface{
+	id: string;
+	google: {
+		name: string;
+		email: string;
+		subject: string;
+	}
+}
 
 export default function Home() {
+	const { getAccessToken, ready, authenticated, logout } = usePrivy();
+	// const authToken = await getAccessToken();
+	// console.log({
+	// 	authToken
+	// })
+	const { login } = useLogin();
+	const { state, loading, initOAuth } = useLoginWithOAuth({
+        onComplete: ({ user, isNewUser }) => {
+            console.log('User logged in successfully', user, {isNewUser});
+			authenticateUser(user, "login")
+			// redirect to dashboard
+
+            if (isNewUser) {
+				authenticateUser(user, "register")
+                // Perform actions for new users
+				console.log("A new user has to be created")
+
+				// redirect to on-boarding screen
+				
+            }
+        },
+        onError: (error) => {
+            console.error('Login failed', error);
+        },
+    });
+
+	const disableLogout = !ready || (ready && !authenticated);
+	const disableLogin = !ready || (ready && authenticated);
+
 	const movies = [
 		{
 			title: "Cold Motion",
@@ -76,7 +121,59 @@ export default function Home() {
 		user      
     } = useContext(AppContext);
 
+	const authenticateUser = async (user: PrivyLoginInterface, route: string) => {
+		try{
+			const authToken = await getAccessToken();
 
+			let payload = {
+				privyId: user?.id,
+				name: user?.google?.name,
+				email: user?.google?.email,
+			}
+			const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/v2/auth/${route}`, 
+				payload,
+				{
+					headers: {
+						Authorization: `Bearer ${authToken}`
+					}
+				}
+			);
+
+			let userStored = localStorage.getItem("user");
+			if(!userStored){
+				console.log("Store the user")
+				localStorage.setItem("user", JSON.stringify(user));  
+			}
+			 
+
+			console.log(res)
+
+		}catch(e){
+			console.error(e)
+		}
+	}
+
+	const getToken = async () => {
+		const authToken = await getAccessToken();
+		console.log({
+			authToken
+		})
+	}
+
+	const handleLogin = async () => {
+		try {
+			// The user will be redirected to OAuth provider's login page
+			await initOAuth({ provider: 'google' });
+		} catch (err) {
+			// Handle errors (network issues, validation errors, etc.)
+			console.error(err);
+		}
+	};
+
+	if (!ready) {
+		return <div>Loading...</div>;
+	}
+	
 
 	return (
 		<>
@@ -118,7 +215,18 @@ export default function Home() {
 							<div className="flex gap-5 flex-col mt-10 md:mt-0 md:flex-col lg:flex-row items-center">
 								{/* <WalletIndicator />
 								<p>or</p> */}
-								{ !isLoggedIn && <LoginComponent /> }
+								{/* { !isLoggedIn && <LoginComponent /> } */}
+								<Button onClick={handleLogin} disabled={loading}>
+									{loading ? 'Logging in...' : 'Log in with Google'}
+								</Button>
+
+								{/* <Button disabled={disableLogin} onClick={login}>
+									Log in
+								</Button> */}
+
+								{/* <Button disabled={disableLogout} onClick={logout}>
+								Log out
+								</Button> */}
 
 								{
 									isLoggedIn && 
