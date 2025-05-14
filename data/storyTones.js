@@ -48,3 +48,8 @@ export const storyTones = [
     "Authoritative",
     "Neutral"
 ];
+
+
+export let tones = storyTones.map((tone, index) => {
+    return { value: tone.toLocaleLowerCase(), label: tone }
+})

@@ -41,13 +41,9 @@ function PageContent() {
 
     useEffect(() => {
         if (!storyId) {
-            console.log("No story id");
-            
             setStory(null)
             setCurrentStep(1)
         }else{
-            console.log("yes to story id");
-
             let current_step = story?.currentStep ?? Number(step) ?? 1
             setCurrentStep(story?.currentStep ?? 1)
         }
