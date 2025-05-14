@@ -46,7 +46,7 @@ const UserAvatarWithTooltip: React.FC<UserAvatarProps> = ({
 
             {/* Right-aligned tooltip */}
 
-            <TooltipComponent showTooltip={showUserName} text={userName} size={size} tooltipDistance={tooltipDistance} />
+            { user && <TooltipComponent showTooltip={showUserName} text={userName} size={size} tooltipDistance={tooltipDistance} />}
 
         </div>
     );
