@@ -14,9 +14,11 @@ import Image from "next/image";
 import { UserAvatarComponent } from '../shared/UserAvatarComponent';
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import { ChapterInterface } from '@/interfaces/ChapterInterface';
-import { formatDate } from '@/lib/helper';
-import GradientButtonComponent from '../shared/GradientButtonComponent';
+import { convertNumberToWords, formatDate } from '@/lib/helper';
+import { Inter } from "next/font/google";
+import { cn } from '@/lib/utils';
 
+const inter = Inter({ subsets: ['latin'] });
 
 
 interface Props {
@@ -60,7 +62,7 @@ const ReadStoryComponent: React.FC<Props> = ({
             {
                 story &&   
                 <div className=" mb-10">
-                    <div className="relative flex items-center justify-center h-80 rounded-3xl"
+                    <div className="relative flex items-center justify-center h-96 rounded-2xl"
                         style={{
                             backgroundImage: `url('${activeChapter?.image ?? story?.bannerImageUrl ?? "/img/placeholder6.jpg"}')`,
                             backgroundSize: 'cover',
@@ -96,7 +98,7 @@ const ReadStoryComponent: React.FC<Props> = ({
                             className="flex items-center cursor-pointer"
                             onClick={toggleChapterList}
                         >
-                            <h1 className="text-md font-bold text-gray-600">Chapter {activeChapter?.index}</h1>
+                            <h1 className="text-md font-bold capitalize text-gray-600">Chapter {convertNumberToWords(Number(activeChapter?.index))}</h1>
                             <ChevronDown className={`ml-2 h-5 w-5 text-gray-600 transition-transform ${isChapterListOpen ? 'transform rotate-180' : ''}`} />
                         </div>
 
@@ -149,10 +151,16 @@ const ReadStoryComponent: React.FC<Props> = ({
 
 
                     <div className="relative my-7 p-6 bg-white rounded-xl">
-                        <h1 className='font-bold text-3xl capitalize'>{story?.projectTitle}</h1>
-                        <div className="my-3 text-md leading-6 text-[#626262]">
+                        <h1 className='font-bold text-4xl sm:text-5xl capitalize'>{story?.projectTitle}</h1>
+                        <div className="my-7 text-sm leading-6 text-[#626262]">
+                            <div className="max-h-[500px] overflow-y-auto">
+                                <p className={cn("text-lg first-letter:text-4xl whitespace-pre-wrap ", inter.className)}>{activeChapter?.content}</p>
+                            </div>
 
-                            <textarea name="" id="" value={activeChapter?.content} disabled className='w-full resize-none outline-none text-gray-700 placeholder:italic placeholder-gray-400 min-h-[500px]' />
+                            {/* <textarea name="" id="" value={activeChapter?.content} disabled 
+                            // className='w-full resize-none outline-none text-gray-700 placeholder:italic placeholder-gray-400 min-h-[500px]' 
+                            className={cn("text-xl first-letter:text-4xl resize-none outline-none text-gray-700 placeholder:italic placeholder-gray-400 min-h-[500px]", inter.className)}
+                            /> */}
                         </div>
 
 
@@ -191,26 +199,11 @@ const ReadStoryComponent: React.FC<Props> = ({
                                 <button disabled={disablePrevBtn} onClick={() => moveToPrevChapter(activeChapter)} className={`w-10 h-10 flex rounded-xl bg-gray-100 cursor-pointer border border-gray-300 justify-center items-center ${disablePrevBtn ? "opacity-40" : "opacity-100"}`}>
                                     <ArrowLeft className='text-gray-400' size={15} />
                                 </button>
-                                {/* <GradientButtonComponent 
-                                direction="left" 
-                                size="sm" 
-                                disabled={disablePrevBtn} 
-                                opacity={`${disablePrevBtn ? "opacity-40" : "opacity-100"}`}
-                                chapter={activeChapter}
-                                handleClick={moveToPrevChapter}
-                                /> */}
-
+                               
                                 <button disabled={disableNextBtn} onClick={() => moveToNextChapter(activeChapter)} className={`w-10 h-10 flex rounded-xl bg-gray-100 cursor-pointer border border-gray-300 justify-center items-center ${disableNextBtn ? "opacity-40" : "opacity-100"}`}>
                                     <ArrowRight className='text-gray-400' size={15} />
                                 </button>
-                                {/* <GradientButtonComponent 
-                                direction="right" 
-                                size="sm" 
-                                disabled={disablePrevBtn} 
-                                opacity={`${disableNextBtn ? "opacity-40" : "opacity-100"}`}
-                                chapter={activeChapter}
-                                handleClick={moveToNextChapter}
-                                /> */}
+                               
                             </div>
                         </div>
 

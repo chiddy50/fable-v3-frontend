@@ -17,6 +17,7 @@ import { ChapterInterface } from '@/interfaces/ChapterInterface';
 import { useSearchParams } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton"
 import { ReadersHeaderComponent } from '@/components/shared/ReadersHeaderComponent';
+import { usePrivy } from '@privy-io/react-auth';
 
 
 interface ReadStoryProps {
@@ -44,10 +45,14 @@ const ReadStoryPage = ({ params }: ReadStoryProps) => {
     const [disableNextBtn, setDisableNextBtn] = useState<boolean>(false);
     const [disablePrevBtn, setDisablePrevBtn] = useState<boolean>(false);
 
+	const { getAccessToken, ready, authenticated, logout } = usePrivy();
+
+
     const { data: storyData, isFetching, isLoading, isError, refetch } = useQuery({
         queryKey: ['storyFromScratchFormData', storyId],
         queryFn: async () => {
             setLoading(true);
+            
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/v2/stories/unauthenticated/${storyId}`;
         
             const response = await axios.get(url);
