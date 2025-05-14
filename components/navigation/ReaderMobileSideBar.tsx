@@ -31,11 +31,7 @@ export const ReaderMobileSideBar = () => {
 
 	const { ready, authenticated, logout } = usePrivy();
 	
-	const logoutUser = () => {
-        logout();
-        // router.push("/")
-        window.location.href = '/';
-    }
+
 
     return (
 
