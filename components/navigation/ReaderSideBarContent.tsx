@@ -67,6 +67,7 @@ const ReaderSideBarContent = () => {
 
     const logoutUser = async () => {
         await logout();
+        localStorage.removeItem("user") 
         window.location.href = pathname;
     }
 

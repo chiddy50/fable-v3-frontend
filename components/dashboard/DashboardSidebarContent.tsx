@@ -33,6 +33,7 @@ const DashboardSidebarContent = () => {
 
     const logoutUser = async () => {
         await logout();
+        localStorage.removeItem("user") 
         // router.push("/")
         window.location.href = '/';
     }
