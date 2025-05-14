@@ -26,7 +26,7 @@ interface PrivyLoginInterface{
 
 const ReaderSideBarContent = () => {
 
-    const { user } = useContext(AppContext)
+    const { user, setUser } = useContext(AppContext)
 
     const [showTopUpTooltip, setShowTopUpTooltip] = useState<boolean>(false)
     const [showLogoutTooltip, setShowLogoutTooltip] = useState<boolean>(false)
@@ -95,7 +95,7 @@ const ReaderSideBarContent = () => {
 			let userStored = localStorage.getItem("user");
 			console.log("Store the user")
 			localStorage.setItem("user", JSON.stringify(userResponse)); 
-
+            setUser(userResponse)
 			const redirectUrl = isNewUser ? "/on-boarding" : "/";
 			router.push(pathname);
 

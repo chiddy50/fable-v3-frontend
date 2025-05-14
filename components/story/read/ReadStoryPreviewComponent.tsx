@@ -177,9 +177,9 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                             {/* Chapter list */}
                             <div className="space-y-3 mt-4">
                                 {story?.chapters?.sort((a, b) => a.index - b.index)?.map((chapter, index) => (
-                                    <>
+                                    <div key={index}>
                                         {chapter.readersHasAccess === true && 
-                                        <Link href={`/read-story/${story?.id}?chapter=${chapter?.index}`} key={index} className="p-3 border border-gray-100 cursor-pointer bg-[#FBFBFB] transition-all hover:bg-[#f2f2f2] rounded-lg flex justify-between items-center">
+                                        <Link href={`/read-story/${story?.id}?chapter=${chapter?.index}`}  className="p-3 border border-gray-100 cursor-pointer bg-[#FBFBFB] transition-all hover:bg-[#f2f2f2] rounded-lg flex justify-between items-center">
                                             <div className="flex items-center">
                                                 {/* {chapter?.readersHasAccess === true ? (
                                                     <div className="w-4 h-4 rounded-full bg-red-500 mr-3 flex items-center justify-center">
@@ -236,7 +236,7 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                                             }
                                         </div>
                                         }
-                                    </>
+                                    </div>
                                     
                                 ))}
                             </div>
