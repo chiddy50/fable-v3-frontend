@@ -179,7 +179,18 @@ const StoriesPage = () => {
                                     !loading && 
                                     <>
                                         
-                                        <StoryCardComponent stories={publishedStories ?? []} activeControl={activeControl} />                        
+                                        {/* <StoryCardComponent stories={publishedStories ?? []} activeControl={activeControl} />                         */}
+                                        { activeControl === "grid" && 
+                                            <div className='grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-5'>
+                                                { 
+                                                    publishedStories?.map(story =>  (
+
+                                                        <StoryGridViewComponent key={story?.id} story={story} image={story?.coverImageUrl ?? story?.bannerImageUrl} />
+                                                    ))
+                                                }
+                                            </div> 
+                                        }
+
                                         {
                                             publishedStories.length > 0 &&
                                             <PaginationComponent 
@@ -193,6 +204,7 @@ const StoriesPage = () => {
                                                 descColor="text-white"
                                             />
                                         }
+                                        
                                     </>
                                 }
                             </div>
