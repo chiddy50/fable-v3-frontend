@@ -28,7 +28,7 @@ const StoryCardComponent = ({ activeControl, stories }: { activeControl: string,
                     { 
                         stories.map(story =>  (
 
-                            <StoryGridViewComponent key={story?.id} story={story} image={story?.coverImageUrl} />
+                            <StoryGridViewComponent key={story?.id} story={story} image={story?.coverImageUrl ?? story?.bannerImageUrl} />
                         ))
                     }
                 </div> 
