@@ -48,7 +48,7 @@ const RandomStoryComponent = ({ randomStory, loading }: { randomStory: StoryInte
                     <div
                         className="absolute inset-0"
                         style={{
-                            backgroundImage: `url('${randomStory?.bannerImageUrl ?? "/img/placeholder6.jpg"}')`,
+                            backgroundImage: `url('${randomStory?.bannerImageUrl ?? randomStory?.coverImageUrl ?? "/img/placeholder6.jpg"}')`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center'
                         }}
@@ -57,7 +57,7 @@ const RandomStoryComponent = ({ randomStory, loading }: { randomStory: StoryInte
                         <div className="mr-4 flex-shrink-0 absolute -bottom-7 z-10 left-5">
                             <div className="w-32 h-32 rounded-2xl overflow-hidden shadow-md">
                                 <img
-                                    src={`${randomStory?.coverImageUrl ?? "/img/placeholder5.jpg"}`}
+                                    src={`${randomStory?.coverImageUrl ?? randomStory?.bannerImageUrl ?? "/img/placeholder5.jpg"}`}
                                     alt="Story cover image"
                                     className="w-full h-full object-cover"
                                 />
