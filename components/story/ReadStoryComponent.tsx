@@ -111,7 +111,7 @@ const ReadStoryComponent: React.FC<Props> = ({
                         {isChapterListOpen && (
                             <div
                                 ref={chapterListRef}
-                                className="absolute left-0 top-10 bg-white shadow-lg rounded-lg z-10 overflow-hidden"
+                                className="absolute left-0 top-10 bg-white shadow-lg rounded-lg z-50 overflow-hidden"
                             >
                                 <div className="p-2">
                                     {story?.chapters?.sort((a, b) => a.index - b.index)?.map(chapter => (
@@ -173,7 +173,7 @@ const ReadStoryComponent: React.FC<Props> = ({
                                 authenticated && activeChapter?.isFree === false &&
                                 <div className="relative h-[500px] overflow-y-hidden rounded-lg">
 
-                                    <div className="absolute inset-0 bg-black/10 rounded-lg backdrop-blur-xs flex z-30 items-center justify-center">
+                                    <div className="absolute inset-0 bg-black/10 rounded-lg backdrop-blur-xs flex z-20 items-center justify-center">
                                         <div className="flex flex-col gap-2 items-center">
 
                                             <span className="text-xs font-bold">Pay</span>
@@ -200,7 +200,7 @@ const ReadStoryComponent: React.FC<Props> = ({
                                 !authenticated && activeChapter?.isFree === false && 
                                 <div className="relative h-[500px] overflow-y-hidden rounded-lg">
 
-                                    <div className="absolute inset-0 bg-black/10 rounded-lg backdrop-blur-xs flex z-30 items-center justify-center">
+                                    <div className="absolute inset-0 bg-black/10 rounded-lg backdrop-blur-xs flex z-20 items-center justify-center">
                                         <div className="flex flex-col gap-2 items-center">
 
                                             <span className="text-xs font-bold">Pay</span>

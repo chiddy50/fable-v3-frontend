@@ -156,7 +156,7 @@ const ReaderSideBarContent = () => {
 
                 {
                     authenticated &&
-                    <Link href="/creator">
+                    <Link href={`/creator/${user?.id}`}>
                         <UserAvatarWithTooltip
                             user={user}
                             size={40}

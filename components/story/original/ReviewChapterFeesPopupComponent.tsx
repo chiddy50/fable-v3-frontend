@@ -1,6 +1,7 @@
 "use client"
 
 import { ChapterInterface } from '@/interfaces/ChapterInterface';
+import { X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useRef } from 'react'
 
@@ -30,11 +31,17 @@ const ReviewChapterFeesPopupComponent: React.FC<Props> = ({
     return (
         <div
             ref={setFeeRef}
-            className="absolute left-0 -top-48 bg-white shadow-sm rounded-lg w-64 z-20"
+            className="absolute left-0 -top-48 bg-white shadow-sm border rounded-lg w-64 z-20"
             onClick={(e) => e.stopPropagation()}
         >
             {/* Chapter list */}
-            <div className="">
+            <div className="relative">
+                <div
+                    onClick={() => setReviewFeesPopupOpen(false)}
+                    className="h-7 w-7 cursor-pointer bg-white border border-[#F5F5F5] shadow-xl absolute top-0 -right-3 rounded-full flex items-center justify-center">
+                    <X size={14} />
+                </div>
+
                 {chapters?.sort((a, b) => a.index - b.index)?.map((chapter, index) => (
                     <div key={index} onClick={() => showAdjustFeeModal(chapter)} className="p-3 cursor-pointer transition-all hover:bg-gray-50 hover:rounded-lg flex justify-between items-center">
                         <div className="flex items-center text-xs">

@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { ChapterInterface } from '@/interfaces/ChapterInterface';
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
-import { ArrowLeft, DollarSign, Minus, XCircle } from 'lucide-react';
+import { ArrowLeft, DollarSign, Minus, XCircle, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner';
@@ -153,7 +153,7 @@ const EditChapterFeeComponent: React.FC<Props> = ({
                 <div
                     onClick={() => setIsOpen(false)}
                     className="h-7 w-7 cursor-pointer bg-white border border-[#F5F5F5] shadow-xl absolute top-0 -right-3 rounded-full flex items-center justify-center">
-                    <XCircle size={14} />
+                    <X size={14} />
                 </div>
 
                 <div className="flex items-center text-gray-600 gap-7 mb-3">
