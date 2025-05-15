@@ -2,22 +2,111 @@
 
 import { ThumbsDown, ThumbsUp } from 'lucide-react'
 import Image from 'next/image'
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { UserAvatarAndNameComponent, UserAvatarComponent } from '../shared/UserAvatarComponent'
 import { StoryInterface } from '@/interfaces/StoryInterface'
 import { AppContext } from '@/context/MainContext'
+import { ChapterInterface } from '@/interfaces/ChapterInterface'
+import axiosInterceptorInstance from '@/axiosInterceptorInstance'
+import { toast } from 'sonner'
+import axios from 'axios'
+import { usePrivy } from '@privy-io/react-auth'
+import PrivyLoginComponent from '../authentication/PrivyLoginComponent'
+import { usePathname } from 'next/navigation'
+import { Skeleton } from '../ui/skeleton'
+import { formatDate } from '@/lib/helper'
 
 
 interface Props {
     // setChapter: React.Dispatch<React.SetStateAction<ChapterInterface | null>>;
-    // activeChapter: ChapterInterface | null;
     story: StoryInterface | null;
+    activeChapter: ChapterInterface | null;  
 }
 
 const StoryCommentsComponent: React.FC<Props> = ({
-    story
+    story,
+    activeChapter
 }) => {
-    const { user } = useContext(AppContext)
+	const { authenticated } = usePrivy();
+
+    const { user, setUser } = useContext(AppContext)
+    const [currentPage, setCurrentPage] = useState<number>(1)
+    const [limit, setLimit] = useState<number>(3);
+    const [hasNextPage, setHasNextPage] = useState<boolean>(false);
+    const [hasPrevPage, setHasPrevPage] = useState<boolean>(false);
+    const [totalPages, setTotalPages] = useState<boolean>(false);
+    
+    const [commenting, setCommenting] = useState<boolean>(false);
+
+    const [comment, setComment] = useState<string>("");
+    const [comments, setComments] = useState([]);
+    
+    useEffect(() => {
+        setUser(user)
+    }, [user])
+
+    useEffect(() => {
+        getChapterComments()
+    }, []);
+
+    const paginateChapterComments = (page: number) => {
+        let set_next_page = currentPage + page
+        setCurrentPage(set_next_page)
+                   
+        getChapterComments(set_next_page)
+    }
+    
+    const getChapterComments = async  (page = 1) => {
+
+        let params = {
+            page: page,
+            limit: limit,
+            chapterId: activeChapter?.id,
+            storyId: story?.id
+        }
+
+        let url = `${process.env.NEXT_PUBLIC_BASE_URL}/story-comments`;
+
+        try {
+            const response = await axios.get(url,{
+                params: params,                
+            });
+            console.log(response);
+            
+            setComments(response.data.comments);
+            
+        } catch (error) {
+            console.error(error);            
+        }
+    }
+
+    const saveComment = async () => {
+        if(!comment) {
+            toast.error("Provide a comment");
+            return;
+        }
+
+        setCommenting(true);
+
+        try {
+            let url = `${process.env.NEXT_PUBLIC_BASE_URL}/story-comments`;
+            const response = await axiosInterceptorInstance.post(url, {
+                comment,
+                chapterId: activeChapter?.id,
+                storyId: story?.id
+            }); 
+            console.log(response);
+
+            setComment("")
+            getChapterComments()
+        } catch (error) {
+            console.error(error);            
+        }finally {
+            setCommenting(false);
+        }
+    }
+    
+    const pathname = usePathname()
     
     return (
         <div className='px-5 lg:px-5 xl:px-0'>
@@ -32,7 +121,8 @@ const StoryCommentsComponent: React.FC<Props> = ({
             </p>
 
 
-            {/* Create comment */}
+            {/* Create comment if authenticated */}            
+            {   authenticated &&
             <div className="mt-10">
                 <div className="flex items-center gap-2">
                     <UserAvatarComponent width={40} height={40} imageUrl={user?.imageUrl} />
@@ -41,13 +131,16 @@ const StoryCommentsComponent: React.FC<Props> = ({
                 </div>
 
                 <div className="bg-gray-100 text-gray-700 mt-3 p-3 rounded-xl">
-                    {/* <input 
-                    type="text"
+                    <textarea 
+                    value={comment}
                     placeholder='What are your thoughts?'
-                    className='p-3 outline-0 text-gray-700 rounded-xl text-xs border-none w-full mt-3 bg-gray-100' 
-                    />                 */}
-                    <textarea className="w-full outline-0 text-xs resize-none" cols={3} rows={4} id=""></textarea>
-                    <button className='flex items-center gap-2 cursor-pointer bg-[#33164C] text-white rounded-xl p-2 text-xs'>
+                    onChange={(e) => setComment(e.target.value) }
+                    className="w-full outline-0 text-xs resize-none" cols={3} rows={4} ></textarea>
+                    <button 
+                    onClick={saveComment}
+                    disabled={commenting || !comment}
+                    className={`flex items-center gap-2 cursor-pointer bg-[#33164C] text-white rounded-lg p-2 text-xs ${(commenting || !comment) ? "opacity-10" : "opacity-100"}`}>
+                        {!commenting && 
                         <Image 
                             src="/icon/send.svg" 
                             alt="send icon"
@@ -55,57 +148,89 @@ const StoryCommentsComponent: React.FC<Props> = ({
                             height={15}
                             className=""
                         />
+                        }
+
+                        {   commenting &&
+                            <i className='bx bx-loader-circle bx-spin bx-flip-horizontal text-lg'></i>
+                        }
                         
-                        <span className='text-xs'>Send</span>
+                        <span className='text-xs'>{commenting ? "Commenting" : "Comment" }</span>
                     </button>
                 </div>
             </div>
+            }
+
+            {
+                !authenticated && 
+                <div className="mt-10">
+                    <PrivyLoginComponent 
+                    newUserRedirectUrl={pathname}
+                    existingUserRedirectUrl={pathname}
+                    redirect={false}
+                    >
+                        <button className="flex items-center py-3 px-4 cursor-pointer gap-2 border rounded-xl bg-black text-white">
+                            Sign-in/Sign-up and comment                        
+                        </button>
+                    </PrivyLoginComponent>
+                </div>
+            }
 
             {/* Comments */}
-            <div className="mt-10">
+            {   !commenting && 
+                <div className="mt-10">
 
-                {
-                    [1].map(item => (
-                        <div key={item} className='mb-7'>
-                            <div className="flex items-center justify-between">
-                                {/* <div className="flex items-center gap-2">
-                                    <Image 
-                                        src="/avatar/default-avatar.png" 
-                                        alt="Cole Palmer"
-                                        width={40}
-                                        height={40}
-                                        className="rounded-xl border-2 border-white"
-                                    />
-                                    <div className="flex flex-col">
-                                        <p className="text-gray-900 font-semibold text-xs">Samantha Austin </p>
-                                        <p className="text-gray-700 font-light text-[10px]">@samAustin</p>
+                    {
+                        comments?.map(item => (
+                            <div key={item} className='mb-7'>
+                                <div className="flex items-center justify-between">
+                                    {/* <div className="flex items-center gap-2">
+                                        <Image 
+                                            src="/avatar/default-avatar.png" 
+                                            alt="Cole Palmer"
+                                            width={40}
+                                            height={40}
+                                            className="rounded-xl border-2 border-white"
+                                        />
+                                        <div className="flex flex-col">
+                                            <p className="text-gray-900 font-semibold text-xs">Samantha Austin </p>
+                                            <p className="text-gray-700 font-light text-[10px]">@samAustin</p>
+                                        </div>
+                                    </div> */}
+
+                                    <UserAvatarAndNameComponent imageUrl={item?.user?.imageUrl ?? null} name={item?.user?.name} username={item?.user?.name} />
+
+                                    <p className='font-semibold text-xs'>{formatDate(item?.createdAt)}</p>
+                                </div>
+
+                                <p className="my-5 leading-5 text-xs">{item?.content}</p>
+
+                                <div className="flex items-center gap-3">
+                                    <div className='flex items-center gap-1 bg-[#F5F5F5] rounded-xl p-2 cursor-pointer text-gray-600 hover:text-red-600'>
+                                        <ThumbsUp size={12} className="" />
+                                        <span className="text-[10px]">{item?.likeCount}</span>
                                     </div>
-                                </div> */}
-
-                                <UserAvatarAndNameComponent name="Samantha Austin" username="samAustin" />
-
-                                <p className='font-semibold text-xs'>2min ago</p>
-                            </div>
-
-                            <p className="my-5 leading-5 text-xs">
-                                I hope your essay encourages more Americans to try to learn a foreign language. My husband speaks pretty good German thanks to a summer internship there. We recently went to Mallorca (east side of the island) There are many German tourists there. The Germans sitting next
-                            </p>
-
-                            <div className="flex items-center gap-3">
-                                <div className='flex items-center gap-1 bg-[#F5F5F5] rounded-xl p-2 cursor-pointer text-gray-600 hover:text-red-600'>
-                                    <ThumbsUp size={12} className="" />
-                                    <span className="text-[10px]">50k</span>
-                                </div>
-                                <div className='flex items-center gap-1 bg-[#F5F5F5] rounded-xl p-2 cursor-pointer text-gray-600 hover:text-red-600'>
-                                    <ThumbsDown size={12} className="" />
-                                    <span className="text-[10px]">10k</span>
+                                    <div className='flex items-center gap-1 bg-[#F5F5F5] rounded-xl p-2 cursor-pointer text-gray-600 hover:text-red-600'>
+                                        <ThumbsDown size={12} className="" />
+                                        <span className="text-[10px]">{item?.dislikeCount}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))
-                }
+                        ))
+                    }
 
-            </div>
+                </div>
+            }
+
+            {   commenting &&
+                <div className="mt-10">
+                    <div className="flex items-center gap-3 mt-7">
+                        <Skeleton className="w-10 h-10 rounded-xl " />
+                        <Skeleton className="w-50 h-10 rounded-lg " />
+                    </div>
+                    <Skeleton className="w-full h-[130px] rounded-lg mt-2" />
+                </div>
+            }
+
         </div>
 
     )

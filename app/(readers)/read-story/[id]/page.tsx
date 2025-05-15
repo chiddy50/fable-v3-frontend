@@ -58,11 +58,12 @@ const ReadStoryPage = ({ params }: ReadStoryProps) => {
             const response = await axios.get(url);
             if (response?.data?.story) {
                 setStory(response?.data?.story);
-
+                
                 let chapter = response?.data?.story?.chapters.find((chapter: ChapterInterface) => chapter.index.toString() === chapterIndex) 
                 
-                if (chapter.readersHasAccess === true) {                    
-                    setChapter(chapter)
+                let activeChapter = chapter ?? response?.data?.story?.chapters[0]
+                if (activeChapter.readersHasAccess === true) {                    
+                    setChapter(activeChapter)
                 }
                 // setAccessRecord(response?.data?.accessRecord)
                 // seDepositAddress(response?.data?.depositAddress)
@@ -145,17 +146,23 @@ const ReadStoryPage = ({ params }: ReadStoryProps) => {
 
                         </div>
                     }
-                    { !isLoading && <ReadStoryComponent 
-                    setChapter={setChapter} 
-                    activeChapter={chapter} 
-                    story={story} 
-                    moveToNextChapter={moveToNextChapter} 
-                    moveToPrevChapter={moveToPrevChapter}
-                    disableNextBtn={disableNextBtn}
-                    disablePrevBtn={disablePrevBtn}
-                    /> 
+                    { !isLoading && chapter &&
+                        <ReadStoryComponent 
+                        setChapter={setChapter} 
+                        activeChapter={chapter} 
+                        story={story} 
+                        moveToNextChapter={moveToNextChapter} 
+                        moveToPrevChapter={moveToPrevChapter}
+                        disableNextBtn={disableNextBtn}
+                        disablePrevBtn={disablePrevBtn}
+                        /> 
                     }
-                    { !isLoading && <StoryCommentsComponent story={story}/>}
+                    { !isLoading && 
+                    <StoryCommentsComponent 
+                    story={story}
+                    activeChapter={chapter} 
+                    />
+                    }
                 </div>
             </div>
         </>

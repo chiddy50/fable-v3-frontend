@@ -105,7 +105,7 @@ function AIStoryContent() {
 		<div className='px-5 grid grid-cols-12'>
 			{story && 
 				<div className="col-span-9">
-					{currentStep === 2 && <IdeationComponent 
+					{currentStep === 1 && <IdeationComponent 
 						autoDetectStructure={autoDetectStructure}
 						selectedStoryStructure={selectedStoryStructure}
 						selectedStoryType={selectedStoryType}
@@ -113,11 +113,16 @@ function AIStoryContent() {
 						setCurrentStep={setCurrentStep}
 						currentStep={currentStep}	
 					/>}
+					{currentStep === 2 && <div>Framework</div>}
+					{currentStep === 3 && <div>Outline</div>}
+					{currentStep === 4 && <div>Write Story</div>}
 				</div>
 			}
-			<div className="col-span-3">
-				<StepperComponent setCurrentStep={setCurrentStep} currentStep={currentStep} steps={steps} />
-			</div>
+			{story && 
+				<div className="col-span-3">
+					<StepperComponent setCurrentStep={setCurrentStep} currentStep={currentStep} steps={steps} />
+				</div>
+			}
 
 			<ChooseStructureComponent 
 				isModalOpen={isModalOpen} 
