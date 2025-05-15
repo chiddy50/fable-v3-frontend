@@ -78,7 +78,7 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                     <div
                         className="absolute inset-0"
                         style={{
-                            backgroundImage: `url('${story?.bannerImageUrl ?? "/img/placeholder6.jpg"}')`,
+                            backgroundImage: `url('${story?.bannerImageUrl ?? story?.coverImageUrl ?? "/img/placeholder6.jpg"}')`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center'
                         }}
@@ -87,7 +87,7 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                         <div className="mr-4 flex-shrink-0 absolute -bottom-7 z-10 left-5">
                             <div className="w-32 h-32 rounded-2xl overflow-hidden shadow-md">
                                 <img
-                                    src={`${story?.coverImageUrl ?? "/img/placeholder5.jpg"}`}
+                                    src={`${story?.coverImageUrl ?? story?.bannerImageUrl ?? "/img/placeholder5.jpg"}`}
                                     alt="Story cover image"
                                     className="w-full h-full object-cover"
                                 />
@@ -113,11 +113,11 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                     </button>
 
                     {/* Original Tag */}
-                    <div className="absolute top-4 right-4">
+                    {/* <div className="absolute top-4 right-4">
                         <span className="inline-block bg-white capitalize text-red-900 font-medium text-xs px-2 py-1.5 rounded-lg">
                         {story?.type}
                         </span>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Story Info Section */}

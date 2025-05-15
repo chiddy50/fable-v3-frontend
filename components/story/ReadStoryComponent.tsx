@@ -69,7 +69,7 @@ const ReadStoryComponent: React.FC<Props> = ({
                 <div className=" mb-10">
                     <div className="relative flex items-center justify-center h-96 rounded-2xl"
                         style={{
-                            backgroundImage: `url('${activeChapter?.image ?? story?.bannerImageUrl ?? "/img/placeholder6.jpg"}')`,
+                            backgroundImage: `url('${activeChapter?.image ?? story?.bannerImageUrl ?? story?.coverImageUrl  ?? "/img/placeholder6.jpg"}')`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center'
                         }}
