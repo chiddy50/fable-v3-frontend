@@ -3,6 +3,7 @@
 import { Check, ChevronUp, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { storyGenres } from "@/data/genres";
+import { contentTypeList } from "@/data/contentType"
 import Image from 'next/image';
 import { toast } from "sonner"
 import axios from 'axios';
@@ -12,6 +13,9 @@ import { hidePageLoader, showPageLoader } from '@/lib/helper';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { StoryGenreInterface, StoryInterface, TargetAudienceInterface } from '@/interfaces/StoryInterface';
 import { useRouter } from 'next/navigation'
+import { ReusableCombobox } from '@/components/shared/ReusableCombobox';
+import ModalBoxComponent from '@/components/shared/ModalBoxComponent';
+import ContentTypeModal from '@/components/story/ContentTypeModal';
 
 
 
@@ -38,11 +42,14 @@ const GetStartedComponent: React.FC<Props> = ({
     const [selectedTargetAudience, setSelectedTargetAudience] = useState<string[]>([]);
     const [genres, setGenres] = useState<GenreInterface[]>([]);
     const [targetAudiences, setTargetAudiences] = useState<{id: string, name: string, value?: string, label?: string }[]>([]);
+    const [contentType, setContentType] = useState<{ value: string, label: string, id: string, description?: string } | null>(null); 
     
+    const [showSuggestionsModal, setShowSuggestionsModal] = useState<boolean>(false);    
     
     const [selectedGenres, setSelectedGenres] = useState<any>([]);
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);    
+    
     const [selectedCreatorTypes, setSelectedCreatorTypes] = useState([]);
 
     const router = useRouter();
@@ -50,6 +57,9 @@ const GetStartedComponent: React.FC<Props> = ({
     useEffect(() => {
         fetchStoryGenres();
         fetchTargetAudiences();
+
+        let selectedContentType = contentTypeList.find(type => type.value === story?.contentType);
+        setContentType(selectedContentType ?? null)
 
         let audiences = story?.storyAudiences?.map((item: TargetAudienceInterface) => (item?.targetAudienceId)) ?? [];
         setSelectedTargetAudience(audiences);            
@@ -114,6 +124,11 @@ const GetStartedComponent: React.FC<Props> = ({
             return false;
         }
 
+        if (!contentType) {
+            toast("Content Type is required");
+            return false;
+        }
+
         if (selectedTargetAudience.length < 1) {
             toast("Kindly provided at least one target audience");
             return false;
@@ -133,6 +148,8 @@ const GetStartedComponent: React.FC<Props> = ({
         // Submit and save
         try {            
             let payload = buildPayload();
+            console.log(payload);
+            // return
 
             showPageLoader()
 
@@ -184,12 +201,22 @@ const GetStartedComponent: React.FC<Props> = ({
             projectDescription: description,
             selectedTargetAudience,
             selectedGenres,
+            contentType: contentType?.value,
             genres: genresWithLabel,
             type: 'original',
             currentStep: 2
         }
 
         return payload;
+    }
+
+    const updateContentType = async (value: string) => {
+        
+        let result = contentTypeList.find(item => item.value === value);
+        console.log({value,result});
+        setContentType(result);
+
+        if (value && value !== '') setShowSuggestionsModal(true);        
     }
 
 
@@ -217,6 +244,7 @@ const GetStartedComponent: React.FC<Props> = ({
             </div>
 
             <div className="bg-white p-4 rounded-xl mt-7 ">
+                
 
                 <div className="">
                     <div>
@@ -339,6 +367,20 @@ const GetStartedComponent: React.FC<Props> = ({
                     )}
                 </div> */}
 
+                <div className="mt-6">
+                    <h1 className='capitalize text-md mb-2 font-bold'>Content Type</h1>
+                    <div className="">
+                        <ReusableCombobox
+                            options={contentTypeList}
+                            placeholder="Select tag..."
+                            defaultValue={contentType}
+                            onSelect={(value) => updateContentType(value)}
+                            className="my-custom-class w-full text-xs"
+                            emptyMessage="No tag found."
+                        />
+                    </div>
+                </div>
+
                 
                 <div className="mt-6">
                     <MultiSelectDropdownComponent
@@ -371,6 +413,23 @@ const GetStartedComponent: React.FC<Props> = ({
                     </button>
                 </div>
             </div>
+
+
+
+            <ModalBoxComponent
+                isOpen={showSuggestionsModal}
+                onClose={() => setShowSuggestionsModal(false)}
+                width="w-[95%] xs:w-[95%] sm:w-[90%] md:w-[80%] lg:w-[50%] xl:w-[65%] "
+                useDefaultHeader={false}
+            >
+                <ContentTypeModal
+            
+                    contentType={contentType}
+                />
+            </ModalBoxComponent>
+            
+
+
         </>
     )
 }

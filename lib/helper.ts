@@ -122,3 +122,21 @@ export function convertNumberToWords(num: number): string {
 
     return result;
 }
+
+
+
+export const trimWords = (str: string, numWords: number) => {
+    // Trim leading and trailing whitespace
+    const trimmedStr = str?.trim();
+    
+    // Split the string into an array of words
+    const words = trimmedStr?.split(/\s+/);
+    
+    // If the number of words is less than or equal to numWords, return the original string
+    if (words?.length <= numWords) {
+      return trimmedStr;
+    }
+    
+    // Join the first numWords words and add ellipsis
+    return words?.slice(0, numWords)?.join(' ') + '...';
+}

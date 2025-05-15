@@ -14,6 +14,10 @@ import MultiSelectDropdownComponent from '@/components/shared/MultiSelectDropdow
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { StoryGenreInterface, StoryInterface, TargetAudienceInterface } from '@/interfaces/StoryInterface';
+import { contentTypeList } from '@/data/contentType';
+import { ReusableCombobox } from '@/components/shared/ReusableCombobox';
+import ContentTypeModal from '@/components/story/ContentTypeModal';
+import ModalBoxComponent from '@/components/shared/ModalBoxComponent';
 
 
 
@@ -40,13 +44,16 @@ const IdeationComponent: React.FC<Props> = ({
     const [selectedTones, setSelectedTones] = useState<any>([]);
     const [description, setDescription] = useState<string>("");
     const [title, setTitle] = useState<string>(story?.projectTitle ?? "");
+    const [contentType, setContentType] = useState<{ value: string, label: string, id: string, description?: string } | null>(null); 
+    const [showSuggestionsModal, setShowSuggestionsModal] = useState<boolean>(false);    
     
     const router = useRouter();
 
     useEffect(() => {
-        console.log({
-            title: story?.projectTitle
-        })
+        
+        let selectedContentType = contentTypeList.find(type => type.value === story?.contentType);
+        setContentType(selectedContentType ?? null)
+
         setTitle(story?.projectTitle ?? "");
 
         fetchStoryGenres();
@@ -57,17 +64,13 @@ const IdeationComponent: React.FC<Props> = ({
         setSelectedTargetAudience(audiences);            
 
         let storyGenres = story?.storyGenres?.map((item: StoryGenreInterface) => (item?.storyGenreId)) ?? [];
-        setSelectedGenres(storyGenres);            
+        setSelectedGenres(storyGenres);   
+        
+        let storyTones = story?.tone ?? [];
+        setSelectedTones(storyTones);   
 
         setTitle(story?.projectTitle ?? "");
         setDescription(story?.projectDescription ?? "");
-
-        // let audiences = story?.storyAudiences?.map((item: TargetAudienceInterface) => (item?.targetAudienceId)) ?? [];
-        // setSelectedTargetAudience(audiences);            
-
-        // let storyGenres = story?.storyGenres?.map((item: StoryGenreInterface) => (item?.storyGenreId)) ?? [];
-        // setSelectedGenres(storyGenres);            
-
 
     }, [
         // story
@@ -126,6 +129,11 @@ const IdeationComponent: React.FC<Props> = ({
             return false;
         }
 
+        if (!contentType) {
+            toast("Content Type is required");
+            return false;
+        }        
+
         if (selectedTargetAudience.length < 1) {
             toast("Kindly provided at least one target audience");
             return false;
@@ -142,25 +150,18 @@ const IdeationComponent: React.FC<Props> = ({
     }
 
     const saveIdeation = async () => {
-        console.log({
-            title,
-            description,
-            selectedTargetAudience,
-            selectedGenres,
-            selectedTones,
-        });
-
         if(!validate()) return;
 
         try {
             let payload = buildPayload();
-
             showPageLoader()
 
             await update(payload); 
             
         } catch (error) {
             console.error(error);            
+        }finally{
+            hidePageLoader()
         }
     }
 
@@ -187,12 +188,23 @@ const IdeationComponent: React.FC<Props> = ({
             selectedGenres,
             genres: genresWithLabel,
             selectedTones,
+            contentType: contentType?.value,
             type: 'ai',
-            currentStep: 2
+            // currentStep: 2
         }
 
         return payload;
     }
+
+    const updateContentType = async (value: string) => {
+        
+        let result = contentTypeList.find(item => item.value === value);
+        console.log({value,result});
+        setContentType(result);
+
+        if (value && value !== '') setShowSuggestionsModal(true);        
+    }
+    
 
 
     return (
@@ -285,6 +297,20 @@ const IdeationComponent: React.FC<Props> = ({
                     </div>
                 </div>
 
+                <div className="mt-6">                    
+                    <h1 className='capitalize text-md mb-2 font-bold'>Content Type</h1>
+                    <div className="">
+                        <ReusableCombobox
+                            options={contentTypeList}
+                            placeholder="Select tag..."
+                            defaultValue={contentType}
+                            onSelect={(value) => updateContentType(value)}
+                            className="my-custom-class w-full text-xs"
+                            emptyMessage="No tag found."
+                        />
+                    </div>
+                </div>
+
                 <div className="mt-6">
                     <MultiSelectDropdownComponent
                         options={genres}
@@ -328,6 +354,22 @@ const IdeationComponent: React.FC<Props> = ({
                     </button>
                 </div>
             </div>
+
+
+
+
+            <ModalBoxComponent
+                isOpen={showSuggestionsModal}
+                onClose={() => setShowSuggestionsModal(false)}
+                width="w-[95%] xs:w-[95%] sm:w-[90%] md:w-[80%] lg:w-[50%] xl:w-[65%] "
+                useDefaultHeader={false}
+            >
+                <ContentTypeModal
+            
+                    contentType={contentType}
+                />
+            </ModalBoxComponent>
+            
 
         </>
     )
