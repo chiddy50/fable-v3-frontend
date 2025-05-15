@@ -54,7 +54,7 @@ const CreatorStoriesComponent = ({ userId }: { userId: string }) => {
             { 
                 stories.map(story =>  (
 
-                    <StoryGridViewComponent key={story?.id} story={story} image={story?.coverImageUrl} />
+                    <StoryGridViewComponent key={story?.id} story={story} image={story?.coverImageUrl ?? story?.bannerImageUrl} />
                 ))
             }
         </div> 
