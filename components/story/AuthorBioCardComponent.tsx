@@ -59,12 +59,17 @@ const AuthorBioCardComponent: React.FC<AuthorBioCardProps> = ({
             onMouseLeave={handleMouseLeave}
         >
             <div className="flex items-center justify-between">
-                <Image 
+                {/* <Image 
                     src={user?.imageUrl ?? "/avatar/default-avatar.png" }
                     alt={user?.name ?? "user avatar"}
                     width={45}
                     height={45}
                     className="rounded-xl object-cover"
+                /> */}
+                <img 
+                    src={user?.imageUrl ?? "/avatar/default-avatar.png" }
+                    alt={user?.name ?? "user avatar"}              
+                    className="rounded-xl w-[50px] h-[50px] object-cover"
                 />
                 <div className="bg-gray-100 rounded-lg cursor-pointer p-2 flex items-center justify-center">
                     <i className='bx bx-link-alt text-2xl'></i>
