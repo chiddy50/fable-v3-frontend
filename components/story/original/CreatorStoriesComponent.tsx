@@ -57,7 +57,7 @@ const CreatorStoriesComponent = ({ title, editUrl, type }: { title: string, edit
                                 <div key={item?.id} className="w-full mb-5 bg-gradient-to-b from-[#d7d7d7] to-[#fff] p-1.5 rounded-2xl">
                                     <div className="relative w-full h-[230px] rounded-2xl border overflow-hidden">
                                         <img
-                                            src={item.coverImageUrl ?? `/logo/fable_black.png`}
+                                            src={item.coverImageUrl ?? item?.bannerImageUrl ?? `/logo/fable_black.png`}
                                             alt="story cover image"
                                             className="object-cover rounded-xl w-full h-full"
                                         />
