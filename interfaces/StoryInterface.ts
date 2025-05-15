@@ -102,6 +102,9 @@ export interface StoryInterface {
   title: string;
   genre: string;
   genres: string[];
+  tone: string[];
+  contentType: string;
+  
   // genres: GenreInterface[];
   imageUrl: string;
   type: string;

@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from 'react'
 import PopularStoryComponent from '@/components/story/PopularStoryComponent';
-import { ArrowLeft, ArrowRight, ChevronDown, Dot } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronDown, Dot, Save } from 'lucide-react';
 import { Heart, MessageCircle, Share2, BookmarkPlus } from 'lucide-react';
 import Link from 'next/link';
 import BookmarkComponent from '@/components/shared/BookmarkComponent';
@@ -14,9 +14,13 @@ import Image from "next/image";
 import { UserAvatarComponent } from '../shared/UserAvatarComponent';
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import { ChapterInterface } from '@/interfaces/ChapterInterface';
-import { formatDate } from '@/lib/helper';
-import GradientButtonComponent from '../shared/GradientButtonComponent';
+import { convertNumberToWords, formatDate, trimWords } from '@/lib/helper';
+import { Inter } from "next/font/google";
+import { cn } from '@/lib/utils';
+import { usePrivy } from '@privy-io/react-auth';
+import GradientButton from '../shared/GradientButton';
 
+const inter = Inter({ subsets: ['latin'] });
 
 
 interface Props {
@@ -41,6 +45,9 @@ const ReadStoryComponent: React.FC<Props> = ({
     const [isChapterListOpen, setIsChapterListOpen] = useState<boolean>(false);
     const chapterListRef = useRef<HTMLDivElement>(null);
 
+	const { authenticated } = usePrivy();
+
+
     const toggleChapterList = () => {
         setIsChapterListOpen(!isChapterListOpen);
     };
@@ -60,7 +67,7 @@ const ReadStoryComponent: React.FC<Props> = ({
             {
                 story &&   
                 <div className=" mb-10">
-                    <div className="relative flex items-center justify-center h-80 rounded-3xl"
+                    <div className="relative flex items-center justify-center h-96 rounded-2xl"
                         style={{
                             backgroundImage: `url('${activeChapter?.image ?? story?.bannerImageUrl ?? "/img/placeholder6.jpg"}')`,
                             backgroundSize: 'cover',
@@ -81,7 +88,7 @@ const ReadStoryComponent: React.FC<Props> = ({
                                 <p className="text-sm text-center text-shadow-dark font-semibold">@{story?.user?.name}</p>
                             </div>
                             <p className="font-light text-shadow-dark text-xs">{formatDate(story?.publishedAt)}</p>
-                            <h1 className="text-4xl font-bold text-white text-shadow-dark capitalize">{story?.projectTitle}</h1>
+                            <h1 className="text-4xl font-bold text-white text-center text-shadow-dark capitalize">{story?.projectTitle}</h1>
 
                             <GenrePillsComponent genres={story?.genres} />
 
@@ -96,7 +103,7 @@ const ReadStoryComponent: React.FC<Props> = ({
                             className="flex items-center cursor-pointer"
                             onClick={toggleChapterList}
                         >
-                            <h1 className="text-md font-bold text-gray-600">Chapter {activeChapter?.index}</h1>
+                            <h1 className="text-md font-bold capitalize text-gray-600">Chapter {convertNumberToWords(Number(activeChapter?.index))}</h1>
                             <ChevronDown className={`ml-2 h-5 w-5 text-gray-600 transition-transform ${isChapterListOpen ? 'transform rotate-180' : ''}`} />
                         </div>
 
@@ -149,10 +156,84 @@ const ReadStoryComponent: React.FC<Props> = ({
 
 
                     <div className="relative my-7 p-6 bg-white rounded-xl">
-                        <h1 className='font-bold text-3xl capitalize'>{story?.projectTitle}</h1>
-                        <div className="my-3 text-md leading-6 text-[#626262]">
+                        <h1 className='font-bold text-4xl sm:text-5xl capitalize'>{story?.projectTitle}</h1>
+                        
+                        <div className="my-7 text-sm leading-6 text-[#626262]">
 
-                            <textarea name="" id="" value={activeChapter?.content} disabled className='w-full resize-none outline-none text-gray-700 placeholder:italic placeholder-gray-400 min-h-[500px]' />
+                            {/* Authenticated & Free  */}
+                            {
+                                authenticated && activeChapter?.isFree === true &&
+                                <div className="relative h-[500px] overflow-y-auto">
+                                    <p className={cn(`text-lg first-letter:text-4xl whitespace-pre-wrap mb-7`, inter.className)}>{activeChapter?.content}</p>
+                                </div>
+                            }
+
+                            {/* Authenticated & Not Free  */}
+                            {
+                                authenticated && activeChapter?.isFree === false &&
+                                <div className="relative h-[500px] overflow-y-hidden rounded-lg">
+
+                                    <div className="absolute inset-0 bg-black/10 rounded-lg backdrop-blur-xs flex z-30 items-center justify-center">
+                                        <div className="flex flex-col gap-2 items-center">
+
+                                            <span className="text-xs font-bold">Pay</span>
+                                            <GradientButton handleClick={() => console.log()}>
+                                                {/* <Save size={15} /> */}
+                                                <Image src="/icon/coins-white.svg" alt="coins icon" className=" " width={19} height={19} />                                                                        
+                                                <span className="text-xs font-bold">{activeChapter?.price ? (Number(activeChapter?.price) * 100) : 0 }</span>
+                                            </GradientButton>
+                                            <span className="text-xs font-bold">To unlock chapter</span>
+
+                                        </div>
+                                    </div>
+                                    
+                                    <p className={cn(`text-lg first-letter:text-4xl whitespace-pre-wrap 
+                                        mb-7 bg-clip-text text-transparent bg-gradient-to-b from-black to-transparent
+                                        `, inter.className)}>
+                                        {activeChapter?.content ? trimWords(activeChapter?.content, 140) : ""}
+                                    </p>
+                                </div>
+                            }
+
+                            {/* Unauthenticated & Not Free  */}
+                            {
+                                !authenticated && activeChapter?.isFree === false && 
+                                <div className="relative h-[500px] overflow-y-hidden rounded-lg">
+
+                                    <div className="absolute inset-0 bg-black/10 rounded-lg backdrop-blur-xs flex z-30 items-center justify-center">
+                                        <div className="flex flex-col gap-2 items-center">
+
+                                            <span className="text-xs font-bold">Pay</span>
+                                            <GradientButton handleClick={() => console.log()}>
+                                                <Image src="/icon/coins-white.svg" alt="coins icon" className=" " width={19} height={19} />                                                                        
+                                                <span className="text-xs font-bold">{activeChapter?.price ? (Number(activeChapter?.price) * 100) : 0 }</span>
+                                            </GradientButton>
+                                            <span className="text-xs font-bold">To unlock chapter</span>
+
+                                        </div>
+                                    </div>
+                                    
+                                    <p className={cn(`text-lg first-letter:text-4xl whitespace-pre-wrap 
+                                        mb-7 bg-clip-text text-transparent bg-gradient-to-b from-black to-transparent
+                                        `, inter.className)}>
+                                        {activeChapter?.content ? trimWords(activeChapter?.content, 140) : ""}
+                                    </p>
+                                </div>
+                            }
+
+                            {/* Unauthenticated & Free  */}
+                            {
+                                !authenticated && activeChapter?.isFree === true &&
+                                <div className="relative h-[500px] overflow-y-auto">
+                                    <p className={cn(`text-lg first-letter:text-4xl whitespace-pre-wrap mb-7`, inter.className)}>{activeChapter?.content}</p>
+                                </div>
+                            }
+                            
+
+                            {/* <textarea name="" id="" value={activeChapter?.content} disabled 
+                            // className='w-full resize-none outline-none text-gray-700 placeholder:italic placeholder-gray-400 min-h-[500px]' 
+                            className={cn("text-xl first-letter:text-4xl resize-none outline-none text-gray-700 placeholder:italic placeholder-gray-400 min-h-[500px]", inter.className)}
+                            /> */}
                         </div>
 
 
@@ -191,33 +272,13 @@ const ReadStoryComponent: React.FC<Props> = ({
                                 <button disabled={disablePrevBtn} onClick={() => moveToPrevChapter(activeChapter)} className={`w-10 h-10 flex rounded-xl bg-gray-100 cursor-pointer border border-gray-300 justify-center items-center ${disablePrevBtn ? "opacity-40" : "opacity-100"}`}>
                                     <ArrowLeft className='text-gray-400' size={15} />
                                 </button>
-                                {/* <GradientButtonComponent 
-                                direction="left" 
-                                size="sm" 
-                                disabled={disablePrevBtn} 
-                                opacity={`${disablePrevBtn ? "opacity-40" : "opacity-100"}`}
-                                chapter={activeChapter}
-                                handleClick={moveToPrevChapter}
-                                /> */}
-
+                               
                                 <button disabled={disableNextBtn} onClick={() => moveToNextChapter(activeChapter)} className={`w-10 h-10 flex rounded-xl bg-gray-100 cursor-pointer border border-gray-300 justify-center items-center ${disableNextBtn ? "opacity-40" : "opacity-100"}`}>
                                     <ArrowRight className='text-gray-400' size={15} />
                                 </button>
-                                {/* <GradientButtonComponent 
-                                direction="right" 
-                                size="sm" 
-                                disabled={disablePrevBtn} 
-                                opacity={`${disableNextBtn ? "opacity-40" : "opacity-100"}`}
-                                chapter={activeChapter}
-                                handleClick={moveToNextChapter}
-                                /> */}
+                               
                             </div>
                         </div>
-
-
-
-                        
-
 
                     </div>
 

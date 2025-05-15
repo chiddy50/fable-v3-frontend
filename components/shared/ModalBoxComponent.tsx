@@ -109,9 +109,9 @@ const ModalBoxComponent: React.FC<Props> = ({
 
                     <button 
                         onClick={onClose}
-                        className="h-7 w-7 cursor-pointer hover:text-gray-600 bg-white border border-[#F5F5F5] absolute -top-1 -right-2 rounded-full flex items-center justify-center">
+                        className="h-7 w-7 cursor-pointer hover:text-gray-600 bg-white border border-[#F5F5F5] z-20 absolute -top-1 -right-2 rounded-full flex items-center justify-center">
                         {/* <i className='bx bx-x-circle cursor-pointer text-lg'></i> */}
-                        <XCircle size={14} 
+                        <X size={14} 
                         onClick={(e) => {
                             e.stopPropagation(); // Prevent double firing
                             onClose();

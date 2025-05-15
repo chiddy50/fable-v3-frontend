@@ -68,7 +68,7 @@ const ReaderSideBarContent = () => {
     const logoutUser = async () => {
         await logout();
         localStorage.removeItem("user") 
-        window.location.href = pathname;
+        // window.location.href = pathname;
     }
 
     const authenticateUser = async (user: PrivyLoginInterface, route: string, isNewUser: boolean) => {

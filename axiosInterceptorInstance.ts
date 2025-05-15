@@ -47,7 +47,10 @@ axiosInterceptorInstance.interceptors.response.use(
       // Handle response errors here
       console.log("Response Error interceptor: ",error);
       let message = error?.response?.data?.message
+      console.log("Interceptor Error Response Message: ",message);
+
       let errorMessages =  [
+        `"exp" claim timestamp check failed`,
         "Unauthorized",
         "Invalid token",
         "Invalid token format",

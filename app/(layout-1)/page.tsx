@@ -123,7 +123,7 @@ export default function Home() {
     const { 
         loggedIn, setLoggedIn,
         isLoggedIn, setIsLoggedIn,  
-		user      
+		user, setUser      
     } = useContext(AppContext);
 
 	const authenticateUser = async (user: PrivyLoginInterface, route: string, isNewUser: boolean) => {
@@ -150,6 +150,7 @@ export default function Home() {
 			let userStored = localStorage.getItem("user");
 			console.log("Store the user")
 			localStorage.setItem("user", JSON.stringify(userResponse)); 
+            setUser(userResponse)
 
 			const redirectUrl = isNewUser ? "/on-boarding" : "/";
 			router.push(redirectUrl);

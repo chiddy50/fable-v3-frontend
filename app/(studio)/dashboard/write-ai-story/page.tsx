@@ -1,7 +1,7 @@
 "use client"
 
 import { Check, ChevronUp, Mic, X } from 'lucide-react';
-import React, { useState, Suspense } from 'react'
+import React, { useState, Suspense, useEffect } from 'react'
 import { storyGenres } from "@/data/genres";
 import Image from 'next/image';
 import StepperComponent from '@/components/dashboard/StepperComponent';
@@ -51,7 +51,7 @@ function AIStoryContent() {
 	const step = searchParams.get('current-step');
 	const storyId = searchParams.get('story-id');
 
-	const [currentStep, setCurrentStep] = useState(step ? Number(step) : 1);
+	const [currentStep, setCurrentStep] = useState(1);
 	
 	const [selectedStoryType, setSelectedStoryType] = useState<string>('novel'); // The story type user chooses
 	const [selectedStoryStructure, setSelectedStoryStructure] = useState<string>(''); // The story type user chooses
@@ -62,6 +62,11 @@ function AIStoryContent() {
 	
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(storyId ? false : true);
 	const [modalSize, setModalSize] = useState<string>('md');
+	
+
+	useEffect(() => {
+		setCurrentStep(story?.currentStep ?? 1)
+	}, [storyId])
 
 	const { data: storyData, isFetching, isError, refetch } = useQuery({
         queryKey: ['storyFromScratchFormData', storyId],
@@ -98,17 +103,26 @@ function AIStoryContent() {
 
 	return (
 		<div className='px-5 grid grid-cols-12'>
-			{story && <div className="col-span-9">
-				<IdeationComponent 
-					autoDetectStructure={autoDetectStructure}
-					selectedStoryStructure={selectedStoryStructure}
-					selectedStoryType={selectedStoryType}
-					story={story}
-				/>
-			</div>}
-			<div className="col-span-3">
-				<StepperComponent setCurrentStep={setCurrentStep} currentStep={currentStep} steps={steps} />
-			</div>
+			{story && 
+				<div className="col-span-9">
+					{currentStep === 1 && <IdeationComponent 
+						autoDetectStructure={autoDetectStructure}
+						selectedStoryStructure={selectedStoryStructure}
+						selectedStoryType={selectedStoryType}
+						story={story}
+						setCurrentStep={setCurrentStep}
+						currentStep={currentStep}	
+					/>}
+					{currentStep === 2 && <div>Framework</div>}
+					{currentStep === 3 && <div>Outline</div>}
+					{currentStep === 4 && <div>Write Story</div>}
+				</div>
+			}
+			{story && 
+				<div className="col-span-3">
+					<StepperComponent setCurrentStep={setCurrentStep} currentStep={currentStep} steps={steps} />
+				</div>
+			}
 
 			<ChooseStructureComponent 
 				isModalOpen={isModalOpen} 
