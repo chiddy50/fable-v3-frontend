@@ -65,6 +65,9 @@ const StoryCommentsComponent: React.FC<Props> = ({
             storyId: story?.id
         }
 
+        console.log(params);
+        
+
         let url = `${process.env.NEXT_PUBLIC_BASE_URL}/story-comments`;
 
         try {
