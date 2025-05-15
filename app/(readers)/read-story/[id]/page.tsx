@@ -157,7 +157,7 @@ const ReadStoryPage = ({ params }: ReadStoryProps) => {
                         disablePrevBtn={disablePrevBtn}
                         /> 
                     }
-                    { !isLoading && 
+                    { !isLoading && chapter &&
                     <StoryCommentsComponent 
                     story={story}
                     activeChapter={chapter} 
