@@ -129,12 +129,17 @@ const ReadStoryPreviewComponent: React.FC<Props> = ({
                     <div className="flex items-center justify-between mt-6 ">
                         <div className="flex items-center">
                             <div className="overflow-hidden mr-2">             
-                                <UserAvatarComponent
+                                {/* <UserAvatarComponent
                                     width={40}
                                     height={40}
                                     borderRadius='rounded-lg'
                                     imageUrl={story?.user?.imageUrl ?? "/avatar/default-avatar.png"}
                                     border="border border-white"
+                                /> */}
+                                <img
+                                    src={story?.user?.imageUrl ?? "/avatar/default-avatar.png"} 
+                                    alt="User avatar"                            
+                                    className={`w-[40px] h-[40px] object-cover rounded-lg`}
                                 />
                             </div>
                             <span className="text-gray-600 text-sm font-medium">@{story?.user?.name ?? "Anonymous"}</span>
