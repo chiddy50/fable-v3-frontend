@@ -81,12 +81,17 @@ const RandomStoryComponent = ({ randomStory, loading }: { randomStory: StoryInte
                     <div className="flex items-center justify-between mt-16 ">
                         <div className="flex items-center">
                             <div className="overflow-hidden mr-2">             
-                                <UserAvatarComponent
+                                {/* <UserAvatarComponent
                                     width={40}
                                     height={40}
                                     borderRadius='rounded-lg'
                                     imageUrl={randomStory?.user?.imageUrl ?? "/avatar/default-avatar.png"}
                                     border="border border-white"
+                                /> */}
+                                <img
+                                    src={`${randomStory?.user?.imageUrl ?? "/avatar/default-avatar.png"}`}
+                                    alt="Story cover image"
+                                    className="w-[40px] h-[40px] rounded-lg border border-white object-cover"
                                 />
                             </div>
                             <span className="text-gray-600 text-sm font-medium mr-5">@{randomStory?.user?.name ?? "Anonymous"}</span>
