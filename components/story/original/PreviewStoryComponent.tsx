@@ -113,7 +113,7 @@ const PreviewStoryComponent: React.FC<Props> = ({
                             <div className="mr-4 flex-shrink-0">
                                 <div className="w-32 h-32 rounded-2xl overflow-hidden shadow-md">
                                     <img
-                                        src={`${story?.coverImageUrl ?? "/img/placeholder5.jpg"}`}
+                                        src={`${story?.coverImageUrl ?? story?.bannerImageUrl ?? "/img/placeholder5.jpg"}`}
                                         alt="Story cover image"
                                         className="w-full h-full object-cover"
                                     />
