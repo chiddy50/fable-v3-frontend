@@ -79,11 +79,16 @@ const ReadStoryComponent: React.FC<Props> = ({
                         <div className='flex flex-col items-center gap-2 text-white'>
 
                             <div className="flex flex-col gap-1 items-center">
-                                <UserAvatarComponent
+                                {/* <UserAvatarComponent
                                     width={40}
                                     height={40}
                                     borderRadius='rounded-lg'
                                     imageUrl={story?.user?.imageUrl ?? "/avatar/default-avatar.png"}
+                                /> */}
+                                <img
+                                    src={story?.user?.imageUrl ?? "/avatar/default-avatar.png"} 
+                                    alt="User avatar"                            
+                                    className={`w-[50px] h-[50px] object-cover rounded-lg`}
                                 />
                                 <p className="text-sm text-center text-shadow-dark font-semibold">@{story?.user?.name}</p>
                             </div>
