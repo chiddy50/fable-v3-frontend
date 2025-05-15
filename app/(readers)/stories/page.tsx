@@ -17,6 +17,8 @@ import { RotateCcw } from 'lucide-react';
 import { ReadersHeaderComponent } from '@/components/shared/ReadersHeaderComponent';
 import { generateRandomNumber } from '@/lib/helper';
 import RandomStoryComponent from '@/components/story/read/RandomStoryComponent';
+import PaginationComponent from '@/components/shared/PaginationComponent';
+import axios from 'axios';
 
 const StoriesPage = () => {
     const [showGridIcon, setShowGridIcon] = useState<boolean>(false)
@@ -28,27 +30,68 @@ const StoriesPage = () => {
     const [genreList, setGenreList] = useState<[]>([]);
     const [randomStory, setRandomStory] = useState<StoryInterface|null>(null);
 
+    const [currentPage, setCurrentPage] = useState<number>(1)
+    const [limit, setLimit] = useState<number>(10);
+    const [hasNextPage, setHasNextPage] = useState<boolean>(false);
+    const [hasPrevPage, setHasPrevPage] = useState<boolean>(false);
+    const [totalPages, setTotalPages] = useState(null);
+
     useEffect(() => {
         fetchStories();
     }, []);
 
-    const fetchStories = async (genre = "") => {
-        try {
-            let url = genre === "" ? `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all` : `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all?genre=${genre}`;
-            setLoading(true)
-            const res = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
+    const paginateStories = (page: number) => {
+        let set_next_page = currentPage + page
+        setCurrentPage(set_next_page)
+                   
+        fetchStories(set_next_page)
+    }
 
-            const json = await res.json();
-            console.log(json);
-            let data = json?.stories;
+    const fetchStories = async (page = 1, genre = "") => {
+        try {
+            let params = {
+                page: page,
+                limit: limit,
+            }
+
+            if(genre) {
+                params.genre = genre
+            }
+
+            // let url = genre === "" ? `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all` : `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all?genre=${genre}`;
+            setLoading(true)
+
+            let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all`
+
+            const res = await axios.get(url,{
+                params: params,
+                headers: {
+                    'Content-Type': 'application/json',                   
+                },
+            })
+            console.log(res);
+            
+
+            // const res = await fetch(url, {
+            //     method: 'GET',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     }
+            // });
+
+            // const json = await res.json();
+            // console.log(json);
+            // let data = json?.stories;
+
+            let data = res.data.stories
             if (data) {
                 setPublishedStories(data);
             }
+
+            setHasNextPage(res?.data?.pagination?.hasNextPage)
+            setHasPrevPage(res?.data?.pagination?.hasPreviousPage)
+            setTotalPages(res?.data?.pagination?.totalPages)  
+
 
             const max = data.length - 1;
             let randomNumber = generateRandomNumber(max);
@@ -56,7 +99,7 @@ const StoriesPage = () => {
             setRandomStory(random_story);
             console.log({randomNumber, random_story});
 
-            const genres = json?.genres.map((genre: { id: number, name: string }) => {
+            const genres = res.data?.genres.map((genre: { id: number, name: string }) => {
                 return {
                     id: genre.id,
                     label: genre.name,
@@ -137,6 +180,19 @@ const StoriesPage = () => {
                                     <>
                                         
                                         <StoryCardComponent stories={publishedStories ?? []} activeControl={activeControl} />                        
+                                        {
+                                            publishedStories.length > 0 &&
+                                            <PaginationComponent 
+                                                hasPrevPage={hasPrevPage} 
+                                                hasNextPage={hasNextPage} 
+                                                triggerPagination={paginateStories} 
+                                                currentPage={currentPage} 
+                                                totalPages={totalPages}
+                                                textColor="text-black"
+                                                bgColor="bg-white"
+                                                descColor="text-white"
+                                            />
+                                        }
                                     </>
                                 }
                             </div>
