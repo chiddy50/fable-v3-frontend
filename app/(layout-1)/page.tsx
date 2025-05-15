@@ -117,6 +117,7 @@ export default function Home() {
 		  },
 	];
 
+    const [storyCount, setStoryCount] = useState<number>(0);
     const [isMounted, setIsMounted] = useState<boolean>(false);
     const [loginAuth, setLoginAuth] = useState<{ verifier: string, domain: string }|null>(null);
 	
@@ -125,6 +126,20 @@ export default function Home() {
         isLoggedIn, setIsLoggedIn,  
 		user, setUser      
     } = useContext(AppContext);
+
+	useEffect(() => {
+        getStoriesCount();
+    }, []);
+
+    const getStoriesCount = async () => {
+        try {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/v2/stories/count`)
+            console.log(response);
+            setStoryCount(response?.data?.storyCount)
+        } catch (error) {
+            console.error(error);            
+        }
+    }
 
 	const authenticateUser = async (user: PrivyLoginInterface, route: string, isNewUser: boolean) => {
 		try{
@@ -198,7 +213,7 @@ export default function Home() {
 							<div className="stories-btn text-xs">
 								Stories
 							</div>
-							<div className="year-indicator bg-white text-lg rounded-lg px-2 font-semibold">200</div>
+							<div className="year-indicator bg-white text-lg rounded-lg px-2 font-semibold">{storyCount ?? 0}</div>
 						</div>
 					</div>
 				</nav>
@@ -259,7 +274,7 @@ export default function Home() {
 												<div className="stories-btn text-sm">
 													See Stories
 												</div>
-												<div className="year-indicator bg-white text-lg rounded-3xl px-2 font-semibold">200</div>
+												<div className="year-indicator bg-white text-lg rounded-3xl px-2 font-semibold">{storyCount ?? 0}</div>
 											</div>
 										</div>
 									</Link>

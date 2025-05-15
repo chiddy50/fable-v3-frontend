@@ -1,15 +1,31 @@
 "use client"
 
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { ArrowLeft, Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { AppContext } from '@/context/MainContext';
+import axios from 'axios';
 
 
 export const ReadersHeaderComponent = ({ returnUrl, returnTitle }: { returnUrl: string, returnTitle: string }) => {
     const { user, mobileSideNavIsOpen, setMobileSideNavIsOpen } = useContext(AppContext)
+        const [storyCount, setStoryCount] = useState<number>(0);
     
+    useEffect(() => {
+        getStoriesCount();
+    }, []);
+
+    const getStoriesCount = async () => {
+        try {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/v2/stories/count`)
+            console.log(response);
+            setStoryCount(response?.data?.storyCount)
+        } catch (error) {
+            console.error(error);            
+        }
+    }
+
     return (
         // <nav className="fixed bg-transparent top-0 p-4 backdrop-blur-xl" style={{ position: 'sticky'}}>        
         <nav className="absolute h-[80px] top-0 left-0 w-full bg-white/30 backdrop-blur-md z-50 px-6 py-4 border-b border-white/10" >
@@ -34,7 +50,7 @@ export const ReadersHeaderComponent = ({ returnUrl, returnTitle }: { returnUrl: 
                         <p className="stories-btn text-xs text-gray-600 ">
                             Stories
                         </p>
-                        <p className="bg-white text-lg rounded-sm px-2 py-1 font-semibold shadow-sm">200</p>
+                        <p className="bg-white text-lg rounded-sm px-2 py-1 font-semibold shadow-sm">{storyCount ?? 0}</p>
                     </div>
                 </div>
             </div>
