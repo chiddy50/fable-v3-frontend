@@ -46,8 +46,10 @@ const StoryCommentsComponent: React.FC<Props> = ({
     }, [user])
 
     useEffect(() => {
+        console.log("GET COMMENTS FOR CHAPTER ", activeChapter?.index);
+        
         getChapterComments()
-    }, []);
+    }, [activeChapter]);
 
     const paginateChapterComments = (page: number) => {
         let set_next_page = currentPage + page
