@@ -65,8 +65,6 @@ const CreatorStoriesComponent = ({ userId, storyCount }: { userId: string, story
     }
 
     const showStoryPreview = (story: StoryInterface) => {
-        console.log(story);
-        
         setSelectedStory(story)
         setShowPreview(true) 
     }
