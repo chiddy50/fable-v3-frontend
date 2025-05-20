@@ -1,4 +1,4 @@
-'use client'; 
+'use client';
 
 import React, { useEffect, useState } from 'react'
 import Image from "next/image";
@@ -28,60 +28,52 @@ const StoriesPage = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [publishedStories, setPublishedStories] = useState<StoryInterface[]>([]);
     const [genreList, setGenreList] = useState<[]>([]);
-    const [randomStory, setRandomStory] = useState<StoryInterface|null>(null);
+    const [randomStory, setRandomStory] = useState<StoryInterface | null>(null);
 
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [limit, setLimit] = useState<number>(15);
     const [hasNextPage, setHasNextPage] = useState<boolean>(false);
     const [hasPrevPage, setHasPrevPage] = useState<boolean>(false);
     const [totalPages, setTotalPages] = useState(null);
+    const [distinctGenres, setDistinctGenres] = useState([]);
+    const [selectedGenre, setSelectedGenre] = useState<(string | number)[]>([]);
 
     useEffect(() => {
         fetchStories();
+        getDistinctGenres();
+
     }, []);
 
     const paginateStories = (page: number) => {
         let set_next_page = currentPage + page
         setCurrentPage(set_next_page)
-                   
-        fetchStories(set_next_page)
+
+        fetchStories(set_next_page, selectedGenre)
     }
 
-    const fetchStories = async (page = 1, genre = "") => {
+    const fetchStories = async (page = 1, genreIds = []) => {
         try {
             let params = {
                 page: page,
                 limit: limit,
             }
 
-            if(genre) {
-                params.genre = genre
+            // Add genres to params if there are any selected
+            if (genreIds && genreIds.length > 0) {
+                params.genres = genreIds;
             }
 
-            // let url = genre === "" ? `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all` : `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all?genre=${genre}`;
             setLoading(true)
 
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/stories/all`
 
-            const res = await axios.get(url,{
+            const res = await axios.get(url, {
                 params: params,
                 headers: {
-                    'Content-Type': 'application/json',                   
+                    'Content-Type': 'application/json',
                 },
             })
             console.log(res);
-            
-
-            // const res = await fetch(url, {
-            //     method: 'GET',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     }
-            // });
-
-            // const json = await res.json();
-            // console.log(json);
-            // let data = json?.stories;
 
             let data = res.data.stories
             if (data) {
@@ -90,14 +82,13 @@ const StoriesPage = () => {
 
             setHasNextPage(res?.data?.pagination?.hasNextPage)
             setHasPrevPage(res?.data?.pagination?.hasPreviousPage)
-            setTotalPages(res?.data?.pagination?.totalPages)  
-
+            setTotalPages(res?.data?.pagination?.totalPages)
 
             const max = data.length - 1;
             let randomNumber = generateRandomNumber(max);
             const random_story = data[randomNumber]
             setRandomStory(random_story);
-            console.log({randomNumber, random_story});
+            console.log({ randomNumber, random_story });
 
             const genres = res.data?.genres.map((genre: { id: number, name: string }) => {
                 return {
@@ -115,19 +106,65 @@ const StoriesPage = () => {
         }
     }
 
+    const getDistinctGenres = async () => {
+        try {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/story-genres`)
+            setDistinctGenres(response?.data?.distinctGenres);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+
+
+    const filterByGenre = (id: string | number) => {
+        // Fix the find callback function
+        let genreAlreadySelected = selectedGenre.find(genreId => genreId === id);
+
+        let updatedGenres = [];
+
+        if (genreAlreadySelected) {
+            // If genre is already selected, remove it (toggle functionality)
+            updatedGenres = selectedGenre.filter(genreId => genreId !== id);
+            setSelectedGenre(updatedGenres);
+        } else {
+            // Create a new array with the spread operator to trigger re-render properly
+            updatedGenres = [...selectedGenre, id];
+            setSelectedGenre(updatedGenres);
+        }
+
+        // Reset to page 1 when filtering by genre
+        setCurrentPage(1);
+
+        // Call fetchStories with the updated genres
+        fetchStories(1, updatedGenres);
+    }
+
+    const alreadySelected = (id: number) => {
+        return selectedGenre.find(genreId => genreId === id) !== undefined;
+    }
+
     return (
         <>
-            <ReadersHeaderComponent returnTitle="Home" returnUrl="/"/>
-            
+            <ReadersHeaderComponent returnTitle="Home" returnUrl="/" />
+
             <div className='overflow-y-auto'>
 
-                { randomStory && <RandomStoryComponent loading={loading} randomStory={randomStory} />}
+                {randomStory && <RandomStoryComponent loading={loading} randomStory={randomStory} />}
 
                 <div className='mt-10 bg-[#FBFBFB]'>
                     {/* <div className="mt-[260px] px-20 grid p-5 grid-cols-6 gap-12"> */}
                     <div className=" grid p-5 grid-cols-6 gap-12">
                         <div className="left-container bg-white rounded-2xl p-5 col-span-6 mb-10">
-                            <div className="flex gap-9 items-center mb-3">                
+                            <div className="flex items-center gap-3 text-xs tracking-wide mb-7">
+                                {
+                                    distinctGenres?.map((genre: { id: number, name: string }) => (
+                                        <span key={genre.id} onClick={() => filterByGenre(genre?.id)} className={`rounded-lg py-2 px-3 cursor-pointer transition-all ${alreadySelected(genre.id) ? 'bg-[#5D4076] text-white' : 'text-gray-600 bg-[#D8D1DE3D]'}`}>{genre.name}</span>
+                                    ))
+                                }
+                            </div>
+
+                            {/* <div className="flex gap-9 items-center mb-3">                
                                 <div className='bg-[#F5F5F5] rounded-xl p-2 cursor-pointer'>
                                     <Image src="/icon/add-circle-half-dot.svg" alt="add-circle-half-dot icon" className=" " width={16} height={16} />
                                 </div>
@@ -141,12 +178,12 @@ const StoriesPage = () => {
                                         <span className='text-[#5D4076 text-[0.7rem]'>Favorites</span>
                                     </div>
                                 </div>
-                            </div>
-                                
+                            </div> */}
+
                             <div className="flex flex-col gap-4 sm:gap-0 sm:flex-row items-center justify-between">
 
                                 <h2 className='text-gray-500 text-2xl font-bold'>For You</h2>
-                                
+
                                 {/* <div className='flex items-center gap-2'>
                                     
                                     <div onClick={() => setActiveControl('list')} className={` rounded-2xl h-9 w-9 flex items-center justify-center cursor-pointer list-control ${activeControl === "list" ? 'bg-[#F5F5F5]' : ''}`}>
@@ -158,53 +195,52 @@ const StoriesPage = () => {
                                 </div> */}
 
                                 <div className="flex items-center">
-                                    
                                     <SearchBoxComponent />
                                 </div>
 
                             </div>
 
                             <div className="mt-10 mb-10 min-h-[800px]">
-                                {loading && 
-                                <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                                    <Skeleton className="col-span-1 h-[390px] rounded-2xl" />
-                                    <Skeleton className="col-span-1 h-[390px] rounded-2xl" />
-                                    <Skeleton className="col-span-1 h-[390px] rounded-2xl" />
-                                    <Skeleton className="col-span-1 h-[390px] rounded-2xl" />
+                                {loading &&
+                                    <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                                        <Skeleton className="col-span-1 h-[390px] rounded-2xl" />
+                                        <Skeleton className="col-span-1 h-[390px] rounded-2xl" />
+                                        <Skeleton className="col-span-1 h-[390px] rounded-2xl" />
+                                        <Skeleton className="col-span-1 h-[390px] rounded-2xl" />
 
-                                </div>
+                                    </div>
                                 }
 
                                 {
-                                    !loading && 
+                                    !loading &&
                                     <>
-                                        
+
                                         {/* <StoryCardComponent stories={publishedStories ?? []} activeControl={activeControl} />                         */}
-                                        { activeControl === "grid" && 
+                                        {activeControl === "grid" &&
                                             <div className='grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-5'>
-                                                { 
-                                                    publishedStories?.map(story =>  (
+                                                {
+                                                    publishedStories?.map(story => (
 
                                                         <StoryGridViewComponent key={story?.id} story={story} image={story?.coverImageUrl ?? story?.bannerImageUrl} />
                                                     ))
                                                 }
-                                            </div> 
+                                            </div>
                                         }
 
                                         {
                                             publishedStories.length > 0 &&
-                                            <PaginationComponent 
-                                                hasPrevPage={hasPrevPage} 
-                                                hasNextPage={hasNextPage} 
-                                                triggerPagination={paginateStories} 
-                                                currentPage={currentPage} 
+                                            <PaginationComponent
+                                                hasPrevPage={hasPrevPage}
+                                                hasNextPage={hasNextPage}
+                                                triggerPagination={paginateStories}
+                                                currentPage={currentPage}
                                                 totalPages={totalPages}
                                                 textColor="text-black"
                                                 bgColor="bg-white"
                                                 descColor="text-white"
                                             />
                                         }
-                                        
+
                                     </>
                                 }
                             </div>
@@ -253,7 +289,7 @@ const StoriesPage = () => {
                             </div>
                         </div> */}
 
-                        
+
                     </div>
                 </div>
             </div>
