@@ -62,7 +62,7 @@ const StoryGridViewComponent = ({ image, story }: { image: string, story: any })
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex gap-3">                    
                     <BookmarkComponent />
-                    {/* <CommentBtnComponent /> */}
+                    <CommentBtnComponent count={story?._count?.comments} />
                     <ShareBtnComponent />
                     {/* <RatingBtnComponent /> */}
                 </div>

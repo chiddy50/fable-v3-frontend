@@ -117,7 +117,7 @@ const StoryCommentsComponent: React.FC<Props> = ({
         <div className='px-5 lg:px-5 xl:px-0'>
             <div className="flex items-center justify-between ">
                 <h1 className="font-bold text-3xl">Comments</h1>
-                <div className="px-3 py-1 bg-gray-100 text-indigo-900 rounded-full font-bold text-sm">{story?.comments?.length ?? 0} <span className='font-light text-xs'>comment(s)</span> </div>
+                <div className="px-3 py-1 bg-gray-100 text-indigo-900 rounded-full font-bold text-sm">{story?._count?.comments ?? story?.comments?.length ?? 0} <span className='font-light text-xs'>comment(s)</span> </div>
 
             </div>
 
