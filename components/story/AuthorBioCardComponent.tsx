@@ -84,7 +84,7 @@ const AuthorBioCardComponent: React.FC<AuthorBioCardProps> = ({
             </div>
             
             <div className="mt-3 flex items-center gap-1 text-xs mb-3">
-                <span className='font-bold'>0</span>
+                <span className='font-bold'>{user?._count?.stories ?? 0}</span>
                 <span className='text-gray-400'>Publications</span>
             </div>
             

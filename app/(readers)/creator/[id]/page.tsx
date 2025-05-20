@@ -78,7 +78,7 @@ const CreatorPage = ({ params }: Props) => {
 
                             
 
-                            { tab === "stories" && <CreatorStoriesComponent userId={decodedId} /> }
+                            { tab === "stories" && <CreatorStoriesComponent storyCount={author?._count?.stories} userId={decodedId} /> }
                             {/* { tab === "with-ai" && <CreatorStoriesComponent title="With AI" type="ai" editUrl="/dashboard/write-ai-story" /> } */}
                             {/* { tab === "featured" && <CreatorStoriesComponent title="Drafts" type="draft" editUrl="/dashboard/write-original-story" /> } */}
                         </div>
