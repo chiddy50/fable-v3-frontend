@@ -1,7 +1,22 @@
+"use client"
+
+import LoaderComponent from "@/components/shared/LoaderComponent";
+import { usePrivy } from "@privy-io/react-auth";
+
 export default function BlogLayout({
-  children,
+	children,
 }: {
-  children: React.ReactNode
+	children: React.ReactNode
 }) {
-  return <>{children}</>
+
+	const { ready } = usePrivy();
+
+	if (!ready) {
+		return (
+			<LoaderComponent />
+		);
+	}
+
+
+	return <>{children}</>
 }

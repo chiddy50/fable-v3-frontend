@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useContext, useState } from "react";
 import { usePrivy } from '@privy-io/react-auth';
 import ReaderSideBarContent from "@/components/navigation/ReaderSideBarContent";
+import LoaderComponent from "@/components/shared/LoaderComponent";
 
 
 export default function Layout1({
@@ -27,17 +28,14 @@ export default function Layout1({
 	const [showDashboardTooltip, setShowDashboardTooltip] = useState<boolean>(false)
 	const [showHomeTooltip, setShowHomeTooltip] = useState<boolean>(false)
 
-	const { ready, authenticated, logout } = usePrivy();
-	
-	const logoutUser = () => {
-        logout();
-        // router.push("/")
-        window.location.href = '/';
-    }
+	const { ready } = usePrivy();
 
-	if (!ready) {
-		return <div>Loading...</div>;
+  if (!ready) {
+		return (
+			<LoaderComponent />
+		);
 	}
+
 	
 	return (
 		<>
