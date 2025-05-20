@@ -262,7 +262,7 @@ const ReadStoryComponent: React.FC<Props> = ({
                             </div>
                             <div className="flex items-center flex-wrap gap-3">
                                 <BookmarkComponent />
-                                <CommentBtnComponent />
+                                <CommentBtnComponent count={story?._count?.comments} />
                                 <ShareBtnComponent />
                                 {/* <RatingBtnComponent /> */}
                             </div>

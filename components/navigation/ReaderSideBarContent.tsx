@@ -116,7 +116,7 @@ const ReaderSideBarContent = () => {
 
 
     return (
-        <div className="flex flex-col justify-between bg-white w-full h-full">
+        <div className="flex flex-col justify-between  w-full h-full">
             {/* Your left menu content here */}
 
             <div className="">

@@ -214,6 +214,10 @@ export interface StoryInterface {
   publishedAt: string;
   plotSuggestions: any;
 
+  _count?: {
+    comments?: number;
+  }
+
   // plotElement: ThreeActStructureInterface,
 
   storyStructure: StoryStructureInterface;

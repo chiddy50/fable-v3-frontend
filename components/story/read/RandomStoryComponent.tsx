@@ -131,7 +131,7 @@ const RandomStoryComponent = ({ randomStory, loading }: { randomStory: StoryInte
                     <div className="flex items-center gap-3 mt-3">
                         <ShareBtnComponent />
                         <BookmarkComponent />
-                        <CommentBtnComponent />
+                        <CommentBtnComponent count={randomStory?._count?.comments} />
                     </div>
         
                 </div>
