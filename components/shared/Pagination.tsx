@@ -64,7 +64,7 @@ export default function Pagination({
         size="icon"
         onClick={() => triggerPagination(-1)}
         disabled={!hasPrevPage}
-        className={`${!hasPrevPage ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`${!hasPrevPage ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
       >
         <ChevronLeft className="w-5 h-5" />
       </Button>
@@ -76,7 +76,7 @@ export default function Pagination({
           variant={page === currentPage ? 'default' : 'outline'}
           size="icon"
           onClick={() => triggerPagination(page - currentPage)}
-          className={`${page === currentPage ? '' : ''}`}
+          className={`cursor-pointer ${page === currentPage ? '' : ''}`}
         >
           {page}
         </Button>
@@ -88,7 +88,7 @@ export default function Pagination({
         size="icon"
         onClick={() => triggerPagination(1)}
         disabled={!hasNextPage}
-        className={`${!hasNextPage ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`${!hasNextPage ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
       >
         <ChevronRight className="w-5 h-5" />
       </Button>

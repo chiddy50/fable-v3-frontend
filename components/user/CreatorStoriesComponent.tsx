@@ -75,7 +75,7 @@ const CreatorStoriesComponent = ({ userId, storyCount }: { userId: string, story
                     //     />
                     <div className="w-full mb-5 p-3 rounded-2xl  bg-gradient-to-b from-[#e1e1e1] to-[#fff]">
 
-                        <div className="relative w-full h-[230px] mb-3 rounded-2xl overflow-hidden"
+                        <div className="relative w-full h-[230px] mb-3 rounded-2xl overflow-hidden transition-transform duration-300 hover:scale-105"
                             style={{
                                 backgroundImage: `url(${story?.coverImageUrl ?? story?.bannerImageUrl ?? `/logo/fable_black.png`})`,
                                 backgroundSize: 'cover',

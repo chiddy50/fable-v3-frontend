@@ -51,14 +51,14 @@ const DashboardSidebarContent = () => {
                             <Image src="/icon/dashboard.svg" alt="feather icon" className=" " width={20} height={20} />
                             <p className="text-xs">Dashboard</p>
                         </Link>
-                        <div className="flex gap-3 p-3 rounded-xl cursor-pointer text-gray-600 transition-all hover:text-gray-800 hover:bg-gray-100 items-center mb-1">
+                        {/* <div className="flex gap-3 p-3 rounded-xl cursor-pointer text-gray-600 transition-all hover:text-gray-800 hover:bg-gray-100 items-center mb-1">
                             <Image src="/icon/magic-pen-menu.svg" alt="feather icon" className=" " width={20} height={20} />
                             <p className="text-xs">Stories</p>
-                        </div>
+                        </div> */}
                         {/* <div className="flex gap-3 p-3 rounded-xl cursor-pointer text-gray-600 transition-all hover:text-gray-800 hover:bg-gray-100 items-center mb-1">
-                                        <Image src="/icon/book.svg" alt="feather icon" className=" " width={20} height={20} />
-                                        <p className="text-xs">Articles</p>
-                                    </div> */}
+                            <Image src="/icon/book.svg" alt="feather icon" className=" " width={20} height={20} />
+                            <p className="text-xs">Articles</p>
+                        </div> */}
                         <div className="flex gap-3 p-3 rounded-xl cursor-pointer text-gray-600 transition-all hover:text-gray-800 hover:bg-gray-100 items-center mb-1">
                             <Image src="/icon/money.svg" alt="feather icon" className=" " width={20} height={20} />
                             <p className="text-xs">Earnings</p>
@@ -77,7 +77,7 @@ const DashboardSidebarContent = () => {
             </div>
 
             <div className="mt-5">
-                <div className="grid grid-cols-7 gap-3">
+                <div className="grid grid-cols-7 gap-4">
                     <button
                         onClick={() => setShowTopUpCreditModal(true)}
                         className="w-full col-span-3 py-2 font-bold flex items-center justify-center cursor-pointer text-white bg-black hover:bg-[#3f3f3f] rounded-xl gap-3">
