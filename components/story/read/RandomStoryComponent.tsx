@@ -9,9 +9,12 @@ import React, { useEffect, useState } from 'react'
 import { Skeleton } from "@/components/ui/skeleton"
 import CommentBtnComponent from '@/components/shared/CommentBtnComponent'
 import BookmarkComponent from '@/components/shared/BookmarkComponent'
+import { ArrowRight } from 'lucide-react'
+import ReadStoryPreviewComponent from './ReadStoryPreviewComponent'
 
 const RandomStoryComponent = ({ randomStory, loading }: { randomStory: StoryInterface, loading: boolean }) => {
-    const [loaded, setLoaded] = useState(false);
+    const [loaded, setLoaded] = useState<boolean>(false);
+    const [showPreview, setShowPreview] = useState<boolean>(false);
     
     useEffect(() => {
         setLoaded(true);
@@ -132,9 +135,21 @@ const RandomStoryComponent = ({ randomStory, loading }: { randomStory: StoryInte
                         <ShareBtnComponent />
                         <BookmarkComponent />
                         <CommentBtnComponent count={randomStory?._count?.comments} />
+
+                        <button onClick={() => setShowPreview(true)} className='text-white cursor-pointer flex items-center justify-center py-2 px-4 rounded-lg m-2 bg-gradient-to-r hover:from-[#AA4A41] hover:to-[#33164C] to-[#AA4A41] from-[#33164C] transition-all'>
+                            <ArrowRight size={16} />
+                        </button>
                     </div>
         
                 </div>
+
+
+
+                <ReadStoryPreviewComponent 
+                    showPreview={showPreview} 
+                    setShowPreview={setShowPreview} 
+                    story={randomStory} 
+                />
             </div>
         )
     }
