@@ -19,6 +19,7 @@ import { generateRandomNumber } from '@/lib/helper';
 import RandomStoryComponent from '@/components/story/read/RandomStoryComponent';
 import PaginationComponent from '@/components/shared/PaginationComponent';
 import axios from 'axios';
+import Pagination from '@/components/shared/Pagination';
 
 const StoriesPage = () => {
     const [showGridIcon, setShowGridIcon] = useState<boolean>(false)
@@ -34,7 +35,7 @@ const StoriesPage = () => {
     const [limit, setLimit] = useState<number>(15);
     const [hasNextPage, setHasNextPage] = useState<boolean>(false);
     const [hasPrevPage, setHasPrevPage] = useState<boolean>(false);
-    const [totalPages, setTotalPages] = useState(null);
+    const [totalPages, setTotalPages] = useState(0);
     const [distinctGenres, setDistinctGenres] = useState([]);
     const [selectedGenre, setSelectedGenre] = useState<(string | number)[]>([]);
 
@@ -229,7 +230,17 @@ const StoriesPage = () => {
 
                                         {
                                             publishedStories.length > 0 &&
-                                            <PaginationComponent
+                                            // <PaginationComponent
+                                            //     hasPrevPage={hasPrevPage}
+                                            //     hasNextPage={hasNextPage}
+                                            //     triggerPagination={paginateStories}
+                                            //     currentPage={currentPage}
+                                            //     totalPages={totalPages}
+                                            //     textColor="text-black"
+                                            //     bgColor="bg-white"
+                                            //     descColor="text-white"
+                                            // />
+                                            <Pagination
                                                 hasPrevPage={hasPrevPage}
                                                 hasNextPage={hasNextPage}
                                                 triggerPagination={paginateStories}
