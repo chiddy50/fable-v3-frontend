@@ -142,6 +142,7 @@ export default function Home() {
         }
     }
 
+
 	const authenticateUser = async (user: PrivyLoginInterface, route: string, isNewUser: boolean) => {
 		try{
 			const authToken = await getAccessToken();
