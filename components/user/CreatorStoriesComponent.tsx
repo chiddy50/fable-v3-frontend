@@ -16,6 +16,7 @@ import { ArrowRight } from 'lucide-react';
 import { formatDate } from '@/lib/helper';
 import ReadStoryPreviewComponent from '../story/read/ReadStoryPreviewComponent'
 import AuthorComponent from '../story/AuthorComponent'
+import { log } from 'util'
 
 const CreatorStoriesComponent = ({ userId, storyCount }: { userId: string, storyCount: number }) => {
 
@@ -27,6 +28,7 @@ const CreatorStoriesComponent = ({ userId, storyCount }: { userId: string, story
     const [loadingStories, setLoadingStories] = useState(true);
     const [stories, setStories] = useState<StoryInterface[]>([]);
     const [showPreview, setShowPreview] = useState<boolean>(false);
+    const [selectedStory, setSelectedStory] = useState<StoryInterface|null>(null);
 
     useEffect(() => {
         getStories();
@@ -60,6 +62,13 @@ const CreatorStoriesComponent = ({ userId, storyCount }: { userId: string, story
         } finally {
             setLoadingStories(false)
         }
+    }
+
+    const showStoryPreview = (story: StoryInterface) => {
+        console.log(story);
+        
+        setSelectedStory(story)
+        setShowPreview(true) 
     }
 
     return (
@@ -106,7 +115,7 @@ const CreatorStoriesComponent = ({ userId, storyCount }: { userId: string, story
                             </div>
 
                             <div>
-                                <button onClick={() => setShowPreview(true)} className='text-white cursor-pointer flex items-center justify-center py-2 px-4 rounded-lg m-2 bg-gradient-to-r hover:from-[#AA4A41] hover:to-[#33164C] to-[#AA4A41] from-[#33164C] transition-all'>
+                                <button onClick={() => showStoryPreview(story) } className='text-white cursor-pointer flex items-center justify-center py-2 px-4 rounded-lg m-2 bg-gradient-to-r hover:from-[#AA4A41] hover:to-[#33164C] to-[#AA4A41] from-[#33164C] transition-all'>
                                     <ArrowRight size={16} />
                                 </button>
                             </div>
@@ -115,11 +124,13 @@ const CreatorStoriesComponent = ({ userId, storyCount }: { userId: string, story
 
 
 
-                        <ReadStoryPreviewComponent
-                            showPreview={showPreview}
-                            setShowPreview={setShowPreview}
-                            story={story}
-                        />
+                        {story &&
+                            <ReadStoryPreviewComponent
+                                showPreview={showPreview}
+                                setShowPreview={setShowPreview}
+                                story={selectedStory}
+                            />
+                        }
 
                     </div>
                 ))
