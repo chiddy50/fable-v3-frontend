@@ -32,7 +32,7 @@ const StoriesPage = () => {
     const [randomStory, setRandomStory] = useState<StoryInterface | null>(null);
 
     const [currentPage, setCurrentPage] = useState<number>(1)
-    const [limit, setLimit] = useState<number>(15);
+    const [limit, setLimit] = useState<number>(1);
     const [hasNextPage, setHasNextPage] = useState<boolean>(false);
     const [hasPrevPage, setHasPrevPage] = useState<boolean>(false);
     const [totalPages, setTotalPages] = useState(0);

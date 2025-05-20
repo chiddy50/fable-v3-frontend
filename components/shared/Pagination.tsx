@@ -76,7 +76,7 @@ export default function Pagination({
           variant={page === currentPage ? 'default' : 'outline'}
           size="icon"
           onClick={() => triggerPagination(page - currentPage)}
-          className={`cursor-pointer ${page === currentPage ? '' : ''}`}
+          className={`cursor-pointer ${page === currentPage ? 'bg-gradient-to-r from-[#33164C] to-[#AA4A41]' : ''}`}
         >
           {page}
         </Button>
