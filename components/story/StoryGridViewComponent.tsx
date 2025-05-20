@@ -13,7 +13,7 @@ import { ArrowRight } from 'lucide-react';
 import { formatDate } from '@/lib/helper';
 import ReadStoryPreviewComponent from './read/ReadStoryPreviewComponent';
 
-const StoryGridViewComponent = ({ image, story }: { image: string, story: any }) => {
+const StoryGridViewComponent = ({ image, story, storyCount }: { image: string, story: any, storyCount?: number|string }) => {
 
     const [showPreview, setShowPreview] = useState<boolean>(false);
     return (

@@ -71,7 +71,7 @@ const ProfileHeaderComponent: FC<ProfileHeaderProps> = ({ user }) => {
 
                 {/* Publications count */}
                 <div className="flex items-center text-xs mt-1">
-                    <span className="font-bold text-gray-800">0</span>
+                    <span className="font-bold text-gray-800">{user?._count?.stories ?? 0}</span>
                     <span className="text-gray-600 ml-1">Publications</span>
                 </div>
 
