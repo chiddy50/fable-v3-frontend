@@ -7,6 +7,8 @@ import { StoryInterface } from '@/interfaces/StoryInterface'
 import { formatDate } from '@/lib/helper'
 import React, { useEffect, useState } from 'react'
 import { Skeleton } from "@/components/ui/skeleton"
+import CommentBtnComponent from '@/components/shared/CommentBtnComponent'
+import BookmarkComponent from '@/components/shared/BookmarkComponent'
 
 const RandomStoryComponent = ({ randomStory, loading }: { randomStory: StoryInterface, loading: boolean }) => {
     const [loaded, setLoaded] = useState(false);
@@ -110,8 +112,7 @@ const RandomStoryComponent = ({ randomStory, loading }: { randomStory: StoryInte
         
                     {/* Engagement Stats */}
                     <div className="flex items-center justify-between mt-3">                    
-                        <GenrePillsComponent genres={randomStory.genres} />
-                        <ShareBtnComponent />
+                        <GenrePillsComponent genres={randomStory.genres} />                        
                     </div>
         
         
@@ -126,6 +127,12 @@ const RandomStoryComponent = ({ randomStory, loading }: { randomStory: StoryInte
                                 </div>
                         </div>
                     }
+
+                    <div className="flex items-center gap-3 mt-3">
+                        <ShareBtnComponent />
+                        <BookmarkComponent />
+                        <CommentBtnComponent />
+                    </div>
         
                 </div>
             </div>

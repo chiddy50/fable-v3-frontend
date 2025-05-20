@@ -157,7 +157,7 @@ const StoriesPage = () => {
                     {/* <div className="mt-[260px] px-20 grid p-5 grid-cols-6 gap-12"> */}
                     <div className=" grid p-5 grid-cols-6 gap-12">
                         <div className="left-container bg-white rounded-2xl p-5 col-span-6 mb-10">
-                            <div className="flex items-center gap-3 text-xs tracking-wide mb-7">
+                            <div className="flex flex-wrap items-center gap-3 text-[10px] tracking-wide mb-7">
                                 {
                                     distinctGenres?.map((genre: { id: number, name: string }) => (
                                         <span key={genre.id} onClick={() => filterByGenre(genre?.id)} className={`rounded-lg py-2 px-3 cursor-pointer transition-all ${alreadySelected(genre.id) ? 'bg-[#5D4076] text-white' : 'text-gray-600 bg-[#D8D1DE3D]'}`}>{genre.name}</span>
