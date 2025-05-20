@@ -17,6 +17,7 @@ import TopUpCreditComponent from '@/components/shared/TopUpCreditComponent';
 import DashboardMobileSidebar from '@/components/dashboard/DashboardMobileSidebar';
 import DashboardSidebarContent from '@/components/dashboard/DashboardSidebarContent';
 import { usePrivy } from '@privy-io/react-auth';
+import LoaderComponent from '@/components/shared/LoaderComponent';
 
 
 export default function DashboardLayout({
@@ -36,7 +37,7 @@ export default function DashboardLayout({
     const { 
         isLoggedIn, setIsLoggedIn, user, setUser, 
         showTopUpCreditModal, setShowTopUpCreditModal
-    } = useContext(AppContext)
+    } = useContext(AppContext);
 
     useEffect(() => {
         if (ready && !authenticated) {
@@ -54,6 +55,13 @@ export default function DashboardLayout({
             console.error('Error fetching data from localStorage:', error);
         }
     }
+
+      if (!ready) {
+		return (
+			<LoaderComponent />
+		);
+	}
+
 
     return (
         <div className="flex h-screen">
@@ -106,14 +114,14 @@ export default function DashboardLayout({
 
 
 
-            {/* <ModalBoxComponent
+            <ModalBoxComponent
                 isOpen={showTopUpCreditModal}
                 onClose={() => setShowTopUpCreditModal(false)}
                 width="w-[95%] xs:w-[95%] sm:w-[90%] md:w-[80%] lg:w-[50%] xl:w-[30%] "
                 useDefaultHeader={false}
             >
                 <TopUpCreditComponent />
-            </ModalBoxComponent> */}
+            </ModalBoxComponent>
 
 
             <DashboardMobileSidebar mobileSidebarOpen={mobileSidebarOpen} setMobileSidebarOpen={setMobileSidebarOpen} />

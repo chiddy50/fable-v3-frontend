@@ -16,6 +16,7 @@ import { usePrivy, useLoginWithOAuth, useLogin } from '@privy-io/react-auth';
 import { Button } from "@/components/ui/button";
 import axios from "axios"
 import { useRouter } from 'next/navigation'
+import LoaderComponent from "@/components/shared/LoaderComponent";
 
 
 
@@ -192,9 +193,11 @@ export default function Home() {
 		}
 	};
 
-	if (!ready) {
-		return <div>Loading...</div>;
-	}
+	// if (!ready) {
+	// 	return (
+	// 		<LoaderComponent />
+	// 	);
+	// }
 	
 
 	return (
