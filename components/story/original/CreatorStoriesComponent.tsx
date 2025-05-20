@@ -59,7 +59,7 @@ const CreatorStoriesComponent = ({ title, editUrl, type }: { title: string, edit
                                         <img
                                             src={item.coverImageUrl ?? item?.bannerImageUrl ?? `/logo/fable_black.png`}
                                             alt="story cover image"
-                                            className="object-cover rounded-xl w-full h-full"
+                                            className="object-cover rounded-xl w-full h-full transition-transform duration-300 hover:scale-105"
                                         />
     
                                         {/* <p className="absolute bottom-2 left-2 px-3 py-1 text-gray-50 bg-gray-800 rounded-full text-[10px]">5min ago</p> */}
