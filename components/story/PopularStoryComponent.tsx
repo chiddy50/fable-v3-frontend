@@ -59,6 +59,7 @@ const PopularStoryComponent = ({ image }: { image: string }) => {
                 fill
                 className="object-cover w-full"
                 />
+                
             </div>
             <Link href="/read-story">
                 <h1 className="text-lg font-bold text-gray-800 my-3 hover:underline">The deathly hallows of North Seria</h1>
