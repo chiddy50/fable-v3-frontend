@@ -148,7 +148,7 @@ const ImageUploaderComponent: React.FC<Props> =  ({
                 </button> */}
 
                 <div className="mt-4">                    
-                    <button onClick={uploadBanner} disabled={!bannerImage || uploadingBannerImage}  className={`flex items-center gap-2 bg-black text-white py-2 px-3 rounded-lg ${bannerImage || uploadingBannerImage ? 'opacity-100 cursor-pointer' : 'opacity-20 cursor-not-allowed'}`}>
+                    <button onClick={uploadBanner} disabled={!bannerImage || uploadingBannerImage || uploadingCoverImage}  className={`flex items-center gap-2 bg-black text-white py-2 px-3 rounded-lg ${bannerImage || uploadingBannerImage || uploadingCoverImage ? 'opacity-100 cursor-pointer' : 'opacity-20 cursor-not-allowed'}`}>
                         <span className="text-xs">{ uploadingBannerImage ? "Uploading..." : "Upload"}</span>
                         { !uploadingBannerImage && <UploadCloud size={16}/> }
                         { uploadingBannerImage && <i className='bx bx-loader-circle bx-spin bx-flip-horizontal text-lg'></i> }
@@ -226,7 +226,7 @@ const ImageUploaderComponent: React.FC<Props> =  ({
                 </button> */}
         
                 <div className="mt-4">                    
-                    <button onClick={uploadCoverImage} disabled={!coverImage || uploadingCoverImage} className={`flex items-center gap-2  bg-black text-white py-2 px-3 rounded-lg ${coverImage || uploadingCoverImage ? 'opacity-100 cursor-pointer' : 'opacity-20 cursor-not-allowed'}`}>
+                    <button onClick={uploadCoverImage} disabled={!coverImage || uploadingCoverImage || uploadingBannerImage} className={`flex items-center gap-2  bg-black text-white py-2 px-3 rounded-lg ${coverImage || uploadingCoverImage || uploadingBannerImage ? 'cursor-pointer' : 'opacity-20 cursor-not-allowed'}`}>
                         <span className="text-xs">{uploadingCoverImage ? "Uploading..." : "Upload"}</span> 
                         { !uploadingCoverImage && <UploadCloud size={16}/> }                        
                         { uploadingCoverImage && <i className='bx bx-loader-circle bx-spin bx-flip-horizontal text-lg'></i> }

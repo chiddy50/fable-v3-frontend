@@ -54,7 +54,7 @@ const CreatorStoriesComponent = ({ title, editUrl, type }: { title: string, edit
                     <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5 overflow-y-auto'>
                         {
                             storyData.map(item => (
-                                <div key={item?.id} className="w-full mb-5 bg-gradient-to-b from-[#d7d7d7] to-[#fff] p-1.5 rounded-2xl">
+                                <div key={item?.id} className="w-full mb-5 bg-gradient-to-b from-[#d7d7d7] to-[#fff] p-1.5 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300">
                                     <div className="relative w-full h-[230px] rounded-2xl border overflow-hidden">
                                         <img
                                             src={item.coverImageUrl ?? item?.bannerImageUrl ?? `/logo/fable_black.png`}
@@ -74,9 +74,7 @@ const CreatorStoriesComponent = ({ title, editUrl, type }: { title: string, edit
     
                                     </div>
     
-                                    <div>
-                                        <h1 className='my-4 font-bold capitalize text-xl'>{item?.projectTitle}</h1>
-                                    </div>
+                                    <h1 className='my-4 font-bold capitalize text-xl min-h-[55px] line-clamp-2'>{item?.projectTitle}</h1>
     
                                     <div className="flex items-center justify-between flex-wrap gap-3">
                                         {/* <CommentBtnComponent />

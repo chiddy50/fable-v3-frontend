@@ -98,102 +98,105 @@ export const contentTypes = [
         ],
         examples: ["Becoming by Michelle Obama", "Sapiens by Yuval Noah Harari"]
     },
-    {
-        type: "Game Lore",
-        description: "Backstories, worldbuilding, and character histories that form the narrative universe of a game.",
-        bestNarrativeStyles: [
-            "Third Person Omniscient",
-            "Epistolary",
-            "Frame Narrative",
-            "Multiple First Person"
-        ],
-        recommendedTones: [
-            "Mysterious",
-            "Dark",
-            "Epic",
-            "Heroic",
-            "Dramatic",
-            "Adventurous",
-            "Fantastical",
-            "Mythic"
-        ],
-        recommendedGenres: [
-            "Fantasy",
-            "Science Fiction",
-            "Mythology",
-            "Alternate History",
-            "Superhero",
-            "Steampunk",
-            "Cyberpunk",
-            "Apocalyptic",
-            "Urban Fantasy"
-        ],
-        examples: ["Elden Ring", "The Witcher", "World of Warcraft"]
-    },
-    {
-        type: "Educational",
-        description: "Content created with the purpose of instructing or educating the audience on a specific topic.",
-        bestNarrativeStyles: [
-            "Second Person",
-            "Third Person Objective",
-            "Third Person Omniscient"
-        ],
-        recommendedTones: [
-            "Formal",
-            "Informal",
-            "Inspirational",
-            "Motivational",
-            "Confident",
-            "Authoritative",
-            "Objective",
-            "Neutral",
-            "Persuasive"
-        ],
-        recommendedGenres: [
-            "Non-Fiction",
-            "Self-Help",
-            "Social Commentary",
-            "Philosophical"
-        ],
-        examples: ["Khan Academy Lessons", "Crash Course YouTube series"]
-    },
-    {
-        type: "Blog",
-        description: "Casual, often personal form of online writing that shares thoughts, opinions, or insights.",
-        bestNarrativeStyles: [
-            "First Person",
-            "Second Person",
-            "Multiple First Person",
-            "Epistolary"
-        ],
-        recommendedTones: [
-            "Optimistic",
-            "Serious",
-            "Humorous",
-            "Informal",
-            "Lighthearted",
-            "Inspirational",
-            "Motivational",
-            "Confident",
-            "Empathetic",
-            "Sarcastic",
-            "Critical",
-            "Sincere",
-            "Nostalgic",
-            "Philosophical",
-            "Reflective",
-            "Persuasive",
-            "Sentimental"
-        ],
-        recommendedGenres: [
-            "Non-Fiction",
-            "Humor",
-            "Self-Help",
-            "Social Commentary",
-            "Satire"
-        ],
-        examples: ["Medium Articles", "Personal Developer Blogs", "Travelogues"]
-    },
+    // {
+    //     type: "Game Lore",
+    //     description: "Backstories, worldbuilding, and character histories that form the narrative universe of a game.",
+    //     bestNarrativeStyles: [
+    //         "Third Person Omniscient",
+    //         "Epistolary",
+    //         "Frame Narrative",
+    //         "Multiple First Person"
+    //     ],
+    //     recommendedTones: [
+    //         "Mysterious",
+    //         "Dark",
+    //         "Epic",
+    //         "Heroic",
+    //         "Dramatic",
+    //         "Adventurous",
+    //         "Fantastical",
+    //         "Mythic"
+    //     ],
+    //     recommendedGenres: [
+    //         "Fantasy",
+    //         "Science Fiction",
+    //         "Mythology",
+    //         "Alternate History",
+    //         "Superhero",
+    //         "Steampunk",
+    //         "Cyberpunk",
+    //         "Apocalyptic",
+    //         "Urban Fantasy"
+    //     ],
+    //     examples: ["Elden Ring", "The Witcher", "World of Warcraft"]
+    // },
+
+    // {
+    //     type: "Educational",
+    //     description: "Content created with the purpose of instructing or educating the audience on a specific topic.",
+    //     bestNarrativeStyles: [
+    //         "Second Person",
+    //         "Third Person Objective",
+    //         "Third Person Omniscient"
+    //     ],
+    //     recommendedTones: [
+    //         "Formal",
+    //         "Informal",
+    //         "Inspirational",
+    //         "Motivational",
+    //         "Confident",
+    //         "Authoritative",
+    //         "Objective",
+    //         "Neutral",
+    //         "Persuasive"
+    //     ],
+    //     recommendedGenres: [
+    //         "Non-Fiction",
+    //         "Self-Help",
+    //         "Social Commentary",
+    //         "Philosophical"
+    //     ],
+    //     examples: ["Khan Academy Lessons", "Crash Course YouTube series"]
+    // },
+
+    // {
+    //     type: "Blog",
+    //     description: "Casual, often personal form of online writing that shares thoughts, opinions, or insights.",
+    //     bestNarrativeStyles: [
+    //         "First Person",
+    //         "Second Person",
+    //         "Multiple First Person",
+    //         "Epistolary"
+    //     ],
+    //     recommendedTones: [
+    //         "Optimistic",
+    //         "Serious",
+    //         "Humorous",
+    //         "Informal",
+    //         "Lighthearted",
+    //         "Inspirational",
+    //         "Motivational",
+    //         "Confident",
+    //         "Empathetic",
+    //         "Sarcastic",
+    //         "Critical",
+    //         "Sincere",
+    //         "Nostalgic",
+    //         "Philosophical",
+    //         "Reflective",
+    //         "Persuasive",
+    //         "Sentimental"
+    //     ],
+    //     recommendedGenres: [
+    //         "Non-Fiction",
+    //         "Humor",
+    //         "Self-Help",
+    //         "Social Commentary",
+    //         "Satire"
+    //     ],
+    //     examples: ["Medium Articles", "Personal Developer Blogs", "Travelogues"]
+    // },
+
     // {
     //     type: "Interactive",
     //     description: "A story that evolves based on reader choices, resulting in multiple possible paths or endings.",

@@ -17,8 +17,8 @@ const DashboardPage = () => {
     const [tab, setTab] = useState<string>("original");
 
     return (
-        <div className='px-5 grid grid-cols-12'>
-            <div className="col-span-12">
+        <div className='px-5 grid grid-cols-12 overflow-hidden h-full'>
+            <div className="col-span-12 overflow-y-auto">
                 
                 {/* STATISTICS */}
                 <DashboardStatsComponent />

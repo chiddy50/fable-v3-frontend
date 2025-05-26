@@ -140,3 +140,11 @@ export const trimWords = (str: string, numWords: number) => {
     // Join the first numWords words and add ellipsis
     return words?.slice(0, numWords)?.join(' ') + '...';
 }
+
+
+export const scrollToBottom = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {            
+        element.scrollIntoView({ behavior: "smooth" });
+    }
+}

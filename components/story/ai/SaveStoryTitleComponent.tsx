@@ -5,6 +5,7 @@ import { BookOpenText } from 'lucide-react'
 import React, { useState } from 'react'
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation'
+import { hidePageLoader, showPageLoader } from '@/lib/helper';
 
 
 interface Props {
@@ -35,14 +36,15 @@ const SaveStoryTitleComponent: React.FC<Props> = ({
                 return;
             }
     
-            setError(false);                   
+            setError(false);    
+            showPageLoader();               
     
             let url = `${process.env.NEXT_PUBLIC_BASE_URL}/v2/stories`;
             const response = await axiosInterceptorInstance.post(url, {
                 projectTitle,
                 currentStep: 1,
                 type: "ai",
-                autoDetectStructure,
+                autoDetectStructure: autoDetectStructure === true ? "true" : "false",
                 storyType: selectedStoryType,
                 storyStructure: selectedStoryStructure,
             }); 
@@ -53,6 +55,8 @@ const SaveStoryTitleComponent: React.FC<Props> = ({
             router.push(redirectUrl);
         } catch (error) {
             console.error(error);            
+        }finally{
+            hidePageLoader()
         }
 
     }

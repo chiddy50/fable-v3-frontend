@@ -61,6 +61,22 @@ export default function Home() {
 
 	const router = useRouter();
 	
+	useEffect(() => {
+
+		if (ready && window !== undefined) {			
+			checkIfAuthenticated()
+		}
+	}, []);
+
+	const checkIfAuthenticated = async () => {
+		if (ready && window !== undefined) {			
+			const localStorageUser = localStorage.getItem('user'); 
+			if (!localStorageUser) {
+				// await logout();
+			}
+		}
+
+	}
 
 	const disableLogout = !ready || (ready && !authenticated);
 	const disableLogin = !ready || (ready && authenticated);
@@ -120,7 +136,7 @@ export default function Home() {
 
     const [storyCount, setStoryCount] = useState<number>(0);
     const [isMounted, setIsMounted] = useState<boolean>(false);
-    const [loginAuth, setLoginAuth] = useState<{ verifier: string, domain: string }|null>(null);
+	
 	
     const { 
         loggedIn, setLoggedIn,
@@ -193,13 +209,6 @@ export default function Home() {
 			console.error(err);
 		}
 	};
-
-	// if (!ready) {
-	// 	return (
-	// 		<LoaderComponent />
-	// 	);
-	// }
-	
 
 	return (
 		<>

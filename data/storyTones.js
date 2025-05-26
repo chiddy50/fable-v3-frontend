@@ -46,10 +46,24 @@ export const storyTones = [
     "Resolute",
     "Sympathetic",
     "Authoritative",
-    "Neutral"
+    "Neutral",
+
+    "Unconventional",
+    "Lyrical",
+    "Varied",
+    
+
 ];
 
 
 export let tones = storyTones.map((tone, index) => {
     return { value: tone.toLocaleLowerCase(), label: tone }
-})
+}).sort((a, b) => {
+    if (a.value < b.value) {
+        return -1;
+    }
+    if (a.value > b.value) {
+        return 1;
+    }
+    return 0;
+});
