@@ -1,6 +1,7 @@
 import { ChapterInterface } from "./ChapterInterface";
 import { CharacterInterface, SuggestedCharacterInterface } from "./CharacterInterface";
 import { GenreInterface } from "./GenreInterface";
+import { SynopsisListInterface } from "./SynopsisInterface";
 import { UserInterface } from "./UserInterface";
 
 
@@ -104,7 +105,12 @@ export interface StoryInterface {
   genres: string[];
   tone: string[];
   contentType: string;
-  
+  synopsis: string;
+  synopsisList: SynopsisListInterface[];
+  storyStructureReason: string;
+  narrativeConceptSuggestions: string[];
+  narrativeConcept: NarrativeConceptInterface;
+
   // genres: GenreInterface[];
   imageUrl: string;
   type: string;
@@ -258,4 +264,9 @@ export interface CommentInterface {
   replyCount: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface NarrativeConceptInterface { 
+  title: string; 
+  description: string; 
 }

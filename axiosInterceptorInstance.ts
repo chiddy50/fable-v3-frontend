@@ -66,11 +66,20 @@ axiosInterceptorInstance.interceptors.response.use(
         
         // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHRnZGFhenAwMDAwNWV6eXg5ZDU2d24xIiwibmFtZSI6ImhlbnJ1IiwiaWF0IjoxNzEwMjg0MjM1LCJleHAiOjE3MTAyODc4MzV9.iXn4sTg-PX0bP8htey9W6K4UVf-
         // window.location.reload();
-        const pathIsReadArticle = window.location.pathname.startsWith("/read-article/");
+        const pathIsReadArticle = window.location.pathname.startsWith("/dashboard/");
         console.log({pathname: window.location.pathname, location: window.location, pathIsReadArticle});
+        // window.location.href = '/';
 
-        if (window.location.pathname !== "/" && !pathIsReadArticle) {          
+        const path = window.location.pathname !== "/"
+        console.log({
+          pathIsReadArticle,
+          path
+        });
+        
+
+        if (window.location.pathname !== "/" && pathIsReadArticle) {          
           window.location.href = '/';
+          // window.location.reload();
         }
       }
 

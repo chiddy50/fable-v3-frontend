@@ -104,8 +104,8 @@ function PageContent() {
     }
 
     return (
-        <div className='px-5 grid grid-cols-12'>
-            <div className="col-span-9">        
+        <div className='px-5 grid grid-cols-12 h-full'>
+            <div className="col-span-9 overflow-y-auto pr-5">        
                 { !storyId && 
                     <div>
                         { currentStep === 1 && <GetStartedComponent nextStep={nextStep} setStory={setStory} currentStep={currentStep} setCurrentStep={setCurrentStep} /> }                
@@ -120,7 +120,7 @@ function PageContent() {
                     </div>
                 }
             </div>
-            <div className="col-span-3">
+            <div className="col-span-3 sticky top-0 self-start">
                 <StepperComponent setCurrentStep={setCurrentStep} currentStep={currentStep} steps={steps} />
             </div>
         </div>

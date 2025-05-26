@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 
 
@@ -24,6 +24,11 @@ const StepperComponent: React.FC<Props> = ({
     steps
 }) => {
     // const [currentStep, setCurrentStep] = useState(initialStep);
+
+    useEffect(() => {
+        console.log("STEP JUST CHANGED", currentStep);
+        
+    }, [currentStep])
 
     // Function to handle moving to the next step
     const nextStep = () => {

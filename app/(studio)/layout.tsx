@@ -30,7 +30,7 @@ export default function DashboardLayout({
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
 
     const currentPath = usePathname();
-	const { ready, authenticated } = usePrivy();
+	const { ready, authenticated, logout } = usePrivy();
 
 	const router = useRouter();
 
@@ -40,11 +40,27 @@ export default function DashboardLayout({
     } = useContext(AppContext);
 
     useEffect(() => {
-        if (ready && !authenticated) {
-            router.push("/")
+        let token = localStorage?.getItem("privy:token") 
+        let authUser = localStorage?.getItem("user") 
+        // if (ready && !authenticated) {
+        let shouldLogout = window !== undefined && !authUser;
+        console.log({
+            shouldLogout,
+            window,
+            authUser
+        });
+        
+        if(window !== undefined && !authUser){
+            logoutUser()
+            return;
         }
         setUserProfile()
     }, []);
+
+    const logoutUser = async () => {
+        await logout()
+        router.push("/")
+    }
 
     const setUserProfile = () => {
         try {
@@ -108,7 +124,7 @@ export default function DashboardLayout({
                 </div>
 
                 {/* Main Content - takes remaining space with its own scrolling */}
-                <div className="lg:ml-64 flex-1 py-6 px-5 lg:px-10 overflow-y-auto">{children}</div>
+                <div className="lg:ml-64 flex-1 py-6 px-5 lg:px-10 overflow-hidden">{children}</div>
             </div>
 
 

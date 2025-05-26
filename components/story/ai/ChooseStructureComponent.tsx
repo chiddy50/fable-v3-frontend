@@ -7,7 +7,7 @@ import React, { useState } from 'react'
 import { createPortal } from 'react-dom';
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
-
+import { shortStoryStructures, novelStructures } from "@/data/structures"
 
 
 
@@ -157,7 +157,7 @@ const ChooseStructureComponent: React.FC<Props> = ({
     setOpenProjectTitleModal
 }) => {
         
-    const structures = selectedStoryType === 'novel' ? NOVEL_STRUCTURES : SHORT_STORY_STRUCTURES;
+    const structures = selectedStoryType === 'novel' ? novelStructures : shortStoryStructures;
 
     const chooseStructure = (structure: { title: string }) => {
         console.log(structure);    
@@ -173,7 +173,7 @@ const ChooseStructureComponent: React.FC<Props> = ({
 
             {/* Modal Container */}
             <div
-                className="grid grid-cols-10 gap-2 relative w-[90%]"
+                className="grid grid-cols-10 gap-0 relative w-[90%]"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className='col-span-2 flex flex-col justify-between bg-white p-5 rounded-3xl h-[500px]'>
@@ -214,15 +214,15 @@ const ChooseStructureComponent: React.FC<Props> = ({
 
                     <div>                        
                         <button 
-                        // onClick={decideStructureForUser}
+                        onClick={decideStructureForUser}
                         className='flex items-center gap-2 py-1.5 pl-1.5 pr-3 bg-gradient-to-r from-[#AA4A41] to-[#33164C] rounded-xl cursor-pointer border transition-all '>
                             <div className='flex items-center border border-[#FFE2DF] justify-center p-2 rounded-lg bg-gradient-to-br from-[#AA4A41] to-[#33164C]'>
                                 <Image src="/icon/magic-pen.svg" alt="generate icon" width={17} height={17} />
                                 {/* <Hourglass size={16} className='text-[#AA4A41]' /> */}
                             </div>
                             <p className="text-sm font-medium text-[#FBFBFB]">
-                                {/* Help me decide */}
-                                Coming Soon
+                                Help me decide
+                                {/* Coming Soon */}
                             </p>
                         </button>
                     </div>
@@ -270,9 +270,9 @@ const ChooseStructureComponent: React.FC<Props> = ({
                                     <div className="flex justify-between items-center mb-3">
                                         <div className="flex items-center space-x-2">
                                             <Image src="/icon/feather-pink.svg" alt="feather icon" width={13} height={13} />
-                                            <span className="text-white font-medium">{structure.type}</span>
+                                            <span className="text-white font-medium text-shadow-dark">{structure.type}</span>
                                         </div>
-                                        <div className="text-white font-medium">{structure.chapters} Chapters</div>
+                                        <div className="text-white font-medium text-shadow-dark">{structure?.chapterAmount} Chapters</div>
                                     </div>
 
                                     {/* Divider Line */}
@@ -280,32 +280,32 @@ const ChooseStructureComponent: React.FC<Props> = ({
 
                                     {/* Title and Description */}
                                     <div className="mb-4 text-white">
-                                        <h1 className="text-2xl font-bold mb-1">{structure.label}</h1>
-                                        <p className="text-xs leading-relaxed h-[85px]">{structure.description}</p>
+                                        <h1 className="text-2xl font-extrabold mb-1 text-shadow-dark">{structure.title}</h1>
+                                        <p className="text-xs font-semibold leading-relaxed h-[85px] text-shadow-dark">{structure.description}</p>
                                     </div>
 
                                     {/* Examples Section */}
-                                    <div className="flex items-center text-xs space-x-2 mb-3 text-white">
+                                    <div className="flex items-center text-xs space-x-2 mb-3 text-white h-[32px] text-shadow-dark">
                                         <Image src="/icon/write.svg" alt="write icon" width={13} height={13} />
                                         <span>{structure.examples}</span>
                                     </div>
 
                                     <div className="mt-2 flex">
-                                        {/* <button 
+                                        <button 
                                         onClick={() => chooseStructure(structure)}
                                         className="flex items-center gap-2 bg-white cursor-pointer rounded-xl px-3 py-2 text-sm font-medium text-[#D45C51] hover:bg-[#D45C51] hover:text-white transition-colors" 
                                         aria-label={`Select ${structure.title}`}
                                         >
                                             <Image src="/icon/magic-pen.svg" alt="write icon" width={14} height={14} />
                                             <span>Choose</span>
-                                        </button> */}
-                                        <button 
+                                        </button>
+                                        {/* <button 
                                         className="flex items-center gap-2 bg-white cursor-pointer rounded-xl px-3 py-2 text-sm font-medium text-[#D45C51] hover:bg-[#D45C51] hover:text-white transition-colors" 
                                         aria-label={`Select ${structure.title}`}
                                         >
                                             <span>Coming Soon</span>
                                             <Hourglass size={16} />
-                                        </button>
+                                        </button> */}
                                     </div>
                                 </div>
                             </div>
