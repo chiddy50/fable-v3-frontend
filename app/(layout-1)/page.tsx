@@ -250,7 +250,6 @@ export default function Home() {
 							<div className="flex gap-5 flex-col mt-10 md:mt-0 md:flex-col lg:flex-row items-center">
 								{/* <WalletIndicator />
 								<p>or</p> */}
-								{/* { !isLoggedIn && <LoginComponent /> } */}
 								{!authenticated && 
 									<button className="flex items-center py-4 px-4 cursor-pointer gap-2 border rounded-xl bg-black text-white" onClick={handleLogin} disabled={loading}>
 										{loading ? 'Logging in...' : 'Log in with Google'}
