@@ -84,18 +84,18 @@ export async function POST(request: NextRequest) {
             return new NextResponse(JSON.stringify({ error: 'No valid parser found' }), { status: 400 });
         }
 
-        const llm = new ChatGroq({
-            apiKey: "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", //process.env.NEXT_PUBLIC_GROQ_JSONOUTPUT_API_KEY,
-            // apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
-            model: "llama3-70b-8192",         
-        });
-
-        // const model = new ChatGoogleGenerativeAI({
-        //     apiKey: 'AIzaSyBPJkMmR8m06mgboCz-83bPWaawWmJp46U',
-        //     model: "gemini-2.0-flash",
-        //     temperature: 0,
-        //     maxRetries: 2,
+        // const llm = new ChatGroq({
+        //     apiKey: "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", //process.env.NEXT_PUBLIC_GROQ_JSONOUTPUT_API_KEY,
+        //     // apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
+        //     model: "llama3-70b-8192",         
         // });
+
+        const llm = new ChatGoogleGenerativeAI({
+            apiKey: 'AIzaSyBPJkMmR8m06mgboCz-83bPWaawWmJp46U',
+            model: "gemini-2.0-flash",
+            temperature: 0,
+            maxRetries: 2,
+        });
     
         const startingPrompt = ChatPromptTemplate.fromMessages([
             ["system", "You are a professional storyteller, author and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. And you always follow instruction"],
