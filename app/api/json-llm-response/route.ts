@@ -109,8 +109,7 @@ export async function POST(request: NextRequest) {
         if (!response) {
             return new NextResponse(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });            
         }
-        return NextResponse.json(response);
-   
+        return NextResponse.json(response);   
     } catch (error) {
         console.error("Error analyzing LLM response:", error);
         return new NextResponse(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });

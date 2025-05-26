@@ -179,13 +179,12 @@ export function generateSynopsisPrompt(
 3. Clearly reflect the ${genres.join(' and ')} genre elements
 4. Provide a clear overview of the main plot points without giving away the ending
 5. Include key characters, conflict, and stakes
-6. Provide a list of suggestions for the story's narrative concept (Provide at least 8 suggestions and be creative about it)
-7. Make it compelling enough to hook potential readers
-8. Ensure The story follows the narrative concept of ${narrativeConcept} structure, beginning with ${description}.
-9. Keep the length appropriate for a ${storyType.replace('-', ' ')} (typically 1-2 paragraphs for short stories, 2-3 for longer works)
-10. Generate an enhanced and refined project description that expands on the original idea while maintaining its core essence, make it look like a prompt.
-11. Extract and categorize all key HUMAN CHARACTERS ONLY from the synopsis. Characters must be actual people, beings, or sentient entities - NOT organizations, locations, places, objects, or abstract concepts.
-12. Ensure every character listed is a living, breathing person or humanoid entity with agency and personality - exclude any non-person entities like companies, governments, places, or inanimate objects.
+6. Make it compelling enough to hook potential readers
+7. Ensure The story follows the narrative concept of ${narrativeConcept} structure, beginning with ${description}.
+8. Keep the length appropriate for a ${storyType.replace('-', ' ')} (typically 1-2 paragraphs for short stories, 2-3 for longer works)
+9. Generate an enhanced and refined project description that expands on the original idea while maintaining its core essence, make it look like a prompt.
+10. Extract and categorize all key HUMAN CHARACTERS ONLY from the synopsis. Characters must be actual people, beings, or sentient entities - NOT organizations, locations, places, objects, or abstract concepts.
+11. Ensure every character listed is a living, breathing person or humanoid entity with agency and personality - exclude any non-person entities like companies, governments, places, or inanimate objects.
 
 ${structure === null ? '' : 'Provide a well-structured synopsis that follows the specified story structure.'}
 
@@ -223,3 +222,6 @@ Remember return a JavaScript or json object as your response
 
     return prompt;
 }
+
+
+// 6. Provide a list of suggestions for the story's narrative concept (Provide at least 8 suggestions and be creative about it)
