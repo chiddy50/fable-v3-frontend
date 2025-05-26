@@ -317,7 +317,7 @@ const IdeationComponent: React.FC<Props> = ({
                 const narrativeSuggestions = data?.narrativeConceptSuggestions;
                 if(!narrativeSuggestions) return;
                 let payload = { narrativeConceptSuggestions: narrativeSuggestions, currentStepUrl: "synopsis" }
-                let response = await updateStory({ currentStepUrl: "synopsis" }, story?.id)
+                let response = await updateStory(payload, story?.id)
                 
                 if(!response) return;
                 setStory(response?.data?.story);

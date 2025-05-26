@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { ArrowDownUp, ArrowRight, DollarSign, Info, ShieldCheck } from 'lucide-react';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import { UserInterface } from '@/interfaces/UserInterface';
-import BuyCreditComponent from '../credit/BuyCreditComponent';
 import WalletIndicator from '../wallet/WalletIndicator';
 import { useWallet } from "@solana/wallet-adapter-react";
 import { getTokensInUsersWallet } from '@/lib/solana';
@@ -132,9 +131,7 @@ const TopUpCreditComponent = () => {
             </div>
 
             <div className="mt-7">
-                {/* <BuyCreditComponent amount={price} getAuthor={getAuthor}  />
-
-                <div className="flex items-center justify-center my-2 text-gray-400">
+                {/* <div className="flex items-center justify-center my-2 text-gray-400">
                     or
                 </div> */}
                 {connected && 
