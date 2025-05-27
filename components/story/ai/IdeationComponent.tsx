@@ -307,6 +307,7 @@ const IdeationComponent: React.FC<Props> = ({
     }, [validateForm, buildPayload, story?.id, currentStep, setCurrentStep, router]);
 
     const moveToGenerateIdea = async () => {
+        await saveIdeation()
         
         try {
             showPageLoader()
@@ -348,24 +349,6 @@ const IdeationComponent: React.FC<Props> = ({
         // router.push(redirectUrl);
     }
 
-    const saveNarrativeConceptSuggestions = async (payload: any) => {
-        try {
-            showPageLoader();
-
-            const url = `${process.env.NEXT_PUBLIC_BASE_URL}/v2/stories/${story?.id}`;
-            let res = await axiosInterceptorInstance.put(url, payload);
-            console.log(res);
-            
-            return res;
-        } catch (error) {
-            console.error('Error saving ideation:', error);
-            return false;
-            // toast.error('Failed to save ideation');
-        } finally {
-            hidePageLoader();
-        }
-    }
-
     const generateNarrativeConceptSuggestions = async () => {
         if (!story?.narrativeConceptSuggestions) {
             const {
@@ -376,21 +359,9 @@ const IdeationComponent: React.FC<Props> = ({
                 contentType,
                 storyType,
                 structure,
-            } = story || {};
-            
-            
+            } = story || {}; 
             
             const audiences = storyAudiences?.map(item => item?.targetAudience?.name);
-            console.log({
-                projectDescription: description,
-                tone,
-                genres,
-                audiences,
-                storyAudiences,
-                contentType,
-                storyType,
-                structure,
-            });
 
             const availableStructures = storyType === "short-story" ? shortStoryStructures : novelStructures;
 
@@ -407,11 +378,11 @@ const IdeationComponent: React.FC<Props> = ({
             const prompt = generateNarrativeConceptsPrompt(payload, availableStructures);
             console.log({ prompt });
 
-            return await generateNarrativeConceptSuggestionsData(prompt);  
+            return await makeGenerateNarrativeConceptSuggestionsLLMRequest(prompt);  
         }
     }
 
-    const generateNarrativeConceptSuggestionsData = async (prompt: string) => {        
+    const makeGenerateNarrativeConceptSuggestionsLLMRequest = async (prompt: string) => {        
         try {
                 let res = await axios.post(`/api/json-llm-response`,
                 {

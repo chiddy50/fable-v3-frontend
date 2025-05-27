@@ -153,7 +153,7 @@ const EditCharacterComponent: React.FC<Props> = ({
 
                     <div className="mt-7">
 
-                        <Accordion type="single" collapsible>
+                        <Accordion type="single" defaultValue='item-1' collapsible>
                             <AccordionItem value="item-1">
                                 <AccordionTrigger className="text-md font-extrabold cursor-pointer">
                                     Basic Info 
