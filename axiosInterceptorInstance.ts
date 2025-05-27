@@ -78,8 +78,8 @@ axiosInterceptorInstance.interceptors.response.use(
         
 
         if (window.location.pathname !== "/" && pathIsReadArticle) {          
-          window.location.href = '/';
-          // window.location.reload();
+          // window.location.href = '/';
+          window.location.reload();
         }
       }
 

@@ -185,6 +185,7 @@ export function generateSynopsisPrompt(
 9. Generate an enhanced and refined project description that expands on the original idea while maintaining its core essence, make it look like a prompt.
 10. Extract and categorize all key HUMAN CHARACTERS ONLY from the synopsis. Characters must be actual people, beings, or sentient entities - NOT organizations, locations, places, objects, or abstract concepts.
 11. Ensure every character listed is a living, breathing person or humanoid entity with agency and personality - exclude any non-person entities like companies, governments, places, or inanimate objects.
+12. Ensure that every character generated and every object in the relationshipToOtherCharacters array has the character's unique id, this is important for referencing.
 
 ${structure === null ? '' : 'Provide a well-structured synopsis that follows the specified story structure.'}
 
@@ -216,6 +217,9 @@ characters(array) This refers to an array of character objects with the followin
 Please ensure the only keys in the object are synopsis, storyStructure, reason, projectDescription, and characters keys only.
 Also ensure the only keys in the characters array of objects are id, name, alias, gender, age, role, race, backstory, internalConflict, externalConflict, relationshipToProtagonists, relationshipToOtherCharacters, weaknesses, strengths, voice and perspective keys only.
 Ensure all the objects in the characters array have all the properties mentioned and required.
+
+NOTE: Ensure that every character generated and every object in the relationshipToOtherCharacters array has the character's unique id and ensure the name is the same as the character's name, this is important for referencing.
+
 Do not add any text extra line or text with the json response, just a json or JavaScript object, no acknowledgement or do not return any title, just return a structured json response. Do not go beyond this instruction.                               
 Remember return a JavaScript or json object as your response 
 `;
