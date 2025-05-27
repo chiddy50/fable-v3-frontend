@@ -34,7 +34,11 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
         relationship: ""
     });
     const [editRelationship, setEditRelationship] = useState("");
+    const [originalEditRelationship, setOriginalEditRelationship] = useState("");
     const [hasChanges, setHasChanges] = useState(false);
+    const [relationshipToBeRemovedId, setRelationshipToBeRemovedId] = useState("");
+
+
 
     // Get characters not yet in relationships
     const getAvailableCharacters = () => {
@@ -65,14 +69,21 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
 
     // Remove relationship
     const handleRemoveRelationship = (id) => {
-        setRelationshipToOtherCharacters(prev => prev.filter(rel => rel.id !== id));
+        if (!id) {
+            return;
+        }
+        setRelationshipToBeRemovedId(id)
+        // setRelationshipToOtherCharacters(prev => prev.filter(rel => rel.id !== id));
         setHasChanges(true);
     };
 
     // Start editing relationship
-    const startEditing = (id, currentRelationship) => {
+    const startEditing = (id: string, currentRelationship) => {
+        if(!id) return;
+
         setEditingId(id);
         setEditRelationship(currentRelationship);
+        setOriginalEditRelationship(currentRelationship);
     };
 
     // Save edited relationship
@@ -86,6 +97,7 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
         );
         setEditingId(null);
         setEditRelationship("");
+        setOriginalEditRelationship("");
         setHasChanges(true);
     };
 
@@ -93,11 +105,28 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
     const cancelEdit = () => {
         setEditingId(null);
         setEditRelationship("");
+        setOriginalEditRelationship("");
+    };
+
+    // Cancel all changes
+    const handleCancelChanges = () => {
+        // Reset any pending edits
+        // setEditingId(null);
+        // setEditRelationship("");
+        // setOriginalEditRelationship("");
+        // setIsAddingNew(false);
+        // setNewRelationship({ characterId: "", relationship: "" });
+
+        setHasChanges(false);
+        // Note: This would ideally reset relationshipToOtherCharacters to its original state
+        // You might want to store the original state in a ref or parent component
     };
 
     // Save all changes
     const handleSaveChanges = async () => {
         try {
+            setRelationshipToOtherCharacters(prev => prev.filter(rel => rel.id !== relationshipToBeRemovedId));
+
             console.log("Saving relationships:", relationshipToOtherCharacters);
 
             let payload = {
@@ -114,6 +143,8 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
                 let res = await axiosInterceptorInstance.put(url, payload);
                 console.log(res);
                 // setStory(res?.data?.story);
+                
+                // FINALLY REMOVE FROM RELATIONSHIP UI 
                 
             } catch (error) {
                 console.error(error);            
@@ -134,10 +165,17 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
         <div className="w-full">
             {/* Header */}
             {hasChanges && (
-                <div className="flex justify-end mb-6">
+                <div className="flex justify-end gap-2 mb-6">
+                    <button
+                        onClick={handleCancelChanges}
+                        className="flex items-center gap-2 px-4 py-2 border cursor-pointer border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-xs font-medium"
+                    >
+                        <X className="w-4 h-4" />
+                        Cancel Changes
+                    </button>
                     <button
                         onClick={handleSaveChanges}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs font-medium"
+                        className="flex items-center gap-2 px-4 py-2 cursor-pointer bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs font-medium"
                     >
                         <Check className="w-4 h-4" />
                         Save Changes
@@ -155,48 +193,54 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
                     </div>
                 ) : (
                     relationshipToOtherCharacters?.map((rel) => (
-                        <div key={rel.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border hover:border-gray-300 transition-colors">
-                            <div className="flex items-center gap-3 flex-1">
-                                <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center">
+                        <div key={rel.id} className="flex items-start justify-between p-4 bg-gray-50 rounded-lg border hover:border-gray-300 transition-colors">
+                            <div className="flex items-start gap-3 flex-1">
+                                <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                                     <span className="text-blue-600 font-medium text-sm">
                                         {rel?.name?.split(' ').map(n => n[0]).join('')}
                                     </span>
                                 </div>
 
-                                <div className="flex-1">
-                                    <div className="font-medium text-xs text-gray-800">{rel.name}</div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-xs text-gray-800 mb-2">{rel.name}</div>
 
                                     {editingId === rel.id ? (
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <input
-                                                type="text"
+                                        <div className="space-y-2">
+                                            <textarea
                                                 value={editRelationship}
                                                 onChange={(e) => setEditRelationship(e.target.value)}
-                                                className="px-2 py-1 text-xs border rounded focus:outline-none outline-none "
-                                                placeholder="Relationship type"
+                                                className="w-full px-3 py-2 text-xs border border-gray-100 rounded-lg focus:outline-none outline-none bg-white resize-none"
+                                                placeholder="Describe the relationship in detail..."
+                                                // id="edit-relationship"
+                                                rows={3}
                                                 autoFocus
                                             />
-                                            <button
-                                                onClick={() => saveEdit(rel.id)}
-                                                className="p-1 text-green-600 hover:bg-green-100 rounded"
-                                            >
-                                                <Check className="w-4 h-4" />
-                                            </button>
-                                            <button
-                                                onClick={cancelEdit}
-                                                className="p-1 text-gray-500 hover:bg-gray-100 rounded"
-                                            >
-                                                <X className="w-4 h-4" />
-                                            </button>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => saveEdit(rel.id)}
+                                                    className="flex items-center gap-1 px-3 py-1 text-xs cursor-pointer bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                                                >
+                                                    <Check className="w-3 h-3" />
+                                                    Save
+                                                </button>
+                                                <button
+                                                    onClick={cancelEdit}
+                                                    className="flex items-center gap-1 px-3 py-1 cursor-pointer text-xs border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <X className="w-3 h-3" />
+                                                    Cancel
+                                                </button>
+                                            </div>
                                         </div>
                                     ) : (
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs text-gray-600">{rel.relationship}</span>
+                                        <div className="space-y-1">
+                                            <p className="text-xs text-gray-600 leading-relaxed">{rel.relationship}</p>
                                             <button
                                                 onClick={() => startEditing(rel.id, rel.relationship)}
-                                                className="p-1 text-gray-400 cursor-pointer hover:text-blue-600 hover:bg-blue-50 rounded"
+                                                className="inline-flex items-center cursor-pointer gap-1 px-2 py-1 text-xs text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
                                             >
                                                 <Edit3 className="w-3 h-3" />
+                                                Edit
                                             </button>
                                         </div>
                                     )}
@@ -205,7 +249,7 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
 
                             <button
                                 onClick={() => handleRemoveRelationship(rel.id)}
-                                className="p-2 text-red-500 cursor-pointer hover:bg-red-50 rounded-lg transition-colors"
+                                className="p-2 text-red-500 cursor-pointer hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
                             >
                                 <XCircle className="w-4 h-4" />
                             </button>
