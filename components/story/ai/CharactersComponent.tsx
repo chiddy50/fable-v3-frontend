@@ -115,17 +115,27 @@ const CharactersComponent: React.FC<Props> = ({
                 <h1 className='capitalize text-xl font-bold mb-1'>Characters</h1>
                 <p className='text-xs'>Click to edit any character to your taste. Or “add character” from your collection.</p>
 
-                <Button 
-                onClick={() => setShowChooseCharacterRoleModal(true)}
-                className='bg-[#5D4076] text-white mt-10 cursor-pointer'>
-                    <Image
-                        src="/icon/generate2.svg"
-                        alt="placeholder"
-                        width={20}
-                        height={20}
-                    />
-                    <span>Generate Character</span>
-                </Button>
+                <div className="flex items-center justify-between mt-10 ">
+
+                    <Button 
+                    onClick={() => setShowChooseCharacterRoleModal(true)}
+                    className='bg-[#5D4076] text-white cursor-pointer'>
+                        <Image
+                            src="/icon/generate2.svg"
+                            alt="placeholder"
+                            width={20}
+                            height={20}
+                        />
+                        <span>Generate Character</span>
+                    </Button>
+                   {suggestedCharacters.length > 0 && 
+                   <Button 
+                    onClick={() => setOpenCharacterSuggestionsModal(true)}
+                    >
+                        View Suggestions
+                    </Button>}
+                </div>
+
                 <p className="text-xs mt-2 mb-10">
                     Regenerate characters for 25 coins
                 </p>
