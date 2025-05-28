@@ -11,7 +11,7 @@ import {
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import Image from 'next/image';
 import { ChevronDown, Save, Users } from 'lucide-react';
-import { SynopsisInterface } from '@/interfaces/SynopsisInterface';
+import { SynopsisCharacterInterface, SynopsisInterface } from '@/interfaces/SynopsisInterface';
 import GradientButton from '@/components/shared/GradientButton';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
 import {
@@ -29,6 +29,7 @@ interface Props {
     setOpenModal: React.Dispatch<React.SetStateAction<boolean>>;  
     story: StoryInterface;
     currentCharacter: any;
+    setCharacters: React.Dispatch<React.SetStateAction<SynopsisCharacterInterface[]>>;
     activeSynopsis: SynopsisInterface;
     setStory: React.Dispatch<React.SetStateAction<StoryInterface>>;
 }
@@ -38,6 +39,7 @@ const EditCharacterComponent: React.FC<Props> = ({
     setOpenModal,
     story,
     currentCharacter,
+    setCharacters,
     activeSynopsis,
     setStory
 }) => {
@@ -45,7 +47,6 @@ const EditCharacterComponent: React.FC<Props> = ({
     const currentCharacterData = useMemo(() => {
         return activeSynopsis?.characters?.find?.(item => item?.name === currentCharacter?.name) 
     }, [currentCharacter]);
-    console.log(currentCharacterData);
 
     const [name, setName] = useState<string>("");
     const [alias, setAlias] = useState<string>("");
@@ -79,8 +80,8 @@ const EditCharacterComponent: React.FC<Props> = ({
         setInternalConflict(currentCharacterData?.internalConflict ?? "")
         setVoice(currentCharacterData?.voice ?? "")
         setPerspective(currentCharacterData?.perspective ?? "")
-        setRelationshipToOtherCharacters(currentCharacterData?.relationshipToOtherCharacters ?? [])
-        setRelationshipToProtagonists(currentCharacterData?.relationshipToProtagonists ?? "")
+        setRelationshipToOtherCharacters(currentCharacter?.relationshipToOtherCharacters ?? [])
+        setRelationshipToProtagonists(currentCharacter?.relationshipToProtagonists ?? "")
 
         let availableCharacters = activeSynopsis?.characters?.filter(item => item?.id !== currentCharacterData?.id) 
         setAllAvailableCharacters(availableCharacters);
@@ -108,17 +109,17 @@ const EditCharacterComponent: React.FC<Props> = ({
             externalConflict,
             voice,
             perspective,
-            synopsisId: activeSynopsis.id
+            synopsisId: activeSynopsis.id,
+            storyId: story.id
         }
-
 
         try {            
             showPageLoader();
-            const url = `${process.env.NEXT_PUBLIC_BASE_URL}/v2/stories/${story?.id}/synopsis-character`;
+            const url = `${process.env.NEXT_PUBLIC_BASE_URL}/synopses/${currentCharacterData?.id}/update-character`;
             let res = await axiosInterceptorInstance.put(url, payload);
             console.log(res);
             
-            // setStory(res?.data?.story);
+            setStory(res?.data?.story);
         } catch (error) {
             console.error(error);            
         } finally {
@@ -377,22 +378,17 @@ const EditCharacterComponent: React.FC<Props> = ({
                                     {/* (How they connect) */}
                                 </AccordionTrigger>
                                 <AccordionContent>
-                                    
-
-
 
                                     <CharacterRelationshipsUI 
-                                    currentCharacter={currentCharacterData}
+                                    currentCharacter={currentCharacter}
                                     relationshipToOtherCharacters={relationshipToOtherCharacters} 
                                     setRelationshipToOtherCharacters={setRelationshipToOtherCharacters}
                                     allAvailableCharacters={allAvailableCharacters}
+                                    setCharacters={setCharacters}
                                     story={story}
                                     setStory={setStory}
                                     activeSynopsis={activeSynopsis}
                                     />
-
-
-
 
                                 </AccordionContent>
                             </AccordionItem>

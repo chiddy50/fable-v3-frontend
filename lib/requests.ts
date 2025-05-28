@@ -3,7 +3,6 @@ import { hidePageLoader, showPageLoader } from "./helper";
 import { toast } from "sonner";
 
 export const updateStory = async (payload: any, storyId: string) => {
-    console.log('Calling endpoint with:', payload);
     try {
         showPageLoader();
 

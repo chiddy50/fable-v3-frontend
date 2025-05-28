@@ -11,12 +11,19 @@ import { updateStory } from '@/lib/requests';
 import { Button } from '@/components/ui/button';
 import EditCharacterComponent from './character/EditCharacterComponent';
 import { SynopsisCharacterInterface, SynopsisInterface } from '@/interfaces/SynopsisInterface';
-
+import CharacterRoleSelector from './character/CharacterRoleSelector';
+import ModalBoxComponent from '@/components/shared/ModalBoxComponent';
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from "@/components/ui/sheet";
+import GeneratedCharacterList from './character/GeneratedCharacterList';
+import EditableCharacterManager from './character/EditGeneratedCharacterList';
 
 interface Props {
-    autoDetectStructure: boolean;
-    selectedStoryStructure: string;
-    selectedStoryType: string;
     story: StoryInterface;
     setStory: React.Dispatch<React.SetStateAction<StoryInterface>>;
     setCurrentStep: React.Dispatch<React.SetStateAction<number>>;  
@@ -28,9 +35,6 @@ interface Props {
 }
 
 const CharactersComponent: React.FC<Props> = ({
-    autoDetectStructure,
-    selectedStoryStructure,
-    selectedStoryType,
     setCurrentStep,
     currentStep,
     story,
@@ -45,6 +49,16 @@ const CharactersComponent: React.FC<Props> = ({
     const [openEditModal, setOpenEditModal] = useState<boolean>(false);
     const [currentCharacter, setCurrentCharacter] = useState<SynopsisCharacterInterface|null>(null);
     const [activeSynopsis, setActiveSynopsis] = useState<SynopsisInterface|null>(null);
+    
+    const [characterRole, setCharacterRole] = useState("");
+    const [showChooseCharacterRoleModal, setShowChooseCharacterRoleModal] = useState<boolean>(false);
+    
+    const [openCharacterSuggestionsModal, setOpenCharacterSuggestionsModal] = useState<boolean>(false);
+    const [suggestedCharacters, setSuggestedCharacters] = useState<[]>([]);
+
+    const [characters, setCharacters] = useState<SynopsisCharacterInterface|[]>([]);
+
+    
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     
@@ -54,9 +68,16 @@ const CharactersComponent: React.FC<Props> = ({
         setContent(content);
     };
 
+     useEffect(() => {
+        console.log("CHARACTERS UPDATED", characters);
+        
+    }, [characters])
+
     useEffect(() => {
-        const synopsis: SynopsisInterface|null = story?.synopsisList?.find(item => item?.active === true);
-        setActiveSynopsis(synopsis ? synopsis : null)
+        const synopsis: SynopsisInterface|null = story?.synopses?.find(item => item?.active === true);
+        setActiveSynopsis(synopsis ? synopsis : null);
+
+        setCharacters(synopsis?.characters ?? [])
     }, [])
 
     const returnToSynopsis = async () => {
@@ -73,15 +94,16 @@ const CharactersComponent: React.FC<Props> = ({
 
     return (
         <>
-            <StoryDetailsComponent 
-                title={story?.projectTitle} 
-                prompt={story?.projectDescription} 
-                story={story} 
-                setStory={setStory}
-                targetAudiences={targetAudiences} 
-                refetch={refetch} 
-                genres={genres} 
-            />
+            <div className="max-w-4xl mx-auto bg-white rounded-2xl p-4 mb-14">
+                {/* Header */}
+                <div className="mb-4">
+                    <h1 className="text-4xl font-extrabold text-gray-900 mb-4">{story?.projectTitle}</h1>
+                    <div className="flex items-start gap-2 text-gray-600">
+                        {/* <span className="text-sm font-bold text-black">Synopsis/</span> */}
+                        <span className="text-xs leading-5">{story?.synopsis}</span>
+                    </div>
+                </div>
+            </div>
 
             <div className="mb-7 flex items-center justify-between bg-white p-3 rounded-xl">
                 <h1 className='capitalize text-xl font-bold'>Idea</h1>
@@ -94,7 +116,7 @@ const CharactersComponent: React.FC<Props> = ({
                 <p className='text-xs'>Click to edit any character to your taste. Or “add character” from your collection.</p>
 
                 <Button 
-                
+                onClick={() => setShowChooseCharacterRoleModal(true)}
                 className='bg-[#5D4076] text-white mt-10 cursor-pointer'>
                     <Image
                         src="/icon/generate2.svg"
@@ -110,7 +132,7 @@ const CharactersComponent: React.FC<Props> = ({
 
                 <div className="mt-5 grid grid-cols-3 gap-5">
                     {
-                        story?.synopsisList?.find(item => item.active === true)?.characters?.map((item, index) => (
+                        characters?.map((item, index) => (
                             <div  
                             onClick={() => openEditCurrentCharacterModal(item) }
                             key={index} 
@@ -133,9 +155,15 @@ const CharactersComponent: React.FC<Props> = ({
                 </div>
             </div>
 
-      
 
-             <div className="bg-white p-4 rounded-xl mt-7">
+
+
+
+
+      
+            
+
+            <div className="bg-white p-4 rounded-xl mt-7">
                 {/* <h1 className='capitalize text-md mb-1 font-bold'>Save</h1>
                 <p className='mb-4 text-xs'>Click "start writing" to save parameters</p> */}
                 <div className="flex items-center justify-between gap-5">
@@ -176,16 +204,50 @@ const CharactersComponent: React.FC<Props> = ({
                 </div>
             </div>
 
+            <ModalBoxComponent
+                isOpen={showChooseCharacterRoleModal}
+                onClose={() => setShowChooseCharacterRoleModal(false)}
+                width="w-[95%] xs:w-[95%] sm:w-[90%] md:w-[80%] lg:w-[50%] xl:w-[30%] "
+                useDefaultHeader={false}
+            >
+                <div className='bg-white p-5 rounded-xl'>                    
+                    <CharacterRoleSelector
+                        value={characterRole}
+                        onChange={setCharacterRole}
+                        placeholder="What role will this character play?"
+                        story={story}
+                        characterRole={characterRole}
+                        setShowChooseCharacterRoleModal={setShowChooseCharacterRoleModal}
+                        setOpenCharacterSuggestionsModal={setOpenCharacterSuggestionsModal}
+                        setSuggestedCharacters={setSuggestedCharacters}
+                    />
+                </div>
+            </ModalBoxComponent>
 
 
-            <EditCharacterComponent 
+            {currentCharacter && <EditCharacterComponent 
                 story={story}
                 openModal={openEditModal}
                 setOpenModal={setOpenEditModal}
                 currentCharacter={currentCharacter}
+                setCharacters={setCharacters}
                 activeSynopsis={activeSynopsis}
                 setStory={setStory}
+            />}
+
+
+            
+
+            {/* <GeneratedCharacterList characters={suggestedCharacters}/> */}
+            <EditableCharacterManager 
+            characters={suggestedCharacters} 
+            onCharactersUpdate={(val) => console.log(val)}
+            story={story}
+            setOpenCharacterSuggestionsModal={setOpenCharacterSuggestionsModal}
+            openCharacterSuggestionsModal={openCharacterSuggestionsModal}
             />
+
+
         </>
     )
 }

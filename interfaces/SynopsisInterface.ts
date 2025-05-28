@@ -52,4 +52,5 @@ export interface SynopsisCharacterInterface {
     strengths: string;
     voice: string;
     perspective: string;
+    uniqueHook: string;
 }

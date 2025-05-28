@@ -58,21 +58,25 @@ interface GenerateNarrativeConceptsParserInterface {
 
 }
 
-// interface ChapterTwoAnalysis {
-//     scenes: SceneRequestInterface[]
-//     summary: string;
-//     charactersInvolved: SuggestedOtherCharacterInterface[];
-//     tone: string[];
-//     typeOfEvent: string;
-//     causeOfTheEvent: string;
-//     stakesAndConsequences: string;
-//     mysteryOrSurprise: string;
-//     introductionSummary: string;
-//     thematicElement: string[];
-//     suspenseTechnique: string[];
-//     moodAndAtmosphere: string[];
-//     setting: string[];
-// }
+interface GenerateCharacterParserInterface {
+    characters: {
+        name: string;
+        age: string;
+        gender: string;
+        race: string;
+        alias: string;
+        voice: string;
+        backstory: string;
+        strengths: string;
+        weaknesses: string;
+        perspective: string;
+        externalConflict: string;
+        internalConflict: string;
+        relationshipToProtagonists: string;
+        roleJustification: string;
+        uniqueHook: string;
+    }[];
+}
 
 export async function POST(request: NextRequest) {
 
@@ -123,6 +127,10 @@ const getParser = (type: string) => {
     }
     if (type === "generate-narrative-concept") {            
         return new JsonOutputParser<GenerateNarrativeConceptsParserInterface>();
+    }
+
+        if (type === "generate-character") {            
+        return new JsonOutputParser<GenerateCharacterParserInterface>();
     }
     // if (chapter === 2) {            
     //     return new JsonOutputParser<ChapterTwoAnalysis>();

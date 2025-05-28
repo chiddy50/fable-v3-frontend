@@ -203,10 +203,7 @@ function AIStoryContent() {
 					}
 
 					{currentStepUrl === "characters" && 
-						<CharactersComponent 
-							autoDetectStructure={autoDetectStructure}
-							selectedStoryStructure={selectedStoryStructure}
-							selectedStoryType={selectedStoryType}
+						<CharactersComponent 						
 							story={story}
 							setStory={setStory}
 							setCurrentStep={setCurrentStep}

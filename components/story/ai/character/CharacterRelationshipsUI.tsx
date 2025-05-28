@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Plus, X, Users, Edit3, Check, AlertCircle, XCircle } from 'lucide-react';
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
-import { SynopsisInterface } from '@/interfaces/SynopsisInterface';
+import { SynopsisCharacterInterface, SynopsisInterface } from '@/interfaces/SynopsisInterface';
 import { hidePageLoader, showPageLoader } from '@/lib/helper';
 
 interface Props {
@@ -14,6 +14,7 @@ interface Props {
     allAvailableCharacters: any[];
     story: StoryInterface;
     setStory: React.Dispatch<React.SetStateAction<StoryInterface>>;
+    setCharacters: React.Dispatch<React.SetStateAction<SynopsisCharacterInterface[]>>;
     activeSynopsis: SynopsisInterface;
 }
 
@@ -24,6 +25,7 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
     allAvailableCharacters,
     story,
     activeSynopsis,
+    setCharacters,
     setStory
 }) => {
     // UI state
@@ -42,8 +44,9 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
 
     // Get characters not yet in relationships
     const getAvailableCharacters = () => {
+        // The publicId on the character model refers to the id on the relationship object
         const usedIds = relationshipToOtherCharacters.map(rel => rel.id);
-        return allAvailableCharacters.filter(char => !usedIds.includes(char.id));
+        return allAvailableCharacters.filter(char => !usedIds.includes(char.public_id));
     };
 
     // Add new relationship
@@ -136,14 +139,18 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
                 storyId: story?.id
             }
             console.log(payload);
+            // return;
 
             try {            
                 showPageLoader();
-                const url = `${process.env.NEXT_PUBLIC_BASE_URL}/v2/stories/${story?.id}/synopsis-character`;
+
+                // CHANGE ENDPOINT TO SAVE CHARACTER RELATIONSHIP
+
+                const url = `${process.env.NEXT_PUBLIC_BASE_URL}/synopses/${currentCharacter.id}/update-character`;
                 let res = await axiosInterceptorInstance.put(url, payload);
                 console.log(res);
                 // setStory(res?.data?.story);
-                
+                setCharacters(res?.data?.characters);
                 // FINALLY REMOVE FROM RELATIONSHIP UI 
                 
             } catch (error) {
@@ -193,7 +200,7 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
                     </div>
                 ) : (
                     relationshipToOtherCharacters?.map((rel) => (
-                        <div key={rel.id} className="flex items-start justify-between p-4 bg-gray-50 rounded-lg border hover:border-gray-300 transition-colors">
+                        <div key={rel.id} className="flex items-start justify-between p-4 bg-[#F9F9F9] rounded-lg transition-colors">
                             <div className="flex items-start gap-3 flex-1">
                                 <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                                     <span className="text-blue-600 font-medium text-sm">
@@ -267,7 +274,7 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
                 >
                     <Plus className="w-5 h-5 mx-auto mb-1" />
                     {availableChars.length === 0
-                        ? "All characters already have relationships"
+                        ? "The character already has relationships with other characters"
                         : "Add Character Relationship"
                     }
                 </button>

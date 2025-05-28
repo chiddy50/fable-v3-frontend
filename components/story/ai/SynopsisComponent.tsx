@@ -90,10 +90,10 @@ const SynopsisComponent: React.FC<Props> = ({
         setShowNarrativeConceptGuide(story?.narrativeConcept ? false : true)
 
         setAccordionValue(story?.synopsis ? "" : "item-1")
-        setSynopsisList(story?.synopsisList ?? [])
+        setSynopsisList(story?.synopses ?? [])
 
         
-        const currentActiveSynopsis = story?.synopsisList?.find((item: SynopsisListInterface) => item?.active === true);
+        const currentActiveSynopsis = story?.synopses?.find((item: SynopsisListInterface) => item?.active === true);
         
         // let lastSynopsisIndex = story?.synopsisList?.length ? story?.synopsisList?.length - 1 : 0;
         // setActiveSynopsisId(story.currentChapterId ?? result?.[lastSynopsisIndex]?.id)
@@ -257,13 +257,13 @@ const SynopsisComponent: React.FC<Props> = ({
             }
 
             {
-                showNarrativeConceptGuide === false && narrativeConcept && story?.synopsisList?.length > 0 &&
+                showNarrativeConceptGuide === false && narrativeConcept && story?.synopses?.length > 0 &&
                 <>
                     <SynopsisInputComponent 
                         content={content}
                         story={story}
                         handleContentChange={handleContentChange}
-                        synopsisList={synopsisList}
+                        synopsisList={story?.synopses}
                         activeSynopsisId={activeSynopsisId}
                         setActiveSynopsisId={setActiveSynopsisId}
                         setStory={setStory}
@@ -308,8 +308,8 @@ const SynopsisComponent: React.FC<Props> = ({
                         </button>
 
                         <GradientButton handleClick={moveToCharacters} 
-                        disabled={story?.synopsisList?.length > 0 ? false : true}
-                        className={`${story?.synopsisList?.length > 0 ? "opacity-100" : "opacity-20"}`}>
+                        disabled={story?.synopses?.length > 0 ? false : true}
+                        className={`${story?.synopses?.length > 0 ? "" : "opacity-20"}`}>
                             <Image
                                 src="/icon/arrow-guide.svg"
                                 alt="arrow-guide icon"

@@ -356,7 +356,7 @@ const IdeationComponent: React.FC<Props> = ({
                 tone,
                 genres,
                 storyAudiences,
-                contentType,
+                // contentType,
                 storyType,
                 structure,
             } = story || {}; 
@@ -365,18 +365,24 @@ const IdeationComponent: React.FC<Props> = ({
 
             const availableStructures = storyType === "short-story" ? shortStoryStructures : novelStructures;
 
+            const choosenGenres = formData.selectedGenres.map(id => options.genres.find(item => item.value === id)?.label).filter(Boolean);
+            const choosenAudience = formData?.selectedTargetAudience?.map(id => options.targetAudiences.find(item => item.value === id)?.label).filter(Boolean);
+
             const payload: GenerateNarrativeConceptSuggestionInterface = {
-                description,
-                tone,
-                genres,
-                storyAudiences: audiences,
-                contentType,
+                description: formData?.description,
+                tone: formData.selectedTones,
+                genres: choosenGenres,
+                audiences: choosenAudience,
+                contentType: contentType.id,
                 storyType,
                 structure,
             };
 
+            console.log({formData, options, contentTypeList, payload});
+            
+
             const prompt = generateNarrativeConceptsPrompt(payload, availableStructures);
-            console.log({ prompt });
+            console.log(prompt);
 
             return await makeGenerateNarrativeConceptSuggestionsLLMRequest(prompt);  
         }
