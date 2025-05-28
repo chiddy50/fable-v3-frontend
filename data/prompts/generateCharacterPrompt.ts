@@ -7,10 +7,10 @@ import { GenerateCharacterInterface } from "@/interfaces/prompts/GenerateCharact
  */
 function generateCharacterPrompt(storyData: GenerateCharacterInterface): string {
   // Extract key information
-  const genres = storyData.genres.map(g => g.storyGenre.name).join(", ");
-  const tones = storyData.tone.join(", ");
-  const audiences = storyData.storyAudiences.map(a => a.targetAudience.name).join(", ");
-  const existingCharacterNames = storyData.characters.map(c => `${c.name} (${c.role})`).join(", ");
+  const genres = storyData?.genres?.map(g => g.storyGenre.name).join(", ");
+  const tones = storyData?.tone?.join(", ");
+  const audiences = storyData?.storyAudiences?.map(a => a.targetAudience.name).join(", ");
+  const existingCharacterNames = storyData?.characters?.map(c => `${c.name} (${c.role})`).join(", ");
   const existingCharacterBackstories = storyData.characters.map(c => `${c.name} (${c.backstory})`).join(", ");
   
   // Build character relationships context

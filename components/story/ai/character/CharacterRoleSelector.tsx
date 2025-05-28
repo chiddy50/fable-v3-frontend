@@ -74,7 +74,7 @@ const CharacterRoleSelector: React.FC<CharacterRoleSelectorProps> = ({
     const [activeSynopsis, setActiveSynopsis] = useState<SynopsisInterface|null>(null);
 
     useEffect(() => {
-        let synopsis = story.synopsisList?.find(synopsis => synopsis?.active === true);
+        let synopsis = story.synopses?.find(synopsis => synopsis?.active);
         setActiveSynopsis(synopsis ?? null)
         
     }, [])
@@ -123,18 +123,21 @@ const CharacterRoleSelector: React.FC<CharacterRoleSelectorProps> = ({
     };
 
     const generateCharacterSuggestions = async () => {
-        let payload: GenerateCharacterInterface = { ...activeSynopsis, characterRole, storyStructure: story?.structure }
-
-        const prompt = generateCharacterPrompt(payload);
-        console.log(prompt);
-
-        console.log({
-            activeSynopsis, 
-            story, 
-            characterRole
-        });
-
         try {
+            console.log({ ...activeSynopsis, characterRole, storyStructure: story?.structure });
+            
+            let payload: GenerateCharacterInterface = { ...activeSynopsis, characterRole, storyStructure: story?.structure }
+            console.log(payload);
+            
+            const prompt = generateCharacterPrompt(payload);
+            console.log(prompt);
+
+            console.log({
+                activeSynopsis, 
+                story, 
+                characterRole
+            });
+
             setLoadingCharacters(true)
             let res = await axios.post(`/api/json-llm-response`, { prompt, type: "generate-character" } );
             console.log(res);
