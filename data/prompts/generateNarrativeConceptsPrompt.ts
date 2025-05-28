@@ -18,13 +18,16 @@ interface GenerateNarrativeConceptSuggestionInterface {
 export function generateNarrativeConceptsPrompt(storyInfo: GenerateNarrativeConceptSuggestionInterface, structures: GenerateNarrativeConceptSuggestionInterface[]): string {
     
     let structureInfo = '';
+    let numberSix = '';
     
-    if (structures && structures?.length > 0) {
+    if (!storyInfo?.structure && structures && structures?.length > 0) {
         structureInfo = `### Available Story Structures:\n${structures.map(structure => 
             `- ${structure?.title}: ${structure?.description} (${structure?.chapterAmount} chapters)`
         ).join('\n')}\n\n`;
     }
-
+    if (!storyInfo?.structure) {
+        numberSix = `4. Consider the implications of the chosen story structure if one is provided, if none is provided just ignore and proceed`
+    }
     return `
     Generate 10 compelling narrative concept suggestions for a story with the following characteristics:
     
@@ -45,10 +48,10 @@ export function generateNarrativeConceptsPrompt(storyInfo: GenerateNarrativeConc
     1. Each concept should be 1-2 sentences long
     2. Concepts should align with the specified tone and genres
     3. Include variations that would appeal to each target audience
-    4. Consider the implications of the chosen story structure if one is provided, if none is provided just ignore and proceed
-    5. Explore different angles (character-driven, plot-driven, thematic)
-    6. Do not mention anything about the story structure in the narrative concept title or description, just focus of the narrative concept.
-    
+    4. Explore different angles (character-driven, plot-driven, thematic)
+    5. Do not mention anything about the story structure in the narrative concept title or description, just focus of the narrative concept.
+    ${numberSix}
+
     ### Response Format
     Return the narrative concepts as a json or javascript object format with brief explanations of how each concept relates to the story elements.
     

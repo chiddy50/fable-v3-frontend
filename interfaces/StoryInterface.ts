@@ -1,7 +1,7 @@
 import { ChapterInterface } from "./ChapterInterface";
 import { CharacterInterface, SuggestedCharacterInterface } from "./CharacterInterface";
 import { GenreInterface } from "./GenreInterface";
-import { SynopsisListInterface } from "./SynopsisInterface";
+import { SynopsisInterface, SynopsisListInterface } from "./SynopsisInterface";
 import { UserInterface } from "./UserInterface";
 
 
@@ -106,7 +106,8 @@ export interface StoryInterface {
   tone: string[];
   contentType: string;
   synopsis: string;
-  synopsisList: SynopsisListInterface[];
+  synopsisList: SynopsisInterface[];
+  synopses: SynopsisInterface[];
   storyStructureReason: string;
   narrativeConceptSuggestions: string[];
   narrativeConcept: NarrativeConceptInterface;
@@ -154,60 +155,6 @@ export interface StoryInterface {
 
   introductionExtraDetails: string;
 
-  // INCITING EVENT CHAPTER
-  incitingIncidentLocked: boolean;
-  typeOfEvent: string;
-  causeOfTheEvent: string;
-  stakesAndConsequences: string;
-  incitingEventCharacters: [];
-  incitingIncidentTone: string[];
-  incitingIncidentSetting: string[];
-  introductionImage: string;
-
-  // FIRST PLOT POINT
-  firstPlotPointLocked: boolean;
-  firstPlotPointSetting: string[];
-  firstPlotPointTone: string[];
-  firstPlotPointImage: string;
-
-  // RISING ACTION & MIDPOINT
-  risingActionAndMidpointLocked: boolean;
-  challengesProtagonistFaces: string;
-  protagonistPerspectiveChange: string;
-  majorEventPropellingClimax: string;
-  risingActionAndMidpointSetting: string[];
-  risingActionAndMidpointTone: string[];
-  risingActionAndMidpointExtraDetails: string;
-  risingActionAndMidpointImage: string;
-
-  // PINCH POINT & SECOND PLOT POINT
-  newObstacles: string;
-  discoveryChanges: string;
-  howStakesEscalate: string;
-  pinchPointsAndSecondPlotPointLocked: boolean;
-  pinchPointsAndSecondPlotPointSetting: string[];
-  pinchPointsAndSecondPlotPointTone: string[];
-  pinchPointsAndSecondPlotPointExtraDetails: string;
-  pinchPointsAndSecondPlotPointImage: string;
-
-  // CLIMAX & FALLING ACTION
-  finalChallenge: string;
-  challengeOutcome: string;
-  storyResolution: string;
-  climaxAndFallingActionLocked: boolean;
-  climaxAndFallingActionSetting: string[],
-  climaxAndFallingActionTone: string[],
-  climaxAndFallingActionExtraDetails: string;
-  climaxAndFallingActionImage: string;
-
-  climaxConsequences: string;
-  howCharactersEvolve: string;
-  resolutionOfConflict: string;
-  resolutionSetting: string[];
-  resolutionTone: string[];
-  resolutionExtraDetails: string;
-  resolutionLocked: boolean;
-  resolutionImage: string;
 
   thematicElements: [];
   thematicOptions: [];
@@ -226,7 +173,6 @@ export interface StoryInterface {
 
   // plotElement: ThreeActStructureInterface,
 
-  storyStructure: StoryStructureInterface;
   setting: string;
 
   storyAudiences: TargetAudienceInterface[];  
@@ -242,6 +188,12 @@ export interface TargetAudienceInterface {
   publicId: string | null;
   updatedAt: string;
   createdAt: string;
+  targetAudience: {
+    id: string;
+    name: string;
+    description: string|null,
+    publicId: string;
+}
 } 
 
 export interface StoryGenreInterface {
@@ -250,7 +202,13 @@ export interface StoryGenreInterface {
   storyGenreId: number;
   updatedAt: string;
   createdAt: string;
+  storyGenre: {
+    id: number;
+    name: string;
+    description: string| null;
+  }
 } 
+
 
 export interface CommentInterface {
   id: string;

@@ -40,7 +40,7 @@ const NarrativeConceptGuide = ({ story }: { story: StoryInterface }) => {
                     </p>
                     <div className="grid gap-4">
                         <div className="bg-green-50 p-4 rounded-lg flex items-start gap-4">
-                            <div className="flex-shrink-0 w-[80px] h-[80px]">
+                            <div className="flex-shrink-0 md:w-[80px] w-[40px] md:h-[80px] h-[40px]">
                                 <Image
                                 src="/img/lion-king.jpeg"
                                 alt="The Lion King artwork"
@@ -66,7 +66,7 @@ const NarrativeConceptGuide = ({ story }: { story: StoryInterface }) => {
                         </div>
 
                         <div className="bg-purple-50 p-4 rounded-lg flex items-start gap-4">
-                            <div className="flex-shrink-0 w-[80px] h-[80px]">
+                            <div className="flex-shrink-0 md:w-[80px] w-[40px] md:h-[80px] h-[40px]">
                                 <Image
                                 src="/img/spiderman.jpeg"
                                 alt="The Lion King artwork"
@@ -230,52 +230,56 @@ const NarrativeConceptGuide = ({ story }: { story: StoryInterface }) => {
     };
 
     return (
-        <div className="w-full rounded-xl p-5 bg-white">
-            {/* Header */}
-            <div className="text-center mb-8 mt-3">
-                <h1 className="text-2xl font-bold text-gray-800 mb-2">
-                    Understanding Narrative Concepts
-                </h1>
-                <p className="text-gray-600 text-xs">A simple guide for new storytellers</p>
-            </div>
+        <div className="w-full max-w-2xl max-h-[90vh] rounded-xl p-5 bg-white flex flex-col overflow-hidden">
+            {/* Scrollable content container */}
+            <div className="overflow-y-auto flex-1">
+                {/* Header */}
+                <div className="text-center mb-8 mt-3">
+                    <h1 className="text-2xl font-bold text-gray-800 mb-2">
+                        Understanding Narrative Concepts
+                    </h1>
+                    <p className="text-gray-600 text-xs">A simple guide for new storytellers</p>
+                </div>
 
-            {/* Progress Indicator */}
-
-            <div className="flex justify-between items-center mb-8 w-[50%] mx-auto">
-                {steps.map((_, index) => (
-                    <div key={index} className="flex items-center">
-                        <button
-                            onClick={() => goToStep(index)}
-                            className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${index <= currentStep
-                                    ? 'bg-[#FF9F96] text-white'
-                                    : 'bg-[#f4f4f4] text-gray-500'
-                                }`}
-                        >
-                            {index + 1}
-                        </button>
-                        {index < steps.length - 1 && (
-                            <div className={`w-8 h-1 mx-2 ${index < currentStep ? 'bg-[#FF9F96]' : 'bg-gray-200'
-                                }`} />
-                        )}
+                {/* Progress Indicator */}
+                <div className="flex justify-between items-center mb-8 w-full md:w-[80%] mx-auto overflow-x-auto pb-2">
+                    <div className="flex mx-auto">
+                        {steps.map((_, index) => (
+                            <div key={index} className="flex items-center">
+                                <button
+                                    onClick={() => goToStep(index)}
+                                    className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${index <= currentStep
+                                            ? 'bg-[#FF9F96] text-white'
+                                            : 'bg-[#f4f4f4] text-gray-500'
+                                        }`}
+                                >
+                                    {index + 1}
+                                </button>
+                                {index < steps.length - 1 && (
+                                    <div className={`w-4 md:w-8 h-1 mx-1 md:mx-2 ${index < currentStep ? 'bg-[#FF9F96]' : 'bg-gray-200'
+                                        }`} />
+                                )}
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
-
-            {/* Content */}
-            <div className="min-h-96">
-                <div className="flex items-center space-x-3 mb-6">
-                    {steps[currentStep].icon}
-                    <h2 className="text-lg font-semibold text-gray-800">
-                        {steps[currentStep].title}
-                    </h2>
                 </div>
 
-                <div className="mb-8 text-sm">
-                    {steps[currentStep].content}
+                {/* Content */}
+                <div className="min-h-[40vh]">
+                    <div className="flex items-center space-x-3 mb-6">
+                        {steps[currentStep].icon}
+                        <h2 className="text-lg font-semibold text-gray-800">
+                            {steps[currentStep].title}
+                        </h2>
+                    </div>
+
+                    <div className="mb-8 text-sm">
+                        {steps[currentStep].content}
+                    </div>
                 </div>
             </div>
 
-            {/* Navigation */}
+            {/* Navigation - fixed at the bottom */}
             <div className="flex justify-between items-center pt-6 border-t">
                 <button
                     onClick={prevStep}
@@ -306,6 +310,7 @@ const NarrativeConceptGuide = ({ story }: { story: StoryInterface }) => {
                 </button>
             </div>
         </div>
+
     );
 };
 

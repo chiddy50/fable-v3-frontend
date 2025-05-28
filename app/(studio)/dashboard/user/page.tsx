@@ -5,7 +5,7 @@ import React from 'react'
 
 const EditUserPage = () => {
     return (
-        <div>
+        <div className=''>
             <EditProfileComponent />
         </div>
     )

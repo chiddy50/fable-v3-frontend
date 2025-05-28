@@ -88,7 +88,7 @@ const CreatorStoriesComponent = ({ title, editUrl, type }: { title: string, edit
                                         </div>
     
                                         <div>
-                                            <Link href={`${editUrl}?story-id=${item.id}&current-step=${item?.currentStep ?? 1}`} className='text-white cursor-pointer flex items-center justify-center py-2 px-4 rounded-lg m-2 bg-gradient-to-r hover:from-[#AA4A41] hover:to-[#33164C] to-[#AA4A41] from-[#33164C] transition-all'>
+                                            <Link href={`${editUrl}?story-id=${item.id}`} className='text-white cursor-pointer flex items-center justify-center py-2 px-4 rounded-lg m-2 bg-gradient-to-r hover:from-[#AA4A41] hover:to-[#33164C] to-[#AA4A41] from-[#33164C] transition-all'>
                                                 <ArrowRight size={16} />
                                             </Link>
                                         </div>
