@@ -21,7 +21,7 @@ import {
     SheetTitle,
 } from "@/components/ui/sheet";
 import GeneratedCharacterList from './character/GeneratedCharacterList';
-import EditableCharacterManager from './character/EditGeneratedCharacterList';
+import EditableCharacterManager from './character/EditableCharacterManager';
 
 interface Props {
     story: StoryInterface;
@@ -70,15 +70,17 @@ const CharactersComponent: React.FC<Props> = ({
 
      useEffect(() => {
         console.log("CHARACTERS UPDATED", characters);
-        
+
     }, [characters])
 
     useEffect(() => {
+        console.log("CHARACTER ADDED", story);
+
         const synopsis: SynopsisInterface|null = story?.synopses?.find(item => item?.active === true);
         setActiveSynopsis(synopsis ? synopsis : null);
 
         setCharacters(synopsis?.characters ?? [])
-    }, [])
+    }, [story])
 
     const returnToSynopsis = async () => {
         const response = await updateStory({ currentStepUrl: "synopsis", currentStep: 1 }, story.id);
@@ -128,7 +130,7 @@ const CharactersComponent: React.FC<Props> = ({
                         />
                         <span>Generate Character</span>
                     </Button>
-                   {suggestedCharacters.length > 0 && 
+                   {activeSynopsis?.synopsisCharacters?.length > 0 && 
                    <Button 
                     onClick={() => setOpenCharacterSuggestionsModal(true)}
                     >
@@ -230,6 +232,7 @@ const CharactersComponent: React.FC<Props> = ({
                         setShowChooseCharacterRoleModal={setShowChooseCharacterRoleModal}
                         setOpenCharacterSuggestionsModal={setOpenCharacterSuggestionsModal}
                         setSuggestedCharacters={setSuggestedCharacters}
+                        setStory={setStory}
                     />
                 </div>
             </ModalBoxComponent>
@@ -250,11 +253,12 @@ const CharactersComponent: React.FC<Props> = ({
 
             {/* <GeneratedCharacterList characters={suggestedCharacters}/> */}
             <EditableCharacterManager 
-            characters={suggestedCharacters} 
+            characters={activeSynopsis?.synopsisCharacters ?? []} 
             onCharactersUpdate={(val) => console.log(val)}
             story={story}
             setOpenCharacterSuggestionsModal={setOpenCharacterSuggestionsModal}
             openCharacterSuggestionsModal={openCharacterSuggestionsModal}
+            setStory={setStory}
             />
 
 

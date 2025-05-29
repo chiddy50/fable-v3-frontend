@@ -27,6 +27,7 @@ export interface SynopsisInterface {
     narrativeConcept: string[];
     projectDescription: string;
     characters: SynopsisCharacterInterface[]
+    synopsisCharacters: SynopsisCharacterInterface[]
 }
 
 export interface SynopsisCharacterInterface {
@@ -53,4 +54,5 @@ export interface SynopsisCharacterInterface {
     voice: string;
     perspective: string;
     uniqueHook: string;
+    metaData: any;
 }

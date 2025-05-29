@@ -29,6 +29,7 @@ export function generateNarrativeConceptsPrompt(storyInfo: GenerateNarrativeConc
         numberSix = `4. Consider the implications of the chosen story structure if one is provided, if none is provided just ignore and proceed`
     }
     return `
+    You are a professional storyteller, expert storytelling assistant author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic, and you always follow instructions.
     Generate 10 compelling narrative concept suggestions for a story with the following characteristics:
     
     ### Story Overview:
