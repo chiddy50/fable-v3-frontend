@@ -7,11 +7,13 @@ import { ChevronDown, HelpCircle, User, Sparkles, Edit3 } from 'lucide-react';
 import GradientButton from '@/components/shared/GradientButton';
 import Image from 'next/image';
 import { StoryInterface } from '@/interfaces/StoryInterface';
-import { SynopsisInterface } from '@/interfaces/SynopsisInterface';
+import { SynopsisCharacterInterface, SynopsisInterface } from '@/interfaces/SynopsisInterface';
 import generateCharacterPrompt from '@/data/prompts/generateCharacterPrompt';
 import { GenerateCharacterInterface } from '@/interfaces/prompts/GenerateCharacterInterface';
 import axios from 'axios';
 import { toast } from 'sonner';
+import axiosInterceptorInstance from '@/axiosInterceptorInstance';
+import { hidePageLoader, showPageLoader } from '@/lib/helper';
 
 interface CharacterRoleSelectorProps {
     value: string;
@@ -23,6 +25,7 @@ interface CharacterRoleSelectorProps {
     setShowChooseCharacterRoleModal: React.Dispatch<React.SetStateAction<boolean>>;
     setOpenCharacterSuggestionsModal: React.Dispatch<React.SetStateAction<boolean>>;
     setSuggestedCharacters: React.Dispatch<React.SetStateAction<[]>>;
+    setStory: React.Dispatch<React.SetStateAction<StoryInterface>>;
 }
 
 const CHARACTER_ROLES = [
@@ -57,10 +60,11 @@ const CharacterRoleSelector: React.FC<CharacterRoleSelectorProps> = ({
     placeholder = "Select or type a character role...",
     disabled = false,
     story,
+    setStory,
     characterRole,
     setShowChooseCharacterRoleModal,
     setOpenCharacterSuggestionsModal,
-    setSuggestedCharacters
+    setSuggestedCharacters,
 }) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [isCustomMode, setIsCustomMode] = useState<boolean>(false);
@@ -141,7 +145,8 @@ const CharacterRoleSelector: React.FC<CharacterRoleSelectorProps> = ({
             setLoadingCharacters(true)
             let res = await axios.post(`/api/json-llm-response`, { prompt, type: "generate-character" } );
             console.log(res);
-            setSuggestedCharacters(res?.data?.characters)
+            setSuggestedCharacters(res?.data?.characters);
+            saveCharacters(res?.data?.characters ?? [])
             setShowChooseCharacterRoleModal(false)
             setOpenCharacterSuggestionsModal(true)
         } catch (error) {
@@ -150,6 +155,40 @@ const CharacterRoleSelector: React.FC<CharacterRoleSelectorProps> = ({
         }finally{
             setLoadingCharacters(false)
         }
+    }
+
+    const saveCharacters = async (characters: SynopsisCharacterInterface[]) => {
+        let charactersPayload = characters.map(character => {
+            // delete character?.id;
+
+            return {
+                ...character,
+                public_id: character.id,
+                synopsisId: activeSynopsis?.id,
+                storyId: story.id
+            }
+        });
+
+        const payload = {
+            characters: charactersPayload,
+            synopsisId: activeSynopsis?.id,
+            storyId: story.id
+        }
+
+        console.log(payload);
+        try {            
+            showPageLoader();
+            const url = `${process.env.NEXT_PUBLIC_BASE_URL}/synopses/${activeSynopsis?.id}/create-characters`;
+            let res = await axiosInterceptorInstance.put(url, payload);
+            console.log(res);
+            
+            setStory(res?.data?.story);
+        } catch (error) {
+            console.error(error);            
+        } finally {
+            hidePageLoader();
+        }
+        
     }
 
     return (

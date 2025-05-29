@@ -15,13 +15,16 @@ function generateCharacterPrompt(storyData: GenerateCharacterInterface): string 
   
   // Build character relationships context
   const characterRelationships = storyData.characters.map(char => {
-    const relationships = char.relationshipToOtherCharacters
-      .map(rel => `${rel.name}: ${rel.relationship}`)
-      .join("; ");
-    return `${char.name}: ${relationships || "No established relationships"}`;
+    if (char?.relationshipToOtherCharacters && char?.relationshipToOtherCharacters?.length > 0) {      
+      const relationships = char.relationshipToOtherCharacters
+        .map(rel => `${rel.name}: ${rel.relationship}`)
+        .join("; ");
+      return `${char.name}: ${relationships || "No established relationships"}`;
+    }
   }).join("\n");
 
-  const prompt = `You are an expert storytelling assistant. Generate 7 unique character suggestions for a new "${storyData.characterRole}" character in the following story context.
+  const prompt = `You are a professional storyteller, expert storytelling assistant author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic, and you always follow instructions.
+  Generate 7 unique character suggestions for a new "${storyData.characterRole}" character in the following story context.
 
 **STORY INFORMATION:**
 - Title: "${storyData.narrativeConcept.title}"
@@ -62,6 +65,8 @@ Generate 7 diverse character suggestions that will serve as a "${storyData.chara
 - Think about how they might challenge or support the protagonist's journey
 - Ensure each character has clear motivations that align with their role as ${storyData.characterRole}
 - Make each suggestion feel like they belong in this specific story world
+
+Ensure the roles and backstories generated for the characters are related to their "${storyData.characterRole}" role 
 
 Generate characters that would genuinely enhance "${storyData.narrativeConcept.title}" and create compelling story possibilities.
 

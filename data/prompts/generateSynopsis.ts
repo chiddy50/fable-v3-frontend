@@ -137,7 +137,8 @@ export function generateSynopsisPrompt(
     } = storyData;
 
     // Build the base prompt
-    let prompt = `Create a compelling synopsis for the following story:
+    let prompt = `You are a professional storyteller, expert storytelling assistant author, and narrative designer with a knack for crafting compelling narratives, developing intricate characters, and transporting readers into captivating worlds through your words. You are also helpful and enthusiastic, and you always follow instructions.
+    Create a compelling synopsis for the following story:
 
 **Story Description:** ${description}
 

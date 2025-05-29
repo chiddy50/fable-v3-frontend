@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { Save, Edit3, Play, Bookmark, Check, X, Loader2 } from 'lucide-react';
+import { Save, Edit3, Play, Bookmark, Check, X, Loader2, UserCircle } from 'lucide-react';
 import { Separator } from "@/components/ui/separator"
 import { toast } from 'sonner';
 import axiosInterceptorInstance from '@/axiosInterceptorInstance';
@@ -14,7 +14,12 @@ import {
 } from "@/components/ui/sheet";
 import { StoryInterface } from '@/interfaces/StoryInterface';
 import { SynopsisCharacterInterface } from '@/interfaces/SynopsisInterface';
-
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 interface Props {
     characters: SynopsisCharacterInterface[];
@@ -22,6 +27,7 @@ interface Props {
     openCharacterSuggestionsModal: boolean;
     setOpenCharacterSuggestionsModal: React.Dispatch<React.SetStateAction<boolean>>;
     onCharactersUpdate: () => void;
+    setStory: React.Dispatch<React.SetStateAction<StoryInterface>>;    
 }
 
 const EditableCharacterManager: React.FC<Props> = ({
@@ -29,7 +35,8 @@ const EditableCharacterManager: React.FC<Props> = ({
     onCharactersUpdate,
     story,
     setOpenCharacterSuggestionsModal,
-    openCharacterSuggestionsModal
+    openCharacterSuggestionsModal,
+    setStory,    
 }) => {
     const [editingCharacter, setEditingCharacter] = useState<string | null>(null);
     const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
@@ -61,33 +68,24 @@ const EditableCharacterManager: React.FC<Props> = ({
 
     // API endpoint functions
     const useCharacterEndpoint = async (character: SynopsisCharacterInterface) => {
-        const endpoint = '/api/characters/use';
+        character.metaData = { added: true };
         const payload = {
             characterId: character.id,
             character: character,
             timestamp: new Date().toISOString()
         };
 
+        console.log(payload);
+        
+
         try {
-            const url = `${process.env.NEXT_PUBLIC_BASE_URL}/v2/stories/${story?.id}/synopsis-character`;
-            // let res = await axiosInterceptorInstance.put(url, payload);
+            const url = `${process.env.NEXT_PUBLIC_BASE_URL}/synopses/${character?.id}/add-character`;
+            let res = await axiosInterceptorInstance.put(url, payload);
+            setStory(res?.data?.story)
+            if (!res) {
+                throw new Error(`HTTP error! status: ${res?.status}`);
+            }
 
-            // const response = await fetch(endpoint, {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'Authorization': `Bearer ${localStorage.getItem('authToken')}` // If auth is needed
-            //     },
-            //     body: JSON.stringify(payload)
-            // });
-
-
-            // if (!response.ok) {
-            //     throw new Error(`HTTP error! status: ${response.status}`);
-            // }
-
-            // const result = await response.json();
-            // return result;
         } catch (error) {
             console.error('Error using character:', error);
             throw error;
@@ -271,15 +269,18 @@ const EditableCharacterManager: React.FC<Props> = ({
             return (
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-                    <select
-                        value={value || ''}
-                        onChange={(e) => handleChange(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 text-xs rounded-md focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        {options.map(option => (
-                            <option key={option} value={option}>{option}</option>
-                        ))}
-                    </select>
+
+                    <div className="px-3 py-2 bg-gray-100 rounded-md">
+                        <select
+                            value={value || ''}
+                            onChange={(e) => handleChange(e.target.value)}
+                            className="w-full text-xs focus:border-transparent focus:outline-none "
+                        >
+                            {options.map(option => (
+                                <option key={option} value={option}>{option}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
             );
         }
@@ -292,7 +293,7 @@ const EditableCharacterManager: React.FC<Props> = ({
                         value={value || ''}
                         onChange={(e) => handleChange(e.target.value)}
                         rows={3}
-                        className="w-full px-3 py-2 border text-xs border-gray-300 rounded-md focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                        className="w-full px-3 py-2 text-xs bg-gray-100 rounded-md focus:border-transparent focus:outline-none resize-none"
                     />
                 </div>
             );
@@ -300,12 +301,12 @@ const EditableCharacterManager: React.FC<Props> = ({
 
         return (
             <div className="mb-4">
-                <label className="block text-xs font-medium text-gray-700 mb-1">{label}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
                 <input
                     type={type}
                     value={value || ''}
                     onChange={(e) => handleChange(e.target.value)}
-                    className="w-full px-3 py-2 border text-xs border-gray-300 rounded-md focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-xs bg-gray-100 rounded-md focus:border-transparent focus:outline-none  "
                 />
             </div>
         );
@@ -365,16 +366,40 @@ const EditableCharacterManager: React.FC<Props> = ({
                             ) : (
                                 <>
                                     <div className="flex items-center gap-2 mb-2">
-                                        <h3 className="text-lg font-semibold text-gray-900">{character.name}</h3>
+                                        <h3 className="text-lg font-semibold text-gray-900">{character.name} </h3>
                                     </div>
-                                    <p className="text-gray-600 text-[11px] italic mb-3">"{character.alias}"</p>
-                                    <div className="flex items-center gap-2">
-                                        <span className={`px-3 py-1 rounded-lg text-[11px] font-medium border ${getRoleColor(character.role)}`}>
-                                            {character.role}
-                                        </span>
-                                        <span className="text-xs text-gray-500">
+                                    <p className="text-gray-600 text-[11px] italic mb-4">"{character.alias}"</p>
+                                    {/* <Separator /> */}
+
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-4">
+                                        
+                                        <div>
+                                            <p className="text-sm mb-1 font-semibold text-gray-700">Role</p>
+                                            <span className={`px-3 py-1 capitalize rounded-md text-[11px] border ${getRoleColor(character.role)}`}>
+                                                {character.role}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm mb-1 font-semibold text-gray-700">Race</p>
+                                            <span className={`block capitalize text-[11px]`}>
+                                                {character.race}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm mb-1 font-semibold text-gray-700">Age</p>
+                                            <span className={`block capitalize text-[11px]`}>
+                                                {character.age}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm mb-1 font-semibold text-gray-700">Gender</p>
+                                            <span className={`block capitalize text-[11px]`}>
+                                                {character.gender}
+                                            </span>
+                                        </div>
+                                        {/* <span className="text-xs text-gray-500">
                                             {character.race} • {character.age} • {character.gender}
-                                        </span>
+                                        </span> */}
                                     </div>
                                 </>
                             )}
@@ -550,7 +575,7 @@ const EditableCharacterManager: React.FC<Props> = ({
                         <button
                             onClick={() => handleUseCharacter(character)}
                             disabled={loadingStates[`use-${character.id}`] || isEditing}
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 px-4 py-2 bg-[#5D4076] text-white text-sm cursor-pointer font-medium rounded-lg hover:bg-[#664a7e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loadingStates[`use-${character.id}`] ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -563,7 +588,7 @@ const EditableCharacterManager: React.FC<Props> = ({
                         <button
                             onClick={() => handleSaveForLater(character)}
                             disabled={loadingStates[`save-${character.id}`] || isEditing}
-                            className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 px-4 py-2 bg-[#e0847b] text-white text-sm font-medium rounded-lg hover:bg-[#ff9f97] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loadingStates[`save-${character.id}`] ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -589,17 +614,39 @@ const EditableCharacterManager: React.FC<Props> = ({
                     <SheetDescription></SheetDescription>
                 </SheetHeader>
 
-                <div className="bg-gray-50">
-                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="bg-white">
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
                         <div className="mb-8">
                             <h1 className="text-3xl font-bold text-gray-900 mb-2">Character Manager</h1>
                             <p className="text-gray-600 text-xs">Edit your characters and manage them for your story</p>
                         </div>
 
                         <div className="space-y-6">
-                            {localCharacters.map(character => (
+                            <Accordion type="single" defaultValue='item-1' collapsible>
+
+                                {
+                                    localCharacters.map((character, index) => (
+                                        <AccordionItem key={character?.id || index} value={`item-${index + 1}`}>
+                                            <AccordionTrigger className="text-md font-bold cursor-pointer">
+                                                <h1 className="flex items-center gap-2">
+                                                    <UserCircle size={25} /> 
+                                                    <span>{character?.name}</span>                                                
+                                                </h1> 
+                                            </AccordionTrigger>
+                                            <AccordionContent>
+                                                <CharacterCard key={character.id} character={character} />                                            
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    ))
+                                }
+                                
+                            </Accordion>
+
+
+
+                            {/* {localCharacters.map(character => (
                                 <CharacterCard key={character.id} character={character} />
-                            ))}
+                            ))} */}
                         </div>
                     </div>
                 </div>
