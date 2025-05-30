@@ -45,29 +45,66 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
     // Get characters not yet in relationships
     const getAvailableCharacters = () => {
         // The publicId on the character model refers to the id on the relationship object
+        // const usedIds = relationshipToOtherCharacters.map(rel => rel.id);
+        // return allAvailableCharacters.filter(char => !usedIds.includes(char.id));
+
         const usedIds = relationshipToOtherCharacters.map(rel => rel.id);
-        return allAvailableCharacters.filter(char => !usedIds.includes(char.public_id));
+        return allAvailableCharacters.filter(char => 
+            !usedIds.includes(char.id) && !usedIds.includes(char.public_id)
+        );
     };
 
     // Add new relationship
-    const handleAddRelationship = () => {
+    const handleAddRelationship = async () => {
         if (!newRelationship.characterId || !newRelationship.relationship.trim()) {
             return;
         }
 
         const selectedChar = allAvailableCharacters.find(char => char.id === newRelationship.characterId);
         if (!selectedChar) return;
-
-        const newRel = {
+        
+        const newRelationshipData = {
             id: selectedChar.id,
             name: selectedChar.name,
             relationship: newRelationship.relationship.trim()
         };
 
-        setRelationshipToOtherCharacters(prev => [...prev, newRel]);
-        setNewRelationship({ characterId: "", relationship: "" });
-        setIsAddingNew(false);
-        setHasChanges(true);
+        
+        let characterRelationships = currentCharacter.relationshipToOtherCharacters && currentCharacter.relationshipToOtherCharacters.length > 0 ? [...currentCharacter.relationshipToOtherCharacters] : []
+        characterRelationships.push(newRelationshipData);
+       
+        // console.log({allAvailableCharacters, selectedChar, newRelationship, characterRelationships})
+        // return
+
+        // SAVE NEW RELATIONSHIP TO DATABASE
+        let payload = {
+            characterId: currentCharacter.id,
+            synopsisId: activeSynopsis?.id,
+            storyId: story?.id,
+            relationshipToOtherCharacters: characterRelationships
+        }
+
+        try {            
+            showPageLoader();
+
+            // CHANGE ENDPOINT TO SAVE CHARACTER RELATIONSHIP
+            const url = `${process.env.NEXT_PUBLIC_BASE_URL}/synopses/${currentCharacter.id}/update-character-relationship`;
+            let res = await axiosInterceptorInstance.put(url, payload);
+            console.log(res);
+
+            setCharacters(res?.data?.characters);
+            
+            // ADD RELATIONSHIP TO UI
+            setRelationshipToOtherCharacters(prev => [...prev, newRelationshipData]);
+            setNewRelationship({ characterId: "", relationship: "" });
+            setIsAddingNew(false);
+            // setHasChanges(true);
+            
+        } catch (error) {
+            console.error(error);            
+        } finally {
+            hidePageLoader();
+        }
     };
 
     // Remove relationship

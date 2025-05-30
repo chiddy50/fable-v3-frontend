@@ -1,3 +1,5 @@
+import { StoryGenreInterface, TargetAudienceInterface } from "./StoryInterface";
+
 export interface CreateStorySynopsisInterface {
     description: string;
     tone: string[];
@@ -23,11 +25,15 @@ export interface SynopsisInterface {
     active: false;
     synopsis: string;
     storyStructure: string;
+    contentType: string;
+    tone: string[];
     reason: string;
     narrativeConcept: string[];
     projectDescription: string;
     characters: SynopsisCharacterInterface[]
     synopsisCharacters: SynopsisCharacterInterface[]
+    genres: StoryGenreInterface[];
+    storyAudiences: TargetAudienceInterface[]
 }
 
 export interface SynopsisCharacterInterface {

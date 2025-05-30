@@ -50,6 +50,14 @@ interface SynopsisParserInterface {
     characters: CharacterParserInterface[]
 }
 
+interface RegenerateSynopsisParserInterface {
+    synopsis: string;
+    synopsisChanged: boolean;
+    reasonSynopsisChanged?: string;
+}
+
+
+
 interface GenerateNarrativeConceptsParserInterface {
     narrativeConceptSuggestions: {
         title: string;
@@ -129,8 +137,12 @@ const getParser = (type: string) => {
         return new JsonOutputParser<GenerateNarrativeConceptsParserInterface>();
     }
 
-        if (type === "generate-character") {            
+    if (type === "generate-character") {            
         return new JsonOutputParser<GenerateCharacterParserInterface>();
+    }
+
+    if (type === "regenerate-synopsis") {            
+        return new JsonOutputParser<RegenerateSynopsisParserInterface>();
     }
     // if (chapter === 2) {            
     //     return new JsonOutputParser<ChapterTwoAnalysis>();

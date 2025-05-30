@@ -57,29 +57,27 @@ const SynopsisInputComponent: React.FC<Props> = ({
     }, [activeSynopsisId, allSynopsis]);
 
     const previousSynopsis = async (activeSynopsis: SynopsisListInterface) => {
-        const synopsisIndex = allSynopsis.findIndex(item => item.id === activeSynopsis?.id);
-
-        const prevSynopsisIndex = synopsisIndex - 1; 
-        if (prevSynopsisIndex < 0) {
-            return;
-        }
-        setCurrentIndex(prevSynopsisIndex + 1)
-
-        const prevSynopsis = allSynopsis[prevSynopsisIndex];        
-        setActiveSynopsisId(prevSynopsis.id);   
+        const currentIndex = activeSynopsis?.index;
         
+        const prevSynopsisIndex = currentIndex - 1; 
+        if (prevSynopsisIndex < 1) return;
+
+        setCurrentIndex(prevSynopsisIndex)
+
+        const prevSynopsis = allSynopsis?.find(item => item.index === prevSynopsisIndex);        
+        setActiveSynopsisId(prevSynopsis?.id);   
+                
         await updateSynopsisList(prevSynopsis);
     }
 
     const nextSynopsis = async (activeSynopsis: SynopsisListInterface) => {        
-        const synopsisIndex = allSynopsis.findIndex(item => item.id === activeSynopsis?.id);
-        const nextSynopsisIndex = synopsisIndex + 1; 
+        const currentIndex = activeSynopsis?.index;
+        const nextSynopsisIndex = currentIndex ? currentIndex + 1 : 1; 
 
-        if (nextSynopsisIndex > (allSynopsis?.length - 1)) {
-            return;
-        }
-        setCurrentIndex(nextSynopsisIndex + 1)
-        const nextSynopsis = allSynopsis[nextSynopsisIndex];
+        if (nextSynopsisIndex > allSynopsis?.length) return;
+        
+        setCurrentIndex(nextSynopsisIndex);
+        const nextSynopsis = allSynopsis?.find(item => item.index === nextSynopsisIndex);        
 
         setActiveSynopsisId(nextSynopsis.id);
 
@@ -118,13 +116,7 @@ const SynopsisInputComponent: React.FC<Props> = ({
     };
 
     const saveAllSynopsisProgress = async () => {
-        console.log(allSynopsis);
-        
-        // Save the current active synopsis content
-        // const currentActiveSynopsis = allSynopsis.find(synopsis => synopsis.id === activeSynopsisData?.id);
-        // if (currentActiveSynopsis) {
-        //     await updateStory({ synopsis: currentActiveSynopsis.content }, story?.id);
-        // }
+
         await updateStory({ synopses: allSynopsis }, story?.id);
 
         try {
@@ -132,7 +124,6 @@ const SynopsisInputComponent: React.FC<Props> = ({
     
             const url = `${process.env.NEXT_PUBLIC_BASE_URL}/v2/stories/${story?.id}/all-synopsis`;
             let res = await axiosInterceptorInstance.put(url, { synopses: allSynopsis });
-            console.log(res);
             toast.success("Progress saved");
             setStory(res?.data?.story);
     

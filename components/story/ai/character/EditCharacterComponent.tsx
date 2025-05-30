@@ -83,6 +83,11 @@ const EditCharacterComponent: React.FC<Props> = ({
         setRelationshipToOtherCharacters(currentCharacter?.relationshipToOtherCharacters ?? [])
         setRelationshipToProtagonists(currentCharacter?.relationshipToProtagonists ?? "")
 
+        console.log({
+            rel: currentCharacter?.relationshipToOtherCharacters
+        });
+        
+
         let availableCharacters = activeSynopsis?.characters?.filter(item => item?.id !== currentCharacterData?.id) 
         setAllAvailableCharacters(availableCharacters);
     }, [currentCharacter]);
@@ -143,7 +148,7 @@ const EditCharacterComponent: React.FC<Props> = ({
 
                 <div className="px-7 pb-7">
                     {/* <h1 className="font-bold text-md">Character</h1> */}
-                    <div className="w-[100px] h-[100px] relative rounded-2xl border overflow-hidden border-gray-100 shadow-lg">
+                    <div className="w-[100px] h-[100px] relative rounded-2xl overflow-hidden">
                         <Image
                             src="/img/character-placeholder.png"
                             alt="placeholder"

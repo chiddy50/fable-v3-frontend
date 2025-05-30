@@ -187,6 +187,7 @@ export function generateSynopsisPrompt(
 10. Extract and categorize all key HUMAN CHARACTERS ONLY from the synopsis. Characters must be actual people, beings, or sentient entities - NOT organizations, locations, places, objects, or abstract concepts.
 11. Ensure every character listed is a living, breathing person or humanoid entity with agency and personality - exclude any non-person entities like companies, governments, places, or inanimate objects.
 12. Ensure that every character generated and every object in the relationshipToOtherCharacters array has the character's unique id, this is important for referencing.
+13. Use simple grammar and ensure the synopsis is between two to three lines.
 
 ${structure === null ? '' : 'Provide a well-structured synopsis that follows the specified story structure.'}
 
