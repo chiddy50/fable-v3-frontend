@@ -293,7 +293,7 @@ const SetupUserProfileComponent: React.FC<Props> = ({
             <div className="hidden md:flex md:w-1/2 items-center justify-center p-6">
                 <div className="rounded-3xl overflow-hidden w-full h-full relative">
                     <Image
-                        src="/img/background-2.png"
+                        src="/img/background-2.jpeg"
                         alt="Registration artwork"
                         layout="fill"
                         objectFit="cover"

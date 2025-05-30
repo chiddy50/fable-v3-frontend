@@ -85,7 +85,6 @@ const SynopsisComponent: React.FC<Props> = ({
     };
 
     useEffect(() => {
-        setContent(story?.synopsis ?? "")
         setNarrativeConcept(story?.narrativeConcept ?? "")
         setShowNarrativeConceptGuide(story?.narrativeConcept ? false : true)
 
@@ -93,8 +92,10 @@ const SynopsisComponent: React.FC<Props> = ({
         setSynopsisList(story?.synopses ?? [])
 
         
-        const currentActiveSynopsis = story?.synopses?.find((item: SynopsisListInterface) => item?.active === true);
+        const currentActiveSynopsis = story?.synopses?.find((item: SynopsisListInterface) => item?.active);
         
+        setContent(currentActiveSynopsis?.content ?? story?.synopsis ?? "")
+
         // let lastSynopsisIndex = story?.synopsisList?.length ? story?.synopsisList?.length - 1 : 0;
         // setActiveSynopsisId(story.currentChapterId ?? result?.[lastSynopsisIndex]?.id)
 
@@ -103,7 +104,7 @@ const SynopsisComponent: React.FC<Props> = ({
         if(story?.synopsis){
             scrollToBottom("synopsis-form")
         }
-    }, []); // Empty array ensures this runs only once on mount
+    }, [story]); // Empty array ensures this runs only once on mount
     
     const startSynopsisGeneration = async () => {
         try {
@@ -118,7 +119,6 @@ const SynopsisComponent: React.FC<Props> = ({
                 structure: story?.structure,
                 narrativeConcept: `${narrativeConcept?.title}, ${narrativeConcept?.description}`,
             };
-            console.log(payload);
 
             const availableStructures = story?.storyType === "short-story" ? shortStoryStructures : novelStructures;
 
@@ -192,8 +192,7 @@ const SynopsisComponent: React.FC<Props> = ({
                 currentStepUrl: "idea",
                 currentStep: 1,
             });
-            // const redirectUrl = `/dashboard/write-ai-story?story-id=${story?.id}&current-step=1`;
-            // router.push(redirectUrl);
+            
             setCurrentStep(1);
             setCurrentStepUrl("idea")
             // refetch()
@@ -210,8 +209,8 @@ const SynopsisComponent: React.FC<Props> = ({
 
             const url = `${process.env.NEXT_PUBLIC_BASE_URL}/v2/stories/${story?.id}`;
             let res = await axiosInterceptorInstance.put(url, payload);
-            console.log(res);
             setStory(res?.data?.story);
+            scrollToBottom("synopsis-form")
             
         } catch (error) {
             console.error('Error saving ideation:', error);

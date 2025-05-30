@@ -1,7 +1,7 @@
 "use client"
 
 import { StoryInterface, TargetAudienceInterface } from '@/interfaces/StoryInterface';
-import { ArrowDownCircle, CheckCircle, ChevronDownCircle, Save } from 'lucide-react';
+import { ArrowDownCircle, CheckCircle, ChevronDownCircle, RefreshCcw, Save } from 'lucide-react';
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react'
 import StoryDetailsComponent from './StoryDetailsComponent';
@@ -22,6 +22,10 @@ import {
 } from "@/components/ui/sheet";
 import GeneratedCharacterList from './character/GeneratedCharacterList';
 import EditableCharacterManager from './character/EditableCharacterManager';
+import { generateCharacterIntegrationPrompt } from '@/data/prompts/generateCharacterIntegrationPrompt';
+import axios from 'axios';
+import axiosInterceptorInstance from '@/axiosInterceptorInstance';
+import { hidePageLoader, showPageLoader } from '@/lib/helper';
 
 interface Props {
     story: StoryInterface;
@@ -56,30 +60,114 @@ const CharactersComponent: React.FC<Props> = ({
     const [openCharacterSuggestionsModal, setOpenCharacterSuggestionsModal] = useState<boolean>(false);
     const [suggestedCharacters, setSuggestedCharacters] = useState<[]>([]);
 
-    const [characters, setCharacters] = useState<SynopsisCharacterInterface|[]>([]);
+    const [characters, setCharacters] = useState<SynopsisCharacterInterface[]|[]>([]);
 
+    const [shouldRegenerateSynopsis, setShouldRegenerateSynopsis] = useState<boolean>(false);
+    const [reasonToRegenerateSynopsis, setReasonToRegenerateSynopsis] = useState<[]>([]);
     
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     
-    const handleContentChange = (content: string) => {
-        console.log(content);
+    const refineSynopsis = async () => {
+        let existingCharacters = characters?.filter?.(item => !item?.metaData?.added).map?.(character => extractCharacters(character) );
+        let incomingCharacters = characters?.filter?.(item => item?.metaData?.added).map?.(character => extractCharacters(character) );
         
-        setContent(content);
+        const payload = {
+            genres: activeSynopsis?.genres?.map(item => item?.storyGenre?.name),
+            audiences: activeSynopsis?.storyAudiences?.map(item => item?.targetAudience?.name),
+            contentType: activeSynopsis?.contentType,
+            synopsis: activeSynopsis?.content,
+            narrativeConcept: activeSynopsis?.narrativeConcept,
+            projectDescription: activeSynopsis?.projectDescription,
+            projectTitle: story?.projectTitle,
+            tone: activeSynopsis?.tone,
+            existingCharacters,
+            incomingCharacters
+        }
+
+        
+        console.log({
+            // story,reasonToRegenerateSynopsis,characters, existingCharacters, activeSynopsis, 
+            payload
+        });
+        let prompt = generateCharacterIntegrationPrompt(payload);
+        console.log(prompt);
+        
+        try {
+            // showPageLoader();
+            let res = await axios.post(`/api/json-llm-response`, { prompt, type: "regenerate-synopsis" } );
+            console.log(res);
+
+            if(!res) return;
+            
+            await saveNewSynopsis({
+                synopsis: res?.data?.synopsis,
+                reasonSynopsisChanged: res?.data?.reasonSynopsisChanged,
+                synopsisChanged: res?.data?.synopsisChanged,
+                storyId: story.id,
+                synopsisId: activeSynopsis?.id,
+                incomingCharacters
+            });
+        } catch (error) {
+            console.error(error);                
+        }
+
     };
 
-     useEffect(() => {
-        console.log("CHARACTERS UPDATED", characters);
+    const saveNewSynopsis = async (payload: any) => {
+        try {
+            showPageLoader();
 
-    }, [characters])
+            const url = `${process.env.NEXT_PUBLIC_BASE_URL}/synopses/${story?.id}/create-synopsis`;
+            let res = await axiosInterceptorInstance.put(url, payload);
+            console.log(res);
+            setStory(res?.data?.story);
+            
+        } catch (error) {
+            console.error('Error saving ideation:', error);
+            // toast.error('Failed to save ideation');
+        } finally {
+            hidePageLoader();
+        }
+    }
+
+    const extractCharacters = (character: SynopsisCharacterInterface) => {
+        return {
+            id: character?.id,
+            age: character?.age,
+            alias: character?.alias,
+            backstory: character?.backstory,
+            externalConflict: character?.externalConflict,
+            internalConflict: character?.internalConflict,
+            name: character?.name,
+            relationshipToProtagonists: character?.relationshipToProtagonists,
+            relationshipToOtherCharacters: character?.relationshipToOtherCharacters,
+            role: character?.role,
+            strengths: character?.strengths,
+            weaknesses: character?.weaknesses,
+            voice: character?.voice,
+            perspective: character?.perspective,
+        }    
+    }
 
     useEffect(() => {
-        console.log("CHARACTER ADDED", story);
-
         const synopsis: SynopsisInterface|null = story?.synopses?.find(item => item?.active === true);
         setActiveSynopsis(synopsis ? synopsis : null);
 
-        setCharacters(synopsis?.characters ?? [])
+        setCharacters(synopsis?.characters ?? []);
+
+        if (synopsis?.characters && synopsis?.characters?.length > 0) {            
+            
+            let reasons = [];
+            synopsis?.characters?.forEach(character => {    
+                if (character?.metaData?.added && character?.metaData?.added === true) {
+                    reasons.push(character?.name)
+                    setShouldRegenerateSynopsis(true);
+                }
+            });
+
+            setReasonToRegenerateSynopsis(reasons)
+        }
     }, [story])
 
     const returnToSynopsis = async () => {
@@ -89,7 +177,9 @@ const CharactersComponent: React.FC<Props> = ({
         setCurrentStep(1);
     }
        
-    const openEditCurrentCharacterModal = (character: SynopsisCharacterInterface) => {        
+    const openEditCurrentCharacterModal = (character: SynopsisCharacterInterface) => {     
+        console.log(character);
+           
         setCurrentCharacter(character)
         setOpenEditModal(true)
     }
@@ -102,7 +192,7 @@ const CharactersComponent: React.FC<Props> = ({
                     <h1 className="text-4xl font-extrabold text-gray-900 mb-4">{story?.projectTitle}</h1>
                     <div className="flex items-start gap-2 text-gray-600">
                         {/* <span className="text-sm font-bold text-black">Synopsis/</span> */}
-                        <span className="text-xs leading-5">{story?.synopsis}</span>
+                        <span className="text-xs leading-5">{story?.synopses?.find?.(item => item?.active)?.synopsis ?? story.synopsis}</span>
                     </div>
                 </div>
             </div>
@@ -142,7 +232,7 @@ const CharactersComponent: React.FC<Props> = ({
                     Regenerate characters for 25 coins
                 </p>
 
-                <div className="mt-5 grid grid-cols-3 gap-5">
+                <div className="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                     {
                         characters?.map((item, index) => (
                             <div  
@@ -156,8 +246,23 @@ const CharactersComponent: React.FC<Props> = ({
                                         fill
                                         className='object-cover rounded-2xl'
                                     />
+
+                                    {item?.metaData?.added && 
+                                        <div className="flex items-center absolute top-2 left-2 justify-center cursor-pointer hover:shadow-lg transition-all bg-white w-[32px] h-[32px] rounded-lg">
+                                            <i className='bx bxs-bell-ring bx-flashing text-xl ' ></i>
+
+                                            {/* {
+                                            // showTooltip && 
+                                            (
+                                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-100">
+                                                    The role helps define how the character serves your story
+                                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                                                </div>
+                                            )} */}
+                                        </div>
+                                    }
                                 </div>
-                                <div className='px-3 py-4 bg-[#F9F9F9] rounded-b-2xl text-center'>
+                                <div className='px-3 py-4 bg-[#F9F9F9] rounded-b-2xl text-center flex flex-col justify-between'>
                                     <h2 className="font-extrabold min-h-[30px] text-sm">{item?.name}</h2>
                                     <p className="capitalize text-[11px]">{item?.role}</p>
                                 </div>
@@ -167,13 +272,6 @@ const CharactersComponent: React.FC<Props> = ({
                 </div>
             </div>
 
-
-
-
-
-
-      
-            
 
             <div className="bg-white p-4 rounded-xl mt-7">
                 {/* <h1 className='capitalize text-md mb-1 font-bold'>Save</h1>
@@ -192,7 +290,21 @@ const CharactersComponent: React.FC<Props> = ({
                             />
 
                         </button>
+                        
 
+                        {
+                            shouldRegenerateSynopsis &&
+                            <GradientButton 
+                            handleClick={refineSynopsis} 
+                            // disabled={story?.synopsisList?.length > 0 ? false : true}
+                            // className={`${story?.synopsisList?.length > 0 ? "opacity-100" : "opacity-20"}`}
+                            >
+                                <RefreshCcw size={16} />
+                                <span className="text-xs">Refine story with new characters</span>
+                            </GradientButton>
+                        }
+
+                        {!shouldRegenerateSynopsis &&
                         <GradientButton 
                         handleClick={() => console.log()} 
                         // disabled={story?.synopsisList?.length > 0 ? false : true}
@@ -205,7 +317,7 @@ const CharactersComponent: React.FC<Props> = ({
                                 height={15}
                             />
                             <span className="text-xs">World-Building</span>
-                        </GradientButton>
+                        </GradientButton>}
 
                     </div>
 
@@ -247,8 +359,6 @@ const CharactersComponent: React.FC<Props> = ({
                 activeSynopsis={activeSynopsis}
                 setStory={setStory}
             />}
-
-
             
 
             {/* <GeneratedCharacterList characters={suggestedCharacters}/> */}
