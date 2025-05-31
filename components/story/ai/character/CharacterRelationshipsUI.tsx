@@ -39,6 +39,8 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
     const [originalEditRelationship, setOriginalEditRelationship] = useState("");
     const [hasChanges, setHasChanges] = useState(false);
     const [relationshipToBeRemovedId, setRelationshipToBeRemovedId] = useState("");
+    const [relationshipToCurrentCharacter, setRelationshipToCurrentCharacter] = useState<null|{ name: string, id: string, relationship: string}>(null);
+    const [currentSelectedCharacter, setCurrentSelectedCharacter] = useState("");
 
 
 
@@ -50,7 +52,7 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
 
         const usedIds = relationshipToOtherCharacters.map(rel => rel.id);
         return allAvailableCharacters.filter(char => 
-            !usedIds.includes(char.id) && !usedIds.includes(char.public_id)
+            !usedIds.includes(char.public_id) && !usedIds.includes(char.id)  
         );
     };
 
@@ -60,11 +62,11 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
             return;
         }
 
-        const selectedChar = allAvailableCharacters.find(char => char.id === newRelationship.characterId);
+        const selectedChar = allAvailableCharacters.find(char => char.public_id === newRelationship.characterId);
         if (!selectedChar) return;
         
         const newRelationshipData = {
-            id: selectedChar.id,
+            id: selectedChar.public_id,
             name: selectedChar.name,
             relationship: newRelationship.relationship.trim()
         };
@@ -79,6 +81,7 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
         // SAVE NEW RELATIONSHIP TO DATABASE
         let payload = {
             characterId: currentCharacter.id,
+            characterPublicId: currentCharacter.public_id,
             synopsisId: activeSynopsis?.id,
             storyId: story?.id,
             relationshipToOtherCharacters: characterRelationships
@@ -205,6 +208,26 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
 
     const availableChars = getAvailableCharacters();
 
+    const characterRelationshipChangeHandler = (characterId: string) => {
+        setRelationshipToCurrentCharacter(null)
+        setNewRelationship(prev => ({ ...prev, characterId }));
+        
+        let selectedCharacter = allAvailableCharacters.find(item => item.public_id === characterId);
+        console.log({
+            allAvailableCharacters,
+            characterId,
+            selectedCharacter
+        });
+        if(selectedCharacter?.relationshipToOtherCharacters && selectedCharacter?.relationshipToOtherCharacters?.length > 0){
+            let relationship = selectedCharacter?.relationshipToOtherCharacters?.find(item => item.id === currentCharacter?.public_id);
+            console.log({
+                relationship
+            });
+            setCurrentSelectedCharacter(selectedCharacter?.name)
+            setRelationshipToCurrentCharacter(relationship);            
+        }
+    }
+
     return (
         <div className="w-full">
             {/* Header */}
@@ -317,7 +340,7 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
                 </button>
             ) : (
                 <div className="p-4 border-2 border-blue-200 rounded-lg bg-blue-50">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                         <div>
                             <label className="block text-xs font-medium text-gray-700 mb-2">
                                 Character
@@ -325,12 +348,12 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
                             <div className="border rounded-lg border-gray-300 w-full p-2 pb-[9px] pt-[9px]">
                                 <select
                                     value={newRelationship.characterId}
-                                    onChange={(e) => setNewRelationship(prev => ({ ...prev, characterId: e.target.value }))}
+                                    onChange={(e) => characterRelationshipChangeHandler(e.target.value) }
                                     className="w-full focus:outline-none text-xs outline-none"
                                 >
                                     <option value="">Select a character...</option>
                                     {availableChars.map(char => (
-                                        <option key={char.id} value={char.id}>
+                                        <option key={char.public_id} value={char.public_id}>
                                             {char.name}
                                         </option>
                                     ))}
@@ -351,6 +374,16 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
                             />
                         </div>
                     </div>
+                    {relationshipToCurrentCharacter && 
+                    <CompactRelationshipDisplay
+						currentSelectedCharacter={currentSelectedCharacter}
+						relationshipToCurrentCharacter={relationshipToCurrentCharacter}
+					/>
+                    // <div className="mb-4">
+                    //     <p className="text-xs">{relationshipToCurrentCharacter?.name}'s relationship to {currentCharacter?.name} is below:</p>
+                    //     <p className="text-xs capitalize">{relationshipToCurrentCharacter?.relationship}</p>
+                    // </div>
+                    }
 
                     <div className="flex gap-2">
                         <button
@@ -385,6 +418,38 @@ const CharacterRelationshipsUI: React.FC<Props> = ({
                             <li>Think about power dynamics and influence</li>
                         </ul>
                     </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+
+
+
+const CompactRelationshipDisplay = ({ currentSelectedCharacter, relationshipToCurrentCharacter }) => {
+    return (
+        <div className="group relative mb-4 overflow-hidden rounded-lg bg-gradient-to-r from-slate-50 to-gray-50 p-3 transition-all duration-200 ">
+            <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                        <Users className="w-4 h-4 text-white" />
+                    </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-medium text-gray-900 truncate">
+                            {currentSelectedCharacter}
+                        </span>
+                        <span className="text-gray-400">→</span>
+                        <span className="text-xs font-medium text-gray-700 truncate">
+                            {relationshipToCurrentCharacter?.name}
+                        </span>
+                    </div>
+                    <p className="text-[11px] text-gray-600 leading-relaxed capitalize">
+                        {relationshipToCurrentCharacter?.relationship}
+                    </p>
                 </div>
             </div>
         </div>

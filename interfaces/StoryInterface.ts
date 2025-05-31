@@ -109,7 +109,7 @@ export interface StoryInterface {
   synopsisList: SynopsisInterface[];
   synopses: SynopsisInterface[];
   storyStructureReason: string;
-  narrativeConceptSuggestions: string[];
+  narrativeConceptSuggestions: NarrativeConceptInterface[];
   narrativeConcept: NarrativeConceptInterface;
 
   // genres: GenreInterface[];
