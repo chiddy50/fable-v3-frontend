@@ -79,8 +79,6 @@ const SynopsisComponent: React.FC<Props> = ({
     const router = useRouter();
 
     const handleContentChange = (content: string) => {
-        console.log(content);
-
         setContent(content);
     };
 
@@ -211,6 +209,7 @@ const SynopsisComponent: React.FC<Props> = ({
             let res = await axiosInterceptorInstance.put(url, payload);
             setStory(res?.data?.story);
             scrollToBottom("synopsis-form")
+		    setAccordionValue("")
             
         } catch (error) {
             console.error('Error saving ideation:', error);
