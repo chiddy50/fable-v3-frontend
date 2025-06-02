@@ -59,7 +59,7 @@ const DashboardStatsComponent = () => {
                     <div className="flex items-center justify-between"> 
                         <div className="flex items-center gap-2">
                             <Image src="/icon/coins.svg" alt="icon" className=" " width={16} height={16} />
-                            <p className="font-bold text-2xl">200,000</p>
+                            <p className="font-bold text-2xl">0</p>
                         </div>
                         <ArrowUp size={15} className='text-green-600' />
                     </div>
@@ -70,7 +70,7 @@ const DashboardStatsComponent = () => {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Image src="/icon/coins.svg" alt="icon" className=" " width={15} height={15} />
-                                <p className="font-bold text-md text-gray-500">200,000</p>
+                                <p className="font-bold text-md text-gray-500">0</p>
                             </div>
 
                             <ArrowDown size={15} className='text-red-600' />
@@ -81,7 +81,7 @@ const DashboardStatsComponent = () => {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Image src="/icon/coins.svg" alt="icon" className=" " width={15} height={15} />
-                                <p className="font-bold text-md text-gray-500">200,000</p>
+                                <p className="font-bold text-md text-gray-500">0</p>
                             </div>
 
                             <ArrowDown size={15} className='text-red-600' />
@@ -93,20 +93,20 @@ const DashboardStatsComponent = () => {
             <div className="col-span-1">
                 <div className="flex items-center justify-between bg-white p-3 rounded-xl mb-2 h-[30%]">
                     <p className=" text-gray-500 text-sm">Total Stories</p>
-                    <p className="font-bold text-xl">200</p>
+                    <p className="font-bold text-xl">0</p>
                 </div>
 
                 <div className='grid grid-cols-2 gap-2 rounded-xl h-[70%]'>
                     <div className="flex flex-col justify-between bg-white p-3 rounded-xl">
                         <Image src="/icon/pen.svg" alt="generate icon" width={17} height={17} />
                         <p className="text-xs">Original</p>
-                        <p className="font-bold text-2xl">200</p>
+                        <p className="font-bold text-2xl">0</p>
                     </div>
                     <div className="flex flex-col justify-between bg-white p-3 rounded-xl">
                         <Image src="/icon/magic-pen.svg" alt="generate icon" width={17} height={17} />
 
                         <p className="text-xs">With AI</p>
-                        <p className="font-bold text-2xl">200</p>
+                        <p className="font-bold text-2xl">0</p>
                     </div>
 
                 </div>
