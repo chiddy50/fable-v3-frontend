@@ -102,13 +102,13 @@ export default function DashboardLayout({
     
                         <Image src="/avatar/default-avatar.png" alt="default avatar" className=" " width={40} height={40} /> */}
 
-                        <div className="bg-white text-[#626262] p-2 rounded-lg transition-all hover:text-white hover:bg-[#626262]">
+                        {/* <div className="bg-white text-[#626262] p-2 rounded-lg transition-all hover:text-white hover:bg-[#626262]">
                             <div className='relative cursor-pointer'>
                                 <Bell size={20} className=''/>
                                 <div className='bg-red-500 rounded-full w-2 h-2 absolute top-0 right-0'></div>
                             </div>
-                        </div>
-                        <i className='bx bx-sun text-2xl cursor-pointer bg-white text-[#626262] p-2 rounded-lg transition-all hover:text-white hover:bg-[#626262]'></i>
+                        </div> */}
+                        {/* <i className='bx bx-sun text-2xl cursor-pointer bg-white text-[#626262] p-2 rounded-lg transition-all hover:text-white hover:bg-[#626262]'></i> */}
                         {/* <i className='bx bx-moon text-3xl'></i> */}
                     </div>
                 </div>
