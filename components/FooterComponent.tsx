@@ -1,5 +1,6 @@
 import React from 'react'
 import Image from "next/image";
+import Link from 'next/link';
 
 const FooterComponent = () => {
 	return (
@@ -23,15 +24,15 @@ const FooterComponent = () => {
 				</ul>
 
 				<div className="flex items-center gap-4">
-					<div className="bg-[#D8D1DE] p-3 rounded-xl">
-						<Image src="/icon/x.svg" alt="x logo" className="" width={15} height={15} />
-					</div>
-					<div className="bg-[#D8D1DE] p-3 rounded-xl">
+					<Link href="https://x.com/meta_fable" target='_blank' className="bg-[#D8D1DE] p-3 rounded-xl cursor-pointer w-[39px] h-[39px] flex items-center justify-center">
+						<Image src="/icon/x.svg" alt="x logo" className="" width={17} height={17} />
+					</Link>
+					<Link href="https://discord.gg/bBeUY5ws" target='_blank' className="bg-[#D8D1DE] p-3 rounded-xl cursor-pointer w-[39px] h-[39px] flex items-center justify-center">
 						<Image src="/icon/discord.svg" alt="x logo" className="" width={15} height={15} />
-					</div>
-					<div className="bg-[#D8D1DE] p-3 rounded-xl">
+					</Link>
+					{/* <Link href="" target='_blank' className="bg-[#D8D1DE] p-3 rounded-xl cursor-pointer">
 						<Image src="/icon/instagram.svg" alt="x logo" className="" width={15} height={15} />
-					</div>
+					</Link> */}
 				</div>
 
 				<p>©Fable. All rights reserved.</p>

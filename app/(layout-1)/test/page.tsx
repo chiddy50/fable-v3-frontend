@@ -1,209 +1,523 @@
 "use client"
-import React from 'react';
-import { Users, Heart, Zap, Shield, Sword, Crown } from 'lucide-react';
 
-// Sample data for demonstration
-const sampleData = {
-	currentCharacter: { name: "Emily Miller" },
-	relationshipToCurrentCharacter: {
-		name: "Carol Miller",
-		relationship: "Mother, someone she wants to please but also feels pressured by"
-	}
+
+import React, { useState } from 'react';
+import { Camera, Lightbulb, Palette, Target, Film, Sparkles, Copy, Download } from 'lucide-react';
+
+const PromptGenerator = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [promptData, setPromptData] = useState({
+    emotion: '',
+    subject: '',
+    background: '',
+    texture: '',
+    cameraAngle: '',
+    lens: '',
+    depthOfField: '',
+    lightingType: '',
+    lightingQuality: '',
+    lightingColor: '',
+    movement: '',
+    colorGrade: '',
+    customDetails: ''
+  });
+
+  const totalSteps = 8;
+
+  const updatePromptData = (field, value) => {
+    setPromptData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const generateFinalPrompt = () => {
+    const parts = [];
+    
+    // Core subject and emotion
+    if (promptData.subject) parts.push(promptData.subject);
+    if (promptData.emotion) parts.push(`${promptData.emotion} mood`);
+    
+    // Camera settings
+    if (promptData.cameraAngle) parts.push(promptData.cameraAngle);
+    if (promptData.lens) parts.push(`${promptData.lens} lens`);
+    if (promptData.depthOfField) parts.push(promptData.depthOfField);
+    
+    // Lighting setup
+    const lighting = [promptData.lightingType, promptData.lightingQuality, promptData.lightingColor].filter(Boolean).join(' ');
+    if (lighting) parts.push(lighting);
+    
+    // Environment and texture
+    if (promptData.background) parts.push(promptData.background);
+    if (promptData.texture) parts.push(promptData.texture);
+    
+    // Movement and effects
+    if (promptData.movement) parts.push(promptData.movement);
+    if (promptData.colorGrade) parts.push(promptData.colorGrade);
+    
+    // Custom details
+    if (promptData.customDetails) parts.push(promptData.customDetails);
+    
+    // Professional suffixes
+    parts.push('professional photography', 'studio quality', 'high resolution', 'cinematic composition');
+    
+    return parts.join(', ');
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(generateFinalPrompt());
+  };
+
+  const StepIndicator = () => (
+    <div className="flex items-center justify-center mb-8">
+      {[...Array(totalSteps)].map((_, i) => (
+        <div key={i} className="flex items-center">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+            i + 1 <= currentStep ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
+          }`}>
+            {i + 1}
+          </div>
+          {i < totalSteps - 1 && (
+            <div className={`w-12 h-1 mx-2 transition-colors ${
+              i + 1 < currentStep ? 'bg-blue-600' : 'bg-gray-200'
+            }`} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+
+  const OptionButton = ({ value, current, onClick, children }) => (
+    <button
+      onClick={() => onClick(value)}
+      className={`p-3 rounded-lg border text-left transition-all hover:border-blue-300 ${
+        current === value ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-200 hover:bg-gray-50'
+      }`}
+    >
+      {children}
+    </button>
+  );
+
+  const renderStep = () => {
+    switch(currentStep) {
+      case 1:
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <Target className="w-12 h-12 mx-auto text-blue-600 mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Step 1: Story & Emotion</h2>
+              <p className="text-gray-600">What feeling are we trying to create? This controls everything that follows.</p>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-3">What are we shooting?</label>
+              <input
+                type="text"
+                placeholder="e.g., luxury perfume bottle, skincare product, person, architectural detail"
+                className="w-full p-3 border rounded-lg"
+                value={promptData.subject}
+                onChange={(e) => updatePromptData('subject', e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-3">Key Emotion/Theme</label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {['luxurious', 'dreamy', 'dramatic', 'clean', 'moody', 'energetic', 'elegant', 'mysterious', 'warm'].map(emotion => (
+                  <OptionButton
+                    key={emotion}
+                    value={emotion}
+                    current={promptData.emotion}
+                    onClick={(value) => updatePromptData('emotion', value)}
+                  >
+                    <div className="font-medium capitalize">{emotion}</div>
+                  </OptionButton>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <Palette className="w-12 h-12 mx-auto text-blue-600 mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Step 2: Background & Texture</h2>
+              <p className="text-gray-600">Design the world that supports your story. Background is your second character.</p>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-3">Background/Environment</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {[
+                  'minimalist white studio backdrop',
+                  'textured concrete wall',
+                  'soft gradient background',
+                  'natural outdoor setting',
+                  'luxurious marble surface',
+                  'industrial metal backdrop',
+                  'organic wood texture',
+                  'ethereal mist background'
+                ].map(bg => (
+                  <OptionButton
+                    key={bg}
+                    value={bg}
+                    current={promptData.background}
+                    onClick={(value) => updatePromptData('background', value)}
+                  >
+                    {bg}
+                  </OptionButton>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-3">Surface Texture/Material</label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {['glossy', 'matte', 'frosted glass', 'velvet', 'metallic', 'weathered', 'smooth marble', 'rough concrete'].map(texture => (
+                  <OptionButton
+                    key={texture}
+                    value={texture}
+                    current={promptData.texture}
+                    onClick={(value) => updatePromptData('texture', value)}
+                  >
+                    {texture}
+                  </OptionButton>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 3:
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <Camera className="w-12 h-12 mx-auto text-blue-600 mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Step 3: Camera Angle</h2>
+              <p className="text-gray-600">Where are we placing the camera? Each angle tells a different story.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                { value: 'eye level shot', desc: 'Natural, relatable perspective' },
+                { value: 'low angle shot', desc: 'Makes subject powerful, dramatic' },
+                { value: 'high angle shot', desc: 'Overview, elegant perspective' },
+                { value: 'close-up shot', desc: 'Intimate, detail-focused' },
+                { value: 'extreme close-up', desc: 'Ultra-detailed, texture focus' },
+                { value: 'wide establishing shot', desc: 'Shows full environment' },
+                { value: 'three-quarter angle', desc: 'Dynamic, professional product angle' },
+                { value: 'overhead flat lay', desc: 'Editorial, organized layout' }
+              ].map(angle => (
+                <OptionButton
+                  key={angle.value}
+                  value={angle.value}
+                  current={promptData.cameraAngle}
+                  onClick={(value) => updatePromptData('cameraAngle', value)}
+                >
+                  <div className="font-medium">{angle.value}</div>
+                  <div className="text-sm text-gray-600">{angle.desc}</div>
+                </OptionButton>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 4:
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <Film className="w-12 h-12 mx-auto text-blue-600 mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Step 4: Lens & Depth</h2>
+              <p className="text-gray-600">Choose your camera's "eye" and what stays sharp vs blurry.</p>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-3">Lens Type</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { value: '85mm', desc: 'Portrait lens, natural compression' },
+                  { value: '50mm', desc: 'Natural perspective, versatile' },
+                  { value: '35mm', desc: 'Wider view, environmental context' },
+                  { value: '24mm', desc: 'Wide angle, dramatic perspective' },
+                  { value: '100mm macro', desc: 'Extreme detail, close-up work' },
+                  { value: '135mm', desc: 'Telephoto compression, isolation' }
+                ].map(lens => (
+                  <OptionButton
+                    key={lens.value}
+                    value={lens.value}
+                    current={promptData.lens}
+                    onClick={(value) => updatePromptData('lens', value)}
+                  >
+                    <div className="font-medium">{lens.value}</div>
+                    <div className="text-sm text-gray-600">{lens.desc}</div>
+                  </OptionButton>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-3">Depth of Field</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { value: 'shallow depth of field f/1.4', desc: 'Subject sharp, dreamy blurred background' },
+                  { value: 'medium depth of field f/4', desc: 'Subject clear, background softly blurred' },
+                  { value: 'deep depth of field f/8', desc: 'Everything sharp and detailed' },
+                  { value: 'bokeh background', desc: 'Creamy, artistic background blur' }
+                ].map(depth => (
+                  <OptionButton
+                    key={depth.value}
+                    value={depth.value}
+                    current={promptData.depthOfField}
+                    onClick={(value) => updatePromptData('depthOfField', value)}
+                  >
+                    <div className="font-medium">{depth.value}</div>
+                    <div className="text-sm text-gray-600">{depth.desc}</div>
+                  </OptionButton>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 5:
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <Lightbulb className="w-12 h-12 mx-auto text-blue-600 mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Step 5: Lighting Setup</h2>
+              <p className="text-gray-600">Light is emotion. This changes the mood more than anything else.</p>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-3">Lighting Type</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { value: 'natural window light', desc: 'Soft, authentic, flattering' },
+                  { value: 'dramatic side lighting', desc: 'Strong shadows, mysterious mood' },
+                  { value: 'soft key light', desc: 'Professional, even illumination' },
+                  { value: 'backlighting', desc: 'Rim light, ethereal glow' },
+                  { value: 'studio strobe lighting', desc: 'Controlled, powerful, clean' },
+                  { value: 'golden hour light', desc: 'Warm, magical, cinematic' }
+                ].map(light => (
+                  <OptionButton
+                    key={light.value}
+                    value={light.value}
+                    current={promptData.lightingType}
+                    onClick={(value) => updatePromptData('lightingType', value)}
+                  >
+                    <div className="font-medium">{light.value}</div>
+                    <div className="text-sm text-gray-600">{light.desc}</div>
+                  </OptionButton>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-3">Light Quality</label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {['soft diffused', 'hard directional', 'volumetric rays', 'rim lighting'].map(quality => (
+                  <OptionButton
+                    key={quality}
+                    value={quality}
+                    current={promptData.lightingQuality}
+                    onClick={(value) => updatePromptData('lightingQuality', value)}
+                  >
+                    {quality}
+                  </OptionButton>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-3">Light Color Temperature</label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {['warm golden', 'cool blue', 'neutral white', 'amber tungsten'].map(color => (
+                  <OptionButton
+                    key={color}
+                    value={color}
+                    current={promptData.lightingColor}
+                    onClick={(value) => updatePromptData('lightingColor', value)}
+                  >
+                    {color}
+                  </OptionButton>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 6:
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <Sparkles className="w-12 h-12 mx-auto text-blue-600 mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Step 6: Movement & Effects</h2>
+              <p className="text-gray-600">Add motion and cinematic effects to bring your image to life.</p>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-3">Movement/Motion Effects</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { value: 'motion blur on edges', desc: 'Dynamic movement, speed' },
+                  { value: 'lens flare', desc: 'Cinematic light streaks' },
+                  { value: 'chromatic aberration', desc: 'Color separation, artistic edge' },
+                  { value: 'film grain texture', desc: 'Analog, authentic feel' },
+                  { value: 'floating particles', desc: 'Magical, ethereal atmosphere' },
+                  { value: 'subtle camera shake', desc: 'Handheld, authentic feel' },
+                  { value: 'static composition', desc: 'Locked off, controlled, stable' },
+                  { value: 'dynamic tilt', desc: 'Dutch angle, energy, tension' }
+                ].map(movement => (
+                  <OptionButton
+                    key={movement.value}
+                    value={movement.value}
+                    current={promptData.movement}
+                    onClick={(value) => updatePromptData('movement', value)}
+                  >
+                    <div className="font-medium">{movement.value}</div>
+                    <div className="text-sm text-gray-600">{movement.desc}</div>
+                  </OptionButton>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 7:
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <Palette className="w-12 h-12 mx-auto text-blue-600 mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Step 7: Color Grade & Mood</h2>
+              <p className="text-gray-600">Paint your image with color to tell the final emotional story.</p>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-3">Color Grading Style</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { value: 'warm cinematic grade', desc: 'Orange/teal, blockbuster feel' },
+                  { value: 'desaturated film look', desc: 'Muted colors, sophisticated' },
+                  { value: 'high contrast black and white', desc: 'Dramatic, timeless' },
+                  { value: 'vibrant saturated colors', desc: 'Bold, energetic, modern' },
+                  { value: 'cool blue tones', desc: 'Clean, tech, professional' },
+                  { value: 'vintage film emulation', desc: 'Nostalgic, authentic grain' },
+                  { value: 'natural color balance', desc: 'True to life, realistic' },
+                  { value: 'monochromatic color scheme', desc: 'Single color family, elegant' }
+                ].map(grade => (
+                  <OptionButton
+                    key={grade.value}
+                    value={grade.value}
+                    current={promptData.colorGrade}
+                    onClick={(value) => updatePromptData('colorGrade', value)}
+                  >
+                    <div className="font-medium">{grade.value}</div>
+                    <div className="text-sm text-gray-600">{grade.desc}</div>
+                  </OptionButton>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 8:
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <Target className="w-12 h-12 mx-auto text-blue-600 mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Step 8: Final Touches</h2>
+              <p className="text-gray-600">Add any specific details or adjustments to perfect your vision.</p>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-3">Custom Details (Optional)</label>
+              <textarea
+                placeholder="Add any specific details: brand colors, specific angles, props, styling notes, etc."
+                className="w-full p-3 border rounded-lg h-24"
+                value={promptData.customDetails}
+                onChange={(e) => updatePromptData('customDetails', e.target.value)}
+              />
+            </div>
+
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold mb-3">Your Generated Prompt:</h3>
+              <div className="bg-white p-4 rounded-lg border">
+                <p className="text-sm leading-relaxed">{generateFinalPrompt()}</p>
+              </div>
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={copyToClipboard}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <Copy className="w-4 h-4" />
+                  Copy Prompt
+                </button>
+                <button
+                  onClick={() => {
+                    const element = document.createElement('a');
+                    const file = new Blob([generateFinalPrompt()], {type: 'text/plain'});
+                    element.href = URL.createObjectURL(file);
+                    element.download = 'ai-prompt.txt';
+                    element.click();
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Download
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto p-6 bg-white min-h-screen">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">AI Visual Prompt Generator</h1>
+        <p className="text-lg text-gray-600">Build consistency through structure. Think like a cinematographer, not a lottery player.</p>
+      </div>
+
+      <StepIndicator />
+      
+      <div className="bg-white rounded-xl shadow-sm border p-8">
+        {renderStep()}
+        
+        <div className="flex justify-between mt-8 pt-6 border-t">
+          <button
+            onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
+            disabled={currentStep === 1}
+            className={`px-6 py-2 rounded-lg transition-colors ${
+              currentStep === 1 
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Previous
+          </button>
+          
+          <button
+            onClick={() => setCurrentStep(Math.min(totalSteps, currentStep + 1))}
+            disabled={currentStep === totalSteps}
+            className={`px-6 py-2 rounded-lg transition-colors ${
+              currentStep === totalSteps 
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+            }`}
+          >
+            {currentStep === totalSteps ? 'Complete' : 'Next'}
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-8 text-center text-sm text-gray-500">
+        <p>💡 Pro Tip: Save your generated prompts and iterate. Adjust one element at a time for consistent results.</p>
+      </div>
+    </div>
+  );
 };
 
-// Additional sample relationships for variety
-const sampleRelationships = [
-	{
-		currentCharacter: { name: "Max Miller" },
-		relationshipToCurrentCharacter: {
-			name: "George Miller",
-			relationship: "Father, someone he admires for his optimism but struggles to connect with on an artistic level"
-		}
-	},
-	{
-		currentCharacter: { name: "George Miller" },
-		relationshipToCurrentCharacter: {
-			name: "Brenda Stern",
-			relationship: "nemesis"
-		}
-	},
-	{
-		currentCharacter: { name: "Carol Miller" },
-		relationshipToCurrentCharacter: {
-			name: "Emily Miller",
-			relationship: "Daughter, someone she wants to inspire and impress"
-		}
-	}
-];
-
-const CharacterRelationshipCard = ({ currentCharacter, relationshipToCurrentCharacter }) => {
-	// Function to get appropriate icon based on relationship type
-	const getRelationshipIcon = (relationship) => {
-		const rel = relationship.toLowerCase();
-		if (rel.includes('mother') || rel.includes('father') || rel.includes('daughter') || rel.includes('son')) {
-			return <Heart className="w-4 h-4 text-pink-500" />;
-		} else if (rel.includes('enemy') || rel.includes('nemesis')) {
-			return <Sword className="w-4 h-4 text-red-500" />;
-		} else if (rel.includes('friend') || rel.includes('ally')) {
-			return <Shield className="w-4 h-4 text-green-500" />;
-		} else if (rel.includes('rival') || rel.includes('competitor')) {
-			return <Zap className="w-4 h-4 text-yellow-500" />;
-		} else if (rel.includes('mentor') || rel.includes('guide')) {
-			return <Crown className="w-4 h-4 text-purple-500" />;
-		}
-		return <Users className="w-4 h-4 text-blue-500" />;
-	};
-
-	// Function to get background gradient based on relationship type
-	const getRelationshipGradient = (relationship) => {
-		const rel = relationship.toLowerCase();
-		if (rel.includes('mother') || rel.includes('father') || rel.includes('daughter') || rel.includes('son')) {
-			return 'from-pink-50 to-rose-50 border-pink-200';
-		} else if (rel.includes('enemy') || rel.includes('nemesis')) {
-			return 'from-red-50 to-orange-50 border-red-200';
-		} else if (rel.includes('friend') || rel.includes('ally')) {
-			return 'from-green-50 to-emerald-50 border-green-200';
-		} else if (rel.includes('rival') || rel.includes('competitor')) {
-			return 'from-yellow-50 to-amber-50 border-yellow-200';
-		} else if (rel.includes('mentor') || rel.includes('guide')) {
-			return 'from-purple-50 to-violet-50 border-purple-200';
-		}
-		return 'from-blue-50 to-indigo-50 border-blue-200';
-	};
-
-	return (
-		<div className={`relative overflow-hidden rounded-xl border-2 bg-gradient-to-br p-4 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${getRelationshipGradient(relationshipToCurrentCharacter?.relationship || '')}`}>
-			{/* Decorative elements */}
-			<div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-10 translate-x-10"></div>
-			<div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full translate-y-8 -translate-x-8"></div>
-
-			{/* Main content */}
-			<div className="relative z-10">
-				{/* Header with icon */}
-				<div className="flex items-center gap-3 mb-3">
-					<div className="flex-shrink-0">
-						{getRelationshipIcon(relationshipToCurrentCharacter?.relationship || '')}
-					</div>
-					<div className="flex-1">
-						<h3 className="text-sm font-semibold text-gray-800 leading-tight">
-							Character Relationship
-						</h3>
-					</div>
-				</div>
-
-				{/* Character names with connection */}
-				<div className="space-y-2 mb-3">
-					<div className="flex items-center justify-between">
-						<span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/60 text-gray-700 border border-white/40">
-							{relationshipToCurrentCharacter?.name}
-						</span>
-						<div className="flex-1 mx-3 border-t border-dashed border-gray-300"></div>
-						<span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/60 text-gray-700 border border-white/40">
-							{currentCharacter?.name}
-						</span>
-					</div>
-				</div>
-
-				{/* Relationship description */}
-				<div className="bg-white/50 backdrop-blur-sm rounded-lg p-3 border border-white/40">
-					<p className="text-sm text-gray-700 leading-relaxed capitalize">
-						<span className="font-medium text-gray-800">Relationship:</span>{' '}
-						{relationshipToCurrentCharacter?.relationship}
-					</p>
-				</div>
-			</div>
-		</div>
-	);
-};
-
-// Alternative compact version
-const CompactRelationshipDisplay = ({ currentCharacter, relationshipToCurrentCharacter }) => {
-	return (
-		<div className="group relative overflow-hidden rounded-lg border border-gray-200 bg-gradient-to-r from-slate-50 to-gray-50 p-3 transition-all duration-200 hover:shadow-md hover:border-gray-300">
-			<div className="flex items-start gap-3">
-				<div className="flex-shrink-0 mt-0.5">
-					<div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-						<Users className="w-4 h-4 text-white" />
-					</div>
-				</div>
-				<div className="flex-1 min-w-0">
-					<div className="flex items-center gap-2 mb-1">
-						<span className="text-sm font-medium text-gray-900 truncate">
-							{relationshipToCurrentCharacter?.name}
-						</span>
-						<span className="text-gray-400">→</span>
-						<span className="text-sm font-medium text-gray-700 truncate">
-							{currentCharacter?.name}
-						</span>
-					</div>
-					<p className="text-xs text-gray-600 leading-relaxed capitalize">
-						{relationshipToCurrentCharacter?.relationship}
-					</p>
-				</div>
-			</div>
-		</div>
-	);
-};
-
-// Main component with examples
-const CharacterRelationshipShowcase = () => {
-	return (
-		<div className="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
-			<div className="mb-8">
-				<h1 className="text-3xl font-bold text-gray-900 mb-2">Character Relationship Display</h1>
-				<p className="text-gray-600">Modern designs for displaying character relationships</p>
-			</div>
-
-			{/* Enhanced card version */}
-			<div className="mb-12">
-				<h2 className="text-xl font-semibold text-gray-800 mb-4">Enhanced Card Design</h2>
-				<div className="grid gap-4 md:grid-cols-2">
-					<CharacterRelationshipCard
-						currentCharacter={sampleData.currentCharacter}
-						relationshipToCurrentCharacter={sampleData.relationshipToCurrentCharacter}
-					/>
-					{sampleRelationships.slice(0, 3).map((relationship, index) => (
-						<CharacterRelationshipCard
-							key={index}
-							currentCharacter={relationship.currentCharacter}
-							relationshipToCurrentCharacter={relationship.relationshipToCurrentCharacter}
-						/>
-					))}
-				</div>
-			</div>
-
-			{/* Compact version */}
-			<div className="mb-8">
-				<h2 className="text-xl font-semibold text-gray-800 mb-4">Compact Design</h2>
-				<div className="space-y-3">
-					<CompactRelationshipDisplay
-						currentCharacter={sampleData.currentCharacter}
-						relationshipToCurrentCharacter={sampleData.relationshipToCurrentCharacter}
-					/>
-					{sampleRelationships.map((relationship, index) => (
-						<CompactRelationshipDisplay
-							key={index}
-							currentCharacter={relationship.currentCharacter}
-							relationshipToCurrentCharacter={relationship.relationshipToCurrentCharacter}
-						/>
-					))}
-				</div>
-			</div>
-
-			{/* Usage instructions */}
-			<div className="bg-white rounded-lg p-6 border border-gray-200">
-				<h3 className="text-lg font-semibold text-gray-800 mb-3">Usage</h3>
-				<div className="bg-gray-50 rounded-md p-4 font-mono text-sm">
-					<div className="text-gray-700">
-						{`<CharacterRelationshipCard 
-  currentCharacter={currentCharacter}
-  relationshipToCurrentCharacter={relationshipToCurrentCharacter}
-/>`}
-					</div>
-				</div>
-			</div>
-		</div>
-	);
-};
-
-export default CharacterRelationshipShowcase;
+export default PromptGenerator;
